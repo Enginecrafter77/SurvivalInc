@@ -1,0 +1,9 @@
+# Items
+item.schopcraft:tabicon.name=Tab Icon
+
+
+# Blocks
+#tile.first_mod:basic_block.name=Basic Block
+
+# Creative Tabs
+itemGroup.schopcraft:mainTab=SchopCraft Universalis
