@@ -4,7 +4,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.biome.Biome;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.common.BiomeDictionary;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.schoperation.schopcraft.SchopCraft;
 
@@ -33,6 +35,10 @@ public class GuiRenderBar extends Gui {
 			int currentWidth = (int) (oneUnit * mc.player.getHealth());
 			int playerHealth = (int) mc.player.getHealth();
 			String text = Integer.toString(playerHealth) + "%";
+			
+			//more garbage
+			//Biome biome = mc.world.getBiome(mc.player.getPosition());
+			//System.out.println(Float.toString(biome.getTemperature()));
 			
 			// only show bars if the f3 debug screen isn't showing.
 			if (!mc.gameSettings.showDebugInfo) {

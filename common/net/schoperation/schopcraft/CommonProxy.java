@@ -1,11 +1,15 @@
 package net.schoperation.schopcraft;
 
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.schoperation.schopcraft.gui.GuiRenderBar;
 import net.schoperation.schopcraft.util.RegAndRen;
+import net.schoperation.schopcraft.wetness.IWetness;
+import net.schoperation.schopcraft.wetness.Wetness;
+import net.schoperation.schopcraft.wetness.WetnessStorage;
 
 public class CommonProxy {
 	
@@ -13,6 +17,9 @@ public class CommonProxy {
 		
 		// register all new items + blocks here
 		RegAndRen.registerAll();
+		
+		// register capabilities (mainly the new stats)
+		CapabilityManager.INSTANCE.register(IWetness.class, new WetnessStorage(), Wetness.class);
 	}
 	
 	public void init(FMLInitializationEvent event) {
@@ -24,7 +31,7 @@ public class CommonProxy {
 		
 		// render new bars
 		MinecraftForge.EVENT_BUS.register(new GuiRenderBar());
-		
+
 	}
 
 }

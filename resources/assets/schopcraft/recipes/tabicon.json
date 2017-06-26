@@ -1,0 +1,19 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"#%#",
+		"#%#",
+		"#%#"
+	],
+	"key": {
+		"#": {
+			"item": "minecraft:wool"
+		},
+		"%": {
+			"item": "minecraft:dirt"
+		}
+	},
+	"result": {
+		"item": "schopcraft:tabicon"
+	}
+}
