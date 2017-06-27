@@ -25,6 +25,7 @@ public class CommonProxy {
 		CapabilityManager.INSTANCE.register(IWetness.class, new WetnessStorage(), Wetness.class);
 		MinecraftForge.EVENT_BUS.register(new CapabilityHandler());
 		MinecraftForge.EVENT_BUS.register(new WetnessModifier());
+		
 	}
 	
 	public void init(FMLInitializationEvent event) {
@@ -37,8 +38,7 @@ public class CommonProxy {
 	
 	public void postInit(FMLPostInitializationEvent event) {
 		
-		// render new bars
-		MinecraftForge.EVENT_BUS.register(new GuiRenderBar());
+		
 
 	}
 
