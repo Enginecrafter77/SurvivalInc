@@ -3,12 +3,14 @@ package net.schoperation.schopcraft.gui;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.biome.Biome;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.common.BiomeDictionary;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
 import net.schoperation.schopcraft.SchopCraft;
+import net.schoperation.schopcraft.cap.wetness.IWetness;
+import net.schoperation.schopcraft.cap.wetness.WetnessProvider;
 
 public class GuiRenderBar extends Gui {
 	
@@ -17,6 +19,13 @@ public class GuiRenderBar extends Gui {
 	private final ResourceLocation sanityBar = new ResourceLocation(SchopCraft.MOD_ID, "textures/gui/sanitybar.png");
 	private final ResourceLocation wetnessBar = new ResourceLocation(SchopCraft.MOD_ID, "textures/gui/wetnessbar.png");
 	private final int texturewidth = 100, textureheight = 11, barwidth = 80;
+	private static float wetness = 0.00f;
+	
+	public static void getServerWetness(float value) {
+		
+		wetness = value;
+		
+	}
 	
 	@SubscribeEvent
 	public void renderOverlay(RenderGameOverlayEvent event) {
@@ -30,13 +39,19 @@ public class GuiRenderBar extends Gui {
 			int screenwidth = scaled.getScaledWidth();
 			int screenheight = scaled.getScaledHeight();
 			
+			// get current player stats
+			
 			// this is temporary bullcrap to test the bars. they work.
+			double oneWetnessUnit = 0.8;
+			int currentWidthWetness = (int) (oneWetnessUnit * wetness);
+			String textWetness = Float.toString(wetness) + "%";
+			
 			float oneUnit = (float) (barwidth / mc.player.getMaxHealth());
 			int currentWidth = (int) (oneUnit * mc.player.getHealth());
 			int playerHealth = (int) mc.player.getHealth();
 			String text = Integer.toString(playerHealth) + "%";
 			
-			//more garbage
+			//more garbagecapability
 			//Biome biome = mc.world.getBiome(mc.player.getPosition());
 			//System.out.println(Float.toString(biome.getTemperature()));
 			
@@ -57,13 +72,13 @@ public class GuiRenderBar extends Gui {
 				drawTexturedModalRect(screenwidth-texturewidth-1, screenheight-240, 0, 0, texturewidth, textureheight);
 				
 				mc.renderEngine.bindTexture(wetnessBar);
-				drawTexturedModalRect(screenwidth-barwidth-2, screenheight-217, 19, 14, currentWidth, textureheight);
+				drawTexturedModalRect(screenwidth-barwidth-2, screenheight-217, 19, 14, currentWidthWetness, textureheight);
 				drawTexturedModalRect(screenwidth-texturewidth-1, screenheight-220, 0, 0, texturewidth, textureheight);
 				
 				drawCenteredString(mc.fontRenderer, text, screenwidth-texturewidth-16, screenheight-277, Integer.parseInt("FFFFFF", 16));
 				drawCenteredString(mc.fontRenderer, text, screenwidth-texturewidth-16, screenheight-257, Integer.parseInt("FFFFFF", 16));
 				drawCenteredString(mc.fontRenderer, text, screenwidth-texturewidth-16, screenheight-237, Integer.parseInt("FFFFFF", 16));
-				drawCenteredString(mc.fontRenderer, text, screenwidth-texturewidth-16, screenheight-217, Integer.parseInt("FFFFFF", 16));
+				drawCenteredString(mc.fontRenderer, textWetness, screenwidth-texturewidth-16, screenheight-217, Integer.parseInt("FFFFFF", 16));
 			}
 		}
 	}
