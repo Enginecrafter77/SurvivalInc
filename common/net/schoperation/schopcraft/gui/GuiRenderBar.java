@@ -39,12 +39,10 @@ public class GuiRenderBar extends Gui {
 			int screenwidth = scaled.getScaledWidth();
 			int screenheight = scaled.getScaledHeight();
 			
-			// get current player stats
-			
 			// this is temporary bullcrap to test the bars. they work.
 			double oneWetnessUnit = 0.8;
 			int currentWidthWetness = (int) (oneWetnessUnit * wetness);
-			String textWetness = Float.toString(wetness) + "%";
+			String textWetness = Float.toString(Math.round(wetness)) + "%";
 			
 			float oneUnit = (float) (barwidth / mc.player.getMaxHealth());
 			int currentWidth = (int) (oneUnit * mc.player.getHealth());
@@ -71,14 +69,18 @@ public class GuiRenderBar extends Gui {
 				drawTexturedModalRect(screenwidth-barwidth-2, screenheight-237, 19, 14, currentWidth, textureheight);
 				drawTexturedModalRect(screenwidth-texturewidth-1, screenheight-240, 0, 0, texturewidth, textureheight);
 				
-				mc.renderEngine.bindTexture(wetnessBar);
-				drawTexturedModalRect(screenwidth-barwidth-2, screenheight-217, 19, 14, currentWidthWetness, textureheight);
-				drawTexturedModalRect(screenwidth-texturewidth-1, screenheight-220, 0, 0, texturewidth, textureheight);
+				// only show wetness if there is wetness. This is in place so wetness isn't confused with thirst.
+				if (wetness > 0) {
+					mc.renderEngine.bindTexture(wetnessBar);
+					drawTexturedModalRect(screenwidth-barwidth-2, screenheight-217, 19, 14, currentWidthWetness, textureheight);
+					drawTexturedModalRect(screenwidth-texturewidth-1, screenheight-220, 0, 0, texturewidth, textureheight);
+					drawCenteredString(mc.fontRenderer, textWetness, screenwidth-texturewidth-16, screenheight-217, Integer.parseInt("FFFFFF", 16));
+				}
 				
 				drawCenteredString(mc.fontRenderer, text, screenwidth-texturewidth-16, screenheight-277, Integer.parseInt("FFFFFF", 16));
 				drawCenteredString(mc.fontRenderer, text, screenwidth-texturewidth-16, screenheight-257, Integer.parseInt("FFFFFF", 16));
 				drawCenteredString(mc.fontRenderer, text, screenwidth-texturewidth-16, screenheight-237, Integer.parseInt("FFFFFF", 16));
-				drawCenteredString(mc.fontRenderer, textWetness, screenwidth-texturewidth-16, screenheight-217, Integer.parseInt("FFFFFF", 16));
+				
 			}
 		}
 	}

@@ -8,6 +8,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.schoperation.schopcraft.SchopCraft;
 import net.schoperation.schopcraft.item.ItemTabIcon;
@@ -61,8 +62,10 @@ public class RegAndRen {
 		
 		ResourceLocation location = new ResourceLocation(SchopCraft.MOD_ID, blockname);
 		block.setRegistryName(location);
-		GameRegistry.register(block);
-		GameRegistry.register(new ItemBlock(block), location);
+		ForgeRegistries.BLOCKS.register(block);
+		ItemBlock itemblock = new ItemBlock(block);
+		itemblock.setRegistryName(block.getRegistryName());
+		ForgeRegistries.ITEMS.register(itemblock);
 		
 	}
 	// render a block to see it! Client-side only, b/c the server doesn't have eyes... yet
@@ -78,7 +81,7 @@ public class RegAndRen {
 	public static void registerItem(Item item, String itemname) {
 		
 		item.setRegistryName(new ResourceLocation(SchopCraft.MOD_ID, itemname));
-		GameRegistry.register(item);
+		ForgeRegistries.ITEMS.register(item);
 		
 	}
 	// render that item into view, and gaze on its very beauty.

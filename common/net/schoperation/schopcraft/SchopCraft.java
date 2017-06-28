@@ -18,7 +18,7 @@ public class SchopCraft {
 	public static final String MOD_ID = "schopcraft";
 	public static final String MOD_NAME = "SchopCraft Universalis";
 	public static final String VERSION = "0.1.0";
-	public static final String DEPENDENCIES = "required-after:forge@[14.21.0.2344,)";
+	public static final String DEPENDENCIES = "required-after:forge@[14.21.0.2375,)";
 	public static final String RESOURCE_PREFIX = MOD_ID.toLowerCase() + ":"; // schopcraft:
 	
 	// make an instance

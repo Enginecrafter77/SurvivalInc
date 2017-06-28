@@ -15,7 +15,6 @@ public class StatsPacket implements IMessageHandler<StatsMessage, IMessage> {
 		if(ctx.side.isClient()) {
 			
 			float wetness = message.wetness;
-			System.out.println("the packet has reached onMessage(), client side!");
 			GuiRenderBar.getServerWetness(wetness);
 			
 		}

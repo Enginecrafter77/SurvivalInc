@@ -7,13 +7,16 @@
 	],
 	"key": {
 		"#": {
-			"item": "minecraft:wool"
+			"item": "minecraft:wool",
+			"data": 0
 		},
 		"%": {
-			"item": "minecraft:dirt"
+			"item": "minecraft:dirt",
+			"data": 0
 		}
 	},
 	"result": {
-		"item": "schopcraft:tabicon"
+		"item": "schopcraft:tabicon",
+		"data": 0
 	}
 }
