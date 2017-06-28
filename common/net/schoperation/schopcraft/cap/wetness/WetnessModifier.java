@@ -73,7 +73,7 @@ public class WetnessModifier {
 					
 				}
 				
-				// these if-statement block is for stuff that directly doesn't have to do with water bombardment.
+				// these if-statement blocks is for stuff that directly doesn't have to do with water bombardment.
 				// check if the player is near a fire
 				if (ProximityDetect.isBlockNextToPlayer(playerPosX, playerPosY, playerPosZ, Block.getBlockFromName("minecraft:fire"))) {
 					
@@ -91,11 +91,136 @@ public class WetnessModifier {
 					
 					// are they in the rain? If so, the fire is less effective
 					if (player.isWet()) {
-						wetness.decrease(0.10f);
-						if (wetness.getWetness() < 40.0f) { wetness.increase(0.10f); }
+						wetness.decrease(0.15f);
+						if (wetness.getWetness() < 30.0f) { wetness.increase(0.15f); }
 					}
 					else {
 						wetness.decrease(0.25f);
+					}
+				}
+				// check if the fire is below the player somehow... one block
+				else if (ProximityDetect.isBlockUnderPlayer(playerPosX, playerPosY, playerPosZ, Block.getBlockFromName("minecraft:fire"))) {
+					
+					// are they in the rain? If so, the fire is less effective
+					if (player.isWet()) {
+						wetness.decrease(0.20f);
+						if (wetness.getWetness() < 20.0f) { wetness.increase(0.20f); }
+					}
+					else {
+						wetness.decrease(0.30f);
+					}
+				}
+				// ...and two blocks
+				else if (ProximityDetect.isBlockUnderPlayer2(playerPosX, playerPosY, playerPosZ, Block.getBlockFromName("minecraft:fire"), false)) {
+					
+					// are they in the rain? If so, the fire is less effective
+					if (player.isWet()) {
+						wetness.decrease(0.10f);
+						if (wetness.getWetness() < 35.0f) { wetness.increase(0.10f); }
+					}
+					else {
+						wetness.decrease(0.20f);
+					}
+				}
+				// ==============================================================================================================================
+				// check if the player is near lava
+				if (ProximityDetect.isBlockNextToPlayer(playerPosX, playerPosY, playerPosZ, Block.getBlockFromName("minecraft:lava"))) {
+					
+					// are they in the rain? If so, the lava is less effective
+					if (player.isWet()) {
+						wetness.decrease(0.5f);
+						if (wetness.getWetness() < 10.0f) { wetness.increase(0.5f); }
+					}
+					else {
+						wetness.decrease(1f);
+					}
+				}
+				// check if the player is near lava - two blocks away.
+				else if (ProximityDetect.isBlockNearPlayer2(playerPosX, playerPosY, playerPosZ, Block.getBlockFromName("minecraft:lava"), false)) {
+					
+					// are they in the rain? If so, the lava is less effective
+					if (player.isWet()) {
+						wetness.decrease(0.25f);
+						if (wetness.getWetness() < 30.0f) { wetness.increase(0.25f); }
+					}
+					else {
+						wetness.decrease(0.45f);
+					}
+				}
+				// check if the lava is below the player... one block
+				else if (ProximityDetect.isBlockUnderPlayer(playerPosX, playerPosY, playerPosZ, Block.getBlockFromName("minecraft:lava"))) {
+					
+					// are they in the rain? If so, the lava is less effective
+					if (player.isWet()) {
+						wetness.decrease(0.5f);
+						if (wetness.getWetness() < 10.0f) { wetness.increase(0.5f); }
+					}
+					else {
+						wetness.decrease(1f);
+					}
+				}
+				// ...and two blocks
+				else if (ProximityDetect.isBlockUnderPlayer2(playerPosX, playerPosY, playerPosZ, Block.getBlockFromName("minecraft:lava"), false)) {
+					
+					// are they in the rain? If so, the lava is less effective
+					if (player.isWet()) {
+						wetness.decrease(0.25f);
+						if (wetness.getWetness() < 30.0f) { wetness.increase(0.25f); }
+					}
+					else {
+						wetness.decrease(0.45f);
+					}
+				}
+				
+				// =============================================================================================================================
+				// burning furnace proximity... only same y-level
+				if (ProximityDetect.isBlockNextToPlayer(playerPosX, playerPosY, playerPosZ, Block.getBlockFromName("minecraft:lit_furnace"))) {
+					
+					// are they in the rain? If so, the furnace is less effective
+					if (player.isWet()) {
+						wetness.decrease(0.10f);
+						if (wetness.getWetness() < 50.0f) { wetness.increase(0.10f); }
+					}
+					else {
+						wetness.decrease(0.40f);
+					}
+				}
+				// two blocks
+				else if (ProximityDetect.isBlockNearPlayer2(playerPosX, playerPosY, playerPosZ, Block.getBlockFromName("minecraft:lit_furnace"), false)) {
+					
+					// are they in the rain? If so, the furnace is less effective
+					if (player.isWet()) {
+						wetness.decrease(0.05f);
+						if (wetness.getWetness() < 60.0f) { wetness.increase(0.05f); }
+					}
+					else {
+						wetness.decrease(0.20f);
+					}
+				}
+				
+				// =============================================================================================================================
+				// magma block proximity... only one y-level under
+				if (ProximityDetect.isBlockUnderPlayer(playerPosX, playerPosY, playerPosZ, Block.getBlockFromName("minecraft:magma"))) {
+					
+					// are they in the rain? If so, the magma block is less effective
+					if (player.isWet()) {
+						wetness.decrease(0.10f);
+						if (wetness.getWetness() < 50.0f) { wetness.increase(0.10f); }
+					}
+					else {
+						wetness.decrease(0.40f);
+					}
+				}
+				// two blocks
+				else if (ProximityDetect.isBlockUnderPlayer2(playerPosX, playerPosY, playerPosZ, Block.getBlockFromName("minecraft:magma"), false)) {
+					
+					// are they in the rain? If so, the magma block is less effective
+					if (player.isWet()) {
+						wetness.decrease(0.05f);
+						if (wetness.getWetness() < 60.0f) { wetness.increase(0.05f); }
+					}
+					else {
+						wetness.decrease(0.20f);
 					}
 				}
 				
@@ -104,9 +229,10 @@ public class WetnessModifier {
 				IMessage msg = new StatsPacket.StatsMessage(wetness.getWetness());
 				SchopPackets.net.sendTo(msg, (EntityPlayerMP)player);
 				
-				// render wetness particles (vanilla water dripping particles)
+				
 				
 			}
+			// render wetness particles (vanilla water dripping particles)
 			//if (wetness.getWetness() > 50.0f) {
 				//player.world.spawnParticle(EnumParticleTypes.DRIP_WATER, playerPosX, playerPosY, playerPosZ, 0.0d, 0.0d, 0.0d, new int[0]);
 			//}

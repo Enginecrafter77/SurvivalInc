@@ -12,6 +12,11 @@ public class ProximityDetect {
 	 * This is called whenever the mod wants to detect a block near the player. narf
 	 */
 
+	/* =========================================================
+	 *           SAME Y-LEVEL AS PLAYER
+	 * ==========================================================
+	 */
+	
 	// returns true if the block is right next to the player, horizontally/diagonally.
 	public static boolean isBlockNextToPlayer(int posX, int posY, int posZ, Block block) {
 		
@@ -47,9 +52,7 @@ public class ProximityDetect {
 				pos = 9;
 			}
 		}
-		
 		return result;
-		
 	}
 	
 	// returns true if the block is within two blocks of the player, horizontally.
@@ -104,8 +107,112 @@ public class ProximityDetect {
 				pos = 16;
 			}
 		}
-		
 		return result;
+	}
+	
+	/* =============================================
+	 *              UNDER THE PLAYER
+	 * ============================================
+	 */
+	
+	// returns true if the block is right UNDER the player, horizontally/diagonally. One block radius.
+	public static boolean isBlockUnderPlayer(int posX, int posY, int posZ, Block block) {
 		
+		// basic variables
+		Minecraft mc = Minecraft.getMinecraft();
+		EntityPlayer player = mc.player;
+		World world = mc.world;
+		boolean result = false;
+		int x = 0;
+		int z = 0;
+		
+		// just iterate through all of the possible positions around the player! CODING!
+		// i've redone this four times already, and this one is more straightforward and NOT AS tedious.
+		for (int pos = 0; pos < 9; pos++) {
+			
+			
+			Block kek = world.getBlockState(new BlockPos(posX+x,posY-1,posZ+z)).getBlock();
+			
+			if (x == 0 && z == 0) { z--; }
+			else if (x == 0 && z == -1) { x++; }
+			else if (x == 1 && z == -1) { z++; }
+			else if (x == 1 && z == 0) { z++; }
+			else if (x == 1 && z == 1) { x--; }
+			else if (x == 0 && z == 1) { x--; }
+			else if (x == -1 && z == 1) { z--; }
+			else if (x == -1 && z == 0) { z--; }
+			else if (x == -1 && z == -1) { x++; }
+			
+			// see if that block is the specified block
+			if (kek == block) { 
+				
+				result = true;
+				pos = 9;
+			}
+		}
+		return result;
+	}
+	
+	// returns true if the block is within two blocks of the player, horizontally.
+	public static boolean isBlockUnderPlayer2(int posX, int posY, int posZ, Block block, boolean throughBlock) {
+		
+		// basic variables
+		Minecraft mc = Minecraft.getMinecraft();
+		EntityPlayer player = mc.player;
+		World world = mc.world;
+		Block air = Block.getBlockFromName("minecraft:air");
+		boolean result = false;
+		boolean noWall = true;
+		int x = 0;
+		int z = 0;
+		
+		// da loop
+		for (int pos = 0; pos < 16; pos++) {
+			
+			// these are the block positions; kek is the one being looped through; the others are where a wall could be, blocking heat
+			Block kek = world.getBlockState(new BlockPos(posX+x,posY-1,posZ+z)).getBlock();
+			Block blockingNorth = world.getBlockState(new BlockPos(posX+x,posY,posZ+z+1)).getBlock();
+			Block blockingEast = world.getBlockState(new BlockPos(posX+x-1,posY,posZ+z)).getBlock();
+			Block blockingSouth = world.getBlockState(new BlockPos(posX+x,posY,posZ+z-1)).getBlock();
+			Block blockingWest = world.getBlockState(new BlockPos(posX+x+1,posY,posZ+z)).getBlock();
+			Block blockingNortheast = world.getBlockState(new BlockPos(posX+x-1,posY,posZ+z+1)).getBlock();
+			Block blockingSoutheast = world.getBlockState(new BlockPos(posX+x-1,posY,posZ+z-1)).getBlock();
+			Block blockingSouthwest = world.getBlockState(new BlockPos(posX+x+1,posY,posZ+z-1)).getBlock();
+			Block blockingNorthwest = world.getBlockState(new BlockPos(posX+x+1,posY,posZ+z+1)).getBlock();
+			Block blockingNorthDown = world.getBlockState(new BlockPos(posX+x,posY-1,posZ+z+1)).getBlock();
+			Block blockingEastDown = world.getBlockState(new BlockPos(posX+x-1,posY-1,posZ+z)).getBlock();
+			Block blockingSouthDown = world.getBlockState(new BlockPos(posX+x,posY-1,posZ+z-1)).getBlock();
+			Block blockingWestDown = world.getBlockState(new BlockPos(posX+x+1,posY-1,posZ+z)).getBlock();
+			Block blockingNortheastDown = world.getBlockState(new BlockPos(posX+x-1,posY-1,posZ+z+1)).getBlock();
+			Block blockingSoutheastDown = world.getBlockState(new BlockPos(posX+x-1,posY-1,posZ+z-1)).getBlock();
+			Block blockingSouthwestDown = world.getBlockState(new BlockPos(posX+x+1,posY-1,posZ+z-1)).getBlock();
+			Block blockingNorthwestDown = world.getBlockState(new BlockPos(posX+x+1,posY-1,posZ+z+1)).getBlock();
+			
+			if (x == 0 && z == 0) { z = -2; }
+			else if (x == 0 && z == -2) { x++; if (blockingNorth != air && !throughBlock && blockingNorthDown != air) { noWall = false; } else { noWall = true; } }
+			else if (x == 1 && z == -2) { x++; if (blockingNorth != air && !throughBlock && blockingNorthDown != air) { noWall = false; } else { noWall = true; } }
+			else if (x == 2 && z == -2) { z++; if (blockingNortheast != air && !throughBlock && blockingNortheastDown != air) { noWall = false; } else { noWall = true; } }
+			else if (x == 2 && z == -1) { z++; if (blockingEast != air && !throughBlock && blockingEastDown != air) { noWall = false; } else { noWall = true; } }
+			else if (x == 2 && z == 0) { z++; if (blockingEast != air && !throughBlock && blockingEastDown != air) { noWall = false; } else { noWall = true; } }
+			else if (x == 2 && z == 1) { z++; if (blockingEast != air && !throughBlock && blockingEastDown != air) { noWall = false; } else { noWall = true; } }
+			else if (x == 2 && z == 2) { x--; if (blockingSoutheast != air && !throughBlock && blockingSoutheastDown != air) { noWall = false; } else { noWall = true; } }
+			else if (x == 1 && z == 2) { x--; if (blockingSouth != air && !throughBlock && blockingSouthDown != air) { noWall = false; } else { noWall = true; } }
+			else if (x == 0 && z == 2) { x--; if (blockingSouth != air && !throughBlock && blockingSouthDown != air) { noWall = false; } else { noWall = true; } }
+			else if (x == -1 && z == 2) { x--; if (blockingSouth != air && !throughBlock && blockingSouthDown != air) { noWall = false; } else { noWall = true; } }
+			else if (x == -2 && z == 2) { z--; if (blockingSouthwest != air && !throughBlock && blockingSouthwestDown != air) { noWall = false; } else { noWall = true; } }
+			else if (x == -2 && z == 1) { z--; if (blockingWest != air && !throughBlock && blockingWestDown != air) { noWall = false; } else { noWall = true; } }
+			else if (x == -2 && z == 0) { z--; if (blockingWest != air && !throughBlock && blockingWestDown != air) { noWall = false; } else { noWall = true; } }
+			else if (x == -2 && z == -1) { z--; if (blockingWest != air && !throughBlock && blockingWestDown != air) { noWall = false; } else { noWall = true; } }
+			else if (x == -2 && z == -2) { x++; if (blockingNorthwest != air && !throughBlock && blockingNorthwestDown != air) { noWall = false; } else { noWall = true; } }
+			else if (x == -1 && z == -1) { x++; if (blockingNorth != air && !throughBlock && blockingNorthDown != air) { noWall = false; } else { noWall = true; } }
+			
+			// see if that block is the specified block
+			if (kek == block && noWall) { 
+				
+				result = true;
+				pos = 16;
+			}
+		}
+		return result;	
 	}
 }
