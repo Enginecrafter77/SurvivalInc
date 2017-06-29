@@ -39,17 +39,18 @@ public class GuiRenderBar extends Gui {
 			int screenwidth = scaled.getScaledWidth();
 			int screenheight = scaled.getScaledHeight();
 			
-			// this is temporary bullcrap to test the bars. they work.
+			// determine width of WETNESS bar.
 			double oneWetnessUnit = 0.8;
 			int currentWidthWetness = (int) (oneWetnessUnit * wetness);
 			String textWetness = Float.toString(Math.round(wetness)) + "%";
 			
+			// this is temporary bullcrap to test the bars. they work.
 			float oneUnit = (float) (barwidth / mc.player.getMaxHealth());
 			int currentWidth = (int) (oneUnit * mc.player.getHealth());
 			int playerHealth = (int) mc.player.getHealth();
 			String text = Integer.toString(playerHealth) + "%";
 			
-			//more garbagecapability
+			//more garbage crap
 			//Biome biome = mc.world.getBiome(mc.player.getPosition());
 			//System.out.println(Float.toString(biome.getTemperature()));
 			
