@@ -12,7 +12,7 @@ public class SchopPackets {
 	public static void initPackets() {
 		
 		net = NetworkRegistry.INSTANCE.newSimpleChannel(SchopCraft.MOD_ID);
-		registerMessage(StatsPacket.class, StatsPacket.StatsMessage.class);
+		registerMessage(WetnessPacket.class, WetnessPacket.WetnessMessage.class);
 		
 	}
 	

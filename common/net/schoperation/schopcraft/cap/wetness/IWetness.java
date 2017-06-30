@@ -9,5 +9,6 @@ public interface IWetness {
 	public void set(float amount);
 	public float getWetness();
 	public float getMaxWetness();
+	public float getMinWetness();
 
 }

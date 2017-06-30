@@ -1,23 +1,18 @@
 package net.schoperation.schopcraft.cap.wetness;
 
 import net.minecraft.block.Block;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.schoperation.schopcraft.packet.SchopPackets;
-import net.schoperation.schopcraft.packet.StatsPacket;
+import net.schoperation.schopcraft.packet.WetnessPacket;
 import net.schoperation.schopcraft.util.ProximityDetect;
 
 /*
@@ -43,7 +38,6 @@ public class WetnessModifier {
 			IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
 			boolean equalStrings = uuid.equals(playeruuid);
 			
-			
 			if (equalStrings) {
 
 				wetness.increase(value-10);
@@ -60,8 +54,9 @@ public class WetnessModifier {
 		if (player instanceof EntityPlayerMP) {
 			
 			IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
-			IMessage msg = new StatsPacket.StatsMessage(player.getCachedUniqueIdString(), wetness.getWetness());
+			IMessage msg = new WetnessPacket.WetnessMessage(player.getCachedUniqueIdString(), wetness.getWetness());
 			SchopPackets.net.sendTo(msg, (EntityPlayerMP)player);
+
 		}
 		
 	}
@@ -238,17 +233,25 @@ public class WetnessModifier {
 				}
 				
 				// send wetness data to server
-				IMessage msg = new StatsPacket.StatsMessage(player.getCachedUniqueIdString(), wetness.getWetness());
-				SchopPackets.net.sendToServer(msg);
-				
+				IMessage msg = new WetnessPacket.WetnessMessage(player.getCachedUniqueIdString(), wetness.getWetness());
+				SchopPackets.net.sendToServer(msg);	
 			}
 			
 			// only server-side. sends packets to client just to render on the gui bars.
 			if (!player.world.isRemote) {
 				
-				
+				// check if the player is in lava
+				if (player.isInLava()) {
+					
+					wetness.decrease(5f);
+				}
+				// check if the player is in the nether
+				else if (player.dimension == -1) {
+					
+					wetness.decrease(0.5f);
+				}
 				// check if the player is in water
-				if (player.isInWater()) {
+				else if (player.isInWater()) {
 					
 					wetness.increase(5f);
 				}
@@ -257,6 +260,7 @@ public class WetnessModifier {
 					
 					wetness.increase(0.05f);
 				}
+				
 				// otherwise, allow for natural drying off (very slow)
 				else {
 					
@@ -265,15 +269,11 @@ public class WetnessModifier {
 					else { wetness.decrease(0.01f); }
 					
 				}
-				
+
 				// send new wetness data to client in order to render correctly
-				IMessage msg = new StatsPacket.StatsMessage(player.getCachedUniqueIdString(), wetness.getWetness());
+				IMessage msg = new WetnessPacket.WetnessMessage(player.getCachedUniqueIdString(), wetness.getWetness());
 				SchopPackets.net.sendTo(msg, (EntityPlayerMP)player);
 			}
-			// render wetness particles (vanilla water dripping particles)
-			//if (wetness.getWetness() > 50.0f) {
-				//player.world.spawnParticle(EnumParticleTypes.DRIP_WATER, playerPosX, playerPosY, playerPosZ, 0.0d, 0.0d, 0.0d, new int[0]);
-			//}
 		}
 	}
 }

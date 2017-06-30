@@ -10,9 +10,9 @@ import net.schoperation.schopcraft.cap.wetness.IWetness;
 import net.schoperation.schopcraft.cap.wetness.Wetness;
 import net.schoperation.schopcraft.cap.wetness.WetnessModifier;
 import net.schoperation.schopcraft.cap.wetness.WetnessStorage;
-import net.schoperation.schopcraft.gui.GuiRenderBar;
 import net.schoperation.schopcraft.packet.SchopPackets;
 import net.schoperation.schopcraft.util.RegAndRen;
+import net.schoperation.schopcraft.util.SchopServerParticles;
 
 public class CommonProxy {
 	
@@ -25,12 +25,14 @@ public class CommonProxy {
 		CapabilityManager.INSTANCE.register(IWetness.class, new WetnessStorage(), Wetness.class);
 		MinecraftForge.EVENT_BUS.register(new CapabilityHandler());
 		MinecraftForge.EVENT_BUS.register(new WetnessModifier());
+		MinecraftForge.EVENT_BUS.register(new SchopServerParticles());
 		
 	}
 	
 	public void init(FMLInitializationEvent event) {
 		
 		// register recipes here
+		
 		
 		// register packets here
 		SchopPackets.initPackets();
