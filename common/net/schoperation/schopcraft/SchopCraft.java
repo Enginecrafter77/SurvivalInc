@@ -9,7 +9,7 @@ import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.schoperation.schopcraft.util.RegAndRen;
+import net.schoperation.schopcraft.lib.ModItems;
 
 @Mod(modid = SchopCraft.MOD_ID, name = SchopCraft.MOD_NAME, version = SchopCraft.VERSION, dependencies = SchopCraft.DEPENDENCIES)
 public class SchopCraft {
@@ -19,7 +19,7 @@ public class SchopCraft {
 	public static final String MOD_NAME = "SchopCraft Universalis";
 	public static final String VERSION = "0.1.0";
 	public static final String DEPENDENCIES = "required-after:forge@[14.21.1.2387,)";
-	public static final String RESOURCE_PREFIX = MOD_ID.toLowerCase() + ":"; // schopcraft:
+	public static final String RESOURCE_PREFIX = MOD_ID + ":"; // schopcraft:
 	
 	// make an instance
 	@Instance(MOD_ID)
@@ -53,7 +53,7 @@ public class SchopCraft {
 		
 		@Override
 		public ItemStack getTabIconItem() {
-			return new ItemStack(RegAndRen.tabIcon);
+			return new ItemStack(ModItems.ITEMS[0]);
 		}
 		
 	};

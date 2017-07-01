@@ -5,10 +5,10 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.schoperation.schopcraft.SchopCraft;
-import net.schoperation.schopcraft.lib.Names;
 
 public class ItemTabIcon extends Item {
 	
@@ -18,6 +18,11 @@ public class ItemTabIcon extends Item {
 	
 	public ItemTabIcon() {
 		
+		// setting registry name and crap
+		setRegistryName(new ResourceLocation(SchopCraft.MOD_ID, "tabicon"));
+		setUnlocalizedName(SchopCraft.RESOURCE_PREFIX + "tabicon");
+		
+		// additional properties
 		setMaxStackSize(1);
 		setCreativeTab(SchopCraft.mainTab);
 		
@@ -31,12 +36,4 @@ public class ItemTabIcon extends Item {
 		
 		return super.onItemRightClick(world, player, hand);
 	}
-	
-	@Override
-	public String getUnlocalizedName(ItemStack stack) {
-		
-		return "item." + SchopCraft.RESOURCE_PREFIX + Names.TAB_ICON; // item.schopcraft:tabicon
-		
-	}
-
 }

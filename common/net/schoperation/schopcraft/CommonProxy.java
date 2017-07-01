@@ -11,7 +11,7 @@ import net.schoperation.schopcraft.cap.wetness.Wetness;
 import net.schoperation.schopcraft.cap.wetness.WetnessModifier;
 import net.schoperation.schopcraft.cap.wetness.WetnessStorage;
 import net.schoperation.schopcraft.packet.SchopPackets;
-import net.schoperation.schopcraft.util.RegAndRen;
+import net.schoperation.schopcraft.util.Registererer;
 import net.schoperation.schopcraft.util.SchopServerParticles;
 
 public class CommonProxy {
@@ -19,7 +19,7 @@ public class CommonProxy {
 	public void preInit(FMLPreInitializationEvent event) {
 		
 		// register all new items + blocks here
-		RegAndRen.registerAll();
+		MinecraftForge.EVENT_BUS.register(new Registererer());
 		
 		// register capabilities (mainly the new stats)
 		CapabilityManager.INSTANCE.register(IWetness.class, new WetnessStorage(), Wetness.class);
