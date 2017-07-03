@@ -4,13 +4,14 @@ import io.netty.buffer.ByteBuf;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import net.schoperation.schopcraft.packet.ParticlePacket.ParticleMessage;
+import net.schoperation.schopcraft.packet.SummonInfoPacket.SummonInfoMessage;
 import net.schoperation.schopcraft.util.SchopServerParticles;
+import net.schoperation.schopcraft.util.SchopServerSounds;
 
-public class ParticlePacket implements IMessageHandler<ParticleMessage, IMessage> {
+public class SummonInfoPacket implements IMessageHandler<SummonInfoMessage, IMessage> {
 	
 	@Override
-	public IMessage onMessage(ParticleMessage message, MessageContext ctx) {
+	public IMessage onMessage(SummonInfoMessage message, MessageContext ctx) {
 		
 		if(ctx.side.isClient()) {
 			
@@ -26,12 +27,13 @@ public class ParticlePacket implements IMessageHandler<ParticleMessage, IMessage
 			double posZ = message.posZ;
 			int methodPicker = message.methodPicker;
 			SchopServerParticles.changeParticlePosition(posX, posY, posZ, methodPicker);
+			SchopServerSounds.changeSoundMethod(posX, posY, posZ, methodPicker);
 		}
 		
 		return null;
 	}
 	
-	public static class ParticleMessage implements IMessage {
+	public static class SummonInfoMessage implements IMessage {
 		
 		// variables used in the packet
 		private double posX;
@@ -40,9 +42,9 @@ public class ParticlePacket implements IMessageHandler<ParticleMessage, IMessage
 		private int methodPicker;
 		
 		// dumb constructor
-		public ParticleMessage() {}
+		public SummonInfoMessage() {}
 		
-		public ParticleMessage(double posX, double posY, double posZ, int methodPicker) {
+		public SummonInfoMessage(double posX, double posY, double posZ, int methodPicker) {
 			
 			this.posX = posX;
 			this.posY = posY;

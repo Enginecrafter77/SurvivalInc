@@ -16,6 +16,7 @@ import net.schoperation.schopcraft.cap.wetness.WetnessStorage;
 import net.schoperation.schopcraft.packet.SchopPackets;
 import net.schoperation.schopcraft.util.Registererer;
 import net.schoperation.schopcraft.util.SchopServerParticles;
+import net.schoperation.schopcraft.util.SchopServerSounds;
 
 public class CommonProxy {
 	
@@ -32,6 +33,7 @@ public class CommonProxy {
 		MinecraftForge.EVENT_BUS.register(new CapabilityHandler());
 		MinecraftForge.EVENT_BUS.register(new CapEvents());
 		MinecraftForge.EVENT_BUS.register(new SchopServerParticles());
+		MinecraftForge.EVENT_BUS.register(new SchopServerSounds());
 		
 	}
 	

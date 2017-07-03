@@ -4,18 +4,15 @@ import java.util.Iterator;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.schoperation.schopcraft.packet.ParticlePacket;
 import net.schoperation.schopcraft.packet.SchopPackets;
+import net.schoperation.schopcraft.packet.SummonInfoPacket;
 import net.schoperation.schopcraft.packet.ThirstPacket;
 
 /*
@@ -104,11 +101,10 @@ public class ThirstModifier {
 					if (player.world.getBlockState(pos).getMaterial() == Material.WATER && handItems.next().isEmpty()) {
 						
 						thirst.increase(0.25f);
-						player.world.playSound((EntityPlayer)player, pos, SoundEvents.ENTITY_GENERIC_SWIM, SoundCategory.NEUTRAL, 0.5f, 1.5f);
-						
-						// spawn particles
-						IMessage msgParticle = new ParticlePacket.ParticleMessage(pos.getX(), pos.getY(), pos.getZ(), 0);
-						SchopPackets.net.sendToServer(msgParticle);
+												
+						// spawn particles and sounds
+						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(pos.getX(), pos.getY(), pos.getZ(), 0);
+						SchopPackets.net.sendToServer(msgStuff);
 					}		
 				}
 			}
