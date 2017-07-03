@@ -3,6 +3,7 @@ package net.schoperation.schopcraft.util;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -17,6 +18,22 @@ public class SchopServerParticles {
 	 * Client-side is another file, used for sanity, so players will think they're insane when they are. Efficient.
 	 */
 	
+	// positions different from the player's.
+	private static double newPosX = 0;
+	private static double newPosY = 0;
+	private static double newPosZ = 0;
+	private static boolean hasDrankWater = false;
+	
+	
+	// called when the player drinks water from the source. changes position.
+	public static void confirmDrinkWater(BlockPos pos) {
+		
+		newPosX = pos.getX();
+		newPosY = pos.getY();
+		newPosZ = pos.getZ();
+		hasDrankWater = true;
+		
+	}
 	
 	@SubscribeEvent
 	public void renderParticles(LivingUpdateEvent event) {
@@ -48,6 +65,9 @@ public class SchopServerParticles {
 				// spawn particles if they are eligible
 				// wetness particles based on their wetness (scaled particles... coolllllllllllllllll)
 				spawnWetnessParticles(serverWorld, playerPosX, playerPosY, playerPosZ, wetness.getWetness());
+				
+				// water particles if player drinks from water
+				spawnDrinkWaterParticles(serverWorld, newPosX, newPosY, newPosZ);
 			}	
 		}	
 	}
@@ -61,6 +81,17 @@ public class SchopServerParticles {
 			if (wetness >= 10.0f) {
 				serverWorld.spawnParticle(EnumParticleTypes.DRIP_WATER, playerPosX, playerPosY, playerPosZ, wetnessRounded, 0.3d, 0.5d, 0.3d, 10.0d, null);
 			}
+		}
+	}
+	
+	// spawn water particles if a player drinks from a water block directly with their bare hands.
+	private void spawnDrinkWaterParticles(WorldServer serverWorld, double newPosX, double newPosY, double newPosZ) {
+		
+		if(!serverWorld.isRemote && hasDrankWater) {
+			
+			serverWorld.spawnParticle(EnumParticleTypes.WATER_BUBBLE, newPosX, newPosY, newPosZ, 20, 0.5d, 1d, 0.5d, 0.1d, null);
+			serverWorld.spawnParticle(EnumParticleTypes.WATER_SPLASH, newPosX, newPosY+1, newPosZ, 50, 0.2d, 0.5d, 0.2d, 0.05d, null);
+			hasDrankWater = false;
 		}
 	}
 }

@@ -6,6 +6,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.schoperation.schopcraft.SchopCraft;
+import net.schoperation.schopcraft.cap.thirst.ThirstProvider;
 import net.schoperation.schopcraft.cap.wetness.WetnessProvider;
 
 public class CapabilityHandler {
@@ -13,6 +14,7 @@ public class CapabilityHandler {
 	 * This attaches all capabilities to the player
 	 */
 	public static final ResourceLocation WETNESS_CAP = new ResourceLocation(SchopCraft.MOD_ID, "wetness");
+	public static final ResourceLocation THIRST_CAP = new ResourceLocation(SchopCraft.MOD_ID, "thirst");
 	
 	@SubscribeEvent
 	public void attachCapability(AttachCapabilitiesEvent<Entity> event) {
@@ -20,6 +22,7 @@ public class CapabilityHandler {
 		if(!(event.getObject() instanceof EntityPlayer)) return;
 		
 		event.addCapability(WETNESS_CAP, new WetnessProvider());
+		event.addCapability(THIRST_CAP, new ThirstProvider());
 	}
 
 }

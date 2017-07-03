@@ -13,6 +13,7 @@ public class SchopPackets {
 		
 		net = NetworkRegistry.INSTANCE.newSimpleChannel(SchopCraft.MOD_ID);
 		registerMessage(WetnessPacket.class, WetnessPacket.WetnessMessage.class);
+		registerMessage(ThirstPacket.class, ThirstPacket.ThirstMessage.class);
 		
 	}
 	
