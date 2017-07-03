@@ -14,9 +14,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.schoperation.schopcraft.packet.ParticlePacket;
 import net.schoperation.schopcraft.packet.SchopPackets;
 import net.schoperation.schopcraft.packet.ThirstPacket;
-import net.schoperation.schopcraft.util.SchopServerParticles;
 
 /*
  * Where thirst is modified.
@@ -105,7 +105,10 @@ public class ThirstModifier {
 						
 						thirst.increase(0.25f);
 						player.world.playSound((EntityPlayer)player, pos, SoundEvents.ENTITY_GENERIC_SWIM, SoundCategory.NEUTRAL, 0.5f, 1.5f);
-						SchopServerParticles.confirmDrinkWater(pos);
+						
+						// spawn particles
+						IMessage msgParticle = new ParticlePacket.ParticleMessage(pos.getX(), pos.getY(), pos.getZ(), 0);
+						SchopPackets.net.sendToServer(msgParticle);
 					}		
 				}
 			}

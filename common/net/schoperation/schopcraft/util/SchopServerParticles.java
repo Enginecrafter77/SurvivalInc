@@ -3,7 +3,6 @@ package net.schoperation.schopcraft.util;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -22,17 +21,16 @@ public class SchopServerParticles {
 	private static double newPosX = 0;
 	private static double newPosY = 0;
 	private static double newPosZ = 0;
-	private static boolean hasDrankWater = false;
+	private static int particleMethodPicker = -1;
 	
-	
-	// called when the player drinks water from the source. changes position.
-	public static void confirmDrinkWater(BlockPos pos) {
+	// called when a packet from the client is send to server, in order to render particles somewhere.
+	// an extra int is sent to identify which particle method to call.
+	public static void changeParticlePosition(double posX, double posY, double posZ, int methodPicker) {
 		
-		newPosX = pos.getX();
-		newPosY = pos.getY();
-		newPosZ = pos.getZ();
-		hasDrankWater = true;
-		
+		newPosX = posX;
+		newPosY = posY;
+		newPosZ = posZ;
+		particleMethodPicker = methodPicker;
 	}
 	
 	@SubscribeEvent
@@ -66,8 +64,14 @@ public class SchopServerParticles {
 				// wetness particles based on their wetness (scaled particles... coolllllllllllllllll)
 				spawnWetnessParticles(serverWorld, playerPosX, playerPosY, playerPosZ, wetness.getWetness());
 				
-				// water particles if player drinks from water
+				// spawn water particles if player drinks water
 				spawnDrinkWaterParticles(serverWorld, newPosX, newPosY, newPosZ);
+				
+				// change stuff back
+				if (particleMethodPicker != -1) {
+					
+					changeParticlePosition(0.0d, 0.0d, 0.0d, -1);
+				}	
 			}	
 		}	
 	}
@@ -84,14 +88,18 @@ public class SchopServerParticles {
 		}
 	}
 	
-	// spawn water particles if a player drinks from a water block directly with their bare hands.
+	// spawn water particles if a player drinks from a water block directly with their bare hands. particleMethodPicker = 0
 	private void spawnDrinkWaterParticles(WorldServer serverWorld, double newPosX, double newPosY, double newPosZ) {
 		
-		if(!serverWorld.isRemote && hasDrankWater) {
+		if(!serverWorld.isRemote && newPosX != 0.0d && newPosY != 0.0d && newPosZ != 0.0d && particleMethodPicker == 0) {
 			
-			serverWorld.spawnParticle(EnumParticleTypes.WATER_BUBBLE, newPosX, newPosY, newPosZ, 20, 0.5d, 1d, 0.5d, 0.1d, null);
-			serverWorld.spawnParticle(EnumParticleTypes.WATER_SPLASH, newPosX, newPosY+1, newPosZ, 50, 0.2d, 0.5d, 0.2d, 0.05d, null);
-			hasDrankWater = false;
+			double randOffset = Math.random();
+			if (randOffset > 0.5) { randOffset -= 0.5; }
+			int rounded = (int) Math.round(randOffset);
+			if (rounded == 1) { randOffset = randOffset * -1; }
+			
+			serverWorld.spawnParticle(EnumParticleTypes.WATER_BUBBLE, newPosX+randOffset, newPosY, newPosZ+randOffset, 20, 0.5d, 1d, 0.5d, 0.1d, null);
+			serverWorld.spawnParticle(EnumParticleTypes.WATER_SPLASH, newPosX+randOffset, newPosY+1, newPosZ+randOffset, 50, 0.2d, 0.5d, 0.2d, 0.05d, null);
 		}
 	}
 }
