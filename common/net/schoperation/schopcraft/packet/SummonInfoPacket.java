@@ -8,26 +8,23 @@ import net.schoperation.schopcraft.packet.SummonInfoPacket.SummonInfoMessage;
 import net.schoperation.schopcraft.util.SchopServerParticles;
 import net.schoperation.schopcraft.util.SchopServerSounds;
 
+/*
+ * Used for summoning particles and playing sounds.
+ */
 public class SummonInfoPacket implements IMessageHandler<SummonInfoMessage, IMessage> {
 	
 	@Override
 	public IMessage onMessage(SummonInfoMessage message, MessageContext ctx) {
 		
-		if(ctx.side.isClient()) {
+		if(ctx.side.isServer()) {
 			
 			double posX = message.posX;
 			double posY = message.posY;
 			double posZ = message.posZ;
-			int methodPicker = message.methodPicker;
-		}
-		else {
-			
-			double posX = message.posX;
-			double posY = message.posY;
-			double posZ = message.posZ;
-			int methodPicker = message.methodPicker;
-			SchopServerParticles.changeParticlePosition(posX, posY, posZ, methodPicker);
-			SchopServerSounds.changeSoundMethod(posX, posY, posZ, methodPicker);
+			int particlePicker = message.particlePicker;
+			int soundPicker = message.soundPicker;
+			SchopServerParticles.changeParticlePosition(posX, posY, posZ, particlePicker);
+			SchopServerSounds.changeSoundMethod(posX, posY, posZ, soundPicker);
 		}
 		
 		return null;
@@ -39,17 +36,19 @@ public class SummonInfoPacket implements IMessageHandler<SummonInfoMessage, IMes
 		private double posX;
 		private double posY;
 		private double posZ;
-		private int methodPicker;
+		private int particlePicker;
+		private int soundPicker;
 		
 		// dumb constructor
 		public SummonInfoMessage() {}
 		
-		public SummonInfoMessage(double posX, double posY, double posZ, int methodPicker) {
+		public SummonInfoMessage(double posX, double posY, double posZ, int particlePicker, int soundPicker) {
 			
 			this.posX = posX;
 			this.posY = posY;
 			this.posZ = posZ;
-			this.methodPicker = methodPicker;
+			this.particlePicker = particlePicker;
+			this.soundPicker = soundPicker;
 		}
 		
 		@Override
@@ -58,7 +57,8 @@ public class SummonInfoPacket implements IMessageHandler<SummonInfoMessage, IMes
 			this.posX = buf.readDouble();
 			this.posY = buf.readDouble();
 			this.posZ = buf.readDouble();
-			this.methodPicker = buf.readInt();
+			this.particlePicker = buf.readInt();
+			this.soundPicker = buf.readInt();
 		}
 		
 		@Override
@@ -67,7 +67,8 @@ public class SummonInfoPacket implements IMessageHandler<SummonInfoMessage, IMes
 			buf.writeDouble(posX);
 			buf.writeDouble(posY);
 			buf.writeDouble(posZ);
-			buf.writeInt(methodPicker);
+			buf.writeInt(particlePicker);
+			buf.writeInt(soundPicker);
 		}
 	}
 }

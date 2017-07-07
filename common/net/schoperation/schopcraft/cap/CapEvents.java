@@ -74,7 +74,7 @@ public class CapEvents {
 		if (event.getEntity() instanceof EntityPlayer) {
 			
 			// instance of player
-			Entity player = event.getEntity();
+			EntityPlayer player = (EntityPlayer) event.getEntity();
 			
 			// fire methods
 			ThirstModifier.onPlayerInteract(player);

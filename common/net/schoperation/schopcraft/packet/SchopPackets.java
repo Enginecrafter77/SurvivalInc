@@ -15,6 +15,7 @@ public class SchopPackets {
 		registerMessage(WetnessPacket.class, WetnessPacket.WetnessMessage.class);
 		registerMessage(ThirstPacket.class, ThirstPacket.ThirstMessage.class);
 		registerMessage(SummonInfoPacket.class, SummonInfoPacket.SummonInfoMessage.class);
+		registerMessage(PotionEffectPacket.class, PotionEffectPacket.PotionEffectMessage.class);
 		
 	}
 	

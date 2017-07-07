@@ -16,7 +16,7 @@ public class SchopServerSounds {
 	 * Responsible for playing sounds server-side, so everyone hears them. Client-side is a different file.
 	 */
 	
-	// methodpicker variable to choose sound
+	// methodpicker variable to choose sound, along with positions.
 	private static double newPosX = 0;
 	private static double newPosY = 0;
 	private static double newPosZ = 0;
@@ -39,13 +39,13 @@ public class SchopServerSounds {
 			// basic variables
 			MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
 			int playerCount = server.getCurrentPlayerCount();
-			String[] playerlist = server.getOnlinePlayerNames();
+			String[] playerList = server.getOnlinePlayerNames();
 			
 			// iterate through each player on the server. There's probably an even easier way. If this is considered easy.
 			for (int num = 0; num < playerCount; num++) {
 				
 				// the player instance
-				EntityPlayerMP player = server.getPlayerList().getPlayerByUsername(playerlist[num]);
+				EntityPlayerMP player = server.getPlayerList().getPlayerByUsername(playerList[num]);
 				
 				// the player's coordinates (if needed)
 				double playerPosX = player.posX;

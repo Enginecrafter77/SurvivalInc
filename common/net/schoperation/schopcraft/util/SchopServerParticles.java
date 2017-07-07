@@ -41,13 +41,13 @@ public class SchopServerParticles {
 			// basic variables
 			MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
 			int playerCount = server.getCurrentPlayerCount();
-			String[] playerlist = server.getOnlinePlayerNames();
+			String[] playerList = server.getOnlinePlayerNames();
 			
 			// iterate through each player on the server. There's probably an even easier way. If this is considered easy.
 			for (int num = 0; num < playerCount; num++) {
 				
 				// the player instance
-				EntityPlayerMP player = server.getPlayerList().getPlayerByUsername(playerlist[num]);
+				EntityPlayerMP player = server.getPlayerList().getPlayerByUsername(playerList[num]);
 				
 				// the dimension the player is in
 				WorldServer serverWorld = server.getWorld(player.dimension);

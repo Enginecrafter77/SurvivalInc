@@ -4,13 +4,18 @@ import java.util.Iterator;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.BiomeOcean;
+import net.minecraft.world.biome.BiomeSwamp;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.schoperation.schopcraft.packet.PotionEffectPacket;
 import net.schoperation.schopcraft.packet.SchopPackets;
 import net.schoperation.schopcraft.packet.SummonInfoPacket;
 import net.schoperation.schopcraft.packet.ThirstPacket;
@@ -75,7 +80,7 @@ public class ThirstModifier {
 		}
 	}
 	
-	public static void onPlayerInteract(Entity player) {
+	public static void onPlayerInteract(EntityPlayer player) {
 		
 		// get capability
 		IThirst thirst = player.getCapability(ThirstProvider.THIRST_CAP, null);
@@ -100,10 +105,36 @@ public class ThirstModifier {
 					// if it is water and the player isn't holding jack squat (main hand)
 					if (player.world.getBlockState(pos).getMaterial() == Material.WATER && handItems.next().isEmpty()) {
 						
-						thirst.increase(0.25f);
+						// still more if statements. now see what biome the player is in, and quench thirst accordingly.
+						Biome biome = player.world.getBiome(pos);
+						
+						if (biome instanceof BiomeOcean) {
+							
+							thirst.decrease(0.5f);
+						}
+						else if (biome instanceof BiomeSwamp) {
+							
+							thirst.increase(0.25f);
+							
+							// damage player for drinking dirty water
+							IMessage potionMsg = new PotionEffectPacket.PotionEffectMessage(player.getCachedUniqueIdString(), "poison", 12, 3, false, false);
+							SchopPackets.net.sendToServer(potionMsg);
+						}
+						else {
+							
+							thirst.increase(0.25f);
+							
+							// random chance to damage player
+							double randomNum = Math.random();
+							if (randomNum <= 0.05) { // 5% chance
+								
+								IMessage potionMsg = new PotionEffectPacket.PotionEffectMessage(player.getCachedUniqueIdString(), "poison", 12, 3, false, false);
+								SchopPackets.net.sendToServer(potionMsg);
+							}
+						}
 												
-						// spawn particles and sounds
-						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(pos.getX(), pos.getY(), pos.getZ(), 0);
+						// spawn particles and sounds for drinking water
+						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(pos.getX(), pos.getY(), pos.getZ(), 0, 0);
 						SchopPackets.net.sendToServer(msgStuff);
 					}		
 				}
