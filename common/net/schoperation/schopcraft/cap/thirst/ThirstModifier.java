@@ -134,7 +134,7 @@ public class ThirstModifier {
 						}
 												
 						// spawn particles and sounds for drinking water
-						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(pos.getX(), pos.getY(), pos.getZ(), 0, 0);
+						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(player.getCachedUniqueIdString(), "WaterSound", "DrinkWaterParticles", pos.getX(), pos.getY(), pos.getZ());
 						SchopPackets.net.sendToServer(msgStuff);
 					}		
 				}

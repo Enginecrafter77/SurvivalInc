@@ -14,71 +14,40 @@ public class SchopServerSounds {
 	
 	/*
 	 * Responsible for playing sounds server-side, so everyone hears them. Client-side is a different file.
+	 * Only call playSound on the server, if you can't figure that out.
 	 */
 	
-	// methodpicker variable to choose sound, along with positions.
-	private static double newPosX = 0;
-	private static double newPosY = 0;
-	private static double newPosZ = 0;
-	private static int soundMethodPicker = -1;
-	
-	// called to change sounds to be played.
-	public static void changeSoundMethod(double posX, double posY, double posZ, int methodPicker) {
+	// Main method to play sounds
+	public static void playSound(String uuid, String soundMethod, double posX, double posY, double posZ) {
 		
-		newPosX = posX;
-		newPosY = posY;
-		newPosZ = posZ;
-		soundMethodPicker = methodPicker;
-	}
-	
-	@SubscribeEvent
-	public void playSounds(LivingUpdateEvent event) {
+		// basic variables
+		MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+		int playerCount = server.getCurrentPlayerCount();
+		String[] playerList = server.getOnlinePlayerNames();
 		
-		if (event.getEntity() instanceof EntityPlayerMP) {
+		// iterate through each player on the server
+		for (int num = 0; num < playerCount; num++) {
 			
-			// basic variables
-			MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
-			int playerCount = server.getCurrentPlayerCount();
-			String[] playerList = server.getOnlinePlayerNames();
+			// instance of the player
+			EntityPlayerMP player = server.getPlayerList().getPlayerByUsername(playerList[num]);
 			
-			// iterate through each player on the server. There's probably an even easier way. If this is considered easy.
-			for (int num = 0; num < playerCount; num++) {
+			// position of the sound
+			BlockPos pos = new BlockPos(posX, posY, posZ);
+			
+			// is this the right player? If not, go to the next player
+			if (player.getCachedUniqueIdString().equals(uuid)) {
 				
-				// the player instance
-				EntityPlayerMP player = server.getPlayerList().getPlayerByUsername(playerList[num]);
+				// now determine what sound needs to be played.
+				if (soundMethod.equals("WaterSound")) { playWaterSound(player, pos); }
 				
-				// the player's coordinates (if needed)
-				double playerPosX = player.posX;
-				double playerPosY = player.posY;
-				double playerPosZ = player.posZ;
-				
-				if (newPosX == 0 && newPosY == 0 && newPosZ == 0) {
-					
-					newPosX = playerPosX;
-					newPosY = playerPosY;
-					newPosZ = playerPosZ;
-				}
-
-				// actual position of sound
-				BlockPos pos = new BlockPos(newPosX, newPosY, newPosZ);
-				
-				// play sounds if player is eligible
-				// water splash sounds if player drinks water
-				playWaterSound(player, pos);
-				
-				// change stuff back
-				if (soundMethodPicker != -1) {
-					
-					changeSoundMethod(0, 0, 0, -1);
-				}	
-			}	
-		}	
+			}
+		}
 	}
 	
 	// plays cute splash sound when a player drinks water from a water source
 	private static void playWaterSound(Entity player, BlockPos pos) {
 		
-		if (!player.world.isRemote && soundMethodPicker == 0) {
+		if (!player.world.isRemote) {
 			
 			player.world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_SWIM, SoundCategory.NEUTRAL, 0.5f, 1.5f);
 		}

@@ -10,6 +10,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.schoperation.schopcraft.packet.SchopPackets;
 import net.schoperation.schopcraft.packet.WetnessPacket;
 import net.schoperation.schopcraft.util.ProximityDetect;
+import net.schoperation.schopcraft.util.SchopServerParticles;
 
 /*
  * This is where the magic of changing one's wetness occurs. You'll most likely be here.
@@ -47,9 +48,12 @@ public class WetnessModifier {
 		IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
 		
 		// get coords of player
-		int playerPosX = (int) player.posX-1;
+		int playerPosX = (int) player.posX;
 		int playerPosY = (int) player.posY;
 		int playerPosZ = (int) player.posZ;
+		double doublePlayerPosX = player.posX;
+		double doublePlayerPosY = player.posY;
+		double doublePlayerPosZ = player.posZ;
 		
 		// getting blocks is client-side?? should be fine.
 		if (player.world.isRemote) {
@@ -57,7 +61,7 @@ public class WetnessModifier {
 			wetness.set(10f);
 			// these if-statement blocks is for stuff that directly doesn't have to do with water bombardment.
 			// check if the player is near a fire
-			if (ProximityDetect.isBlockNextToPlayer(playerPosX, playerPosY, playerPosZ, Block.getBlockFromName("minecraft:fire"))) {
+			if (ProximityDetect.isBlockNextToPlayer(playerPosX-1, playerPosY, playerPosZ, Block.getBlockFromName("minecraft:fire"))) {
 				
 				// are they in the rain? If so, the fire is less effective
 				if (player.isWet()) {
@@ -69,7 +73,7 @@ public class WetnessModifier {
 				}
 			}
 			// check if the player is near a fire - two blocks away. if there's a block between the player and the fire, it won't count.
-			else if (ProximityDetect.isBlockNearPlayer2(playerPosX, playerPosY, playerPosZ, Block.getBlockFromName("minecraft:fire"), false)) {
+			else if (ProximityDetect.isBlockNearPlayer2(playerPosX-1, playerPosY, playerPosZ, Block.getBlockFromName("minecraft:fire"), false)) {
 				
 				// are they in the rain? If so, the fire is less effective
 				if (player.isWet()) {
@@ -81,7 +85,7 @@ public class WetnessModifier {
 				}
 			}
 			// check if the fire is below the player somehow... one block
-			else if (ProximityDetect.isBlockUnderPlayer(playerPosX, playerPosY, playerPosZ, Block.getBlockFromName("minecraft:fire"))) {
+			else if (ProximityDetect.isBlockUnderPlayer(playerPosX-1, playerPosY, playerPosZ, Block.getBlockFromName("minecraft:fire"))) {
 				
 				// are they in the rain? If so, the fire is less effective
 				if (player.isWet()) {
@@ -93,7 +97,7 @@ public class WetnessModifier {
 				}
 			}
 			// ...and two blocks
-			else if (ProximityDetect.isBlockUnderPlayer2(playerPosX, playerPosY, playerPosZ, Block.getBlockFromName("minecraft:fire"), false)) {
+			else if (ProximityDetect.isBlockUnderPlayer2(playerPosX-1, playerPosY, playerPosZ, Block.getBlockFromName("minecraft:fire"), false)) {
 				
 				// are they in the rain? If so, the fire is less effective
 				if (player.isWet()) {
@@ -243,6 +247,9 @@ public class WetnessModifier {
 				else { wetness.decrease(0.01f); }
 				
 			}
+			
+			// summon wetness particles. We don't need a packet for this, as it's already on the server.
+			SchopServerParticles.summonParticle(player.getCachedUniqueIdString(), "WetnessParticles", doublePlayerPosX, doublePlayerPosY, doublePlayerPosZ);
 
 			// send new wetness data to client in order to render correctly
 			IMessage msg = new WetnessPacket.WetnessMessage(player.getCachedUniqueIdString(), wetness.getWetness());

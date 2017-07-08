@@ -8,7 +8,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 
 /*
  * Responsible for effecting players with status effects, if the methods trying to do them are client-side.
- * This does them server-side.
+ * This does them server-side. In case this is not obvious, ONLY CALL THIS ON THE SERVER. Unless you want a crash.
  */
 public class SchopServerEffects {
 
@@ -30,7 +30,7 @@ public class SchopServerEffects {
 			if (player.getCachedUniqueIdString().equals(uuid)) {
 				
 				// decipher potion effect string and effect the player accordingly
-				// instant damage
+				// poison
 				if (effect.equals("poison")) {
 					
 					player.addPotionEffect(new PotionEffect(MobEffects.POISON, duration, amplifier, isAmbient, showParticles));
