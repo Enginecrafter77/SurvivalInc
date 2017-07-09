@@ -24,7 +24,7 @@ public class PotionEffectPacket implements IMessageHandler<PotionEffectMessage, 
 			int amplifier = message.amplifier;
 			boolean isAmbient = message.isAmbient;
 			boolean showParticles = message.showParticles;
-			SchopServerEffects.effectPlayer(uuid, effect, duration, amplifier, isAmbient, showParticles);
+			SchopServerEffects.affectPlayer(uuid, effect, duration, amplifier, isAmbient, showParticles);
 		}
 		
 		return null;

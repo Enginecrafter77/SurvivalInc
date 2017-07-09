@@ -1,6 +1,7 @@
 package net.schoperation.schopcraft.lib;
 
 import net.minecraft.item.Item;
+import net.schoperation.schopcraft.item.ItemCanteen;
 import net.schoperation.schopcraft.item.ItemTabIcon;
 
 public class ModItems {
@@ -11,7 +12,8 @@ public class ModItems {
 	
 	public static final Item[] ITEMS = {
 				
-				new ItemTabIcon() // don't forget a comma for the second, third, etc item
+				new ItemTabIcon(),
+				new ItemCanteen()
 			
 	};
 }

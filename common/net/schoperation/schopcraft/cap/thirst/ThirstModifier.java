@@ -10,6 +10,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeOcean;
 import net.minecraft.world.biome.BiomeSwamp;
@@ -19,6 +20,7 @@ import net.schoperation.schopcraft.packet.PotionEffectPacket;
 import net.schoperation.schopcraft.packet.SchopPackets;
 import net.schoperation.schopcraft.packet.SummonInfoPacket;
 import net.schoperation.schopcraft.packet.ThirstPacket;
+import net.schoperation.schopcraft.util.SchopServerEffects;
 
 /*
  * Where thirst is modified.
@@ -73,6 +75,23 @@ public class ThirstModifier {
 				thirst.decrease(0.002f);
 			}
 			
+			// side effects of dehydration include fatigue and dizzyness. Those are replicated here. Well, attempted.
+			if (thirst.getThirst() < 2.0f) {
+				
+				SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "instant_damage", 20, 2, false, false);
+				if (player.isEntityAlive()) { player.sendMessage(new TextComponentString(player.getDisplayName().getFormattedText() + " tried to cry to get a drink of water but failed.")); }
+				thirst.set(4.0f);
+			}
+			if (thirst.getThirst() < 15.0f) {
+				
+				SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "nausea", 100, 5, false, false);
+			}
+			if (thirst.getThirst() < 30.0f) {
+				
+				SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "mining_fatigue", 20, 1, false, false);
+			}
+			
+			
 			
 			// send thirst packet to client to render correctly.
 			IMessage msg = new ThirstPacket.ThirstMessage(player.getCachedUniqueIdString(), thirst.getThirst());
@@ -126,7 +145,7 @@ public class ThirstModifier {
 							
 							// random chance to damage player
 							double randomNum = Math.random();
-							if (randomNum <= 0.05) { // 5% chance
+							if (randomNum <= 0.10) { // 10% chance
 								
 								IMessage potionMsg = new PotionEffectPacket.PotionEffectMessage(player.getCachedUniqueIdString(), "poison", 12, 3, false, false);
 								SchopPackets.net.sendToServer(potionMsg);
