@@ -75,7 +75,7 @@ public class ItemCanteen extends Item {
 			else if (canteenType.equals("item." + SchopCraft.RESOURCE_PREFIX + "dirty_water_canteen")) {
 				
 				thirst.increase(15f);
-				SchopServerEffects.affectPlayer(uuid, "poison", 48, 1, false, false);
+				SchopServerEffects.affectPlayer(uuid, "poison", 50, 2, false, false);
 			}
 			
 			// salt water
@@ -102,17 +102,26 @@ public class ItemCanteen extends Item {
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
 		
-		// server-side. unfortunately player.rayTrace is client-only. Will replace with server-side equivalent later. Stay in bed kids.
+		// server-side.
 		if (!world.isRemote) {
 			
 			// ray trace result
-			RayTraceResult raytrace = player.rayTrace(2, 1.0f);
+			// first, some "boosts" to the vector
+			double vecX = 0;
+			double vecZ = 0;
+			if (player.getLookVec().x < 0) { vecX = -0.5; }
+			else if (player.getLookVec().x > 0) { vecX = 0.5; }
+			if (player.getLookVec().z < 0) { vecZ = -0.5; }
+			else if (player.getLookVec().z > 0) { vecZ = 0.5; }
+			
+			// now the actual raytrace
+			RayTraceResult raytrace = world.rayTraceBlocks(player.getPositionEyes(1.0f), player.getPositionEyes(1.0f).add(player.getLookVec().addVector(vecX, -1, vecZ)), true);
 			
 			// held item
 			ItemStack heldItem = player.getHeldItem(hand);
 			
-			// Did they right click on air/liquid?
-			if (raytrace != null && raytrace.typeOfHit == RayTraceResult.Type.MISS) {
+			// Did they right click on a block?
+			if (raytrace != null && raytrace.typeOfHit == RayTraceResult.Type.BLOCK) {
 				
 				// position of the raytrace
 				BlockPos pos = raytrace.getBlockPos();
@@ -157,13 +166,14 @@ public class ItemCanteen extends Item {
 						double randomNum = Math.random();
 						
 						// empty canteen
-						if (heldItem.getUnlocalizedName().equals("item." + SchopCraft.RESOURCE_PREFIX + "empty_canteen")) { if (randomNum < 0.40) { heldItem.setItemDamage(2); } else { heldItem.setItemDamage(1); } }
+						if (heldItem.getUnlocalizedName().equals("item." + SchopCraft.RESOURCE_PREFIX + "empty_canteen")) { if (randomNum < 0.50) { heldItem.setItemDamage(2); } else { heldItem.setItemDamage(1); } }
 						
 						// full canteen (of any type)
 						else if (heldItem.getItemDamage() == 1 || heldItem.getItemDamage() == 2 || heldItem.getItemDamage() == 3) { heldItem.setItemDamage(0); }
 						
-						// otherwise fill it with dirty water or fresh water
-						else { if (randomNum < 0.40) { heldItem.setItemDamage(2); } else { heldItem.setItemDamage(1); } }
+						// otherwise fill it with dirty water or fresh water, according to what's already in it
+						else if (heldItem.getUnlocalizedName().equals("item." + SchopCraft.RESOURCE_PREFIX + "dirty_water_canteen")) { heldItem.setItemDamage(2); }
+						else { if (randomNum < 0.50) { heldItem.setItemDamage(2); } else { heldItem.setItemDamage(1); } }
 						
 					}
 					
