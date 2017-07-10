@@ -12,6 +12,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.BiomeBeach;
 import net.minecraft.world.biome.BiomeOcean;
 import net.minecraft.world.biome.BiomeSwamp;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -55,12 +56,6 @@ public class ThirstModifier {
 		// get capability
 		IThirst thirst = player.getCapability(ThirstProvider.THIRST_CAP, null);
 		
-		// client-side only crap
-		if (player.world.isRemote) {
-			// do nothing right now! YAY!
-			
-		}
-		
 		// sizzlin' server side stuff (crappy attempt at a tongue twister there)
 		if (!player.world.isRemote) {
 			
@@ -69,10 +64,16 @@ public class ThirstModifier {
 				
 				thirst.decrease(0.5f);
 			}
+			
+			// the nether is also good at frying.
+			else if (player.dimension == -1) {
+				
+				thirst.decrease(0.006f);
+			}
 			else {
 				
 				// natural dehydration. "Slow" is an understatement here.
-				thirst.decrease(0.002f);
+				thirst.decrease(0.003f);
 			}
 			
 			// side effects of dehydration include fatigue and dizzyness. Those are replicated here. Well, attempted.
@@ -85,6 +86,11 @@ public class ThirstModifier {
 			if (thirst.getThirst() < 15.0f) {
 				
 				SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "nausea", 100, 5, false, false);
+			}
+			if (thirst.getThirst() < 25.0f) {
+				
+				SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "weakness", 20, 1, false, false);
+				SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "slowness", 20, 0, false, false);
 			}
 			if (thirst.getThirst() < 30.0f) {
 				
@@ -127,7 +133,7 @@ public class ThirstModifier {
 						// still more if statements. now see what biome the player is in, and quench thirst accordingly.
 						Biome biome = player.world.getBiome(pos);
 						
-						if (biome instanceof BiomeOcean) {
+						if (biome instanceof BiomeOcean || biome instanceof BiomeBeach) {
 							
 							thirst.decrease(0.5f);
 						}
@@ -145,9 +151,9 @@ public class ThirstModifier {
 							
 							// random chance to damage player
 							double randomNum = Math.random();
-							if (randomNum <= 0.10) { // 10% chance
+							if (randomNum <= 0.50) { // 50% chance
 								
-								IMessage potionMsg = new PotionEffectPacket.PotionEffectMessage(player.getCachedUniqueIdString(), "poison", 12, 3, false, false);
+								IMessage potionMsg = new PotionEffectPacket.PotionEffectMessage(player.getCachedUniqueIdString(), "poison", 12, 1, false, false);
 								SchopPackets.net.sendToServer(potionMsg);
 							}
 						}

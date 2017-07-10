@@ -54,6 +54,24 @@ public class SchopServerEffects {
 					player.addPotionEffect(new PotionEffect(MobEffects.INSTANT_DAMAGE, duration, amplifier, isAmbient, showParticles));
 				}
 				
+				// instant health
+				else if (effect.equals("instant_health")) {
+					
+					player.addPotionEffect(new PotionEffect(MobEffects.INSTANT_HEALTH, duration, amplifier, isAmbient, showParticles));
+				}
+				
+				// slowness
+				else if (effect.equals("slowness")) {
+					
+					player.addPotionEffect(new PotionEffect(MobEffects.SLOWNESS, duration, amplifier, isAmbient, showParticles));
+				}
+				
+				// weakness
+				else if (effect.equals("weakness")) {
+					
+					player.addPotionEffect(new PotionEffect(MobEffects.WEAKNESS, duration, amplifier, isAmbient, showParticles));
+				}
+				
 			}
 		}		
 	}

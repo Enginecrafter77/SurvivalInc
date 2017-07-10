@@ -17,6 +17,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.BiomeBeach;
 import net.minecraft.world.biome.BiomeOcean;
 import net.minecraft.world.biome.BiomeSwamp;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -45,7 +46,7 @@ public class ItemCanteen extends Item {
 		// properties
 		setMaxStackSize(1);
 		setCreativeTab(SchopCraft.mainTab);
-		setMaxDamage(103);
+		setMaxDamage(104);
 		setNoRepair();
 		setHasSubtypes(true);
 		
@@ -74,8 +75,16 @@ public class ItemCanteen extends Item {
 			// dirty water
 			else if (canteenType.equals("item." + SchopCraft.RESOURCE_PREFIX + "dirty_water_canteen")) {
 				
-				thirst.increase(15f);
+				thirst.increase(10f);
 				SchopServerEffects.affectPlayer(uuid, "poison", 50, 2, false, false);
+			}
+			
+			// filtered water
+			else if (canteenType.equals("item." + SchopCraft.RESOURCE_PREFIX + "filtered_water_canteen")) {
+				
+				thirst.increase(15f);
+				double randChanceOfPoison = Math.random();
+				if (randChanceOfPoison < 0.30) { SchopServerEffects.affectPlayer(uuid, "poison", 50, 0, false, false); }
 			}
 			
 			// salt water
@@ -133,7 +142,7 @@ public class ItemCanteen extends Item {
 					Biome biome = world.getBiome(pos);
 					
 					// Ocean biome
-					if (biome instanceof BiomeOcean) {
+					if (biome instanceof BiomeOcean || biome instanceof BiomeBeach) {
 						
 						// what is the player holding?
 						// empty canteen
@@ -162,18 +171,18 @@ public class ItemCanteen extends Item {
 					// other biomes (may add snow biome soon for temp... maybe cold water canteen?
 					else {
 						
-						// random chance to give dirty water opposed to fresh water.
+						// random chance to give fresh water opposed to dirty water.
 						double randomNum = Math.random();
 						
 						// empty canteen
-						if (heldItem.getUnlocalizedName().equals("item." + SchopCraft.RESOURCE_PREFIX + "empty_canteen")) { if (randomNum < 0.50) { heldItem.setItemDamage(2); } else { heldItem.setItemDamage(1); } }
+						if (heldItem.getUnlocalizedName().equals("item." + SchopCraft.RESOURCE_PREFIX + "empty_canteen")) { if (randomNum < 0.90) { heldItem.setItemDamage(2); } else { heldItem.setItemDamage(1); } }
 						
 						// full canteen (of any type)
-						else if (heldItem.getItemDamage() == 1 || heldItem.getItemDamage() == 2 || heldItem.getItemDamage() == 3) { heldItem.setItemDamage(0); }
+						else if (heldItem.getItemDamage() == 1 || heldItem.getItemDamage() == 2 || heldItem.getItemDamage() == 3 || heldItem.getItemDamage() == 4) { heldItem.setItemDamage(0); }
 						
 						// otherwise fill it with dirty water or fresh water, according to what's already in it
-						else if (heldItem.getUnlocalizedName().equals("item." + SchopCraft.RESOURCE_PREFIX + "dirty_water_canteen")) { heldItem.setItemDamage(2); }
-						else { if (randomNum < 0.50) { heldItem.setItemDamage(2); } else { heldItem.setItemDamage(1); } }
+						else if (heldItem.getUnlocalizedName().equals("item." + SchopCraft.RESOURCE_PREFIX + "dirty_water_canteen") || heldItem.getUnlocalizedName().equals("item." + SchopCraft.RESOURCE_PREFIX + "filtered_water_canteen")) { heldItem.setItemDamage(2); }
+						else { if (randomNum < 0.90) { heldItem.setItemDamage(2); } else { heldItem.setItemDamage(1); } }
 						
 					}
 					
@@ -222,10 +231,12 @@ public class ItemCanteen extends Item {
 		else if (stack.getMetadata() == 1) { return "item." + SchopCraft.RESOURCE_PREFIX + "fresh_water_canteen"; }
 		else if (stack.getMetadata() == 2) { return "item." + SchopCraft.RESOURCE_PREFIX + "dirty_water_canteen"; }
 		else if (stack.getMetadata() == 3) { return "item." + SchopCraft.RESOURCE_PREFIX + "salt_water_canteen"; }
+		else if (stack.getMetadata() == 4) { return "item." + SchopCraft.RESOURCE_PREFIX + "filtered_water_canteen"; }
 		
 		else if (stack.getItemDamage() == 67 || stack.getItemDamage() == 34) { return "item." + SchopCraft.RESOURCE_PREFIX + "fresh_water_canteen"; }
 		else if (stack.getItemDamage() == 68 || stack.getItemDamage() == 35) { return "item." + SchopCraft.RESOURCE_PREFIX + "dirty_water_canteen"; }
 		else if (stack.getItemDamage() == 69 || stack.getItemDamage() == 36) { return "item." + SchopCraft.RESOURCE_PREFIX + "salt_water_canteen"; }
+		else if (stack.getItemDamage() == 70 || stack.getItemDamage() == 37) { return "item." + SchopCraft.RESOURCE_PREFIX + "filtered_water_canteen"; }
 		else { return "item." + SchopCraft.RESOURCE_PREFIX + "empty_canteen"; }
 	}
 	
@@ -236,7 +247,7 @@ public class ItemCanteen extends Item {
 		
 		if (this.isInCreativeTab(tab)) {
             
-			for (int i = 0; i < 4; i++) {
+			for (int i = 0; i < 5; i++) {
 				
                 items.add(new ItemStack(this, 1, i));
             }
@@ -261,7 +272,7 @@ public class ItemCanteen extends Item {
 	@Override
 	public boolean showDurabilityBar(ItemStack stack) {
 		
-		if (stack.getItemDamage() < 4) {
+		if (stack.getItemDamage() < 5) {
 			
 			return false;
 		}

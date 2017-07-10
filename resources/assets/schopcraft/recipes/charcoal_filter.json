@@ -1,0 +1,27 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"&&&",
+		"###",
+		"%%%"
+	],
+	"key": {
+		"#": {
+			"item": "minecraft:coal",
+			"data": 1
+		},
+		"%": {
+			"item": "minecraft:paper",
+			"data": 0
+		},
+		"&": {
+			"item": "minecraft:carpet",
+			"data": 32767
+		}
+	},
+	"result": {
+		"item": "schopcraft:charcoal_filter",
+		"data": 0,
+		"count": 4
+	}
+}

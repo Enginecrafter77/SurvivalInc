@@ -4,6 +4,8 @@ item.schopcraft:empty_canteen.name=Empty Canteen
 item.schopcraft:fresh_water_canteen.name=Fresh Water Canteen
 item.schopcraft:dirty_water_canteen.name=Dirty Water Canteen
 item.schopcraft:salt_water_canteen.name=Salt Water Canteen
+item.schopcraft:filtered_water_canteen.name=Filtered Water Canteen
+item.schopcraft:charcoal_filter.name=Charcoal Filter
 
 # Blocks
 #tile.first_mod:basic_block.name=Basic Block
