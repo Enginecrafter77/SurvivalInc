@@ -14,17 +14,21 @@ public class WetnessPacket implements IMessageHandler<WetnessMessage, IMessage> 
 	@Override
 	public IMessage onMessage(WetnessMessage message, MessageContext ctx) {
 		
-		if(ctx.side.isClient()) {
+		if (ctx.side.isClient()) {
 			
 			String uuid = message.uuid;
 			float wetness = message.wetness;
-			GuiRenderBar.getServerWetness(wetness);
+			float maxWetness = message.maxWetness;
+			float minWetness = message.minWetness;
+			GuiRenderBar.getServerWetness(wetness, maxWetness);
 		}
 		else {
 			
 			String uuid = message.uuid;
 			float wetness = message.wetness;
-			WetnessModifier.getClientChange(uuid, wetness);
+			float maxWetness = message.maxWetness;
+			float minWetness = message.minWetness;
+			WetnessModifier.getClientChange(uuid, wetness, maxWetness, minWetness);
 		}
 		
 		return null;
@@ -35,14 +39,18 @@ public class WetnessPacket implements IMessageHandler<WetnessMessage, IMessage> 
 		// actual variables to be used and sent and crap
 		private String uuid;
 		private float wetness;
+		private float maxWetness;
+		private float minWetness;
 		
 		// dumb constructor WHY FML
 		public WetnessMessage() {}
 		
-		public WetnessMessage(String uuid, float wetness) {
+		public WetnessMessage(String uuid, float wetness, float maxWetness, float minWetness) {
 			
 			this.uuid = uuid;
 			this.wetness = wetness;
+			this.maxWetness = maxWetness;
+			this.minWetness = minWetness;
 		}
 		
 		@Override
@@ -50,6 +58,8 @@ public class WetnessPacket implements IMessageHandler<WetnessMessage, IMessage> 
 			
 			this.uuid = ByteBufUtils.readUTF8String(buf);
 			this.wetness = buf.readFloat();
+			this.maxWetness = buf.readFloat();
+			this.minWetness = buf.readFloat();
 		}
 		
 		@Override
@@ -57,6 +67,8 @@ public class WetnessPacket implements IMessageHandler<WetnessMessage, IMessage> 
 			
 			ByteBufUtils.writeUTF8String(buf, uuid);
 			buf.writeFloat(wetness);
+			buf.writeFloat(maxWetness);
+			buf.writeFloat(minWetness);
 		}
 	}
 }

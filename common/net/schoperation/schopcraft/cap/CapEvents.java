@@ -1,24 +1,23 @@
 package net.schoperation.schopcraft.cap;
 
-import net.minecraft.block.material.Material;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.world.World;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.schoperation.schopcraft.cap.sanity.ISanity;
+import net.schoperation.schopcraft.cap.sanity.SanityModifier;
+import net.schoperation.schopcraft.cap.sanity.SanityProvider;
 import net.schoperation.schopcraft.cap.thirst.IThirst;
 import net.schoperation.schopcraft.cap.thirst.ThirstModifier;
 import net.schoperation.schopcraft.cap.thirst.ThirstProvider;
 import net.schoperation.schopcraft.cap.wetness.IWetness;
 import net.schoperation.schopcraft.cap.wetness.WetnessModifier;
 import net.schoperation.schopcraft.cap.wetness.WetnessProvider;
+import net.schoperation.schopcraft.packet.SanityPacket;
 import net.schoperation.schopcraft.packet.SchopPackets;
 import net.schoperation.schopcraft.packet.ThirstPacket;
 import net.schoperation.schopcraft.packet.WetnessPacket;
@@ -40,13 +39,18 @@ public class CapEvents {
 			
 			// send wetness packet to client
 			IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
-			IMessage msgWetness = new WetnessPacket.WetnessMessage(player.getCachedUniqueIdString(), wetness.getWetness());
-			SchopPackets.net.sendTo(msgWetness, (EntityPlayerMP)player);
+			IMessage msgWetness = new WetnessPacket.WetnessMessage(player.getCachedUniqueIdString(), wetness.getWetness(), wetness.getMaxWetness(), wetness.getMinWetness());
+			SchopPackets.net.sendTo(msgWetness, (EntityPlayerMP) player);
 			
 			// send thirst packet to client
 			IThirst thirst = player.getCapability(ThirstProvider.THIRST_CAP, null);
-			IMessage msgThirst = new ThirstPacket.ThirstMessage(player.getCachedUniqueIdString(), thirst.getThirst());
-			SchopPackets.net.sendTo(msgThirst, (EntityPlayerMP)player);
+			IMessage msgThirst = new ThirstPacket.ThirstMessage(player.getCachedUniqueIdString(), thirst.getThirst(), thirst.getMaxThirst(), thirst.getMinThirst());
+			SchopPackets.net.sendTo(msgThirst, (EntityPlayerMP) player);
+			
+			// send sanity packet to client
+			ISanity sanity = player.getCapability(SanityProvider.SANITY_CAP, null);
+			IMessage msgSanity = new SanityPacket.SanityMessage(player.getCachedUniqueIdString(), sanity.getSanity(), sanity.getMaxSanity(), sanity.getMinSanity());
+			SchopPackets.net.sendTo(msgSanity, (EntityPlayerMP) player);
 			
 		}
 	}
@@ -65,6 +69,7 @@ public class CapEvents {
 			// now fire every method that should be fired here, passing the player as a parameter.
 			WetnessModifier.onPlayerUpdate(player);
 			ThirstModifier.onPlayerUpdate(player);
+			SanityModifier.onPlayerUpdate(player);
 		}
 	}
 	

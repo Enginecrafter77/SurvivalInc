@@ -41,6 +41,16 @@ public class Wetness implements IWetness {
 		}
 	}
 	
+	public void setMax(float amount) {
+		
+		this.maxWetness = amount;
+	}
+	
+	public void setMin(float amount) {
+		
+		this.minWetness = amount;
+	}
+	
 	public float getWetness() {
 		
 		return this.wetness;

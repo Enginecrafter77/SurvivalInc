@@ -6,13 +6,13 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 
-//this provides the mechanic/capability to the players
+// this provides the mechanic/capability to the players
 public class ThirstProvider implements ICapabilitySerializable<NBTBase> {
 	
 	@CapabilityInject(IThirst.class)
 	public static final Capability<IThirst> THIRST_CAP = null;
 	
-	private IThirst instance =  THIRST_CAP.getDefaultInstance();
+	private IThirst instance = THIRST_CAP.getDefaultInstance();
 	
 	@Override
 	public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
@@ -37,5 +37,4 @@ public class ThirstProvider implements ICapabilitySerializable<NBTBase> {
 		
 		THIRST_CAP.getStorage().readNBT(THIRST_CAP, this.instance, null, nbt);
 	}
-
 }

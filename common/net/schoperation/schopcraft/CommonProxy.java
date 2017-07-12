@@ -7,6 +7,9 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.schoperation.schopcraft.cap.CapEvents;
 import net.schoperation.schopcraft.cap.CapabilityHandler;
+import net.schoperation.schopcraft.cap.sanity.ISanity;
+import net.schoperation.schopcraft.cap.sanity.Sanity;
+import net.schoperation.schopcraft.cap.sanity.SanityStorage;
 import net.schoperation.schopcraft.cap.thirst.IThirst;
 import net.schoperation.schopcraft.cap.thirst.Thirst;
 import net.schoperation.schopcraft.cap.thirst.ThirstStorage;
@@ -26,6 +29,7 @@ public class CommonProxy {
 		// register capabilities (mainly the new stats)
 		CapabilityManager.INSTANCE.register(IWetness.class, new WetnessStorage(), Wetness.class);
 		CapabilityManager.INSTANCE.register(IThirst.class, new ThirstStorage(), Thirst.class);
+		CapabilityManager.INSTANCE.register(ISanity.class, new SanityStorage(), Sanity.class);
 		
 		// register event handlers
 		MinecraftForge.EVENT_BUS.register(new CapabilityHandler());

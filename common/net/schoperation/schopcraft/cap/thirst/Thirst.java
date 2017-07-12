@@ -41,6 +41,16 @@ public class Thirst implements IThirst {
 		}
 	}
 	
+	public void setMax(float amount) {
+		
+		this.maxThirst = amount;
+	}
+	
+	public void setMin(float amount) {
+		
+		this.minThirst = amount;
+	}
+	
 	public float getThirst() {
 		
 		return this.thirst;

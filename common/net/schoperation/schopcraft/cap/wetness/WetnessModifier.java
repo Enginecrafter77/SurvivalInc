@@ -20,7 +20,7 @@ import net.schoperation.schopcraft.util.SchopServerParticles;
 public class WetnessModifier {
 	
 	
-	public static void getClientChange(String uuid, float value) {
+	public static void getClientChange(String uuid, float newWetness, float newMaxWetness, float newMinWetness) {
 		
 		// basic server variables
 		MinecraftServer serverworld = FMLCommonHandler.instance().getMinecraftServerInstance();
@@ -37,7 +37,9 @@ public class WetnessModifier {
 			
 			if (equalStrings) {
 
-				wetness.increase(value-10);
+				wetness.increase(newWetness-10);
+				wetness.setMax(newMaxWetness);
+				wetness.setMin(newMinWetness);
 			}
 		}
 	}
@@ -211,7 +213,7 @@ public class WetnessModifier {
 			}
 			
 			// send wetness data to server
-			IMessage msg = new WetnessPacket.WetnessMessage(player.getCachedUniqueIdString(), wetness.getWetness());
+			IMessage msg = new WetnessPacket.WetnessMessage(player.getCachedUniqueIdString(), wetness.getWetness(), wetness.getMaxWetness(), wetness.getMinWetness());
 			SchopPackets.net.sendToServer(msg);	
 		}
 		
@@ -252,8 +254,8 @@ public class WetnessModifier {
 			SchopServerParticles.summonParticle(player.getCachedUniqueIdString(), "WetnessParticles", doublePlayerPosX, doublePlayerPosY, doublePlayerPosZ);
 
 			// send new wetness data to client in order to render correctly
-			IMessage msg = new WetnessPacket.WetnessMessage(player.getCachedUniqueIdString(), wetness.getWetness());
-			SchopPackets.net.sendTo(msg, (EntityPlayerMP)player);
+			IMessage msg = new WetnessPacket.WetnessMessage(player.getCachedUniqueIdString(), wetness.getWetness(), wetness.getMaxWetness(), wetness.getMinWetness());
+			SchopPackets.net.sendTo(msg, (EntityPlayerMP) player);
 		}
 	}
 }

@@ -14,6 +14,7 @@ public class SchopPackets {
 		net = NetworkRegistry.INSTANCE.newSimpleChannel(SchopCraft.MOD_ID);
 		registerMessage(WetnessPacket.class, WetnessPacket.WetnessMessage.class);
 		registerMessage(ThirstPacket.class, ThirstPacket.ThirstMessage.class);
+		registerMessage(SanityPacket.class, SanityPacket.SanityMessage.class);
 		registerMessage(SummonInfoPacket.class, SummonInfoPacket.SummonInfoMessage.class);
 		registerMessage(PotionEffectPacket.class, PotionEffectPacket.PotionEffectMessage.class);
 		

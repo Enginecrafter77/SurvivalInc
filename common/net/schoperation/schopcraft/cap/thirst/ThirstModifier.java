@@ -29,7 +29,7 @@ import net.schoperation.schopcraft.util.SchopServerEffects;
 
 public class ThirstModifier {
 	
-	public static void getClientChange(String uuid, float value) {
+	public static void getClientChange(String uuid, float newThirst, float newMaxThirst, float newMinThirst) {
 	
 		// basic server variables
 		MinecraftServer serverworld = FMLCommonHandler.instance().getMinecraftServerInstance();
@@ -46,7 +46,9 @@ public class ThirstModifier {
 			
 			if (equalStrings) {
 	
-				thirst.increase(value-10);
+				thirst.increase(newThirst-10);
+				thirst.setMax(newMaxThirst);
+				thirst.setMin(newMinThirst);
 			}
 		}
 	}
@@ -100,8 +102,8 @@ public class ThirstModifier {
 			
 			
 			// send thirst packet to client to render correctly.
-			IMessage msg = new ThirstPacket.ThirstMessage(player.getCachedUniqueIdString(), thirst.getThirst());
-			SchopPackets.net.sendTo(msg, (EntityPlayerMP)player);
+			IMessage msg = new ThirstPacket.ThirstMessage(player.getCachedUniqueIdString(), thirst.getThirst(), thirst.getMaxThirst(), thirst.getMinThirst());
+			SchopPackets.net.sendTo(msg, (EntityPlayerMP) player);
 		}
 	}
 	
@@ -166,7 +168,7 @@ public class ThirstModifier {
 			}
 			
 			// send thirst packet to server
-			IMessage msg = new ThirstPacket.ThirstMessage(player.getCachedUniqueIdString(), thirst.getThirst());
+			IMessage msg = new ThirstPacket.ThirstMessage(player.getCachedUniqueIdString(), thirst.getThirst(), thirst.getMaxThirst(), thirst.getMinThirst());
 			SchopPackets.net.sendToServer(msg);	
 		}
 	}

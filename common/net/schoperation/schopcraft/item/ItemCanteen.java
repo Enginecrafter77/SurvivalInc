@@ -97,7 +97,7 @@ public class ItemCanteen extends Item {
 			stack.damageItem(33, player);
 			
 			// send thirst packet to client to render correctly
-			IMessage msg = new ThirstPacket.ThirstMessage(player.getCachedUniqueIdString(), thirst.getThirst());
+			IMessage msg = new ThirstPacket.ThirstMessage(player.getCachedUniqueIdString(), thirst.getThirst(), thirst.getMaxThirst(), thirst.getMinThirst());
 			SchopPackets.net.sendTo(msg, (EntityPlayerMP)player);
 		}
 		
