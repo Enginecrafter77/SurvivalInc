@@ -187,6 +187,7 @@ public class SanityModifier {
 		// server-side
 		if (!player.world.isRemote) {
 			
+			// unlocalized name of item
 			String itemName = item.getUnlocalizedName();
 			
 			// if raw or bad food, drain sanity
@@ -215,6 +216,10 @@ public class SanityModifier {
 			else if (itemName.equals("item.rabbitStew")) { sanity.increase(15.0f); }
 			else if (itemName.equals("item.mushroomStew")) { sanity.increase(10.0f); }
 			else if (itemName.equals("item.beetroot_soup")) { sanity.increase(10.0f); }
+			
+			// send data to client for rendering
+			IMessage msg = new SanityPacket.SanityMessage(player.getCachedUniqueIdString(), sanity.getSanity(), sanity.getMaxSanity(), sanity.getMinSanity());
+			SchopPackets.net.sendTo(msg, (EntityPlayerMP) player);
 		}	
 	}
 }
