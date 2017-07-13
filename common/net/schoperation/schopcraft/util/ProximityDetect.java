@@ -98,7 +98,7 @@ public class ProximityDetect {
 			else if (x == -2 && z == 0) { z--; if (blockingWest != air && !throughBlock) { noWall = false; } else { noWall = true; } }
 			else if (x == -2 && z == -1) { z--; if (blockingWest != air && !throughBlock) { noWall = false; } else { noWall = true; } }
 			else if (x == -2 && z == -2) { x++; if (blockingNorthwest != air && !throughBlock) { noWall = false; } else { noWall = true; } }
-			else if (x == -1 && z == -1) { x++; if (blockingNorth != air && !throughBlock) { noWall = false; } else { noWall = true; } }
+			else if (x == -1 && z == -2) { x++; if (blockingNorth != air && !throughBlock) { noWall = false; } else { noWall = true; } }
 			
 			// see if that block is the specified block
 			if (kek == block && noWall) { 
@@ -204,7 +204,7 @@ public class ProximityDetect {
 			else if (x == -2 && z == 0) { z--; if (blockingWest != air && !throughBlock && blockingWestDown != air) { noWall = false; } else { noWall = true; } }
 			else if (x == -2 && z == -1) { z--; if (blockingWest != air && !throughBlock && blockingWestDown != air) { noWall = false; } else { noWall = true; } }
 			else if (x == -2 && z == -2) { x++; if (blockingNorthwest != air && !throughBlock && blockingNorthwestDown != air) { noWall = false; } else { noWall = true; } }
-			else if (x == -1 && z == -1) { x++; if (blockingNorth != air && !throughBlock && blockingNorthDown != air) { noWall = false; } else { noWall = true; } }
+			else if (x == -1 && z == -2) { x++; if (blockingNorth != air && !throughBlock && blockingNorthDown != air) { noWall = false; } else { noWall = true; } }
 			
 			// see if that block is the specified block
 			if (kek == block && noWall) { 

@@ -17,7 +17,9 @@ import net.minecraft.entity.passive.EntityOcelot;
 import net.minecraft.entity.passive.EntityParrot;
 import net.minecraft.entity.passive.EntitySheep;
 import net.minecraft.entity.passive.EntityWolf;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -174,5 +176,45 @@ public class SanityModifier {
 			IMessage msg = new SanityPacket.SanityMessage(player.getCachedUniqueIdString(), sanity.getSanity(), sanity.getMaxSanity(), sanity.getMinSanity());
 			SchopPackets.net.sendTo(msg, (EntityPlayerMP) player);
 		}
+	}
+	
+	// This checks any consumed item by the player, and affects sanity accordingly.
+	public static void onPlayerConsumeItem(EntityPlayer player, ItemStack item) {
+		
+		// capability
+		ISanity sanity = player.getCapability(SanityProvider.SANITY_CAP, null);
+		
+		// server-side
+		if (!player.world.isRemote) {
+			
+			String itemName = item.getUnlocalizedName();
+			
+			// if raw or bad food, drain sanity
+			if (itemName.equals("item.chickenRaw")) { sanity.decrease(5.0f); }
+			else if (itemName.equals("item.beefRaw")) { sanity.decrease(5.0f); }
+			else if (itemName.equals("item.rabbitRaw")) { sanity.decrease(5.0f); }
+			else if (itemName.equals("item.muttonRaw")) { sanity.decrease(5.0f); }
+			else if (itemName.equals("item.porkchopRaw")) { sanity.decrease(5.0f); }
+			else if (itemName.equals("item.fish.cod.raw")) { sanity.decrease(5.0f); }
+			else if (itemName.equals("item.fish.salmon.raw")) { sanity.decrease(5.0f); }
+			else if (itemName.equals("item.fish.clownfish")) { sanity.decrease(5.0f); }
+			else if (itemName.equals("item.fish.pufferfish")) { sanity.decrease(5.0f); }
+			else if (itemName.equals("item.rottenFlesh")) { sanity.decrease(10.0f); }
+			else if (itemName.equals("item.spiderEye")) { sanity.decrease(15.0f); }
+			
+			// if cooked or good food, increase sanity
+			if (itemName.equals("item.chickenCooked")) { sanity.increase(2.0f); }
+			else if (itemName.equals("item.beefCooked")) { sanity.increase(2.0f); }
+			else if (itemName.equals("item.rabbitCooked")) { sanity.increase(2.0f); }
+			else if (itemName.equals("item.muttonCooked")) { sanity.increase(2.0f); }
+			else if (itemName.equals("item.porkchopCooked")) { sanity.increase(2.0f); }
+			else if (itemName.equals("item.fish.cod.cooked")) { sanity.increase(2.0f); }
+			else if (itemName.equals("item.fish.salmon.cooked")) { sanity.increase(2.0f); }
+			else if (itemName.equals("item.pumpkinPie")) { sanity.increase(15.0f); }
+			else if (itemName.equals("item.cookie")) { sanity.increase(2.0f); }
+			else if (itemName.equals("item.rabbitStew")) { sanity.increase(15.0f); }
+			else if (itemName.equals("item.mushroomStew")) { sanity.increase(10.0f); }
+			else if (itemName.equals("item.beetroot_soup")) { sanity.increase(10.0f); }
+		}	
 	}
 }

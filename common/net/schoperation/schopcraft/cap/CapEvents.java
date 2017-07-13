@@ -3,6 +3,9 @@ package net.schoperation.schopcraft.cap;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemAir;
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -73,6 +76,7 @@ public class CapEvents {
 		}
 	}
 	
+	// When a player interacts with a block (usually right clicking)
 	@SubscribeEvent
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		
@@ -83,6 +87,27 @@ public class CapEvents {
 			
 			// fire methods
 			ThirstModifier.onPlayerInteract(player);
+		}
+	}
+	
+	// When a player (kinda) finishes using an item.
+	@SubscribeEvent
+	public void onPlayerUseItem(LivingEntityUseItemEvent.Tick event) {
+
+		if (event.getEntity() instanceof EntityPlayer) {
+			 
+			// instance of player
+			EntityPlayer player = (EntityPlayer) event.getEntity();
+			
+			if (!player.world.isRemote && event.getDuration() == 1) {
+				
+				// item instance
+				ItemStack itemUsed = event.getItem();
+				
+				// fire method
+				SanityModifier.onPlayerConsumeItem(player, itemUsed);
+				
+			}
 		}
 	}
 }
