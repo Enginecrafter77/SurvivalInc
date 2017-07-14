@@ -76,7 +76,7 @@ public class CapEvents {
 			WetnessModifier.onPlayerUpdate(player);
 			ThirstModifier.onPlayerUpdate(player);
 			SanityModifier.onPlayerUpdate(player);
-
+			
 			// fire this if the player is sleeping (not starting to sleep, legit sleeping)
 			if (player.isPlayerFullyAsleep() && player.world.isRemote) {
 				

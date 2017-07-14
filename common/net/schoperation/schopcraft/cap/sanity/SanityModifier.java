@@ -30,6 +30,7 @@ import net.schoperation.schopcraft.cap.wetness.WetnessProvider;
 import net.schoperation.schopcraft.packet.PotionEffectPacket;
 import net.schoperation.schopcraft.packet.SanityPacket;
 import net.schoperation.schopcraft.packet.SchopPackets;
+import net.schoperation.schopcraft.packet.SummonInfoPacket;
 import net.schoperation.schopcraft.util.SchopServerEffects;
 
 /*
@@ -61,6 +62,9 @@ public class SanityModifier {
 			}
 		}
 	}
+	
+	// this is used for the timer at the end of onPlayerUpdate to allow for a hallucination once per 20 ticks.
+	private static int lucidTimer = 0;
 	
 	public static void onPlayerUpdate(Entity player) {
 		
@@ -177,6 +181,135 @@ public class SanityModifier {
 			// send sanity packet to client for rendering
 			IMessage msg = new SanityPacket.SanityMessage(player.getCachedUniqueIdString(), sanity.getSanity(), sanity.getMaxSanity(), sanity.getMinSanity());
 			SchopPackets.net.sendTo(msg, (EntityPlayerMP) player);
+			
+			// ===========================================================================
+			//                  The Side Effects of Insanity
+			// ===========================================================================
+			
+			// every 20 ticks (1 second) there is a chance for a hallucination to appear; visual, audial, or both.
+			// in this case, a hallucination is a client-only particle/sound. The "things" (Maxwell refers to them as "Them") are a different area.
+			// the more insane the player is, the bigger the chance is.
+			if (lucidTimer < 20) {
+				
+				// increment timer until it reaches 20
+				lucidTimer++;
+			}
+			else {
+				
+				// reset timer
+				lucidTimer = 0;
+				
+				// there'll only be hallucinations for players with less than 70% of their sanity.
+				if (sanity.getSanity() <= (sanity.getMaxSanity() * 0.70)) {
+					
+					// determine if a hallucination should appear
+					double chanceOfHallucination = (double) (sanity.getSanity() / 100) + 0.30;
+					double randomLucidNumber = Math.random();
+					boolean shouldSpawnHallucination = chanceOfHallucination < randomLucidNumber;
+					
+					// so... should one appear?
+					if (shouldSpawnHallucination) {
+						
+						// now pick one... more random numbers
+						double pickAHallucination = Math.random();
+						double randOffset = Math.random() * 6;
+						int posOrNeg = (int) Math.round(Math.random());
+						
+						if (posOrNeg == 0) { randOffset = randOffset * -1; }
+
+						// as of now... ten possibilities... all weighted equally.
+						// These will be called on the client, so no one else can see/hear them. Random positions nearby the player too.
+						// Enderman noise + particles
+						if (pickAHallucination >= 0 && pickAHallucination < 0.10) {
+							
+							IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(player.getCachedUniqueIdString(), "EndermanSound", "EndermanParticles", playerPosX+randOffset, playerPosY+1, playerPosZ+randOffset);
+							SchopPackets.net.sendTo(msgStuff, (EntityPlayerMP) player);
+						}
+						// Zombie sound
+						else if (pickAHallucination >= 0.10 && pickAHallucination < 0.20) {
+							
+							IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(player.getCachedUniqueIdString(), "ZombieSound", "null", playerPosX+randOffset, playerPosY+randOffset, playerPosZ+randOffset);
+							SchopPackets.net.sendTo(msgStuff, (EntityPlayerMP) player);
+						}
+						// Ghast sound
+						else if (pickAHallucination >= 0.20 && pickAHallucination < 0.30) {
+							
+							IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(player.getCachedUniqueIdString(), "GhastSound", "null", playerPosX+randOffset, playerPosY+randOffset, playerPosZ+randOffset);
+							SchopPackets.net.sendTo(msgStuff, (EntityPlayerMP) player); 
+						}
+						// explosion sound + particles
+						else if (pickAHallucination >= 0.30 && pickAHallucination < 0.40) {
+							
+							IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(player.getCachedUniqueIdString(), "ExplosionSound", "ExplosionParticles", playerPosX+randOffset, playerPosY+randOffset, playerPosZ+randOffset);
+							SchopPackets.net.sendTo(msgStuff, (EntityPlayerMP) player);
+						}
+						// stone sound
+						else if (pickAHallucination >= 0.40 && pickAHallucination < 0.50) {
+							
+							IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(player.getCachedUniqueIdString(), "StoneBreakSound", "null", playerPosX+randOffset, playerPosY+randOffset, playerPosZ+randOffset);
+							SchopPackets.net.sendTo(msgStuff, (EntityPlayerMP) player);
+						}
+						// mist in the air... tf???????
+						else if (pickAHallucination >= 0.50 && pickAHallucination < 0.60) {
+							
+							IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(player.getCachedUniqueIdString(), "null", "CreepyMistParticles", playerPosX+randOffset, playerPosY+1, playerPosZ+randOffset);
+							SchopPackets.net.sendTo(msgStuff, (EntityPlayerMP) player);
+						}
+						// a guardian appearing in your face. This one still scares the crap out of me.
+						else if (pickAHallucination >= 0.60 && pickAHallucination < 0.70) {
+							
+							IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(player.getCachedUniqueIdString(), "null", "GuardianParticles", playerPosX, playerPosY, playerPosZ);
+							SchopPackets.net.sendTo(msgStuff, (EntityPlayerMP) player);
+						}
+						// fire sounds + smoke particles
+						else if (pickAHallucination >= 0.70 && pickAHallucination < 0.80) {
+							
+							IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(player.getCachedUniqueIdString(), "FireSound", "SmokeParticles", playerPosX+randOffset, playerPosY+randOffset, playerPosZ+randOffset);
+							SchopPackets.net.sendTo(msgStuff, (EntityPlayerMP) player);
+						}
+						// villager sound... are they lost?
+						else if (pickAHallucination >= 0.80 && pickAHallucination < 0.90) {
+							
+							IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(player.getCachedUniqueIdString(), "VillagerSound", "null", playerPosX+randOffset, playerPosY+randOffset, playerPosZ+randOffset);
+							SchopPackets.net.sendTo(msgStuff, (EntityPlayerMP) player);
+						}
+						// lava sound
+						else if (pickAHallucination >= 0.90 && pickAHallucination <= 1.00) {
+							
+							IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(player.getCachedUniqueIdString(), "LavaSound", "null", playerPosX+randOffset, playerPosY+randOffset, playerPosZ+randOffset);
+							SchopPackets.net.sendTo(msgStuff, (EntityPlayerMP) player);
+						}
+					}
+				}
+				
+				// wobble the screen of the player with low sanity
+				if (sanity.getSanity() <= (sanity.getMaxSanity() * 0.35)) {
+					
+					SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "nausea", 100, 5, false, false);
+				}
+				
+				// add some weird insanity ambience
+				if (sanity.getSanity() <= (sanity.getMaxSanity() * 0.20)) {
+					
+					// random chance so it doesn't overlap with itself
+					double randInsanityAmbience = Math.random();
+					if (randInsanityAmbience < 0.20) {
+						
+						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(player.getCachedUniqueIdString(), "InsanityAmbienceSoundLoud", "null", playerPosX, playerPosY, playerPosZ);
+						SchopPackets.net.sendTo(msgStuff, (EntityPlayerMP) player);
+					}
+				}
+				else if (sanity.getSanity() <= (sanity.getMaxSanity() * 0.50)) {
+					
+					// random chance so it doesn't overlap with itself
+					double randInsanityAmbience = Math.random();
+					if (randInsanityAmbience < 0.20) {
+						
+						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(player.getCachedUniqueIdString(), "InsanityAmbienceSound", "null", playerPosX, playerPosY, playerPosZ);
+						SchopPackets.net.sendTo(msgStuff, (EntityPlayerMP) player);
+					}
+				}
+			}
 		}
 	}
 	
@@ -227,7 +360,8 @@ public class SanityModifier {
 	
 	// this checks if the player is sleeping on a server, since not everyone may be sleeping at the same time.
 	// this pretty much will not be fired if the world is singleplayer, as by the time the player is fully asleep,
-	// ...the time will be day, kicking the player out of bed. Called on client-side
+	// ...the time will be day, kicking the player out of bed. Called on client-side, because when I tried to do it server-side...
+	// ...only one player would get the +33 sanity from waking up, even if more than one player woke up.
 	public static void onPlayerSleepInBed(EntityPlayer player) {
 		
 		// capability

@@ -6,6 +6,8 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.schoperation.schopcraft.packet.SummonInfoPacket.SummonInfoMessage;
+import net.schoperation.schopcraft.util.SchopClientParticles;
+import net.schoperation.schopcraft.util.SchopClientSounds;
 import net.schoperation.schopcraft.util.SchopServerParticles;
 import net.schoperation.schopcraft.util.SchopServerSounds;
 
@@ -17,7 +19,7 @@ public class SummonInfoPacket implements IMessageHandler<SummonInfoMessage, IMes
 	@Override
 	public IMessage onMessage(SummonInfoMessage message, MessageContext ctx) {
 		
-		if(ctx.side.isServer()) {
+		if (ctx.side.isServer()) {
 			
 			String uuid = message.uuid;
 			String soundPicker = message.soundPicker;
@@ -27,6 +29,17 @@ public class SummonInfoPacket implements IMessageHandler<SummonInfoMessage, IMes
 			double posZ = message.posZ;
 			SchopServerParticles.summonParticle(uuid, particlePicker, posX, posY, posZ);
 			SchopServerSounds.playSound(uuid, soundPicker, posX, posY, posZ);
+		}
+		else {
+			
+			String uuid = message.uuid;
+			String soundPicker = message.soundPicker;
+			String particlePicker = message.particlePicker;
+			double posX = message.posX;
+			double posY = message.posY;
+			double posZ = message.posZ;
+			SchopClientParticles.summonParticle(uuid, particlePicker, posX, posY, posZ);
+			SchopClientSounds.playSound(uuid, soundPicker, posX, posY, posZ);
 		}
 		
 		return null;
