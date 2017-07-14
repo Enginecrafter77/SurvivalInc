@@ -72,6 +72,12 @@ public class SchopServerEffects {
 					player.addPotionEffect(new PotionEffect(MobEffects.WEAKNESS, duration, amplifier, isAmbient, showParticles));
 				}
 				
+				// hunger
+				else if (effect.equals("hunger")) {
+					
+					player.addPotionEffect(new PotionEffect(MobEffects.HUNGER, duration, amplifier, isAmbient, showParticles));
+				}
+				
 			}
 		}		
 	}

@@ -1,13 +1,12 @@
 package net.schoperation.schopcraft.cap;
 
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.ItemAir;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.entity.player.PlayerWakeUpEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -60,6 +59,10 @@ public class CapEvents {
 	
 	// When an entity is updated. So, all the time. Or should this be a tickhandler event thingy? We'll find out soon.
 	// the modifier classes are responsible for sending and dealing with packets here.
+	
+	// Below is a wakeUpTimer variable used to delay the execution of SanityModifier.onPlayerWakeUp(EntityPlayer player).
+	private int wakeUpTimer = -1;
+	
 	@SubscribeEvent
 	public void onPlayerUpdate(LivingUpdateEvent event) {
 		
@@ -67,12 +70,30 @@ public class CapEvents {
 		if (event.getEntity() instanceof EntityPlayer) {
 			
 			// instance of player
-			Entity player = event.getEntity();
+			EntityPlayer player = (EntityPlayer) event.getEntity();
 			
 			// now fire every method that should be fired here, passing the player as a parameter.
 			WetnessModifier.onPlayerUpdate(player);
 			ThirstModifier.onPlayerUpdate(player);
 			SanityModifier.onPlayerUpdate(player);
+
+			// fire this if the player is sleeping (not starting to sleep, legit sleeping)
+			if (player.isPlayerFullyAsleep() && player.world.isRemote) {
+				
+				SanityModifier.onPlayerSleepInBed(player);
+			}
+			
+			// fire this if onPlayerWakeUp is fired (the event). It'll keep counting up until it reaches a certain value.
+			if (wakeUpTimer > 30 && player.world.isRemote) {
+				
+				// fire onWakeUp methods and reset wakeUpTimer
+				SanityModifier.onPlayerWakeUp(player);
+				wakeUpTimer = -1;
+			}
+			else if (wakeUpTimer > -1 && player.world.isRemote) {
+				
+				wakeUpTimer++;
+			}
 		}
 	}
 	
@@ -80,14 +101,11 @@ public class CapEvents {
 	@SubscribeEvent
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		
-		if (event.getEntity() instanceof EntityPlayer) {
-			
-			// instance of player
-			EntityPlayer player = (EntityPlayer) event.getEntity();
-			
-			// fire methods
-			ThirstModifier.onPlayerInteract(player);
-		}
+		// instance of player
+		EntityPlayer player = event.getEntityPlayer();
+		
+		// fire methods
+		ThirstModifier.onPlayerInteract(player);
 	}
 	
 	// When a player (kinda) finishes using an item.
@@ -104,10 +122,24 @@ public class CapEvents {
 				// item instance
 				ItemStack itemUsed = event.getItem();
 				
-				// fire method
+				// fire methods
 				SanityModifier.onPlayerConsumeItem(player, itemUsed);
-				
 			}
 		}
+	}
+	
+	// When a player wakes up from bed
+	@SubscribeEvent
+	public void onPlayerWakeUp(PlayerWakeUpEvent event) {
+		
+		// instance of player
+		EntityPlayer player = event.getEntityPlayer();
+		
+		// start timer
+		if (wakeUpTimer == -1 && player.world.isRemote) {
+			
+			wakeUpTimer = 0;
+		}
+		// the methods are fired in onPlayerUpdate.	
 	}
 }

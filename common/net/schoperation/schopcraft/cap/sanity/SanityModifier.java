@@ -27,8 +27,10 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.schoperation.schopcraft.cap.wetness.IWetness;
 import net.schoperation.schopcraft.cap.wetness.WetnessProvider;
+import net.schoperation.schopcraft.packet.PotionEffectPacket;
 import net.schoperation.schopcraft.packet.SanityPacket;
 import net.schoperation.schopcraft.packet.SchopPackets;
+import net.schoperation.schopcraft.util.SchopServerEffects;
 
 /*
  * Where sanity is modified.
@@ -221,5 +223,52 @@ public class SanityModifier {
 			IMessage msg = new SanityPacket.SanityMessage(player.getCachedUniqueIdString(), sanity.getSanity(), sanity.getMaxSanity(), sanity.getMinSanity());
 			SchopPackets.net.sendTo(msg, (EntityPlayerMP) player);
 		}	
+	}
+	
+	// this checks if the player is sleeping on a server, since not everyone may be sleeping at the same time.
+	// this pretty much will not be fired if the world is singleplayer, as by the time the player is fully asleep,
+	// ...the time will be day, kicking the player out of bed. Called on client-side
+	public static void onPlayerSleepInBed(EntityPlayer player) {
+		
+		// capability
+		ISanity sanity = player.getCapability(SanityProvider.SANITY_CAP, null);
+		
+		// client-side
+		if (player.world.isRemote) {
+			
+			sanity.set(10.0f);
+			sanity.increase(0.008f);
+			
+			// induce hunger on the sleeping player
+			IMessage msgEffect = new PotionEffectPacket.PotionEffectMessage(player.getCachedUniqueIdString(), "hunger", 20, 4, false, false);
+			SchopPackets.net.sendToServer(msgEffect);
+			
+			// send data to server
+			IMessage msg = new SanityPacket.SanityMessage(player.getCachedUniqueIdString(), sanity.getSanity(), sanity.getMaxSanity(), sanity.getMinSanity());
+			SchopPackets.net.sendToServer(msg);
+		}
+	}
+	
+	// At this point, the player has awoke from their sleep. This "sleep" could've been 1 second or 1 day.
+	// Figure out if it is daytime (the sleep is successful). If so, grant extra sanity and drain extra hunger.
+	public static void onPlayerWakeUp(EntityPlayer player) {
+		
+		// capability
+		ISanity sanity = player.getCapability(SanityProvider.SANITY_CAP, null);
+		
+		// is it daytime? If not, the player just clicked "Leave Bed" or something related to try to cheat the system (and might've succeeded)
+		if (player.world.isRemote && player.world.getSunBrightnessFactor(1.0f) > 0.65f) {
+			
+			sanity.set(10.0f);
+			sanity.increase(33f);
+			
+			// make player hungry for breakfast (or something...)
+			IMessage msgEffect = new PotionEffectPacket.PotionEffectMessage(player.getCachedUniqueIdString(), "hunger", 200, 8, false, false);
+			SchopPackets.net.sendToServer(msgEffect);
+
+			// send data to server
+			IMessage msg = new SanityPacket.SanityMessage(player.getCachedUniqueIdString(), sanity.getSanity(), sanity.getMaxSanity(), sanity.getMinSanity());
+			SchopPackets.net.sendToServer(msg);
+		}
 	}
 }
