@@ -45,6 +45,9 @@ public class SchopClientSounds {
 			else if (soundMethod.equals("InsanityAmbienceSoundLoud")) { playInsanityAmbienceSoundLoud(world, pos); }
 		}
 	}
+	// ===============================================================================
+	//                Below sounds are mainly for INSANITY.
+	// ===============================================================================
 	
 	// The sound of the enderman. Angry sound.
 	private static void playEndermanSound(WorldClient world, BlockPos pos) {

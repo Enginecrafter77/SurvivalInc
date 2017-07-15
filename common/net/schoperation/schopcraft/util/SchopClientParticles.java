@@ -35,6 +35,9 @@ public class SchopClientParticles {
 			else if (particleMethod.equals("SmokeParticles")) { spawnSmokeParticles(posX, posY, posZ, world); }
 		}
 	}
+	// ===============================================================================
+	//                Below particles are mainly for INSANITY.
+	// ===============================================================================
 	
 	// Enderman particles. Purple and spooky.
 	private static void spawnEndermanParticles(double posX, double posY, double posZ, WorldClient world) {

@@ -3,6 +3,7 @@ package net.schoperation.schopcraft.cap.sanity;
 import java.util.List;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.boss.EntityWither;
 import net.minecraft.entity.monster.EntityElderGuardian;
 import net.minecraft.entity.monster.EntityEnderman;
@@ -19,7 +20,9 @@ import net.minecraft.entity.passive.EntitySheep;
 import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -64,7 +67,9 @@ public class SanityModifier {
 	}
 	
 	// this is used for the timer at the end of onPlayerUpdate to allow for a hallucination once per 20 ticks.
+	// the other is for spawning "Them"
 	private static int lucidTimer = 0;
+	private static int spawnThemTimer = 0;
 	
 	public static void onPlayerUpdate(Entity player) {
 		
@@ -199,6 +204,9 @@ public class SanityModifier {
 				// reset timer
 				lucidTimer = 0;
 				
+				// increment THIS timer
+				spawnThemTimer++;
+				
 				// there'll only be hallucinations for players with less than 70% of their sanity.
 				if (sanity.getSanity() <= (sanity.getMaxSanity() * 0.70)) {
 					
@@ -281,8 +289,12 @@ public class SanityModifier {
 						}
 					}
 				}
+				// There are other side effects of insanity other than hallucinations.
+				// Here, the player's view is wobbled/distorted
+				// Some weird ambience is added to make insanity feel more insane. And... weird. It's just the right word.
+				// Also, they may come and attack you.
 				
-				// wobble the screen of the player with low sanity
+				// make the screen of the insane player wobble
 				if (sanity.getSanity() <= (sanity.getMaxSanity() * 0.35)) {
 					
 					SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "nausea", 100, 5, false, false);
@@ -293,6 +305,7 @@ public class SanityModifier {
 					
 					// random chance so it doesn't overlap with itself
 					double randInsanityAmbience = Math.random();
+					
 					if (randInsanityAmbience < 0.20) {
 						
 						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(player.getCachedUniqueIdString(), "InsanityAmbienceSoundLoud", "null", playerPosX, playerPosY, playerPosZ);
@@ -303,10 +316,67 @@ public class SanityModifier {
 					
 					// random chance so it doesn't overlap with itself
 					double randInsanityAmbience = Math.random();
+					
 					if (randInsanityAmbience < 0.20) {
 						
 						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(player.getCachedUniqueIdString(), "InsanityAmbienceSound", "null", playerPosX, playerPosY, playerPosZ);
 						SchopPackets.net.sendTo(msgStuff, (EntityPlayerMP) player);
+					}
+				}
+				
+				// add and spawn "Them". As of now, it's just a bunch of invisible endermen. They drop "Lucid Dream Essence"
+				// They can be seen by all players, that's alright. They just like to gather near black holes void of sanity.
+				// if the player's sanity is really low, spawn a bunch of "Them" and make "Them" attack the player.
+				if ((sanity.getSanity() <= (sanity.getMaxSanity() * 0.15)) && spawnThemTimer >= 10) {
+					
+					// random numbers... yee
+					double randOffsetToSummonThem = Math.random() * 30;
+					double posOrNeg = Math.round(Math.random());
+					
+					// reset spawnThemTimer
+					spawnThemTimer = 0;
+					
+					if (posOrNeg == 0) { randOffsetToSummonThem = randOffsetToSummonThem * -1; }
+					
+					// instance of Them
+					EntityEnderman them = new EntityEnderman(player.world);
+
+					// position Them
+					them.setLocationAndAngles(playerPosX+randOffsetToSummonThem, playerPosY+2, playerPosZ+randOffsetToSummonThem, 0.0f, 0);
+					
+					// affect Them
+					them.addPotionEffect(new PotionEffect(MobEffects.INVISIBILITY, 212121, 1, false, false));
+					
+					// aggroe Them
+					them.setAttackTarget((EntityLivingBase) player);
+					
+					// summon Them
+					player.world.spawnEntity(them);	
+				}
+				
+				// otherwise just rarely summon them
+				else if (sanity.getSanity() <= (sanity.getMaxSanity() * 0.50)) {
+					
+					// random numbers... yee
+					double randChanceToSummonThem = Math.random();
+					double randOffsetToSummonThem = Math.random() * 30;
+					double posOrNeg = Math.round(Math.random());
+					
+					if (posOrNeg == 0) { randOffsetToSummonThem = randOffsetToSummonThem * -1; }
+					
+					if (randChanceToSummonThem < 0.05) {
+						
+						// instance of Them
+						EntityEnderman them = new EntityEnderman(player.world);
+						
+						// affect Them
+						them.addPotionEffect(new PotionEffect(MobEffects.INVISIBILITY, 212121, 1, false, false));
+						
+						// position Them
+						them.setLocationAndAngles(playerPosX+randOffsetToSummonThem, playerPosY+2, playerPosZ+randOffsetToSummonThem, 0.0f, 0);
+
+						// summon Them
+						player.world.spawnEntity(them);
 					}
 				}
 			}
