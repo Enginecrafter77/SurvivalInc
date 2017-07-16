@@ -20,5 +20,4 @@ public class ItemCharcoalFilter extends Item {
 		setMaxStackSize(16);
 		setCreativeTab(SchopCraft.mainTab);
 	}
-
 }

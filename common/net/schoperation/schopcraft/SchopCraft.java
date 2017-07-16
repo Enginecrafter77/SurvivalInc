@@ -25,7 +25,7 @@ public class SchopCraft {
 	@Instance(MOD_ID)
 	public static SchopCraft instance;
 	
-	// create proxies to allow either client-side only crap or both server-side and client-side
+	// create proxies to allow either client-side stuff or server-side stuff. And also both.
 	@SidedProxy(clientSide = "net.schoperation.schopcraft.ClientProxy", serverSide = "net.schoperation.schopcraft.CommonProxy")
 	public static CommonProxy proxy;
 	

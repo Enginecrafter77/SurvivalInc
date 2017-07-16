@@ -34,13 +34,9 @@ public class CommonProxy {
 		// register event handlers
 		MinecraftForge.EVENT_BUS.register(new CapabilityHandler());
 		MinecraftForge.EVENT_BUS.register(new CapEvents());
-		
 	}
 	
 	public void init(FMLInitializationEvent event) {
-		
-		// register recipes here
-		
 		
 		// register packets here
 		SchopPackets.initPackets();
@@ -48,8 +44,5 @@ public class CommonProxy {
 	
 	public void postInit(FMLPostInitializationEvent event) {
 		
-		
-
 	}
-
 }

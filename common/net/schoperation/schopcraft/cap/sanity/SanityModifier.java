@@ -5,6 +5,7 @@ import java.util.List;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.boss.EntityWither;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.monster.EntityElderGuardian;
 import net.minecraft.entity.monster.EntityEnderman;
 import net.minecraft.entity.monster.EntityEvoker;
@@ -24,12 +25,14 @@ import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.schoperation.schopcraft.cap.wetness.IWetness;
 import net.schoperation.schopcraft.cap.wetness.WetnessProvider;
+import net.schoperation.schopcraft.lib.ModItems;
 import net.schoperation.schopcraft.packet.PotionEffectPacket;
 import net.schoperation.schopcraft.packet.SanityPacket;
 import net.schoperation.schopcraft.packet.SchopPackets;
@@ -473,6 +476,41 @@ public class SanityModifier {
 			// send data to server
 			IMessage msg = new SanityPacket.SanityMessage(player.getCachedUniqueIdString(), sanity.getSanity(), sanity.getMaxSanity(), sanity.getMinSanity());
 			SchopPackets.net.sendToServer(msg);
+		}
+	}
+	
+	// As we know, They will spawn near insane players. They should drop lucid dream essence when killed.
+	public static void onDropsDropped(Entity entityKilled, List<EntityItem> drops, int lootingLevel, DamageSource damageSource) {
+		
+		// Was this mob killed by a player? (and server-side)
+		if (damageSource.getDamageType() == "player" && !entityKilled.world.isRemote) {
+			
+			// instance of player
+			EntityPlayer player = (EntityPlayer) damageSource.getTrueSource();
+			
+			// sanity capability
+			ISanity sanity = player.getCapability(SanityProvider.SANITY_CAP, null);
+			
+			// was the victim an enderman? or Them?
+			if (entityKilled instanceof EntityEnderman) {
+				
+				// now, was the player insane (or insane enough)?
+				if (sanity.getSanity() <= (sanity.getMaxSanity() * 0.50)) {
+					
+					// drop some essence. 50% chance for an extra essence.
+					int sizeOfList = drops.size();
+					drops.add(new EntityItem(player.world, entityKilled.posX, entityKilled.posY, entityKilled.posZ, new ItemStack(ModItems.ITEMS[3], 1)));
+					
+					double randChanceForAdditional = Math.random();
+					if (randChanceForAdditional < 0.50) {
+						
+						drops.add(new EntityItem(player.world, entityKilled.posX, entityKilled.posY, entityKilled.posZ, new ItemStack(ModItems.ITEMS[3], 1)));
+					}	
+				}
+				
+				// The player regains sanity for killing one of their fears.
+				sanity.increase(15.0f);
+			}	
 		}
 	}
 }

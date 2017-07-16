@@ -52,7 +52,7 @@ public class GuiRenderBar extends Gui {
 			// instance of Minecraft. All of this crap is client-side (well of course)
 			Minecraft mc = Minecraft.getMinecraft();
 			
-			// get current screen resolution
+			// get current screen resolution.
 			ScaledResolution scaled = new ScaledResolution(mc);
 			int screenWidth = scaled.getScaledWidth();
 			int screenHeight = scaled.getScaledHeight();
@@ -60,17 +60,20 @@ public class GuiRenderBar extends Gui {
 			// determine width of WETNESS bar.
 			double oneWetnessUnit = (double) barWidth / maxWetness; // default 0.8
 			int currentWidthWetness = (int) (oneWetnessUnit * wetness);
-			String textWetness = Float.toString(Math.round(wetness)) + "%";
+			double roundedWetness = (double) (Math.round(wetness * 10)) / 10;
+			String textWetness = Double.toString(roundedWetness) + "%";
 			
 			// determine width of THIRST bar.
 			double oneThirstUnit = (double) barWidth / maxThirst; // default 0.8
 			int currentWidthThirst = (int) (oneThirstUnit * thirst);
-			String textThirst = Float.toString(Math.round(thirst)) + "%";
+			double roundedThirst = (double) (Math.round(thirst * 10)) / 10;
+			String textThirst = Double.toString(roundedThirst) + "%";
 			
 			// determine width of SANITY bar.
-			double oneSanityUnit = (double) barWidth / maxSanity; // default 0.8
+			double oneSanityUnit = (double) barWidth / maxSanity; // default 0.8, could change
 			int currentWidthSanity = (int) (oneSanityUnit * sanity);
-			String textSanity = Float.toString(Math.round(sanity)) + "%";
+			double roundedSanity = (double) (Math.round(sanity * 10)) / 10;
+			String textSanity = Double.toString(roundedSanity);
 			
 			// this is temporary bullcrap to test the bars. they work.
 			float oneUnit = (float) (barWidth / mc.player.getMaxHealth());
@@ -84,30 +87,30 @@ public class GuiRenderBar extends Gui {
 				// top rect is bar, bottom rect is outline/icon
 				// TEMPERATURE
 				mc.renderEngine.bindTexture(tempBar);
-				drawTexturedModalRect(screenWidth-barWidth-2, screenHeight-277, 19, 14, currentWidth, textureHeight);
-				drawTexturedModalRect(screenWidth-textureWidth-1, screenHeight-280, 0, 0, textureWidth, textureHeight);
-				drawCenteredString(mc.fontRenderer, text, screenWidth-textureWidth-16, screenHeight-277, Integer.parseInt("FFFFFF", 16));
+				drawTexturedModalRect(screenWidth-barWidth-2, screenHeight-(screenHeight/2)-20, 19, 14, currentWidth, textureHeight);
+				drawTexturedModalRect(screenWidth-textureWidth-1, screenHeight-(screenHeight/2)-23, 0, 0, textureWidth, textureHeight);
+				drawCenteredString(mc.fontRenderer, text, screenWidth-textureWidth-16, screenHeight-(screenHeight/2)-20, Integer.parseInt("FFFFFF", 16));
 				
 				// THIRST
 				mc.renderEngine.bindTexture(thirstBar);
-				drawTexturedModalRect(screenWidth-barWidth-2, screenHeight-257, 19, 14, currentWidthThirst, textureHeight);
-				drawTexturedModalRect(screenWidth-textureWidth-1, screenHeight-260, 0, 0, textureWidth, textureHeight);
-				drawCenteredString(mc.fontRenderer, textThirst, screenWidth-textureWidth-16, screenHeight-257, Integer.parseInt("FFFFFF", 16));
+				drawTexturedModalRect(screenWidth-barWidth-2, screenHeight-(screenHeight/2), 19, 14, currentWidthThirst, textureHeight);
+				drawTexturedModalRect(screenWidth-textureWidth-1, screenHeight-(screenHeight/2)-3, 0, 0, textureWidth, textureHeight);
+				drawCenteredString(mc.fontRenderer, textThirst, screenWidth-textureWidth-16, screenHeight-(screenHeight/2), Integer.parseInt("FFFFFF", 16));
 				
 				// SANITY
 				mc.renderEngine.bindTexture(sanityBar);
-				drawTexturedModalRect(screenWidth-barWidth-2, screenHeight-237, 19, 14, currentWidthSanity, textureHeight);
-				drawTexturedModalRect(screenWidth-textureWidth-1, screenHeight-240, 0, 0, textureWidth, textureHeight);
-				drawCenteredString(mc.fontRenderer, textSanity, screenWidth-textureWidth-16, screenHeight-237, Integer.parseInt("FFFFFF", 16));
+				drawTexturedModalRect(screenWidth-barWidth-2, screenHeight-(screenHeight/2)+20, 19, 14, currentWidthSanity, textureHeight);
+				drawTexturedModalRect(screenWidth-textureWidth-1, screenHeight-(screenHeight/2)+17, 0, 0, textureWidth, textureHeight);
+				drawCenteredString(mc.fontRenderer, textSanity, screenWidth-textureWidth-16, screenHeight-(screenHeight/2)+20, Integer.parseInt("FFFFFF", 16));
 				
 				// WETNESS
 				// only show wetness if there is wetness. This is in place so wetness isn't confused with thirst.
 				if (wetness > 0) {
 					
 					mc.renderEngine.bindTexture(wetnessBar);
-					drawTexturedModalRect(screenWidth-barWidth-2, screenHeight-217, 19, 14, currentWidthWetness, textureHeight);
-					drawTexturedModalRect(screenWidth-textureWidth-1, screenHeight-220, 0, 0, textureWidth, textureHeight);
-					drawCenteredString(mc.fontRenderer, textWetness, screenWidth-textureWidth-16, screenHeight-217, Integer.parseInt("FFFFFF", 16));
+					drawTexturedModalRect(screenWidth-barWidth-2, screenHeight-(screenHeight/2)+40, 19, 14, currentWidthWetness, textureHeight);
+					drawTexturedModalRect(screenWidth-textureWidth-1, screenHeight-(screenHeight/2)+37, 0, 0, textureWidth, textureHeight);
+					drawCenteredString(mc.fontRenderer, textWetness, screenWidth-textureWidth-16, screenHeight-(screenHeight/2)+40, Integer.parseInt("FFFFFF", 16));
 				}
 			}
 		}

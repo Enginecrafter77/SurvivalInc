@@ -1,14 +1,14 @@
 [
 {
   "modid": "schopcraft",
-  "name": "SchopCraft Universalis ALPHA",
-  "description": "Making Minecraft harder, cooler, and something in-between.",
+  "name": "SchopCraft Universalis",
+  "description": "Making Minecraft harder, cooler, and something in-between. Still being refined and defined.",
   "version": "0.1.0",
   "mcversion": "${mcversion}",
   "url": "",
   "updateUrl": "",
   "authorList": ["Schoperation"],
-  "credits": "Schoperation",
+  "credits": "Made by Schoperation. Influenced by many others.",
   "logoFile": "",
   "screenshots": [],
   "dependencies": []

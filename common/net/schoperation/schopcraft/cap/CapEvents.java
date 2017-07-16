@@ -1,8 +1,14 @@
 package net.schoperation.schopcraft.cap;
 
+import java.util.List;
+
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.DamageSource;
+import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -141,5 +147,25 @@ public class CapEvents {
 			wakeUpTimer = 0;
 		}
 		// the methods are fired in onPlayerUpdate.	
+	}
+	
+	// When an entity's drops are dropped (so usually when one dies)
+	@SubscribeEvent
+	public void onDropsDropped(LivingDropsEvent event) {
+		
+		// the entity that was killed
+		Entity entityKilled = event.getEntity();
+		
+		// their drops
+		List<EntityItem> drops = event.getDrops();
+		
+		// the looting level of the weapon
+		int lootingLevel = event.getLootingLevel();
+		
+		// source of damage
+		DamageSource damageSource = event.getSource();
+		
+		// fire methods
+		SanityModifier.onDropsDropped(entityKilled, drops, lootingLevel, damageSource);
 	}
 }
