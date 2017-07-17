@@ -24,6 +24,9 @@ public class GuiRenderBar extends Gui {
 	private static float maxThirst = 100.00f;
 	private static float sanity = 100.00f;
 	private static float maxSanity = 100.00f;
+	private static float temperature = 68.0f;
+	private static float maxTemperature = 120.0f;
+	private static float targetTemperature = 68.0f;
 	
 	// these methods are to get the correct stats of the player.
 	public static void getServerThirst(float newThirst, float newMaxThirst) {
@@ -42,6 +45,13 @@ public class GuiRenderBar extends Gui {
 		
 		wetness = newWetness;
 		maxWetness = newMaxWetness;
+	}
+	
+	public static void getServerTemperature(float newTemperature, float newMaxTemperature, float newTargetTemperature) {
+		
+		temperature = newTemperature;
+		maxTemperature = newMaxTemperature;
+		targetTemperature = newTargetTemperature;
 	}
 	
 	@SubscribeEvent
@@ -75,11 +85,11 @@ public class GuiRenderBar extends Gui {
 			double roundedSanity = (double) (Math.round(sanity * 10)) / 10;
 			String textSanity = Double.toString(roundedSanity);
 			
-			// this is temporary bullcrap to test the bars. they work.
-			float oneUnit = (float) (barWidth / mc.player.getMaxHealth());
-			int currentWidth = (int) (oneUnit * mc.player.getHealth());
-			int playerHealth = (int) mc.player.getHealth();
-			String text = Integer.toString(playerHealth) + "%";
+			// determine width of TEMPERATURE bar.
+			double oneTemperatureUnit = (double) barWidth / maxTemperature; // default 0.66
+			int currentWidthTemperature = (int) (oneTemperatureUnit * temperature);
+			double roundedTemperature = (double) (Math.round(temperature * 10)) / 10;
+			String textTemperature = Double.toString(roundedTemperature) + "°F";
 			
 			// only show bars if the f3 debug screen isn't showing.
 			if (!mc.gameSettings.showDebugInfo) {
@@ -87,9 +97,9 @@ public class GuiRenderBar extends Gui {
 				// top rect is bar, bottom rect is outline/icon
 				// TEMPERATURE
 				mc.renderEngine.bindTexture(tempBar);
-				drawTexturedModalRect(screenWidth-barWidth-2, screenHeight-(screenHeight/2)-20, 19, 14, currentWidth, textureHeight);
+				drawTexturedModalRect(screenWidth-barWidth-2, screenHeight-(screenHeight/2)-20, 19, 14, currentWidthTemperature, textureHeight);
 				drawTexturedModalRect(screenWidth-textureWidth-1, screenHeight-(screenHeight/2)-23, 0, 0, textureWidth, textureHeight);
-				drawCenteredString(mc.fontRenderer, text, screenWidth-textureWidth-16, screenHeight-(screenHeight/2)-20, Integer.parseInt("FFFFFF", 16));
+				drawCenteredString(mc.fontRenderer, textTemperature, screenWidth-textureWidth-16, screenHeight-(screenHeight/2)-20, Integer.parseInt("FFFFFF", 16));
 				
 				// THIRST
 				mc.renderEngine.bindTexture(thirstBar);

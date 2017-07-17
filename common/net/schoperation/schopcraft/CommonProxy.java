@@ -10,6 +10,9 @@ import net.schoperation.schopcraft.cap.CapabilityHandler;
 import net.schoperation.schopcraft.cap.sanity.ISanity;
 import net.schoperation.schopcraft.cap.sanity.Sanity;
 import net.schoperation.schopcraft.cap.sanity.SanityStorage;
+import net.schoperation.schopcraft.cap.temperature.ITemperature;
+import net.schoperation.schopcraft.cap.temperature.Temperature;
+import net.schoperation.schopcraft.cap.temperature.TemperatureStorage;
 import net.schoperation.schopcraft.cap.thirst.IThirst;
 import net.schoperation.schopcraft.cap.thirst.Thirst;
 import net.schoperation.schopcraft.cap.thirst.ThirstStorage;
@@ -30,6 +33,7 @@ public class CommonProxy {
 		CapabilityManager.INSTANCE.register(IWetness.class, new WetnessStorage(), Wetness.class);
 		CapabilityManager.INSTANCE.register(IThirst.class, new ThirstStorage(), Thirst.class);
 		CapabilityManager.INSTANCE.register(ISanity.class, new SanityStorage(), Sanity.class);
+		CapabilityManager.INSTANCE.register(ITemperature.class, new TemperatureStorage(), Temperature.class);
 		
 		// register event handlers
 		MinecraftForge.EVENT_BUS.register(new CapabilityHandler());

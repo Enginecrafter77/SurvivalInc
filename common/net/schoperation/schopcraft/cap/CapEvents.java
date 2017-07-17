@@ -19,6 +19,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.schoperation.schopcraft.cap.sanity.ISanity;
 import net.schoperation.schopcraft.cap.sanity.SanityModifier;
 import net.schoperation.schopcraft.cap.sanity.SanityProvider;
+import net.schoperation.schopcraft.cap.temperature.TemperatureModifier;
 import net.schoperation.schopcraft.cap.thirst.IThirst;
 import net.schoperation.schopcraft.cap.thirst.ThirstModifier;
 import net.schoperation.schopcraft.cap.thirst.ThirstProvider;
@@ -82,6 +83,7 @@ public class CapEvents {
 			WetnessModifier.onPlayerUpdate(player);
 			ThirstModifier.onPlayerUpdate(player);
 			SanityModifier.onPlayerUpdate(player);
+			TemperatureModifier.onPlayerUpdate(player);
 			
 			// fire this if the player is sleeping (not starting to sleep, legit sleeping)
 			if (player.isPlayerFullyAsleep() && player.world.isRemote) {
