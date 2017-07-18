@@ -217,11 +217,11 @@ public class ItemCanteen extends Item {
 						
 					}
 					
-				// play sounds and particles directly (as this is already server-side)
-				SchopServerParticles.summonParticle(player.getCachedUniqueIdString(), "DrinkWaterParticles", pos.getX(), pos.getY(), pos.getZ());
-				SchopServerSounds.playSound(player.getCachedUniqueIdString(), "WaterSound", pos.getX(), pos.getY(), pos.getZ());
-				
-				return new ActionResult<ItemStack>(EnumActionResult.PASS, heldItem);
+					// play sounds and particles directly (as this is already server-side)
+					SchopServerParticles.summonParticle(player.getCachedUniqueIdString(), "DrinkWaterParticles", pos.getX(), pos.getY(), pos.getZ());
+					SchopServerSounds.playSound(player.getCachedUniqueIdString(), "WaterSound", pos.getX(), pos.getY(), pos.getZ());
+					
+					return new ActionResult<ItemStack>(EnumActionResult.PASS, heldItem);
 				}
 				
 				// all of this crap is to ensure that the player can drink from the canteen if it isn't empty.

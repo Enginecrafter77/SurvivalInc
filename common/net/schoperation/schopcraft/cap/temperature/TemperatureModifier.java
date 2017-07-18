@@ -18,9 +18,12 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.schoperation.schopcraft.cap.wetness.IWetness;
 import net.schoperation.schopcraft.cap.wetness.WetnessProvider;
+import net.schoperation.schopcraft.lib.ModDamageSources;
 import net.schoperation.schopcraft.packet.SchopPackets;
 import net.schoperation.schopcraft.packet.TemperaturePacket;
 import net.schoperation.schopcraft.util.ProximityDetect;
+import net.schoperation.schopcraft.util.SchopServerEffects;
+import net.schoperation.schopcraft.util.SchopServerParticles;
 
 /*
  * Where temperature is directly and indirectly modified.
@@ -230,12 +233,80 @@ public class TemperatureModifier {
 			
 			//System.out.println(temperature.getTargetTemperature());
 			
+			// ======================================
+			//             SIDE EFFECTS
+			// ======================================
+			
+			// Heat stroke, hyperthermia, heat exhaustion, whatever you call it, include the side effects of fatigue, nausea, and thirst.
+			// The opposite (hypothermia, frostbite...) includes fatigue, shivering, and more fatigue.
+			// Here, it'll start off as some slowness, because being hot or cold just sucks.
+			// Then it'll get more and more serious.
+			
+			
+			// Overheating (dehydration is taken care of in ThirstModifier).
+			// rip player
+			if (temperature.getTemperature() > 115.0f) {
+				
+				player.attackEntityFrom(ModDamageSources.HYPERTHERMIA, 1.0f);
+			}
+			
+			// nausea
+			if (temperature.getTemperature() > 110.0f) {
+				
+				SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "nausea", 100, 5, false, false);
+			}
+			
+			// worse slowness + fatigue
+			if (temperature.getTemperature() > 100.0f) {
+				
+				SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "slowness", 40, 2, false, false);
+				SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "mining_fatigue", 40, 2, false, false);
+			}
+			
+			// fatigue
+			else if (temperature.getTemperature() > 90.0f) {
+				
+				SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "mining_fatigue", 40, 0, false, false);
+			}
+			
+			// minor slowness + sweating
+			if (temperature.getTemperature() > 80.0f) {
+				
+				SchopServerParticles.summonParticle(player.getCachedUniqueIdString(), "SweatParticles", playerPosX, playerPosY+1.5, playerPosZ);
+				SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "slowness", 60, 0, false, false);
+			}
+			
+			// Freezing
+			// rip player
+			if (temperature.getTemperature() < -10.0f) {
+				
+				player.attackEntityFrom(ModDamageSources.HYPOTHERMIA, 1.0f);
+			}
+			
+			// worse slowness + fatigue
+			if (temperature.getTemperature() < 0.0f) {
+				
+				SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "slowness", 40, 3, false, false);
+				SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "mining_fatigue", 40, 3, false, false);
+			}
+			// fatigue
+			else if (temperature.getTemperature() < 15.0f) {
+				
+				SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "mining_fatigue", 40, 1, false, false);
+			}
+			
+			// minor slowness
+			else if (temperature.getTemperature() < 30.0f) {
+				
+				SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "slowness", 180, 0, false, false);
+			}
+			
 			// send data to client for rendering
 			IMessage msg = new TemperaturePacket.TemperatureMessage(player.getCachedUniqueIdString(), temperature.getTemperature(), temperature.getMaxTemperature(), temperature.getMinTemperature(), temperature.getTargetTemperature());
 			SchopPackets.net.sendTo(msg, (EntityPlayerMP) player);
-			
 		}
 	}
+	
 	// This checks any consumed item by the player, and affects temperature accordingly.
 	public static void onPlayerConsumeItem(EntityPlayer player, ItemStack item) {
 		
@@ -245,17 +316,20 @@ public class TemperatureModifier {
 		// server-side
 		if (!player.world.isRemote) {
 			
+			// number of items
+			int amount = item.getCount();
+			
 			// if cooked food, increase temperature
-			if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_CHICKEN))) { temperature.increase(5.0f); }
-			else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_BEEF))) { temperature.increase(5.0f); }
-			else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_RABBIT))) { temperature.increase(5.0f); }
-			else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_MUTTON))) { temperature.increase(5.0f); }
-			else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_PORKCHOP))) { temperature.increase(5.0f); }
-			else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_FISH))) { temperature.increase(2.0f); }
-			else if (item.areItemStacksEqual(item, new ItemStack(Items.PUMPKIN_PIE))) { temperature.increase(3.0f); }
-			else if (item.areItemStacksEqual(item, new ItemStack(Items.RABBIT_STEW))) { temperature.increase(10.0f); }
-			else if (item.areItemStacksEqual(item, new ItemStack(Items.MUSHROOM_STEW))) { temperature.increase(10.0f); }
-			else if (item.areItemStacksEqual(item, new ItemStack(Items.BEETROOT_SOUP))) { temperature.increase(10.0f); }
+			if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_CHICKEN, amount))) { temperature.increase(5.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_BEEF, amount))) { temperature.increase(5.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_RABBIT, amount))) { temperature.increase(5.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_MUTTON, amount))) { temperature.increase(5.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_PORKCHOP, amount))) { temperature.increase(5.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_FISH, amount))) { temperature.increase(2.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.PUMPKIN_PIE, amount))) { temperature.increase(3.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.RABBIT_STEW, amount))) { temperature.increase(10.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.MUSHROOM_STEW, amount))) { temperature.increase(10.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.BEETROOT_SOUP, amount))) { temperature.increase(10.0f); }
 			
 			// send data to client for rendering
 			IMessage msg = new TemperaturePacket.TemperatureMessage(player.getCachedUniqueIdString(), temperature.getTemperature(), temperature.getMaxTemperature(), temperature.getMinTemperature(), temperature.getTargetTemperature());

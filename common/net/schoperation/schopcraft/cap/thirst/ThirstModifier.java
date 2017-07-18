@@ -8,7 +8,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.biome.Biome;
@@ -17,6 +16,9 @@ import net.minecraft.world.biome.BiomeOcean;
 import net.minecraft.world.biome.BiomeSwamp;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.schoperation.schopcraft.cap.temperature.ITemperature;
+import net.schoperation.schopcraft.cap.temperature.TemperatureProvider;
+import net.schoperation.schopcraft.lib.ModDamageSources;
 import net.schoperation.schopcraft.packet.PotionEffectPacket;
 import net.schoperation.schopcraft.packet.SchopPackets;
 import net.schoperation.schopcraft.packet.SummonInfoPacket;
@@ -56,8 +58,9 @@ public class ThirstModifier {
 	
 	public static void onPlayerUpdate(Entity player) {
 		
-		// get capability
+		// get capabilities
 		IThirst thirst = player.getCapability(ThirstProvider.THIRST_CAP, null);
+		ITemperature temperature = player.getCapability(TemperatureProvider.TEMPERATURE_CAP, null);
 		
 		// sizzlin' server side stuff (crappy attempt at a tongue twister there)
 		if (!player.world.isRemote) {
@@ -73,17 +76,24 @@ public class ThirstModifier {
 				
 				thirst.decrease(0.006f);
 			}
+			
+			// overheating dehydrates very well.
+			else if (temperature.getTemperature() > 90.0f) {
+				
+				float amountOfDehydration = temperature.getTemperature() / 10000;
+				thirst.decrease(amountOfDehydration);
+			}
+			
+			// natural dehydration. "Slow" is an understatement here.
 			else {
 				
-				// natural dehydration. "Slow" is an understatement here.
 				thirst.decrease(0.003f);
 			}
 			
 			// side effects of dehydration include fatigue and dizzyness. Those are replicated here. Well, attempted.
 			if (thirst.getThirst() < 4.0f) {
 				
-				DamageSource dmgsrc = new DamageSource("schopcraft_dehydration").setDamageIsAbsolute().setDamageBypassesArmor();
-				player.attackEntityFrom(dmgsrc, 1.0f);
+				player.attackEntityFrom(ModDamageSources.DEHYDRATION, 1.0f);
 			}
 			if (thirst.getThirst() < 15.0f) {
 				

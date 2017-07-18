@@ -41,6 +41,7 @@ public class SchopServerParticles {
 				// determine what particles need to be summoned/spawned/rendered/i used a million ways to describe that process of making particles appear
 				if (particleMethod.equals("WetnessParticles")) { spawnWetnessParticles(serverWorld, posX, posY, posZ, wetness.getWetness()); }
 				if (particleMethod.equals("DrinkWaterParticles")) { spawnDrinkWaterParticles(serverWorld, posX, posY, posZ); }
+				if (particleMethod.equals("SweatParticles")) { spawnSweatParticles(serverWorld, posX, posY, posZ); }
 				
 			}
 		}
@@ -70,6 +71,15 @@ public class SchopServerParticles {
 			
 			serverWorld.spawnParticle(EnumParticleTypes.WATER_BUBBLE, posX+randOffset, posY, posZ+randOffset, 20, 0.5d, 1d, 0.5d, 0.1d, null);
 			serverWorld.spawnParticle(EnumParticleTypes.WATER_SPLASH, posX+randOffset, posY+1, posZ+randOffset, 50, 0.2d, 0.5d, 0.2d, 0.05d, null);
+		}
+	}
+	
+	// Spawn some sweat particles when the player is hot enough. Don't take it THAT way.
+	private static void spawnSweatParticles(WorldServer serverWorld, double posX, double posY, double posZ) {
+		
+		if (!serverWorld.isRemote) {
+			
+			serverWorld.spawnParticle(EnumParticleTypes.WATER_SPLASH, posX, posY, posZ, 1, 0.05, 0.0, 0.05, 0.25, null);
 		}
 	}
 }

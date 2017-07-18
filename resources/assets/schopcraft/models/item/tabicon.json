@@ -1,7 +1,7 @@
 {
-  "parent": "item/generated",
-  "textures": {
-    "layer0": "schopcraft:items/tabicon"
-  }
+	"parent": "item/generated",
+	"textures": {
+		"layer0": "schopcraft:items/tabicon"
+	}
 }
 

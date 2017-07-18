@@ -396,29 +396,32 @@ public class SanityModifier {
 		
 		// server-side
 		if (!player.world.isRemote) {
-						
+			
+			// number of items
+			int amount = item.getCount();
+			
 			// if raw or bad food, drain sanity
-			if (item.areItemStacksEqual(item, new ItemStack(Items.CHICKEN))) { sanity.decrease(5.0f); }
-			else if (item.areItemStacksEqual(item, new ItemStack(Items.BEEF))) { sanity.decrease(5.0f); }
-			else if (item.areItemStacksEqual(item, new ItemStack(Items.RABBIT))) { sanity.decrease(5.0f); }
-			else if (item.areItemStacksEqual(item, new ItemStack(Items.MUTTON))) { sanity.decrease(5.0f); }
-			else if (item.areItemStacksEqual(item, new ItemStack(Items.PORKCHOP))) { sanity.decrease(5.0f); }
-			else if (item.areItemStacksEqual(item, new ItemStack(Items.FISH))) { sanity.decrease(5.0f); }
-			else if (item.areItemStacksEqual(item, new ItemStack(Items.ROTTEN_FLESH))) { sanity.decrease(10.0f); }
-			else if (item.areItemStacksEqual(item, new ItemStack(Items.SPIDER_EYE))) { sanity.decrease(15.0f); }
+			if (item.areItemStacksEqual(item, new ItemStack(Items.CHICKEN, amount))) { sanity.decrease(5.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.BEEF, amount))) { sanity.decrease(5.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.RABBIT, amount))) { sanity.decrease(5.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.MUTTON, amount))) { sanity.decrease(5.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.PORKCHOP, amount))) { sanity.decrease(5.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.FISH, amount))) { sanity.decrease(5.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.ROTTEN_FLESH, amount))) { sanity.decrease(10.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.SPIDER_EYE, amount))) { sanity.decrease(15.0f); }
 			
 			// if cooked or good food, increase sanity
-			if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_CHICKEN))) { sanity.increase(2.0f); }
-			else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_BEEF))) { sanity.increase(2.0f); }
-			else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_RABBIT))) { sanity.increase(2.0f); }
-			else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_MUTTON))) { sanity.increase(2.0f); }
-			else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_PORKCHOP))) { sanity.increase(2.0f); }
-			else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_FISH))) { sanity.increase(2.0f); }
-			else if (item.areItemStacksEqual(item, new ItemStack(Items.PUMPKIN_PIE))) { sanity.increase(15.0f); }
-			else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKIE))) { sanity.increase(2.0f); }
-			else if (item.areItemStacksEqual(item, new ItemStack(Items.RABBIT_STEW))) { sanity.increase(15.0f); }
-			else if (item.areItemStacksEqual(item, new ItemStack(Items.MUSHROOM_STEW))) { sanity.increase(10.0f); }
-			else if (item.areItemStacksEqual(item, new ItemStack(Items.BEETROOT_SOUP))) { sanity.increase(10.0f); }
+			if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_CHICKEN, amount))) { sanity.increase(2.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_BEEF, amount))) { sanity.increase(2.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_RABBIT, amount))) { sanity.increase(2.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_MUTTON, amount))) { sanity.increase(2.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_PORKCHOP, amount))) { sanity.increase(2.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_FISH, amount))) { sanity.increase(2.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.PUMPKIN_PIE, amount))) { sanity.increase(15.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKIE, amount))) { sanity.increase(2.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.RABBIT_STEW, amount))) { sanity.increase(15.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.MUSHROOM_STEW, amount))) { sanity.increase(10.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.BEETROOT_SOUP, amount))) { sanity.increase(10.0f); }
 			
 			// send data to client for rendering
 			IMessage msg = new SanityPacket.SanityMessage(player.getCachedUniqueIdString(), sanity.getSanity(), sanity.getMaxSanity(), sanity.getMinSanity());

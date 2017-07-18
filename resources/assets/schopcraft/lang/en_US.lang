@@ -19,3 +19,5 @@ itemGroup.schopcraft:mainTab=SchopCraft Universalis
 
 # Damage Sources
 death.attack.schopcraft_dehydration=%1$s failed to cry to get a drink of water
+death.attack.schopcraft_hyperthermia=%1$s boiled before they found a mister
+death.attack.schopcraft_hypothermia=%1$s forgot to pack a blanket

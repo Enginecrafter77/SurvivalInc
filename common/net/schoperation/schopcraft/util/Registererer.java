@@ -9,6 +9,8 @@ import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.schoperation.schopcraft.lib.ModBlocks;
 import net.schoperation.schopcraft.lib.ModItems;
 
@@ -43,6 +45,7 @@ public class Registererer {
 	
 	// render models
 	@SubscribeEvent
+	@SideOnly(Side.CLIENT)
 	public static void registerModels(ModelRegistryEvent event) {
 		
 		// render item models

@@ -13,6 +13,7 @@ import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerWakeUpEvent;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -35,7 +36,7 @@ import net.schoperation.schopcraft.packet.WetnessPacket;
  * This is the event handler regarding capabilities and changes to individual stats.
  * Most of the actual code is stored in the modifier classes of each stat, and fired here.
  */
-
+@Mod.EventBusSubscriber
 public class CapEvents {
 	
 	// When a player logs on, give them their stats stored on the server.
