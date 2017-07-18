@@ -8,9 +8,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeBeach;
 import net.minecraft.world.biome.BiomeOcean;
@@ -29,6 +29,7 @@ import net.schoperation.schopcraft.util.SchopServerEffects;
 
 public class ThirstModifier {
 	
+	// This allows the client to tell the server of any changes to the player's thirst that the server can't detect.
 	public static void getClientChange(String uuid, float newThirst, float newMaxThirst, float newMinThirst) {
 	
 		// basic server variables
@@ -79,11 +80,10 @@ public class ThirstModifier {
 			}
 			
 			// side effects of dehydration include fatigue and dizzyness. Those are replicated here. Well, attempted.
-			if (thirst.getThirst() < 2.0f) {
+			if (thirst.getThirst() < 4.0f) {
 				
-				SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "instant_damage", 20, 2, false, false);
-				if (player.isEntityAlive()) { player.sendMessage(new TextComponentString(player.getDisplayName().getFormattedText() + " tried to cry to get a drink of water but failed.")); }
-				thirst.set(4.0f);
+				DamageSource dmgsrc = new DamageSource("schopcraft_dehydration").setDamageIsAbsolute().setDamageBypassesArmor();
+				player.attackEntityFrom(dmgsrc, 1.0f);
 			}
 			if (thirst.getThirst() < 15.0f) {
 				
@@ -98,8 +98,6 @@ public class ThirstModifier {
 				
 				SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "mining_fatigue", 20, 1, false, false);
 			}
-			
-			
 			
 			// send thirst packet to client to render correctly.
 			IMessage msg = new ThirstPacket.ThirstMessage(player.getCachedUniqueIdString(), thirst.getThirst(), thirst.getMaxThirst(), thirst.getMinThirst());

@@ -132,6 +132,7 @@ public class CapEvents {
 				
 				// fire methods
 				SanityModifier.onPlayerConsumeItem(player, itemUsed);
+				TemperatureModifier.onPlayerConsumeItem(player, itemUsed);
 			}
 		}
 	}

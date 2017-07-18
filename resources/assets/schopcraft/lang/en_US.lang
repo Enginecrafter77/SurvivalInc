@@ -1,5 +1,6 @@
 # Conveniently in alphabetical order.
 # Items
+item.schopcraft:cold_water_canteen.name=Cold Water Canteen
 item.schopcraft:dirty_water_canteen.name=Dirty Water Canteen
 item.schopcraft:empty_canteen.name=Empty Canteen
 item.schopcraft:filtered_water_canteen.name=Filtered Water Canteen
@@ -15,3 +16,6 @@ item.schopcraft:tabicon.name=Tab Icon
 
 # Creative Tabs
 itemGroup.schopcraft:mainTab=SchopCraft Universalis
+
+# Damage Sources
+death.attack.schopcraft_dehydration=%1$s failed to cry to get a drink of water

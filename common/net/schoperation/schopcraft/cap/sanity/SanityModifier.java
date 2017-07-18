@@ -21,6 +21,7 @@ import net.minecraft.entity.passive.EntitySheep;
 import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Items;
 import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
@@ -45,6 +46,7 @@ import net.schoperation.schopcraft.util.SchopServerEffects;
 
 public class SanityModifier {
 	
+	// This allows the client to tell the server of any changes to the player's sanity that the server can't detect.
 	public static void getClientChange(String uuid, float newSanity, float newMaxSanity, float newMinSanity) {
 		
 		// basic server variables
@@ -105,7 +107,7 @@ public class SanityModifier {
 			// being in the nether or the end isn't too sane. 
 			if (player.dimension == -1 || player.dimension == 1) {
 				
-				sanity.decrease(0.006f);
+				sanity.decrease(0.005f);
 			}
 			
 			// being in the dark in general, is pretty spooky
@@ -386,7 +388,7 @@ public class SanityModifier {
 		}
 	}
 	
-	// This checks any consumed item by the player, and affects sanity accordingly.
+	// This checks any consumed item by the player, and affects sanity accordingly. Just vanilla items for now.
 	public static void onPlayerConsumeItem(EntityPlayer player, ItemStack item) {
 		
 		// capability
@@ -394,36 +396,29 @@ public class SanityModifier {
 		
 		// server-side
 		if (!player.world.isRemote) {
-			
-			// unlocalized name of item
-			String itemName = item.getUnlocalizedName();
-			
+						
 			// if raw or bad food, drain sanity
-			if (itemName.equals("item.chickenRaw")) { sanity.decrease(5.0f); }
-			else if (itemName.equals("item.beefRaw")) { sanity.decrease(5.0f); }
-			else if (itemName.equals("item.rabbitRaw")) { sanity.decrease(5.0f); }
-			else if (itemName.equals("item.muttonRaw")) { sanity.decrease(5.0f); }
-			else if (itemName.equals("item.porkchopRaw")) { sanity.decrease(5.0f); }
-			else if (itemName.equals("item.fish.cod.raw")) { sanity.decrease(5.0f); }
-			else if (itemName.equals("item.fish.salmon.raw")) { sanity.decrease(5.0f); }
-			else if (itemName.equals("item.fish.clownfish")) { sanity.decrease(5.0f); }
-			else if (itemName.equals("item.fish.pufferfish")) { sanity.decrease(5.0f); }
-			else if (itemName.equals("item.rottenFlesh")) { sanity.decrease(10.0f); }
-			else if (itemName.equals("item.spiderEye")) { sanity.decrease(15.0f); }
+			if (item.areItemStacksEqual(item, new ItemStack(Items.CHICKEN))) { sanity.decrease(5.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.BEEF))) { sanity.decrease(5.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.RABBIT))) { sanity.decrease(5.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.MUTTON))) { sanity.decrease(5.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.PORKCHOP))) { sanity.decrease(5.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.FISH))) { sanity.decrease(5.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.ROTTEN_FLESH))) { sanity.decrease(10.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.SPIDER_EYE))) { sanity.decrease(15.0f); }
 			
 			// if cooked or good food, increase sanity
-			if (itemName.equals("item.chickenCooked")) { sanity.increase(2.0f); }
-			else if (itemName.equals("item.beefCooked")) { sanity.increase(2.0f); }
-			else if (itemName.equals("item.rabbitCooked")) { sanity.increase(2.0f); }
-			else if (itemName.equals("item.muttonCooked")) { sanity.increase(2.0f); }
-			else if (itemName.equals("item.porkchopCooked")) { sanity.increase(2.0f); }
-			else if (itemName.equals("item.fish.cod.cooked")) { sanity.increase(2.0f); }
-			else if (itemName.equals("item.fish.salmon.cooked")) { sanity.increase(2.0f); }
-			else if (itemName.equals("item.pumpkinPie")) { sanity.increase(15.0f); }
-			else if (itemName.equals("item.cookie")) { sanity.increase(2.0f); }
-			else if (itemName.equals("item.rabbitStew")) { sanity.increase(15.0f); }
-			else if (itemName.equals("item.mushroomStew")) { sanity.increase(10.0f); }
-			else if (itemName.equals("item.beetroot_soup")) { sanity.increase(10.0f); }
+			if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_CHICKEN))) { sanity.increase(2.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_BEEF))) { sanity.increase(2.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_RABBIT))) { sanity.increase(2.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_MUTTON))) { sanity.increase(2.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_PORKCHOP))) { sanity.increase(2.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_FISH))) { sanity.increase(2.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.PUMPKIN_PIE))) { sanity.increase(15.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKIE))) { sanity.increase(2.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.RABBIT_STEW))) { sanity.increase(15.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.MUSHROOM_STEW))) { sanity.increase(10.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.BEETROOT_SOUP))) { sanity.increase(10.0f); }
 			
 			// send data to client for rendering
 			IMessage msg = new SanityPacket.SanityMessage(player.getCachedUniqueIdString(), sanity.getSanity(), sanity.getMaxSanity(), sanity.getMinSanity());

@@ -19,11 +19,14 @@ import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeBeach;
 import net.minecraft.world.biome.BiomeOcean;
+import net.minecraft.world.biome.BiomeSnow;
 import net.minecraft.world.biome.BiomeSwamp;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.schoperation.schopcraft.SchopCraft;
+import net.schoperation.schopcraft.cap.temperature.ITemperature;
+import net.schoperation.schopcraft.cap.temperature.TemperatureProvider;
 import net.schoperation.schopcraft.cap.thirst.IThirst;
 import net.schoperation.schopcraft.cap.thirst.ThirstProvider;
 import net.schoperation.schopcraft.packet.SchopPackets;
@@ -46,7 +49,7 @@ public class ItemCanteen extends Item {
 		// properties
 		setMaxStackSize(1);
 		setCreativeTab(SchopCraft.mainTab);
-		setMaxDamage(104);
+		setMaxDamage(105);
 		setNoRepair();
 		setHasSubtypes(true);
 		
@@ -64,12 +67,14 @@ public class ItemCanteen extends Item {
 			String uuid = player.getCachedUniqueIdString();
 			
 			IThirst thirst = player.getCapability(ThirstProvider.THIRST_CAP, null);
+			ITemperature temperature = player.getCapability(TemperatureProvider.TEMPERATURE_CAP, null);
 			
 			// determine type of water, and quench thirst accordingly
 			// fresh water
 			if (canteenType.equals("item." + SchopCraft.RESOURCE_PREFIX + "fresh_water_canteen")) {
 				
 				thirst.increase(20f);
+				temperature.decrease(10f);
 			}
 			
 			// dirty water
@@ -85,6 +90,15 @@ public class ItemCanteen extends Item {
 				thirst.increase(15f);
 				double randChanceOfPoison = Math.random();
 				if (randChanceOfPoison < 0.30) { SchopServerEffects.affectPlayer(uuid, "poison", 50, 0, false, false); }
+			}
+			
+			// cold water
+			else if (canteenType.equals("item." + SchopCraft.RESOURCE_PREFIX + "cold_water_canteen")) {
+				
+				thirst.increase(15f);
+				temperature.decrease(15f);
+				double randChanceOfPoison = Math.random();
+				if (randChanceOfPoison < 0.15) { SchopServerEffects.affectPlayer(uuid, "poison", 50, 0, false, false); }
 			}
 			
 			// salt water
@@ -148,8 +162,8 @@ public class ItemCanteen extends Item {
 						// empty canteen
 						if (heldItem.getUnlocalizedName().equals("item." + SchopCraft.RESOURCE_PREFIX + "empty_canteen")) { heldItem.setItemDamage(3); }
 						
-						// already full of salt water
-						else if (heldItem.getItemDamage() == 3) { heldItem.setItemDamage(0); }
+						// full canteen (of any type)
+						else if (heldItem.getItemDamage() < 6 && heldItem.getItemDamage() > 0) { heldItem.setItemDamage(0); }
 						
 						// otherwise just refill it with salt water
 						else { heldItem.setItemDamage(3); }
@@ -161,14 +175,31 @@ public class ItemCanteen extends Item {
 						// empty canteen
 						if (heldItem.getUnlocalizedName().equals("item." + SchopCraft.RESOURCE_PREFIX + "empty_canteen")) { heldItem.setItemDamage(2); }
 					
-						// already full of dirty water
-						else if (heldItem.getItemDamage() == 2) { heldItem.setItemDamage(0); }
+						// full canteen (of any type)
+						else if (heldItem.getItemDamage() < 6 && heldItem.getItemDamage() > 0) { heldItem.setItemDamage(0); }
 						
 						// otherwise just refill it with dirty water
 						else { heldItem.setItemDamage(2); }
 					}
 					
-					// other biomes (may add snow biome soon for temp... maybe cold water canteen?
+					// snow biome
+					else if (biome instanceof BiomeSnow) {
+						
+						// random chance to give cold water opposed to dirty water.
+						double randomNum = Math.random();
+						
+						// empty canteen
+						if (heldItem.getUnlocalizedName().equals("item." + SchopCraft.RESOURCE_PREFIX + "empty_canteen")) { if (randomNum < 0.80) { heldItem.setItemDamage(2); } else { heldItem.setItemDamage(5); } }
+						
+						// full canteen (of any type)
+						else if (heldItem.getItemDamage() < 6 && heldItem.getItemDamage() > 0) { heldItem.setItemDamage(0); }
+						
+						// otherwise fill it with dirty water or cold water, according to what's already in it
+						else if (heldItem.getUnlocalizedName().equals("item." + SchopCraft.RESOURCE_PREFIX + "dirty_water_canteen") || heldItem.getUnlocalizedName().equals("item." + SchopCraft.RESOURCE_PREFIX + "filtered_water_canteen")) { heldItem.setItemDamage(2); }
+						else { if (randomNum < 0.80) { heldItem.setItemDamage(2); } else { heldItem.setItemDamage(5); } }
+					}
+					
+					// other biomes
 					else {
 						
 						// random chance to give fresh water opposed to dirty water.
@@ -178,7 +209,7 @@ public class ItemCanteen extends Item {
 						if (heldItem.getUnlocalizedName().equals("item." + SchopCraft.RESOURCE_PREFIX + "empty_canteen")) { if (randomNum < 0.90) { heldItem.setItemDamage(2); } else { heldItem.setItemDamage(1); } }
 						
 						// full canteen (of any type)
-						else if (heldItem.getItemDamage() == 1 || heldItem.getItemDamage() == 2 || heldItem.getItemDamage() == 3 || heldItem.getItemDamage() == 4) { heldItem.setItemDamage(0); }
+						else if (heldItem.getItemDamage() < 6 && heldItem.getItemDamage() > 0) { heldItem.setItemDamage(0); }
 						
 						// otherwise fill it with dirty water or fresh water, according to what's already in it
 						else if (heldItem.getUnlocalizedName().equals("item." + SchopCraft.RESOURCE_PREFIX + "dirty_water_canteen") || heldItem.getUnlocalizedName().equals("item." + SchopCraft.RESOURCE_PREFIX + "filtered_water_canteen")) { heldItem.setItemDamage(2); }
@@ -232,11 +263,13 @@ public class ItemCanteen extends Item {
 		else if (stack.getMetadata() == 2) { return "item." + SchopCraft.RESOURCE_PREFIX + "dirty_water_canteen"; }
 		else if (stack.getMetadata() == 3) { return "item." + SchopCraft.RESOURCE_PREFIX + "salt_water_canteen"; }
 		else if (stack.getMetadata() == 4) { return "item." + SchopCraft.RESOURCE_PREFIX + "filtered_water_canteen"; }
+		else if (stack.getMetadata() == 5) { return "item." + SchopCraft.RESOURCE_PREFIX + "cold_water_canteen"; }
 		
 		else if (stack.getItemDamage() == 67 || stack.getItemDamage() == 34) { return "item." + SchopCraft.RESOURCE_PREFIX + "fresh_water_canteen"; }
 		else if (stack.getItemDamage() == 68 || stack.getItemDamage() == 35) { return "item." + SchopCraft.RESOURCE_PREFIX + "dirty_water_canteen"; }
 		else if (stack.getItemDamage() == 69 || stack.getItemDamage() == 36) { return "item." + SchopCraft.RESOURCE_PREFIX + "salt_water_canteen"; }
 		else if (stack.getItemDamage() == 70 || stack.getItemDamage() == 37) { return "item." + SchopCraft.RESOURCE_PREFIX + "filtered_water_canteen"; }
+		else if (stack.getItemDamage() == 71 || stack.getItemDamage() == 38) { return "item." + SchopCraft.RESOURCE_PREFIX + "cold_water_canteen"; }
 		else { return "item." + SchopCraft.RESOURCE_PREFIX + "empty_canteen"; }
 	}
 	
@@ -247,7 +280,7 @@ public class ItemCanteen extends Item {
 		
 		if (this.isInCreativeTab(tab)) {
             
-			for (int i = 0; i < 5; i++) {
+			for (int i = 0; i < 6; i++) {
 				
                 items.add(new ItemStack(this, 1, i));
             }
@@ -272,7 +305,7 @@ public class ItemCanteen extends Item {
 	@Override
 	public boolean showDurabilityBar(ItemStack stack) {
 		
-		if (stack.getItemDamage() < 5) {
+		if (stack.getItemDamage() < 6) {
 			
 			return false;
 		}
