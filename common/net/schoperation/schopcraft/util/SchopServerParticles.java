@@ -36,7 +36,7 @@ public class SchopServerParticles {
 			IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
 			
 			// is this the correct player?
-			if (player.getCachedUniqueIdString().equals(uuid)) {
+			if (player.getCachedUniqueIdString().equals(uuid) && !player.world.isRemote) {
 				
 				// determine what particles need to be summoned/spawned/rendered/i used a million ways to describe that process of making particles appear
 				if (particleMethod.equals("WetnessParticles")) { spawnWetnessParticles(serverWorld, posX, posY, posZ, wetness.getWetness()); }
@@ -50,19 +50,16 @@ public class SchopServerParticles {
 	// Spawn wetness particles if a player is wet enough. haha very funny joke.
 	private static void spawnWetnessParticles(WorldServer serverWorld, double posX, double posY, double posZ, float wetness) {
 		
-		if(!serverWorld.isRemote) {
-		
-			int wetnessRounded = Math.round(wetness) / 10;
-			if (wetness >= 10.0f) {
-				serverWorld.spawnParticle(EnumParticleTypes.DRIP_WATER, posX, posY, posZ, wetnessRounded, 0.3d, 0.5d, 0.3d, 10.0d, null);
-			}
+		int wetnessRounded = Math.round(wetness) / 10;
+		if (wetness >= 10.0f) {
+			serverWorld.spawnParticle(EnumParticleTypes.DRIP_WATER, posX, posY, posZ, wetnessRounded, 0.3d, 0.5d, 0.3d, 10.0d, null);
 		}
 	}
 	
 	// Spawn water particles if a player drinks from a water block directly with their bare hands.
 	private static void spawnDrinkWaterParticles(WorldServer serverWorld, double posX, double posY, double posZ) {
 		
-		if(!serverWorld.isRemote && posX != 0.0d && posY != 0.0d && posZ != 0.0d) {
+		if(posX != 0.0d && posY != 0.0d && posZ != 0.0d) {
 			
 			double randOffset = Math.random();
 			if (randOffset > 0.5) { randOffset -= 0.5; }
@@ -76,10 +73,7 @@ public class SchopServerParticles {
 	
 	// Spawn some sweat particles when the player is hot enough. Don't take it THAT way.
 	private static void spawnSweatParticles(WorldServer serverWorld, double posX, double posY, double posZ) {
-		
-		if (!serverWorld.isRemote) {
-			
-			serverWorld.spawnParticle(EnumParticleTypes.WATER_SPLASH, posX, posY, posZ, 1, 0.05, 0.0, 0.05, 0.25, null);
-		}
+	
+		serverWorld.spawnParticle(EnumParticleTypes.WATER_SPLASH, posX, posY, posZ, 1, 0.05, 0.0, 0.05, 0.25, null);
 	}
 }

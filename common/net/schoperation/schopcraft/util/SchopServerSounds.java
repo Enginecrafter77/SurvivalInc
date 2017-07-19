@@ -6,9 +6,8 @@ import net.minecraft.init.SoundEvents;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.schoperation.schopcraft.lib.ModSounds;
 
 public class SchopServerSounds {
 	
@@ -35,10 +34,11 @@ public class SchopServerSounds {
 			BlockPos pos = new BlockPos(posX, posY, posZ);
 			
 			// is this the right player? If not, go to the next player
-			if (player.getCachedUniqueIdString().equals(uuid)) {
+			if (player.getCachedUniqueIdString().equals(uuid) && !player.world.isRemote) {
 				
 				// now determine what sound needs to be played.
 				if (soundMethod.equals("WaterSound")) { playWaterSound(player, pos); }
+				else if (soundMethod.equals("FanWhooshSound")) { playFanWhooshSound(player, pos); }
 				
 			}
 		}
@@ -47,9 +47,12 @@ public class SchopServerSounds {
 	// plays cute splash sound when a player drinks water from a water source
 	private static void playWaterSound(Entity player, BlockPos pos) {
 		
-		if (!player.world.isRemote) {
-			
-			player.world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_SWIM, SoundCategory.NEUTRAL, 0.5f, 1.5f);
-		}
+		player.world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_SWIM, SoundCategory.NEUTRAL, 0.5f, 1.5f);
+	}
+	
+	// plays fan whoosh sound when a player uses a fan (handheld one)
+	private static void playFanWhooshSound(Entity player, BlockPos pos) {
+		
+		player.world.playSound(null, pos, ModSounds.SOUNDS[0], SoundCategory.PLAYERS, 0.2f, 1.25f);
 	}
 }

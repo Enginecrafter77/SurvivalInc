@@ -3,6 +3,7 @@ package net.schoperation.schopcraft.lib;
 import net.minecraft.item.Item;
 import net.schoperation.schopcraft.item.ItemCanteen;
 import net.schoperation.schopcraft.item.ItemCharcoalFilter;
+import net.schoperation.schopcraft.item.ItemIceCream;
 import net.schoperation.schopcraft.item.ItemLucidDreamEssence;
 import net.schoperation.schopcraft.item.ItemTabIcon;
 
@@ -17,6 +18,8 @@ public class ModItems {
 				new ItemTabIcon(),
 				new ItemCanteen(),
 				new ItemCharcoalFilter(),
-				new ItemLucidDreamEssence()
+				new ItemLucidDreamEssence(),
+				new ItemIceCream(4, 0.4f, false)
+				
 	};
 }

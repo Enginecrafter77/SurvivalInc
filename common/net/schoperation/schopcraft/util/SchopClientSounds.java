@@ -30,7 +30,7 @@ public class SchopClientSounds {
 		BlockPos pos = new BlockPos(posX, posY, posZ);
 		
 		// is this the correct player?
-		if (player.getCachedUniqueIdString().equals(uuid)) {
+		if (player.getCachedUniqueIdString().equals(uuid) && player.world.isRemote) {
 			
 			// determine what particles need to be summoned/spawned/rendered/i used a million ways to describe that process of making particles appear
 			if (soundMethod.equals("EndermanSound")) { playEndermanSound(world, pos); }

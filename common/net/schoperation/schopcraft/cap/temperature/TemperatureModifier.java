@@ -11,9 +11,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.BiomeDesert;
-import net.minecraft.world.biome.BiomeMesa;
-import net.minecraft.world.biome.BiomeTaiga;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.schoperation.schopcraft.cap.wetness.IWetness;
@@ -87,17 +84,13 @@ public class TemperatureModifier {
 			
 			// cold taiga is the only biome with a negative biome temperature. Make it zero.
 			// the hot biomes are too hot for the newTargetTemp below. Make them a bit less hot.
-			if (biome instanceof BiomeTaiga && biomeTemp < 0) {
+			if (biomeTemp < 0) {
 				
 				biomeTemp = 0.0f;
 			}
-			else if (biome instanceof BiomeMesa && biomeTemp > 1.6) {
+			else if (biomeTemp > 1.5) {
 				
-				biomeTemp = 1.6f;
-			}
-			else if (biome instanceof BiomeDesert && biomeTemp > 1.6) {
-				
-				biomeTemp = 1.6f;
+				biomeTemp = 1.5f;
 			}
 			
 			// new target temperature based on biome. This constant right here will probs change quite a bit. Perhaps with seasons. Seasons will probably be a pain. Their temps are private... why Mojang
@@ -131,7 +124,7 @@ public class TemperatureModifier {
 			}
 			
 			// is the player wet? (wetness) (scaled)
-			temperature.decreaseTarget(wetness.getWetness() * 0.33f);
+			temperature.decreaseTarget(wetness.getWetness() * 0.40f);
 			
 			// what is the player wearing? If it's leather, then it warms the player. Otherwise, it could go either way.
 			// list of items
@@ -226,6 +219,32 @@ public class TemperatureModifier {
 			if (player.isSprinting()) {
 				
 				temperature.increase(0.01f);
+			}
+			
+			// Being IN lava fries things pretty well.
+			if (player.isInLava()) {
+				
+				temperature.increase(0.5f);
+			}
+			
+			// Being IN fire also sucks.
+			if (player.isBurning()) {
+				
+				temperature.increase(0.5f);
+			}
+			
+			// Being in the water is nice.
+			// This is also scaled to wetness. More wet = less heat loss, just so it isn't insanely overpowered. Because water buckets are a thing.
+			if (player.isInWater()) {
+				
+				if (biomeTemp >= 1.5) {
+					
+					temperature.decrease(1 / ((wetness.getWetness() + 1) * 10));
+				}
+				else {
+					
+					temperature.decrease(2 / ((wetness.getWetness() + 1) * 10));
+				}
 			}
 			
 			// Actually affect the player's temperature. Explained in greater detail at the method.
@@ -326,6 +345,7 @@ public class TemperatureModifier {
 			else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_MUTTON, amount))) { temperature.increase(5.0f); }
 			else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_PORKCHOP, amount))) { temperature.increase(5.0f); }
 			else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_FISH, amount))) { temperature.increase(2.0f); }
+			else if (item.areItemStacksEqual(item, new ItemStack(Items.BAKED_POTATO, amount))) { temperature.increase(5.0f); }
 			else if (item.areItemStacksEqual(item, new ItemStack(Items.PUMPKIN_PIE, amount))) { temperature.increase(3.0f); }
 			else if (item.areItemStacksEqual(item, new ItemStack(Items.RABBIT_STEW, amount))) { temperature.increase(10.0f); }
 			else if (item.areItemStacksEqual(item, new ItemStack(Items.MUSHROOM_STEW, amount))) { temperature.increase(10.0f); }

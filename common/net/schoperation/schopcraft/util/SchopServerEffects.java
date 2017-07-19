@@ -12,7 +12,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
  */
 public class SchopServerEffects {
 
-	
+	// Main method
 	public static void affectPlayer(String uuid, String effect, int duration, int amplifier, boolean isAmbient, boolean showParticles) {
 		
 		// basic variables
@@ -27,7 +27,7 @@ public class SchopServerEffects {
 			EntityPlayerMP player = server.getPlayerList().getPlayerByUsername(playerList[num]);
 			
 			// is this the right player? check uuids
-			if (player.getCachedUniqueIdString().equals(uuid)) {
+			if (player.getCachedUniqueIdString().equals(uuid) && !player.world.isRemote) {
 				
 				// decipher potion effect string and affect the player accordingly
 				// poison

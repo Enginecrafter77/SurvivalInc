@@ -1,0 +1,25 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [
+		{
+			"item": "minecraft:ice",
+			"data": 0
+		},
+		{
+			"item": "minecraft:snowball",
+			"data": 0
+		},
+		{
+			"item": "minecraft:milk_bucket",
+			"data": 0
+		},
+		{
+			"item": "minecraft:bowl",
+			"data": 0
+		}
+	],
+	"result": {
+		"item": "schopcraft:ice_cream",
+		"data": 0
+	}
+}

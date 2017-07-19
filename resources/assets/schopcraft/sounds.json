@@ -1,0 +1,6 @@
+{
+	"fan_whoosh": {
+		"subtitle": "schopcraft.subtitle.fan_whoosh",
+		"sounds": [ "schopcraft:item/fan_whoosh" ]
+	}
+}

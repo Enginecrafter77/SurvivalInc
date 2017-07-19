@@ -4,6 +4,7 @@ import net.minecraft.block.Block;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
+import net.minecraft.util.SoundEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.event.RegistryEvent;
@@ -13,6 +14,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.schoperation.schopcraft.lib.ModBlocks;
 import net.schoperation.schopcraft.lib.ModItems;
+import net.schoperation.schopcraft.lib.ModSounds;
 
 @Mod.EventBusSubscriber
 public class Registererer {
@@ -41,6 +43,13 @@ public class Registererer {
 			
 			event.getRegistry().register(new ItemBlock(block).setRegistryName(block.getRegistryName()));
 		}
+	}
+	
+	// register all sounds
+	@SubscribeEvent
+	public static void registerSounds(RegistryEvent.Register<SoundEvent> event) {
+		
+		event.getRegistry().registerAll(ModSounds.SOUNDS);
 	}
 	
 	// render models
