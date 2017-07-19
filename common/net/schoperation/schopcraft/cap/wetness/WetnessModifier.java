@@ -6,9 +6,6 @@ import net.minecraft.init.Blocks;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.schoperation.schopcraft.packet.SchopPackets;
-import net.schoperation.schopcraft.packet.WetnessPacket;
 import net.schoperation.schopcraft.util.ProximityDetect;
 import net.schoperation.schopcraft.util.SchopServerParticles;
 
@@ -82,7 +79,7 @@ public class WetnessModifier {
 			// check if the player is in the nether
 			else if (player.dimension == -1) {
 				
-				wetness.decrease(0.5f);
+				wetness.decrease(0.08f);
 			}
 			// check if the player is in water
 			else if (player.isInWater()) {
@@ -241,10 +238,6 @@ public class WetnessModifier {
 			
 			// summon wetness particles. We don't need a packet for this, as it's already on the server.
 			SchopServerParticles.summonParticle(player.getCachedUniqueIdString(), "WetnessParticles", doublePlayerPosX, doublePlayerPosY, doublePlayerPosZ);
-
-			// send wetness data to client in order to render correctly
-			IMessage msg = new WetnessPacket.WetnessMessage(player.getCachedUniqueIdString(), wetness.getWetness(), wetness.getMaxWetness(), wetness.getMinWetness());
-			SchopPackets.net.sendTo(msg, (EntityPlayerMP) player);
 		}
 	}
 }

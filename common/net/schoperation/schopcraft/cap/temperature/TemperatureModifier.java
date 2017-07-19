@@ -12,12 +12,9 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.schoperation.schopcraft.cap.wetness.IWetness;
 import net.schoperation.schopcraft.cap.wetness.WetnessProvider;
 import net.schoperation.schopcraft.lib.ModDamageSources;
-import net.schoperation.schopcraft.packet.SchopPackets;
-import net.schoperation.schopcraft.packet.TemperaturePacket;
 import net.schoperation.schopcraft.util.ProximityDetect;
 import net.schoperation.schopcraft.util.SchopServerEffects;
 import net.schoperation.schopcraft.util.SchopServerParticles;
@@ -53,6 +50,8 @@ public class TemperatureModifier {
 			}
 		}
 	}
+	// timer variable used to spawn cold breath particles in cold biomes
+	private static int breathTimer = 0;
 	
 	public static void onPlayerUpdate(Entity player) {
 		
@@ -179,7 +178,6 @@ public class TemperatureModifier {
 				else if (ItemStack.areItemStacksEqual(element, new ItemStack(Items.DIAMOND_LEGGINGS))) { temperature.increaseTarget(addedTemp * 1.5f); }
 				else if (ItemStack.areItemStacksEqual(element, new ItemStack(Items.DIAMOND_CHESTPLATE))) { temperature.increaseTarget(addedTemp * 2); }
 				else if (ItemStack.areItemStacksEqual(element, new ItemStack(Items.DIAMOND_HELMET))) { temperature.increaseTarget(addedTemp); }
-				
 			}
 			
 			// ==================================
@@ -237,7 +235,7 @@ public class TemperatureModifier {
 			// This is also scaled to wetness. More wet = less heat loss, just so it isn't insanely overpowered. Because water buckets are a thing.
 			if (player.isInWater()) {
 				
-				if (biomeTemp >= 1.5) {
+				if (biomeTemp >= 1.4) {
 					
 					temperature.decrease(1 / ((wetness.getWetness() + 1) * 10));
 				}
@@ -315,14 +313,25 @@ public class TemperatureModifier {
 			}
 			
 			// minor slowness
-			else if (temperature.getTemperature() < 30.0f) {
+			if (temperature.getTemperature() < 30.0f) {
 				
 				SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "slowness", 180, 0, false, false);
 			}
 			
-			// send data to client for rendering
-			IMessage msg = new TemperaturePacket.TemperatureMessage(player.getCachedUniqueIdString(), temperature.getTemperature(), temperature.getMaxTemperature(), temperature.getMinTemperature(), temperature.getTargetTemperature());
-			SchopPackets.net.sendTo(msg, (EntityPlayerMP) player);
+			// =================================
+			//           AESTHETICS
+			// =================================
+			
+			// cold breath particles when the player is in a cold biome
+			if (biomeTemp < 0.2 && breathTimer > 100) {
+				
+				SchopServerParticles.summonParticle(player.getCachedUniqueIdString(), "ColdBreathParticles", playerPosX+player.getLookVec().x, playerPosY+1.5, playerPosZ+player.getLookVec().z);
+				breathTimer = 0;
+			}
+			else {
+				
+				breathTimer++;
+			}
 		}
 	}
 	
@@ -350,10 +359,6 @@ public class TemperatureModifier {
 			else if (item.areItemStacksEqual(item, new ItemStack(Items.RABBIT_STEW, amount))) { temperature.increase(10.0f); }
 			else if (item.areItemStacksEqual(item, new ItemStack(Items.MUSHROOM_STEW, amount))) { temperature.increase(10.0f); }
 			else if (item.areItemStacksEqual(item, new ItemStack(Items.BEETROOT_SOUP, amount))) { temperature.increase(10.0f); }
-			
-			// send data to client for rendering
-			IMessage msg = new TemperaturePacket.TemperatureMessage(player.getCachedUniqueIdString(), temperature.getTemperature(), temperature.getMaxTemperature(), temperature.getMinTemperature(), temperature.getTargetTemperature());
-			SchopPackets.net.sendTo(msg, (EntityPlayerMP) player);
 		}	
 	}
 		
@@ -375,10 +380,6 @@ public class TemperatureModifier {
 			
 			// change player's temp
 			temperature.increase(rateOfChange);
-			
-			// send data to client for rendering
-			IMessage msg = new TemperaturePacket.TemperatureMessage(player.getCachedUniqueIdString(), temperature.getTemperature(), temperature.getMaxTemperature(), temperature.getMinTemperature(), temperature.getTargetTemperature());
-			SchopPackets.net.sendTo(msg, (EntityPlayerMP) player);
 		}
 	}
 }

@@ -12,6 +12,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
 import net.schoperation.schopcraft.SchopCraft;
+import net.schoperation.schopcraft.cap.sanity.ISanity;
+import net.schoperation.schopcraft.cap.sanity.SanityProvider;
 import net.schoperation.schopcraft.cap.temperature.ITemperature;
 import net.schoperation.schopcraft.cap.temperature.TemperatureProvider;
 
@@ -55,11 +57,15 @@ public class ItemIceCream extends ItemFood {
             // server-side stuff for adjusting temp
             if (!world.isRemote) {
             	
-            	// get capability
+            	// get capabilities
             	ITemperature temperature = entityLiving.getCapability(TemperatureProvider.TEMPERATURE_CAP, null);
+            	ISanity sanity = entityLiving.getCapability(SanityProvider.SANITY_CAP, null);
             	
             	// lower temp
-            	temperature.decrease(15.0f);
+            	temperature.decrease(20.0f);
+            	
+            	// increase sanity
+            	sanity.increase(30.0f);
             }
         }
 

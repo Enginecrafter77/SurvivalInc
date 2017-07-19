@@ -108,10 +108,6 @@ public class ThirstModifier {
 				
 				SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "mining_fatigue", 20, 1, false, false);
 			}
-			
-			// send thirst packet to client to render correctly.
-			IMessage msg = new ThirstPacket.ThirstMessage(player.getCachedUniqueIdString(), thirst.getThirst(), thirst.getMaxThirst(), thirst.getMinThirst());
-			SchopPackets.net.sendTo(msg, (EntityPlayerMP) player);
 		}
 	}
 	

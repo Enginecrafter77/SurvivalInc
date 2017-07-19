@@ -20,7 +20,9 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.schoperation.schopcraft.cap.sanity.ISanity;
 import net.schoperation.schopcraft.cap.sanity.SanityModifier;
 import net.schoperation.schopcraft.cap.sanity.SanityProvider;
+import net.schoperation.schopcraft.cap.temperature.ITemperature;
 import net.schoperation.schopcraft.cap.temperature.TemperatureModifier;
+import net.schoperation.schopcraft.cap.temperature.TemperatureProvider;
 import net.schoperation.schopcraft.cap.thirst.IThirst;
 import net.schoperation.schopcraft.cap.thirst.ThirstModifier;
 import net.schoperation.schopcraft.cap.thirst.ThirstProvider;
@@ -29,6 +31,7 @@ import net.schoperation.schopcraft.cap.wetness.WetnessModifier;
 import net.schoperation.schopcraft.cap.wetness.WetnessProvider;
 import net.schoperation.schopcraft.packet.SanityPacket;
 import net.schoperation.schopcraft.packet.SchopPackets;
+import net.schoperation.schopcraft.packet.TemperaturePacket;
 import net.schoperation.schopcraft.packet.ThirstPacket;
 import net.schoperation.schopcraft.packet.WetnessPacket;
 
@@ -62,11 +65,16 @@ public class CapEvents {
 			IMessage msgSanity = new SanityPacket.SanityMessage(player.getCachedUniqueIdString(), sanity.getSanity(), sanity.getMaxSanity(), sanity.getMinSanity());
 			SchopPackets.net.sendTo(msgSanity, (EntityPlayerMP) player);
 			
+			// send temperature packet to client
+			ITemperature temperature = player.getCapability(TemperatureProvider.TEMPERATURE_CAP, null);
+			IMessage msgTemperature = new TemperaturePacket.TemperatureMessage(player.getCachedUniqueIdString(), temperature.getTemperature(), temperature.getMaxTemperature(), temperature.getMinTemperature(), temperature.getTargetTemperature());
+			SchopPackets.net.sendTo(msgTemperature, (EntityPlayerMP) player);
+			
 		}
 	}
 	
-	// When an entity is updated. So, all the time. Or should this be a tickhandler event thingy? We'll find out soon.
-	// the modifier classes are responsible for sending and dealing with packets here.
+	// When an entity is updated. So, all the time.
+	// This also deals with packets to the client. The modifiers themselves can send packets to the server if they need to.
 	
 	// Below is a wakeUpTimer variable used to delay the execution of SanityModifier.onPlayerWakeUp(EntityPlayer player).
 	private int wakeUpTimer = -1;
@@ -102,6 +110,30 @@ public class CapEvents {
 			else if (wakeUpTimer > -1 && player.world.isRemote) {
 				
 				wakeUpTimer++;
+			}
+			
+			// send capability data to clients for rendering
+			if (!player.world.isRemote) {
+					
+				// send wetness packet to client
+				IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
+				IMessage msgWetness = new WetnessPacket.WetnessMessage(player.getCachedUniqueIdString(), wetness.getWetness(), wetness.getMaxWetness(), wetness.getMinWetness());
+				SchopPackets.net.sendTo(msgWetness, (EntityPlayerMP) player);
+				
+				// send thirst packet to client
+				IThirst thirst = player.getCapability(ThirstProvider.THIRST_CAP, null);
+				IMessage msgThirst = new ThirstPacket.ThirstMessage(player.getCachedUniqueIdString(), thirst.getThirst(), thirst.getMaxThirst(), thirst.getMinThirst());
+				SchopPackets.net.sendTo(msgThirst, (EntityPlayerMP) player);
+				
+				// send sanity packet to client
+				ISanity sanity = player.getCapability(SanityProvider.SANITY_CAP, null);
+				IMessage msgSanity = new SanityPacket.SanityMessage(player.getCachedUniqueIdString(), sanity.getSanity(), sanity.getMaxSanity(), sanity.getMinSanity());
+				SchopPackets.net.sendTo(msgSanity, (EntityPlayerMP) player);
+				
+				// send temperature packet to client
+				ITemperature temperature = player.getCapability(TemperatureProvider.TEMPERATURE_CAP, null);
+				IMessage msgTemperature = new TemperaturePacket.TemperatureMessage(player.getCachedUniqueIdString(), temperature.getTemperature(), temperature.getMaxTemperature(), temperature.getMinTemperature(), temperature.getTargetTemperature());
+				SchopPackets.net.sendTo(msgTemperature, (EntityPlayerMP) player);
 			}
 		}
 	}

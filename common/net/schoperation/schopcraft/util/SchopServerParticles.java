@@ -42,6 +42,7 @@ public class SchopServerParticles {
 				if (particleMethod.equals("WetnessParticles")) { spawnWetnessParticles(serverWorld, posX, posY, posZ, wetness.getWetness()); }
 				if (particleMethod.equals("DrinkWaterParticles")) { spawnDrinkWaterParticles(serverWorld, posX, posY, posZ); }
 				if (particleMethod.equals("SweatParticles")) { spawnSweatParticles(serverWorld, posX, posY, posZ); }
+				if (particleMethod.equals("ColdBreathParticles")) { spawnColdBreathParticles(serverWorld, posX, posY, posZ); }
 				
 			}
 		}
@@ -75,5 +76,11 @@ public class SchopServerParticles {
 	private static void spawnSweatParticles(WorldServer serverWorld, double posX, double posY, double posZ) {
 	
 		serverWorld.spawnParticle(EnumParticleTypes.WATER_SPLASH, posX, posY, posZ, 1, 0.05, 0.0, 0.05, 0.25, null);
+	}
+	
+	// Spawn some cool snow particles to imitate a person's breath, when they're in a cold biome.
+	private static void spawnColdBreathParticles(WorldServer serverWorld, double posX, double posY, double posZ) {
+		
+		serverWorld.spawnParticle(EnumParticleTypes.CLOUD, posX, posY, posZ, 1, 0, 0.1, 0, 0.1, new int[0]);
 	}
 }

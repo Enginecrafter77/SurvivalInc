@@ -21,7 +21,6 @@ import net.minecraft.world.biome.BiomeBeach;
 import net.minecraft.world.biome.BiomeOcean;
 import net.minecraft.world.biome.BiomeSnow;
 import net.minecraft.world.biome.BiomeSwamp;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.schoperation.schopcraft.SchopCraft;
@@ -29,8 +28,6 @@ import net.schoperation.schopcraft.cap.temperature.ITemperature;
 import net.schoperation.schopcraft.cap.temperature.TemperatureProvider;
 import net.schoperation.schopcraft.cap.thirst.IThirst;
 import net.schoperation.schopcraft.cap.thirst.ThirstProvider;
-import net.schoperation.schopcraft.packet.SchopPackets;
-import net.schoperation.schopcraft.packet.ThirstPacket;
 import net.schoperation.schopcraft.util.SchopServerEffects;
 import net.schoperation.schopcraft.util.SchopServerParticles;
 import net.schoperation.schopcraft.util.SchopServerSounds;
@@ -59,6 +56,7 @@ public class ItemCanteen extends Item {
 	@Override
 	public ItemStack onItemUseFinish(ItemStack stack, World world, EntityLivingBase entityLiving) {
 		
+		// server-side
 		if (entityLiving instanceof EntityPlayerMP && !world.isRemote) {
 			
 			// basic variables
@@ -109,10 +107,6 @@ public class ItemCanteen extends Item {
 			
 			// decrease durability
 			stack.damageItem(33, player);
-			
-			// send thirst packet to client to render correctly
-			IMessage msg = new ThirstPacket.ThirstMessage(player.getCachedUniqueIdString(), thirst.getThirst(), thirst.getMaxThirst(), thirst.getMinThirst());
-			SchopPackets.net.sendTo(msg, (EntityPlayerMP)player);
 		}
 		
 		return stack;

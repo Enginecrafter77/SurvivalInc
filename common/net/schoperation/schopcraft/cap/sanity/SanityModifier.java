@@ -188,10 +188,6 @@ public class SanityModifier {
 				}
 			}
 			
-			// send sanity packet to client for rendering
-			IMessage msg = new SanityPacket.SanityMessage(player.getCachedUniqueIdString(), sanity.getSanity(), sanity.getMaxSanity(), sanity.getMinSanity());
-			SchopPackets.net.sendTo(msg, (EntityPlayerMP) player);
-			
 			// ===========================================================================
 			//                  The Side Effects of Insanity
 			// ===========================================================================
@@ -422,10 +418,6 @@ public class SanityModifier {
 			else if (item.areItemStacksEqual(item, new ItemStack(Items.RABBIT_STEW, amount))) { sanity.increase(15.0f); }
 			else if (item.areItemStacksEqual(item, new ItemStack(Items.MUSHROOM_STEW, amount))) { sanity.increase(10.0f); }
 			else if (item.areItemStacksEqual(item, new ItemStack(Items.BEETROOT_SOUP, amount))) { sanity.increase(10.0f); }
-			
-			// send data to client for rendering
-			IMessage msg = new SanityPacket.SanityMessage(player.getCachedUniqueIdString(), sanity.getSanity(), sanity.getMaxSanity(), sanity.getMinSanity());
-			SchopPackets.net.sendTo(msg, (EntityPlayerMP) player);
 		}	
 	}
 	
