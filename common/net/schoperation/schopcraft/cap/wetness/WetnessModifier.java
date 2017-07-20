@@ -50,6 +50,7 @@ public class WetnessModifier {
 		
 		// get coords of player
 		BlockPos pos = new BlockPos(player.posX, player.posY, player.posZ);
+		BlockPos posFace = new BlockPos(player.posX, player.posY+1, player.posZ);
 		int playerPosX = pos.getX();
 		int playerPosY = pos.getY();
 		int playerPosZ = pos.getZ();
@@ -81,17 +82,31 @@ public class WetnessModifier {
 				
 				wetness.decrease(0.08f);
 			}
-			// check if the player is in water
-			else if (player.isInWater()) {
-				
-				wetness.increase(5f);
-			}
-			// check if the player is in the rain
+			// check if the player is in water, whether that be rain or water
 			else if (player.isWet()) {
 				
-				wetness.increase(0.05f);
+				// in water?
+				if (player.isInWater()) {
+					
+					// hey now, the player could just be in one block of water at their feet. If so, just go to 50% wetness Or somewhere around there.
+					// we'll check if water is in the player's face. If so, 100%. If not, 50%.
+					if (player.world.getBlockState(posFace).getBlock() != Blocks.WATER && player.world.getBlockState(posFace).getBlock() != Blocks.FLOWING_WATER) {
+					
+						if (wetness.getWetness() < 50) { wetness.increase(5f); }
+					}
+					else {
+						
+						wetness.increase(5f);
+					}
+				}
+				
+				// in rain?
+				if (player.world.isRainingAt(posFace)) {
+				
+					wetness.increase(0.02f);
+				}
 			}
-			
+				
 			// otherwise, allow for natural drying off (very slow)
 			else {
 				

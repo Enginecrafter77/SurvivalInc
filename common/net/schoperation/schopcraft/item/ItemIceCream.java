@@ -65,7 +65,7 @@ public class ItemIceCream extends ItemFood {
             	temperature.decrease(20.0f);
             	
             	// increase sanity
-            	sanity.increase(30.0f);
+            	sanity.increase(20.0f);
             }
         }
 

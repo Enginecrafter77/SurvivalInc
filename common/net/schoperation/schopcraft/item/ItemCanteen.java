@@ -24,6 +24,8 @@ import net.minecraft.world.biome.BiomeSwamp;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.schoperation.schopcraft.SchopCraft;
+import net.schoperation.schopcraft.cap.sanity.ISanity;
+import net.schoperation.schopcraft.cap.sanity.SanityProvider;
 import net.schoperation.schopcraft.cap.temperature.ITemperature;
 import net.schoperation.schopcraft.cap.temperature.TemperatureProvider;
 import net.schoperation.schopcraft.cap.thirst.IThirst;
@@ -64,8 +66,10 @@ public class ItemCanteen extends Item {
 			String canteenType = stack.getUnlocalizedName();
 			String uuid = player.getCachedUniqueIdString();
 			
+			// capabilities
 			IThirst thirst = player.getCapability(ThirstProvider.THIRST_CAP, null);
 			ITemperature temperature = player.getCapability(TemperatureProvider.TEMPERATURE_CAP, null);
+			ISanity sanity = player.getCapability(SanityProvider.SANITY_CAP, null);
 			
 			// determine type of water, and quench thirst accordingly
 			// fresh water
@@ -73,12 +77,14 @@ public class ItemCanteen extends Item {
 				
 				thirst.increase(20f);
 				temperature.decrease(10f);
+				sanity.increase(15f);
 			}
 			
 			// dirty water
 			else if (canteenType.equals("item." + SchopCraft.RESOURCE_PREFIX + "dirty_water_canteen")) {
 				
 				thirst.increase(10f);
+				sanity.decrease(5f);
 				SchopServerEffects.affectPlayer(uuid, "poison", 50, 2, false, false);
 			}
 			
@@ -86,6 +92,7 @@ public class ItemCanteen extends Item {
 			else if (canteenType.equals("item." + SchopCraft.RESOURCE_PREFIX + "filtered_water_canteen")) {
 				
 				thirst.increase(15f);
+				sanity.increase(10f);
 				double randChanceOfPoison = Math.random();
 				if (randChanceOfPoison < 0.30) { SchopServerEffects.affectPlayer(uuid, "poison", 50, 0, false, false); }
 			}
@@ -95,6 +102,7 @@ public class ItemCanteen extends Item {
 				
 				thirst.increase(15f);
 				temperature.decrease(15f);
+				sanity.increase(10f);
 				double randChanceOfPoison = Math.random();
 				if (randChanceOfPoison < 0.15) { SchopServerEffects.affectPlayer(uuid, "poison", 50, 0, false, false); }
 			}
@@ -103,6 +111,7 @@ public class ItemCanteen extends Item {
 			else {
 				
 				thirst.decrease(20f);
+				sanity.decrease(15f);
 			}
 			
 			// decrease durability

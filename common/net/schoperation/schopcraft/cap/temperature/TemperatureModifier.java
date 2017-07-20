@@ -93,7 +93,7 @@ public class TemperatureModifier {
 			}
 			
 			// new target temperature based on biome. This constant right here will probs change quite a bit. Perhaps with seasons. Seasons will probably be a pain. Their temps are private... why Mojang
-			float newTargetTemp = 80 * biomeTemp;
+			float newTargetTemp = 78 * biomeTemp;
 					
 			// set it. any other factor will either add to it or take from it.
 			temperature.setTarget(newTargetTemp);

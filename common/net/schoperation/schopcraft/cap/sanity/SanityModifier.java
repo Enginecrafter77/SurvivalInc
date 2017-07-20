@@ -6,10 +6,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.boss.EntityWither;
 import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.monster.EntityElderGuardian;
 import net.minecraft.entity.monster.EntityEnderman;
 import net.minecraft.entity.monster.EntityEvoker;
-import net.minecraft.entity.monster.EntityGuardian;
 import net.minecraft.entity.monster.EntityIllusionIllager;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.monster.EntitySpellcasterIllager;
@@ -92,8 +90,10 @@ public class SanityModifier {
 		
 		// list of entities around player
 		AxisAlignedBB boundingBox = player.getEntityBoundingBox().grow(7, 2, 7);
+		AxisAlignedBB boundingBoxPlayers = player.getEntityBoundingBox().grow(4, 2, 4);
 		List nearbyMobs = player.world.getEntitiesWithinAABB(EntityMob.class, boundingBox);
 		List nearbyAnimals = player.world.getEntitiesWithinAABB(EntityAnimal.class, boundingBox);
+		List nearbyPlayers = player.world.getEntitiesWithinAABB(EntityPlayer.class, boundingBoxPlayers);
 		
 		// server-side
 		if (!player.world.isRemote) {
@@ -101,39 +101,35 @@ public class SanityModifier {
 			// being awake late at night is only for crazy people and college students.
 			if (!player.world.isDaytime()) {
 				
-				sanity.decrease(0.002f);
+				sanity.decrease(0.001f);
 			}
 			
 			// being in the nether or the end isn't too sane. 
 			if (player.dimension == -1 || player.dimension == 1) {
 				
-				sanity.decrease(0.005f);
+				sanity.decrease(0.004f);
 			}
 			
 			// being in the dark in general, is pretty spooky
 			if (player.world.getLight(playerPos, true) < 2 && player.dimension != -1 && player.dimension != 1) {
 				
-				sanity.decrease(0.1f);
+				sanity.decrease(0.08f);
 			}
 			else if (player.world.getLight(playerPos, true) < 4 && player.dimension != -1 && player.dimension != 1) {
 				
-				sanity.decrease(0.05f);
+				sanity.decrease(0.04f);
 			}
 			else if (player.world.getLight(playerPos, true) < 7 && player.dimension != -1 && player.dimension != 1) {
 				
-				sanity.decrease(0.01f);
+				sanity.decrease(0.008f);
 			}
 			
 			// being drenched for a long time isn't too nice
 			if (wetness.getWetness() > 90.0f) {
 				
-				sanity.decrease(0.006f);
-			}
-			else if (wetness.getWetness() > 70.0f) {
-				
 				sanity.decrease(0.004f);
 			}
-			else if (wetness.getWetness() > 50.0f) {
+			else if (wetness.getWetness() > 70.0f) {
 				
 				sanity.decrease(0.002f);
 			}
@@ -147,13 +143,9 @@ public class SanityModifier {
 				// now change sanity according to what it is
 				if (mob instanceof EntityEnderman) {
 					
-					sanity.decrease(0.005f);
+					sanity.decrease(0.003f);
 				}
 				else if (mob instanceof EntityEvoker || mob instanceof EntityIllusionIllager || mob instanceof EntitySpellcasterIllager || mob instanceof EntityVindicator) {
-					
-					sanity.decrease(0.004f);
-				}
-				else if (mob instanceof EntityElderGuardian || mob instanceof EntityGuardian) {
 					
 					sanity.decrease(0.003f);
 				}
@@ -185,6 +177,20 @@ public class SanityModifier {
 				else {
 					
 					sanity.increase(0.002f);
+				}
+			}
+			
+			// and for players.
+			for (int numPlayers = 0; numPlayers < nearbyPlayers.size(); numPlayers++) {
+				
+				// the chosen player
+				EntityPlayerMP otherPlayer = (EntityPlayerMP) nearbyPlayers.get(numPlayers);
+				
+				// now change sanity
+				// unless it's just the player themselves.
+				if (otherPlayer != player) {
+					
+					sanity.increase(0.003f);
 				}
 			}
 			
@@ -328,7 +334,7 @@ public class SanityModifier {
 				// add and spawn "Them". As of now, it's just a bunch of invisible endermen. They drop "Lucid Dream Essence"
 				// They can be seen by all players, that's alright. They just like to gather near black holes void of sanity.
 				// if the player's sanity is really low, spawn a bunch of "Them" and make "Them" attack the player.
-				if ((sanity.getSanity() <= (sanity.getMaxSanity() * 0.15)) && spawnThemTimer >= 10) {
+				if ((sanity.getSanity() <= (sanity.getMaxSanity() * 0.15)) && spawnThemTimer >= 15) {
 					
 					// random numbers... yee
 					double randOffsetToSummonThem = Math.random() * 30;
@@ -351,6 +357,9 @@ public class SanityModifier {
 					// aggroe Them
 					them.setAttackTarget((EntityLivingBase) player);
 					
+					// add to the "entity limit"
+					them.preventEntitySpawning = true;
+					
 					// summon Them
 					player.world.spawnEntity(them);	
 				}
@@ -365,7 +374,7 @@ public class SanityModifier {
 					
 					if (posOrNeg == 0) { randOffsetToSummonThem = randOffsetToSummonThem * -1; }
 					
-					if (randChanceToSummonThem < 0.05) {
+					if (randChanceToSummonThem < 0.03) {
 						
 						// instance of Them
 						EntityEnderman them = new EntityEnderman(player.world);
@@ -375,6 +384,9 @@ public class SanityModifier {
 						
 						// position Them
 						them.setLocationAndAngles(playerPosX+randOffsetToSummonThem, playerPosY+2, playerPosZ+randOffsetToSummonThem, 0.0f, 0);
+						
+						// add to the "entity limit"
+						them.preventEntitySpawning = true;
 
 						// summon Them
 						player.world.spawnEntity(them);
