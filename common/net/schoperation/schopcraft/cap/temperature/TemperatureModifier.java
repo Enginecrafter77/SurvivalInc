@@ -92,6 +92,12 @@ public class TemperatureModifier {
 				biomeTemp = 1.5f;
 			}
 			
+			// if in a cave, stick with a cool, constant temperature
+			if (playerPosY <= (player.world.getSeaLevel() - 15)) {
+				
+				biomeTemp = 0.7f;
+			}
+			
 			// new target temperature based on biome. This constant right here will probs change quite a bit. Perhaps with seasons. Seasons will probably be a pain. Their temps are private... why Mojang
 			float newTargetTemp = 78 * biomeTemp;
 					
@@ -107,7 +113,7 @@ public class TemperatureModifier {
 				
 				temperature.increaseTarget(10.0f);
 			}
-			else if (!player.world.isDaytime()) {
+			else if (!player.world.isDaytime() && playerPosY >= (player.world.getSeaLevel() - 10)) {
 				
 				temperature.decreaseTarget(10.0f);
 			}
@@ -190,6 +196,8 @@ public class TemperatureModifier {
 			else if (ProximityDetect.isBlockNearPlayer2(blockPos.getX(), blockPos.getY(), blockPos.getZ(), Blocks.FIRE, player, false)) { if (player.world.canBlockSeeSky(blockPos)) { temperature.increaseTarget(10.0f); } else { temperature.increaseTarget(15.0f); } }
 			else if (ProximityDetect.isBlockUnderPlayer(blockPos.getX(), blockPos.getY(), blockPos.getZ(), Blocks.FIRE, player)) { if (player.world.canBlockSeeSky(blockPos)) { temperature.increaseTarget(20.0f); } else { temperature.increaseTarget(30.0f); } }	
 			else if (ProximityDetect.isBlockUnderPlayer2(blockPos.getX(), blockPos.getY(), blockPos.getZ(), Blocks.FIRE, player, false)) { if (player.world.canBlockSeeSky(blockPos)) { temperature.increaseTarget(10.0f); } else { temperature.increaseTarget(15.0f); } }
+			else if (ProximityDetect.isBlockAtPlayerFace(blockPos.getX(), blockPos.getY(), blockPos.getZ(), Blocks.FIRE, player)) { if (player.world.canBlockSeeSky(blockPos)) { temperature.increaseTarget(20.0f); } else { temperature.increaseTarget(30.0f); } }
+			else if (ProximityDetect.isBlockAtPlayerFace2(blockPos.getX(), blockPos.getY(), blockPos.getZ(), Blocks.FIRE, player, false)) { if (player.world.canBlockSeeSky(blockPos)) { temperature.increaseTarget(10.0f); } else { temperature.increaseTarget(15.0f); } }
 			
 			// lava. Warm the player.
 			if (ProximityDetect.isBlockNextToPlayer(blockPos.getX(), blockPos.getY(), blockPos.getZ(), Blocks.LAVA, player)) { if (player.world.canBlockSeeSky(blockPos)) { temperature.increaseTarget(40.0f); } else { temperature.increaseTarget(45.0f); } }
@@ -201,9 +209,11 @@ public class TemperatureModifier {
 			else if (ProximityDetect.isBlockUnderPlayer(blockPos.getX(), blockPos.getY(), blockPos.getZ(), Blocks.FLOWING_LAVA, player)) { if (player.world.canBlockSeeSky(blockPos)) { temperature.increaseTarget(30.0f); } else { temperature.increaseTarget(35.0f); } }	
 			else if (ProximityDetect.isBlockUnderPlayer2(blockPos.getX(), blockPos.getY(), blockPos.getZ(), Blocks.FLOWING_LAVA, player, false)) { if (player.world.canBlockSeeSky(blockPos)) { temperature.increaseTarget(15.0f); } else { temperature.increaseTarget(20.0f); } }
 			
-			// lit furnace. could act as a heater for now. same y-level only.
+			// lit furnace. could act as a heater for now. same y-level only. And at the face.
 			if (ProximityDetect.isBlockNextToPlayer(blockPos.getX(), blockPos.getY(), blockPos.getZ(), Blocks.LIT_FURNACE, player)) { if (player.world.canBlockSeeSky(blockPos)) { temperature.increaseTarget(15.0f); } else { temperature.increaseTarget(30.0f); } }
 			else if (ProximityDetect.isBlockNearPlayer2(blockPos.getX(), blockPos.getY(), blockPos.getZ(), Blocks.LIT_FURNACE, player, false)) { if (player.world.canBlockSeeSky(blockPos)) { temperature.increaseTarget(7.5f); } else { temperature.increaseTarget(15.0f); } }
+			else if (ProximityDetect.isBlockAtPlayerFace(blockPos.getX(), blockPos.getY(), blockPos.getZ(), Blocks.LIT_FURNACE, player)) { if (player.world.canBlockSeeSky(blockPos)) { temperature.increaseTarget(15.0f); } else { temperature.increaseTarget(30.0f); } }
+			else if (ProximityDetect.isBlockAtPlayerFace2(blockPos.getX(), blockPos.getY(), blockPos.getZ(), Blocks.LIT_FURNACE, player, false)) { if (player.world.canBlockSeeSky(blockPos)) { temperature.increaseTarget(7.5f); } else { temperature.increaseTarget(15.0f); } }
 			
 			// magma block. one y-level down only
 			if (ProximityDetect.isBlockUnderPlayer(blockPos.getX(), blockPos.getY(), blockPos.getZ(), Blocks.MAGMA, player)) { if (player.world.canBlockSeeSky(blockPos)) { temperature.increaseTarget(10.0f); } else { temperature.increaseTarget(20.0f); } }

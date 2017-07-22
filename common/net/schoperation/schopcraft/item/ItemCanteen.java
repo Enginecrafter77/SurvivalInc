@@ -1,10 +1,11 @@
 package net.schoperation.schopcraft.item;
 
-import net.minecraft.block.material.Material;
+import net.minecraft.block.BlockCauldron;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -77,7 +78,7 @@ public class ItemCanteen extends Item {
 				
 				thirst.increase(20f);
 				temperature.decrease(10f);
-				sanity.increase(15f);
+				sanity.increase(10f);
 			}
 			
 			// dirty water
@@ -92,9 +93,9 @@ public class ItemCanteen extends Item {
 			else if (canteenType.equals("item." + SchopCraft.RESOURCE_PREFIX + "filtered_water_canteen")) {
 				
 				thirst.increase(15f);
-				sanity.increase(10f);
+				sanity.increase(5f);
 				double randChanceOfPoison = Math.random();
-				if (randChanceOfPoison < 0.30) { SchopServerEffects.affectPlayer(uuid, "poison", 50, 0, false, false); }
+				if (randChanceOfPoison < 0.25) { SchopServerEffects.affectPlayer(uuid, "poison", 50, 0, false, false); }
 			}
 			
 			// cold water
@@ -102,7 +103,7 @@ public class ItemCanteen extends Item {
 				
 				thirst.increase(15f);
 				temperature.decrease(15f);
-				sanity.increase(10f);
+				sanity.increase(5f);
 				double randChanceOfPoison = Math.random();
 				if (randChanceOfPoison < 0.15) { SchopServerEffects.affectPlayer(uuid, "poison", 50, 0, false, false); }
 			}
@@ -153,7 +154,7 @@ public class ItemCanteen extends Item {
 				BlockPos pos = raytrace.getBlockPos();
 				
 				// was this water?
-				if (world.getBlockState(pos).getMaterial() == Material.WATER) {
+				if (world.getBlockState(pos).getBlock() == Blocks.WATER || world.getBlockState(pos).getBlock() == Blocks.FLOWING_WATER) {
 					
 					// now figure out the biome of the block
 					Biome biome = world.getBiome(pos);
@@ -209,14 +210,14 @@ public class ItemCanteen extends Item {
 						double randomNum = Math.random();
 						
 						// empty canteen
-						if (heldItem.getUnlocalizedName().equals("item." + SchopCraft.RESOURCE_PREFIX + "empty_canteen")) { if (randomNum < 0.90) { heldItem.setItemDamage(2); } else { heldItem.setItemDamage(1); } }
+						if (heldItem.getUnlocalizedName().equals("item." + SchopCraft.RESOURCE_PREFIX + "empty_canteen")) { if (randomNum < 0.98) { heldItem.setItemDamage(2); } else { heldItem.setItemDamage(1); } }
 						
 						// full canteen (of any type)
 						else if (heldItem.getItemDamage() < 6 && heldItem.getItemDamage() > 0) { heldItem.setItemDamage(0); }
 						
 						// otherwise fill it with dirty water or fresh water, according to what's already in it
 						else if (heldItem.getUnlocalizedName().equals("item." + SchopCraft.RESOURCE_PREFIX + "dirty_water_canteen") || heldItem.getUnlocalizedName().equals("item." + SchopCraft.RESOURCE_PREFIX + "filtered_water_canteen")) { heldItem.setItemDamage(2); }
-						else { if (randomNum < 0.90) { heldItem.setItemDamage(2); } else { heldItem.setItemDamage(1); } }
+						else { if (randomNum < 0.98) { heldItem.setItemDamage(2); } else { heldItem.setItemDamage(1); } }
 						
 					}
 					
@@ -225,6 +226,113 @@ public class ItemCanteen extends Item {
 					SchopServerSounds.playSound(player.getCachedUniqueIdString(), "WaterSound", pos.getX(), pos.getY(), pos.getZ());
 					
 					return new ActionResult<ItemStack>(EnumActionResult.PASS, heldItem);
+				}
+				
+				// a cauldron will act as a rain collector in this mod.
+				else if (world.getBlockState(pos).getBlock() == Blocks.CAULDRON) {
+					
+					// the amount of water in the cauldron
+					int cauldronLevel = world.getBlockState(pos).getValue(BlockCauldron.LEVEL);
+					
+					// the block itself
+					BlockCauldron cauldron = (BlockCauldron) world.getBlockState(pos).getBlock();
+					
+					// only allow it to be filled when the cauldron...
+					// 1. Has at least one level of water
+					// 2. It's raining and the cauldron can see the sky.
+					if (cauldronLevel > 0 && world.isRainingAt(new BlockPos(pos.getX(), pos.getY()+1, pos.getZ()))) {
+						
+						// empty canteen... give it some nice, fresh rain water
+						if (heldItem.getUnlocalizedName().equals("item." + SchopCraft.RESOURCE_PREFIX + "empty_canteen")) {
+							
+							heldItem.setItemDamage(1);
+							cauldron.setWaterLevel(world, pos, world.getBlockState(pos), cauldronLevel-1);
+						}
+						
+						// full canteen (of any type)
+						else if (heldItem.getItemDamage() < 6 && heldItem.getItemDamage() > 0) { 
+							
+							heldItem.setItemDamage(0); 
+							cauldron.setWaterLevel(world, pos, world.getBlockState(pos), cauldronLevel+1);
+						}
+						
+						// fresh water canteen (not full)
+						else if (heldItem.getUnlocalizedName().equals("item." + SchopCraft.RESOURCE_PREFIX + "fresh_water_canteen")) {
+							
+							heldItem.setItemDamage(1);
+							cauldron.setWaterLevel(world, pos, world.getBlockState(pos), cauldronLevel-1);
+						}
+						
+						// cold water (not full)
+						else if (heldItem.getUnlocalizedName().equals("item." + SchopCraft.RESOURCE_PREFIX + "cold_water_canteen")) {
+							
+							heldItem.setItemDamage(1);
+							cauldron.setWaterLevel(world, pos, world.getBlockState(pos), cauldronLevel-1);
+						}
+						
+						// otherwise do dirty water
+						else {
+							
+							heldItem.setItemDamage(2);
+							cauldron.setWaterLevel(world, pos, world.getBlockState(pos), cauldronLevel-1);
+						}
+						
+						// play sounds and particles directly (as this is already server-side)
+						SchopServerParticles.summonParticle(player.getCachedUniqueIdString(), "DrinkWaterParticles", pos.getX(), pos.getY(), pos.getZ());
+						SchopServerSounds.playSound(player.getCachedUniqueIdString(), "WaterSound", pos.getX(), pos.getY(), pos.getZ());
+						
+						return new ActionResult<ItemStack>(EnumActionResult.PASS, heldItem);
+					}
+					
+					// if it's not raining... but there's water...
+					else if (cauldronLevel > 0) {
+						
+						// empty canteen... dirty water
+						if (heldItem.getUnlocalizedName().equals("item." + SchopCraft.RESOURCE_PREFIX + "empty_canteen")) {
+							
+							heldItem.setItemDamage(2);
+							cauldron.setWaterLevel(world, pos, world.getBlockState(pos), cauldronLevel-1);
+						}
+						
+						// full canteen (of any type)
+						else if (heldItem.getItemDamage() < 6 && heldItem.getItemDamage() > 0) { 
+							
+							heldItem.setItemDamage(0); 
+							cauldron.setWaterLevel(world, pos, world.getBlockState(pos), cauldronLevel+1);
+						}
+						
+						// otherwise do dirty water or salt water
+						else {
+							
+							double saltOrDirt = Math.random();
+							if (saltOrDirt < 0.50) { heldItem.setItemDamage(3); }
+							else { heldItem.setItemDamage(2); } 
+							cauldron.setWaterLevel(world, pos, world.getBlockState(pos), cauldronLevel-1);
+						}
+						
+						// play sounds and particles directly (as this is already server-side)
+						SchopServerParticles.summonParticle(player.getCachedUniqueIdString(), "DrinkWaterParticles", pos.getX(), pos.getY(), pos.getZ());
+						SchopServerSounds.playSound(player.getCachedUniqueIdString(), "WaterSound", pos.getX(), pos.getY(), pos.getZ());
+						
+						return new ActionResult<ItemStack>(EnumActionResult.PASS, heldItem);
+					}
+					
+					// if the cauldron is empty...
+					else {
+						
+						// anything but an empty canteen
+						if (!heldItem.getUnlocalizedName().equals("item." + SchopCraft.RESOURCE_PREFIX + "empty_canteen")) {
+							
+							heldItem.setItemDamage(0);
+							cauldron.setWaterLevel(world, pos, world.getBlockState(pos), cauldronLevel+1);
+							
+							// play sounds and particles directly (as this is already server-side)
+							SchopServerParticles.summonParticle(player.getCachedUniqueIdString(), "DrinkWaterParticles", pos.getX(), pos.getY(), pos.getZ());
+							SchopServerSounds.playSound(player.getCachedUniqueIdString(), "WaterSound", pos.getX(), pos.getY(), pos.getZ());
+						}
+						
+						return new ActionResult<ItemStack>(EnumActionResult.PASS, heldItem);
+					}
 				}
 				
 				// all of this crap is to ensure that the player can drink from the canteen if it isn't empty.

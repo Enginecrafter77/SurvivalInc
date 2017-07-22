@@ -92,7 +92,7 @@ public class WetnessModifier {
 					// we'll check if water is in the player's face. If so, 100%. If not, 50%.
 					if (player.world.getBlockState(posFace).getBlock() != Blocks.WATER && player.world.getBlockState(posFace).getBlock() != Blocks.FLOWING_WATER) {
 					
-						if (wetness.getWetness() < 50) { wetness.increase(5f); }
+						if (wetness.getWetness() < 50) { wetness.increase(1f); }
 					}
 					else {
 						
@@ -103,7 +103,7 @@ public class WetnessModifier {
 				// in rain?
 				if (player.world.isRainingAt(posFace)) {
 				
-					wetness.increase(0.02f);
+					wetness.increase(0.015f);
 				}
 			}
 				
@@ -150,6 +150,21 @@ public class WetnessModifier {
 				// are they in the rain? If so, the fire is less effective
 				if (player.isWet()) { wetness.decrease(0.10f); }
 				else { wetness.decrease(0.20f); }
+			}
+			
+			// check if the fire is at the player's face... one block
+			else if (ProximityDetect.isBlockAtPlayerFace(playerPosX, playerPosY, playerPosZ, Blocks.FIRE, player)) {
+				
+				// are they in the rain? If so, the fire is less effective
+				if (player.isWet()) { wetness.decrease(0.25f); }
+				else { wetness.decrease(0.5f); }
+			}
+		
+			// ...and two blocks
+			else if (ProximityDetect.isBlockAtPlayerFace2(playerPosX, playerPosY, playerPosZ, Blocks.FIRE, player, false)) {
+				
+				if (player.isWet()) { wetness.decrease(0.15f); }
+				else { wetness.decrease(0.25f); }
 			}
 			
 			// ==============================================================================================================================

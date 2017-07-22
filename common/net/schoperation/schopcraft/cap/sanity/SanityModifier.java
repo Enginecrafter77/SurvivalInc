@@ -99,15 +99,21 @@ public class SanityModifier {
 		if (!player.world.isRemote) {
 			
 			// being awake late at night is only for crazy people and college students.
-			if (!player.world.isDaytime()) {
+			if (!player.world.isDaytime() && playerPosY >= player.world.getSeaLevel()) {
 				
-				sanity.decrease(0.001f);
+				sanity.decrease(0.0015f);
 			}
 			
 			// being in the nether or the end isn't too sane. 
 			if (player.dimension == -1 || player.dimension == 1) {
 				
 				sanity.decrease(0.004f);
+			}
+			
+			// constant drain in caves... because why not!
+			if (playerPosY <= (player.world.getSeaLevel() - 15)) {
+				
+				sanity.decrease(0.0015f);
 			}
 			
 			// being in the dark in general, is pretty spooky
@@ -119,19 +125,19 @@ public class SanityModifier {
 				
 				sanity.decrease(0.04f);
 			}
-			else if (player.world.getLight(playerPos, true) < 7 && player.dimension != -1 && player.dimension != 1) {
+			else if (player.world.getLight(playerPos, true) < 7 && player.dimension != -1 && player.dimension != 1 && (playerPosY <= player.world.getSeaLevel())) {
 				
-				sanity.decrease(0.008f);
+				sanity.decrease(0.02f);
 			}
 			
 			// being drenched for a long time isn't too nice
 			if (wetness.getWetness() > 90.0f) {
 				
-				sanity.decrease(0.004f);
+				sanity.decrease(0.005f);
 			}
 			else if (wetness.getWetness() > 70.0f) {
 				
-				sanity.decrease(0.002f);
+				sanity.decrease(0.003f);
 			}
 			
 			// now iterate through each mob that appears on the list of nearby mobs
@@ -143,7 +149,7 @@ public class SanityModifier {
 				// now change sanity according to what it is
 				if (mob instanceof EntityEnderman) {
 					
-					sanity.decrease(0.003f);
+					sanity.decrease(0.0035f);
 				}
 				else if (mob instanceof EntityEvoker || mob instanceof EntityIllusionIllager || mob instanceof EntitySpellcasterIllager || mob instanceof EntityVindicator) {
 					
