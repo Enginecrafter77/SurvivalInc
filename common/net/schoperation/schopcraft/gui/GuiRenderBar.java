@@ -99,7 +99,7 @@ public class GuiRenderBar extends Gui {
 			int currentWidthTemperature;
 			String textTemperature;
 			
-			if (ModConfig.celsius) {
+			if (ModConfig.showCelsius) {
 				
 				// NEW temperature values to show (the actual will never change)
 				double temperatureCelsius = (double) ((temperature - 32) / 1.8);
@@ -110,7 +110,7 @@ public class GuiRenderBar extends Gui {
 				
 				// Show temperature value
 				double roundedTemperature = (double) (Math.round(temperatureCelsius * 10)) / 10;
-				textTemperature = Double.toString(roundedTemperature) + "Â°C";
+				textTemperature = Double.toString(roundedTemperature) + "°C";
 			}
 			else {
 				
@@ -120,7 +120,7 @@ public class GuiRenderBar extends Gui {
 				
 				// Show temperature value
 				double roundedTemperature = (double) (Math.round(temperature * 10)) / 10;
-				textTemperature = Double.toString(roundedTemperature) + "Â°F";
+				textTemperature = Double.toString(roundedTemperature) + "°F";
 			}
 			
 			// Only show bars if the f3 debug screen isn't showing.

@@ -17,7 +17,7 @@ item.schopcraft:tabicon.name=Tab Icon
 #tile.first_mod:basic_block.name=Basic Block
 
 # Creative Tabs
-itemGroup.schopcraft:mainTab=SchopCraft Universalis
+itemGroup.schopcraft:mainTab=SchopCraft
 
 # Damage Sources
 death.attack.schopcraft_dehydration=%1$s failed to cry to get a drink of water

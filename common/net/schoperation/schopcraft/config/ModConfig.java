@@ -10,10 +10,19 @@ import net.schoperation.schopcraft.SchopCraft;
 @Config(modid = SchopCraft.MOD_ID)
 public class ModConfig {
 	
-	// the values in the config file
-	@Config.Comment("If true, the temperature will be shown in Celsius. If false, Fahrenheit")
-	public static boolean celsius = false;
+	// The values in the config file. Add on more as needed.
+	@Config.Comment("If true, the temperature will be shown in Celsius. If false, it will be shown in Fahrenheit")
+	public static boolean showCelsius = false;
 	
+	@Config.Comment("How many sips a full canteen contains. Make this 0 or 1 for more fun!")
+	@Config.RequiresWorldRestart
+	public static int canteenSips = 3;
+	
+	@Config.Comment("How many sips a full HydroPouch contains. Make this 0 or 1 to make this thing useless.")
+	@Config.RequiresWorldRestart
+	public static int hydroPouchSips = 10;
+	
+	// This deals with changed the config values in Forge's GUI in-game.
 	@Mod.EventBusSubscriber
 	private static class SchopConfig {
 		

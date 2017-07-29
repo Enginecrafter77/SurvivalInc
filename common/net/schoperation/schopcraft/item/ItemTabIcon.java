@@ -13,7 +13,8 @@ import net.schoperation.schopcraft.SchopCraft;
 public class ItemTabIcon extends Item {
 	
 	/*
-	 * This is the tab icon. Not meant to be an actual part of the experience. But, I've put in some fun crap with it anyway.
+	 * This is the tab icon. Not meant to be an actual part of the experience. But, may as well make it do something
+	 * ...other than being the creative tab icon.
 	 */
 	
 	public ItemTabIcon() {
@@ -31,8 +32,11 @@ public class ItemTabIcon extends Item {
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
 		
-		if (world.isRemote) 
-			player.sendMessage(new TextComponentString("Â§6Congratulations you found the creative tab icon, the first thing ever added to this mod."));
+		if (world.isRemote) {
+			
+			player.sendMessage(new TextComponentString("§6SchopCraft v0.1.0 for Minecraft 1.12"));
+			player.sendMessage(new TextComponentString("§eCompiled July 22nd, 2017"));
+		}
 		
 		return super.onItemRightClick(world, player, hand);
 	}

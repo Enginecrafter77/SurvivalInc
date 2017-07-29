@@ -2,9 +2,12 @@
 Making Minecraft harder, cooler, and something in-between.
 Still being refined and defined.
 
-For MC 1.12
+Eventually, this mod will add hardship with new mechanics added to the game, new ways to survive, new ways to manipulate magic,
+and new ways to manipulate yourself (and possibly others, if you're good).
 
-Requires at least Forge 14.21.1.2387 as of 06/30/2017
+You may check out the main forum thread here:
+http://www.minecraftforum.net/forums/mapping-and-modding/minecraft-mods/wip-mods/2843096-schopcraft-making-minecraft-harder-cooler-and
 
-NOTE: This is technically a "Work-In-Progress" (WIP). There's still a few things that I'd like to implement,
-but I may as well share it to refine any core mechanics before moving on to other stuff.
+Requires at least Forge 14.21.1.2387 for Minecraft 1.12 as of 07/28/2017
+
+NOTE: This is technically a "Work-In-Progress" (WIP). Crap will be tacked onto this mod in the near future.
