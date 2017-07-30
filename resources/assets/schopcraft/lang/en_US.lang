@@ -6,9 +6,14 @@ item.schopcraft:empty_canteen.name=Empty Canteen
 item.schopcraft:filtered_water_canteen.name=Filtered Water Canteen
 item.schopcraft:fresh_water_canteen.name=Fresh Water Canteen
 item.schopcraft:salt_water_canteen.name=Salt Water Canteen
-
 item.schopcraft:charcoal_filter.name=Charcoal Filter
 item.schopcraft:feather_fan.name=Feather Fan
+item.schopcraft:cold_water_hydropouch.name=Cold Water HydroPouch
+item.schopcraft:dirty_water_hydropouch.name=Dirty Water HydroPouch
+item.schopcraft:empty_hydropouch.name=Empty HydroPouch
+item.schopcraft:filtered_water_hydropouch.name=Filtered Water HydroPouch
+item.schopcraft:fresh_water_hydropouch.name=Fresh Water HydroPouch
+item.schopcraft:salt_water_hydropouch.name=Salt Water HydroPouch
 item.schopcraft:ice_cream.name=Ice Cream
 item.schopcraft:lucid_dream_essence.name=Lucid Dream Essence
 item.schopcraft:tabicon.name=Tab Icon

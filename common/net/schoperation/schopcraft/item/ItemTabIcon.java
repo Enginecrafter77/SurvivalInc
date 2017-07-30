@@ -26,7 +26,6 @@ public class ItemTabIcon extends Item {
 		// additional properties
 		setMaxStackSize(1);
 		setCreativeTab(SchopCraft.mainTab);
-		
 	}
 	
 	@Override
@@ -34,8 +33,8 @@ public class ItemTabIcon extends Item {
 		
 		if (world.isRemote) {
 			
-			player.sendMessage(new TextComponentString("§6SchopCraft v0.1.0 for Minecraft 1.12"));
-			player.sendMessage(new TextComponentString("§eCompiled July 22nd, 2017"));
+			String versionMessage = "Â§eSchopCraft v" + SchopCraft.VERSION + " for Minecraft " + SchopCraft.MCVERSION;
+			player.sendMessage(new TextComponentString(versionMessage));
 		}
 		
 		return super.onItemRightClick(world, player, hand);

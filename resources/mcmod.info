@@ -1,13 +1,13 @@
 [
 {
   "modid": "schopcraft",
-  "name": "SchopCraft Universalis",
+  "name": "SchopCraft",
   "description": "Making Minecraft harder, cooler, and something in-between. Still being refined and defined.",
-  "version": "0.1.0",
-  "mcversion": "1.12",
-  "url": "",
+  "version": "0.1.1",
+  "mcversion": "",
+  "url": "http://www.minecraftforum.net/forums/mapping-and-modding/minecraft-mods/wip-mods/2843096-schopcraft-making-minecraft-harder-cooler-and",
   "updateUrl": "",
-  "authorList": ["Schoperation","cyberpunkbln"],
+  "authorList": ["Schoperation","See README for full list"],
   "credits": "Made by Schoperation. Influenced by many others.",
   "logoFile": "",
   "screenshots": [],

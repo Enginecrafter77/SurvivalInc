@@ -11,13 +11,14 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.schoperation.schopcraft.lib.ModItems;
 
-@Mod(modid = SchopCraft.MOD_ID, name = SchopCraft.MOD_NAME, version = SchopCraft.VERSION, dependencies = SchopCraft.DEPENDENCIES)
+@Mod(modid = SchopCraft.MOD_ID, name = SchopCraft.MOD_NAME, version = SchopCraft.VERSION, acceptedMinecraftVersions = SchopCraft.MCVERSION, dependencies = SchopCraft.DEPENDENCIES)
 public class SchopCraft {
 	
 	// Mod Constants
 	public static final String MOD_ID = "schopcraft";
 	public static final String MOD_NAME = "SchopCraft Universalis";
-	public static final String VERSION = "0.1.0";
+	public static final String VERSION = "0.1.1";
+	public static final String MCVERSION = "1.12";
 	public static final String DEPENDENCIES = "required-after:forge@[14.21.1.2387,)";
 	public static final String RESOURCE_PREFIX = MOD_ID + ":"; // schopcraft:
 	
@@ -55,7 +56,5 @@ public class SchopCraft {
 		public ItemStack getTabIconItem() {
 			return new ItemStack(ModItems.ITEMS[0]);
 		}
-		
 	};
-
 }

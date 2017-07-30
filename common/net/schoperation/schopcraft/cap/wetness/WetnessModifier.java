@@ -92,7 +92,7 @@ public class WetnessModifier {
 					// we'll check if water is in the player's face. If so, 100%. If not, 50%.
 					if (player.world.getBlockState(posFace).getBlock() != Blocks.WATER && player.world.getBlockState(posFace).getBlock() != Blocks.FLOWING_WATER) {
 					
-						if (wetness.getWetness() < 50) { wetness.increase(1f); }
+						if (wetness.getWetness() < 50) { wetness.increase(1.5f); }
 					}
 					else {
 						

@@ -110,7 +110,7 @@ public class GuiRenderBar extends Gui {
 				
 				// Show temperature value
 				double roundedTemperature = (double) (Math.round(temperatureCelsius * 10)) / 10;
-				textTemperature = Double.toString(roundedTemperature) + "°C";
+				textTemperature = Double.toString(roundedTemperature) + "Â°C";
 			}
 			else {
 				
@@ -120,7 +120,7 @@ public class GuiRenderBar extends Gui {
 				
 				// Show temperature value
 				double roundedTemperature = (double) (Math.round(temperature * 10)) / 10;
-				textTemperature = Double.toString(roundedTemperature) + "°F";
+				textTemperature = Double.toString(roundedTemperature) + "Â°F";
 			}
 			
 			// Only show bars if the f3 debug screen isn't showing.

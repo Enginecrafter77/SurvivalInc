@@ -43,16 +43,16 @@ import net.schoperation.schopcraft.util.SchopServerEffects;
 import net.schoperation.schopcraft.util.SchopServerParticles;
 import net.schoperation.schopcraft.util.SchopServerSounds;
 
-public class ItemCanteen extends Item {
+public class ItemHydroPouch extends Item {
 	
 	/*
-	 * A simple canteen for all your thirst needs. Ends up being full of code. Go figure.
+	 * Just like the other canteen, but much cooler.
 	 */
 	
-	public ItemCanteen() {
+	public ItemHydroPouch() {
 		
 		// setting registry name and crap
-		setRegistryName(new ResourceLocation(SchopCraft.MOD_ID, "canteen"));
+		setRegistryName(new ResourceLocation(SchopCraft.MOD_ID, "hydropouch"));
 		
 		// properties
 		setMaxStackSize(1);
@@ -63,7 +63,7 @@ public class ItemCanteen extends Item {
 	}
 	
 	// number of sips
-	private final int canteenSips = 3;
+	private final int hydroPouchSips = 12;
 	
 	// drinking from the canteen
 	@Override
@@ -183,6 +183,12 @@ public class ItemCanteen extends Item {
 				// was this water?
 				if (world.getBlockState(pos).getBlock() == Blocks.WATER || world.getBlockState(pos).getBlock() == Blocks.FLOWING_WATER) {
 					
+					// This is a bigger canteen, so take a watersource block if it's empty.
+					if (heldItem.getMetadata() == 0) {
+						
+						world.setBlockToAir(pos);
+					}
+					
 					// now figure out the biome of the block
 					Biome biome = world.getBiome(pos);
 					
@@ -191,26 +197,26 @@ public class ItemCanteen extends Item {
 						
 						// what is the player holding?
 						// empty canteen
-						if (heldItem.getMetadata() == 0) { heldItem.setItemDamage(3); sips = canteenSips; }
+						if (heldItem.getMetadata() == 0) { heldItem.setItemDamage(3); sips = hydroPouchSips; }
 						
 						// full canteen (of any type)
-						else if (sips == canteenSips) { heldItem.setItemDamage(0); sips = 0; }
+						else if (sips == hydroPouchSips) { heldItem.setItemDamage(0); sips = 0; }
 						
 						// otherwise just refill it with salt water
-						else { heldItem.setItemDamage(3); sips = canteenSips; }
+						else { heldItem.setItemDamage(3); sips = hydroPouchSips; }
 					}
 					
 					// Swamp biome
 					else if (biome instanceof BiomeSwamp) {
 						
 						// empty canteen
-						if (heldItem.getMetadata() == 0) { heldItem.setItemDamage(2); sips = canteenSips; }
+						if (heldItem.getMetadata() == 0) { heldItem.setItemDamage(2); sips = hydroPouchSips; }
 					
 						// full canteen (of any type)
-						else if (sips == canteenSips) { heldItem.setItemDamage(0); sips = 0; }
+						else if (sips == hydroPouchSips) { heldItem.setItemDamage(0); sips = 0; }
 						
 						// otherwise just refill it with dirty water
-						else { heldItem.setItemDamage(2); sips = canteenSips; }
+						else { heldItem.setItemDamage(2); sips = hydroPouchSips; }
 					}
 					
 					// snow biome
@@ -220,14 +226,14 @@ public class ItemCanteen extends Item {
 						double randomNum = Math.random();
 						
 						// empty canteen
-						if (heldItem.getMetadata() == 0) { if (randomNum < 0.80) { heldItem.setItemDamage(2); } else { heldItem.setItemDamage(5); } sips = canteenSips; }
+						if (heldItem.getMetadata() == 0) { if (randomNum < 0.80) { heldItem.setItemDamage(2); } else { heldItem.setItemDamage(5); } sips = hydroPouchSips; }
 						
 						// full canteen (of any type)
-						else if (sips == canteenSips) { heldItem.setItemDamage(0); sips = 0; }
+						else if (sips == hydroPouchSips) { heldItem.setItemDamage(0); sips = 0; }
 						
 						// otherwise fill it with dirty water or cold water, according to what's already in it
-						else if (heldItem.getMetadata() == 2 || heldItem.getMetadata() == 4) { heldItem.setItemDamage(2); sips = canteenSips; }
-						else { if (randomNum < 0.80) { heldItem.setItemDamage(2); } else { heldItem.setItemDamage(5); } sips = canteenSips; }
+						else if (heldItem.getMetadata() == 2 || heldItem.getMetadata() == 4) { heldItem.setItemDamage(2); sips = hydroPouchSips; }
+						else { if (randomNum < 0.80) { heldItem.setItemDamage(2); } else { heldItem.setItemDamage(5); } sips = hydroPouchSips; }
 					}
 					
 					// other biomes
@@ -237,14 +243,14 @@ public class ItemCanteen extends Item {
 						double randomNum = Math.random();
 						
 						// empty canteen
-						if (heldItem.getMetadata() == 0) { if (randomNum < 0.98) { heldItem.setItemDamage(2); } else { heldItem.setItemDamage(1); } sips = canteenSips; }
+						if (heldItem.getMetadata() == 0) { if (randomNum < 0.98) { heldItem.setItemDamage(2); } else { heldItem.setItemDamage(1); } sips = hydroPouchSips; }
 						
 						// full canteen (of any type)
-						else if (sips == canteenSips) { heldItem.setItemDamage(0); sips = 0; }
+						else if (sips == hydroPouchSips) { heldItem.setItemDamage(0); sips = 0; }
 						
 						// otherwise fill it with dirty water or fresh water, according to what's already in it
-						else if (heldItem.getMetadata() == 2 || heldItem.getMetadata() == 4) { heldItem.setItemDamage(2); sips = canteenSips; }
-						else { if (randomNum < 0.98) { heldItem.setItemDamage(2); } else { heldItem.setItemDamage(1); } sips = canteenSips; }
+						else if (heldItem.getMetadata() == 2 || heldItem.getMetadata() == 4) { heldItem.setItemDamage(2); sips = hydroPouchSips; }
+						else { if (randomNum < 0.98) { heldItem.setItemDamage(2); } else { heldItem.setItemDamage(1); } sips = hydroPouchSips; }
 						
 					}
 					
@@ -270,48 +276,48 @@ public class ItemCanteen extends Item {
 					BlockCauldron cauldron = (BlockCauldron) world.getBlockState(pos).getBlock();
 					
 					// only allow it to be filled when the cauldron...
-					// 1. Has at least one level of water
+					// 1. Is full of water
 					// 2. It's raining and the cauldron can see the sky.
-					if (cauldronLevel > 0 && world.isRainingAt(new BlockPos(pos.getX(), pos.getY()+1, pos.getZ()))) {
+					if (cauldronLevel == 3 && world.isRainingAt(new BlockPos(pos.getX(), pos.getY()+1, pos.getZ()))) {
 						
 						// empty canteen... give it some nice, fresh rain water
 						if (heldItem.getMetadata() == 0) {
 							
 							heldItem.setItemDamage(1);
-							sips = canteenSips;
-							cauldron.setWaterLevel(world, pos, world.getBlockState(pos), cauldronLevel-1);
+							sips = hydroPouchSips;
+							cauldron.setWaterLevel(world, pos, world.getBlockState(pos), 0);
 						}
 						
 						// full canteen (of any type)
-						else if (sips == canteenSips) { 
+						else if (sips == hydroPouchSips) { 
 							
 							heldItem.setItemDamage(0);
 							sips = 0;
-							cauldron.setWaterLevel(world, pos, world.getBlockState(pos), cauldronLevel+1);
+							cauldron.setWaterLevel(world, pos, world.getBlockState(pos), 3);
 						}
 						
 						// fresh water canteen (not full)
 						else if (heldItem.getMetadata() == 1) {
 							
 							heldItem.setItemDamage(1);
-							sips = canteenSips;
-							cauldron.setWaterLevel(world, pos, world.getBlockState(pos), cauldronLevel-1);
+							sips = hydroPouchSips;
+							cauldron.setWaterLevel(world, pos, world.getBlockState(pos), 0);
 						}
 						
 						// cold water (not full)
 						else if (heldItem.getMetadata() == 5) {
 							
 							heldItem.setItemDamage(1);
-							sips = canteenSips;
-							cauldron.setWaterLevel(world, pos, world.getBlockState(pos), cauldronLevel-1);
+							sips = hydroPouchSips;
+							cauldron.setWaterLevel(world, pos, world.getBlockState(pos), 0);
 						}
 						
 						// otherwise do dirty water
 						else {
 							
 							heldItem.setItemDamage(2);
-							sips = canteenSips;
-							cauldron.setWaterLevel(world, pos, world.getBlockState(pos), cauldronLevel-1);
+							sips = hydroPouchSips;
+							cauldron.setWaterLevel(world, pos, world.getBlockState(pos), 0);
 						}
 						
 						// play sounds and particles directly (as this is already server-side)
@@ -320,22 +326,22 @@ public class ItemCanteen extends Item {
 					}
 					
 					// if it's not raining... but there's water...
-					else if (cauldronLevel > 0) {
+					else if (cauldronLevel == 3) {
 						
 						// empty canteen... dirty water
 						if (heldItem.getMetadata() == 0) {
 							
 							heldItem.setItemDamage(2);
-							sips = canteenSips;
-							cauldron.setWaterLevel(world, pos, world.getBlockState(pos), cauldronLevel-1);
+							sips = hydroPouchSips;
+							cauldron.setWaterLevel(world, pos, world.getBlockState(pos), 0);
 						}
 						
 						// full canteen (of any type)
-						else if (sips == canteenSips) { 
+						else if (sips == hydroPouchSips) { 
 							
 							heldItem.setItemDamage(0);
 							sips = 0;
-							cauldron.setWaterLevel(world, pos, world.getBlockState(pos), cauldronLevel+1);
+							cauldron.setWaterLevel(world, pos, world.getBlockState(pos), 3);
 						}
 						
 						// otherwise do dirty water or salt water
@@ -344,8 +350,8 @@ public class ItemCanteen extends Item {
 							double saltOrDirt = Math.random();
 							if (saltOrDirt < 0.50) { heldItem.setItemDamage(3); }
 							else { heldItem.setItemDamage(2); }
-							sips = canteenSips;
-							cauldron.setWaterLevel(world, pos, world.getBlockState(pos), cauldronLevel-1);
+							sips = hydroPouchSips;
+							cauldron.setWaterLevel(world, pos, world.getBlockState(pos), 0);
 						}
 						
 						// play sounds and particles directly (as this is already server-side)
@@ -357,11 +363,11 @@ public class ItemCanteen extends Item {
 					else {
 						
 						// anything but an empty canteen
-						if (heldItem.getMetadata() != 0 && sips == canteenSips) {
+						if (heldItem.getMetadata() != 0 && sips == hydroPouchSips) {
 							
 							heldItem.setItemDamage(0);
 							sips = 0;
-							cauldron.setWaterLevel(world, pos, world.getBlockState(pos), cauldronLevel+1);
+							cauldron.setWaterLevel(world, pos, world.getBlockState(pos), 3);
 							
 							// play sounds and particles directly (as this is already server-side)
 							SchopServerParticles.summonParticle(player.getCachedUniqueIdString(), "DrinkWaterParticles", pos.getX(), pos.getY(), pos.getZ());
@@ -411,13 +417,13 @@ public class ItemCanteen extends Item {
 	@Override
 	public String getUnlocalizedName(ItemStack stack) {
 	
-		if (stack.getMetadata() == 0) { return "item." + SchopCraft.RESOURCE_PREFIX + "empty_canteen"; }
-		else if (stack.getMetadata() == 1) { return "item." + SchopCraft.RESOURCE_PREFIX + "fresh_water_canteen"; }
-		else if (stack.getMetadata() == 2) { return "item." + SchopCraft.RESOURCE_PREFIX + "dirty_water_canteen"; }
-		else if (stack.getMetadata() == 3) { return "item." + SchopCraft.RESOURCE_PREFIX + "salt_water_canteen"; }
-		else if (stack.getMetadata() == 4) { return "item." + SchopCraft.RESOURCE_PREFIX + "filtered_water_canteen"; }
-		else if (stack.getMetadata() == 5) { return "item." + SchopCraft.RESOURCE_PREFIX + "cold_water_canteen"; }
-		else { stack.setItemDamage(0); return "item." + SchopCraft.RESOURCE_PREFIX + "empty_canteen";  }
+		if (stack.getMetadata() == 0) { return "item." + SchopCraft.RESOURCE_PREFIX + "empty_hydropouch"; }
+		else if (stack.getMetadata() == 1) { return "item." + SchopCraft.RESOURCE_PREFIX + "fresh_water_hydropouch"; }
+		else if (stack.getMetadata() == 2) { return "item." + SchopCraft.RESOURCE_PREFIX + "dirty_water_hydropouch"; }
+		else if (stack.getMetadata() == 3) { return "item." + SchopCraft.RESOURCE_PREFIX + "salt_water_hydropouch"; }
+		else if (stack.getMetadata() == 4) { return "item." + SchopCraft.RESOURCE_PREFIX + "filtered_water_hydropouch"; }
+		else if (stack.getMetadata() == 5) { return "item." + SchopCraft.RESOURCE_PREFIX + "cold_water_hydropouch"; }
+		else { stack.setItemDamage(0); return "item." + SchopCraft.RESOURCE_PREFIX + "empty_hydropouch";  }
 	}
 	
 	// When crafted, give this item an NBT tag to store its number of sips available
@@ -435,7 +441,7 @@ public class ItemCanteen extends Item {
 			}
 			else {
 				
-				nbt.setInteger("sips", canteenSips);
+				nbt.setInteger("sips", hydroPouchSips);
 			}
 			
 			stack.setTagCompound(nbt);
@@ -457,7 +463,7 @@ public class ItemCanteen extends Item {
 			
 			else {
 				
-				nbt.setInteger("sips", canteenSips);
+				nbt.setInteger("sips", hydroPouchSips);
 			}
 			
 			stack.setTagCompound(nbt);
@@ -484,7 +490,7 @@ public class ItemCanteen extends Item {
 		
 		if (nbt != null) {
 			
-			percentLeft = (int) Math.round((nbt.getInteger("sips") * 100) / canteenSips);
+			percentLeft = (int) Math.round((nbt.getInteger("sips") * 100) / hydroPouchSips);
 			
 			if (percentLeft == 100 || percentLeft >= 80) { 
 				
@@ -579,7 +585,7 @@ public class ItemCanteen extends Item {
 		
 		if (nbt != null) {
 			
-			percentLeft = (int) Math.round((nbt.getInteger("sips") * 100) / canteenSips);
+			percentLeft = (int) Math.round((nbt.getInteger("sips") * 100) / hydroPouchSips);
 			percentLeft = 1.0 - ((double) percentLeft / 100);
 			return percentLeft;
 		}
@@ -589,4 +595,5 @@ public class ItemCanteen extends Item {
 			return 1;
 		}
     }
+
 }

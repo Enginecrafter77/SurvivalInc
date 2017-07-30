@@ -386,7 +386,7 @@ public class TemperatureModifier {
 			float tempDifference = temperature.getTargetTemperature() - temperature.getTemperature();
 			
 			// rate at which the player's temp shall change. This constant might change as well.
-			float rateOfChange = tempDifference * 0.002f;
+			float rateOfChange = tempDifference * 0.003f;
 			
 			// change player's temp
 			temperature.increase(rateOfChange);
