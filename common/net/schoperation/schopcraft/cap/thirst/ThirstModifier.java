@@ -3,7 +3,8 @@ package net.schoperation.schopcraft.cap.thirst;
 import java.util.Iterator;
 
 import net.minecraft.block.material.Material;
-import net.minecraft.entity.Entity;
+import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -56,7 +57,7 @@ public class ThirstModifier {
 		}
 	}
 	
-	public static void onPlayerUpdate(Entity player) {
+	public static void onPlayerUpdate(EntityPlayer player) {
 		
 		// get capabilities
 		IThirst thirst = player.getCapability(ThirstProvider.THIRST_CAP, null);
@@ -90,23 +91,78 @@ public class ThirstModifier {
 				thirst.decrease(0.003f);
 			}
 			
-			// side effects of dehydration include fatigue and dizzyness. Those are replicated here. Well, attempted.
-			if (thirst.getThirst() < 4.0f) {
+			// =========================================================================================================
+			//                                    The side effects of thirst.
+			// Side effects of dehydration include fatigue and dizzyness. Those are replicated here. Well, attempted.
+			// =========================================================================================================
+			
+			// Does the player have existing attributes with the same name? Remove them.
+			// Iterate through all of modifiers. If one of them is a thirst one, delete it so another one can take its place.
+			Iterator<AttributeModifier> speedModifiers = player.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getModifiers().iterator();
+			Iterator<AttributeModifier> damageModifiers = player.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getModifiers().iterator();
+			Iterator<AttributeModifier> attackSpeedModifiers = player.getEntityAttribute(SharedMonsterAttributes.ATTACK_SPEED).getModifiers().iterator();
+			
+			// Speed
+			while (speedModifiers.hasNext()) {
 				
-				player.attackEntityFrom(ModDamageSources.DEHYDRATION, 1.0f);
+				AttributeModifier element = speedModifiers.next();
+				
+				if (element.getName().equals("thirstSpeedDebuff")) {
+					
+					player.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).removeModifier(element);
+				}
 			}
+			
+			// Attack Damage
+			while (damageModifiers.hasNext()) {
+				
+				AttributeModifier element = damageModifiers.next();
+				
+				if (element.getName().equals("thirstDamageDebuff")) {
+					
+					player.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).removeModifier(element);
+				}
+			}
+
+			// Attack Speed
+			while (attackSpeedModifiers.hasNext()) {
+				
+				AttributeModifier element = attackSpeedModifiers.next();
+				
+				if (element.getName().equals("thirstAttackSpeedDebuff")) {
+					
+					player.getEntityAttribute(SharedMonsterAttributes.ATTACK_SPEED).removeModifier(element);
+				}
+			}
+			
+			// Scale the modifiers according to current thirst.
+			double speedDebuffAmount = (40 - thirst.getThirst()) * -0.002;
+			double damageDebuffAmount = (40 - thirst.getThirst()) * -0.02;
+			double attackSpeedDebuffAmount = (40 - thirst.getThirst()) * -0.08;
+			
+			// Create attribute modifiers
+			AttributeModifier speedDebuff = new AttributeModifier("thirstSpeedDebuff", speedDebuffAmount, 0);
+			AttributeModifier damageDebuff = new AttributeModifier("thirstDamageDebuff", damageDebuffAmount, 0);
+			AttributeModifier attackSpeedDebuff = new AttributeModifier("thirstAttackSpeedDebuff", attackSpeedDebuffAmount, 0);
+			
+			// now determine when to debuff the player
+			if (thirst.getThirst() < 5.0f) {
+				
+				player.attackEntityFrom(ModDamageSources.DEHYDRATION, 4.0f);
+			}
+			
 			if (thirst.getThirst() < 15.0f) {
 				
 				SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "nausea", 100, 5, false, false);
+				SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "mining_fatigue", 100, 3, false, false);
 			}
-			if (thirst.getThirst() < 25.0f) {
+			
+			if (thirst.getThirst() < 40.0f) {
 				
-				SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "weakness", 20, 1, false, false);
-				SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "slowness", 20, 0, false, false);
-			}
-			if (thirst.getThirst() < 30.0f) {
-				
-				SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "mining_fatigue", 20, 1, false, false);
+				// speed + damage + attack speed oh my
+				player.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).applyModifier(speedDebuff);
+				player.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).applyModifier(damageDebuff);
+				player.getEntityAttribute(SharedMonsterAttributes.ATTACK_SPEED).applyModifier(attackSpeedDebuff);	
 			}
 		}
 	}
