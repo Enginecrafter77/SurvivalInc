@@ -2,7 +2,8 @@ package net.schoperation.schopcraft.cap.temperature;
 
 import java.util.Iterator;
 
-import net.minecraft.entity.Entity;
+import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
@@ -53,7 +54,7 @@ public class TemperatureModifier {
 	// timer variable used to spawn cold breath particles in cold biomes
 	private static int breathTimer = 0;
 	
-	public static void onPlayerUpdate(Entity player) {
+	public static void onPlayerUpdate(EntityPlayer player) {
 		
 		// get capabilities
 		ITemperature temperature = player.getCapability(TemperatureProvider.TEMPERATURE_CAP, null);
@@ -256,9 +257,7 @@ public class TemperatureModifier {
 			}
 			
 			// Actually affect the player's temperature. Explained in greater detail at the method.
-			changeRateOfTemperature((EntityPlayer) player);
-			
-			//System.out.println(temperature.getTargetTemperature());
+			changeRateOfTemperature(player);
 			
 			// ======================================
 			//             SIDE EFFECTS
@@ -269,63 +268,114 @@ public class TemperatureModifier {
 			// Here, it'll start off as some slowness, because being hot or cold just sucks.
 			// Then it'll get more and more serious.
 			
+			// Does the player have existing attributes with the same name? Remove them.
+			// Iterate through all of modifiers. If one of them is a thirst one, delete it so another one can take its place.
+			Iterator<AttributeModifier> speedModifiers = player.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getModifiers().iterator();
+			Iterator<AttributeModifier> damageModifiers = player.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getModifiers().iterator();
+			Iterator<AttributeModifier> attackSpeedModifiers = player.getEntityAttribute(SharedMonsterAttributes.ATTACK_SPEED).getModifiers().iterator();
 			
-			// Overheating (dehydration is taken care of in ThirstModifier).
-			// rip player
-			if (temperature.getTemperature() > 115.0f) {
+			// Speed
+			while (speedModifiers.hasNext()) {
 				
-				player.attackEntityFrom(ModDamageSources.HYPERTHERMIA, 1.0f);
+				AttributeModifier element = speedModifiers.next();
+				
+				if (element.getName().equals("heatSpeedDebuff") || element.getName().equals("coldSpeedDebuff")) {
+					
+					player.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).removeModifier(element);
+				}
 			}
 			
-			// nausea
+			// Attack Damage
+			while (damageModifiers.hasNext()) {
+				
+				AttributeModifier element = damageModifiers.next();
+				
+				if (element.getName().equals("heatDamageDebuff") || element.getName().equals("coldDamageDebuff")) {
+					
+					player.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).removeModifier(element);
+				}
+			}
+
+			// Attack Speed
+			while (attackSpeedModifiers.hasNext()) {
+				
+				AttributeModifier element = attackSpeedModifiers.next();
+				
+				if (element.getName().equals("heatAttackSpeedDebuff") || element.getName().equals("coldAttackSpeedDebuff")) {
+					
+					player.getEntityAttribute(SharedMonsterAttributes.ATTACK_SPEED).removeModifier(element);
+				}
+			}
+			
+			// Scale the modifiers according to current thirst.
+			double speedDebuffHeatAmount = (temperature.getTemperature() - 80) * -0.002;
+			double damageDebuffHeatAmount = (temperature.getTemperature() - 80) * -0.02;
+			double attackSpeedDebuffHeatAmount = (temperature.getTemperature() - 80) * -0.08;
+			
+			double speedDebuffColdAmount = (30 - temperature.getTemperature()) * -0.002;
+			double damageDebuffColdAmount = (30 - temperature.getTemperature()) * -0.02;
+			double attackSpeedDebuffColdAmount = (30 - temperature.getTemperature()) * -0.08;
+			
+			// Create attribute modifiers
+			AttributeModifier speedDebuffHot = new AttributeModifier("heatSpeedDebuff", speedDebuffHeatAmount, 0);
+			AttributeModifier damageDebuffHot = new AttributeModifier("heatDamageDebuff", damageDebuffHeatAmount, 0);
+			AttributeModifier attackSpeedDebuffHot = new AttributeModifier("heatAttackSpeedDebuff", attackSpeedDebuffHeatAmount, 0);
+			
+			AttributeModifier speedDebuffCold = new AttributeModifier("heatSpeedDebuff", speedDebuffColdAmount, 0);
+			AttributeModifier damageDebuffCold = new AttributeModifier("heatDamageDebuff", damageDebuffColdAmount, 0);
+			AttributeModifier attackSpeedDebuffCold = new AttributeModifier("heatAttackSpeedDebuff", attackSpeedDebuffColdAmount, 0);
+
+			// Overheating (dehydration is taken care of in ThirstModifier).
+			// Damage player
+			if (temperature.getTemperature() > 115.0f) {
+				
+				player.attackEntityFrom(ModDamageSources.HYPERTHERMIA, 2.0f);
+			}
+			
+			// Nausea
 			if (temperature.getTemperature() > 110.0f) {
 				
 				SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "nausea", 100, 5, false, false);
 			}
 			
-			// worse slowness + fatigue
+			// Fatigue
 			if (temperature.getTemperature() > 100.0f) {
 				
-				SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "slowness", 40, 2, false, false);
 				SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "mining_fatigue", 40, 2, false, false);
 			}
-			
-			// fatigue
-			else if (temperature.getTemperature() > 90.0f) {
-				
-				SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "mining_fatigue", 40, 0, false, false);
-			}
-			
-			// minor slowness + sweating
+
+			// Apply attributes and sweat particles
 			if (temperature.getTemperature() > 80.0f) {
 				
+				// Particles
 				SchopServerParticles.summonParticle(player.getCachedUniqueIdString(), "SweatParticles", playerPosX, playerPosY+1.5, playerPosZ);
-				SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "slowness", 60, 0, false, false);
+				
+				// Attributes
+				player.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).applyModifier(speedDebuffHot);
+				player.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).applyModifier(damageDebuffHot);
+				player.getEntityAttribute(SharedMonsterAttributes.ATTACK_SPEED).applyModifier(attackSpeedDebuffHot);
 			}
 			
 			// Freezing
-			// rip player
+			// Damage player
 			if (temperature.getTemperature() < -10.0f) {
 				
-				player.attackEntityFrom(ModDamageSources.HYPOTHERMIA, 1.0f);
+				player.attackEntityFrom(ModDamageSources.HYPOTHERMIA, 2.0f);
 			}
 			
-			// worse slowness + fatigue
+			// Fatigue
 			if (temperature.getTemperature() < 0.0f) {
 				
-				SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "slowness", 40, 3, false, false);
 				SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "mining_fatigue", 40, 3, false, false);
 			}
-			// fatigue
-			else if (temperature.getTemperature() < 15.0f) {
-				
-				SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "mining_fatigue", 40, 1, false, false);
-			}
 			
-			// minor slowness
+			// Apply attributes
 			if (temperature.getTemperature() < 30.0f) {
 				
-				SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "slowness", 180, 0, false, false);
+				// Attributes
+				player.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).applyModifier(speedDebuffCold);
+				player.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).applyModifier(damageDebuffCold);
+				player.getEntityAttribute(SharedMonsterAttributes.ATTACK_SPEED).applyModifier(attackSpeedDebuffCold);
 			}
 			
 			// =================================
