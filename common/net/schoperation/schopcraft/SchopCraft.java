@@ -9,6 +9,7 @@ import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
 import net.schoperation.schopcraft.lib.ModItems;
 
 @Mod(modid = SchopCraft.MOD_ID, name = SchopCraft.MOD_NAME, version = SchopCraft.VERSION, acceptedMinecraftVersions = SchopCraft.MCVERSION, dependencies = SchopCraft.DEPENDENCIES)
@@ -16,13 +17,13 @@ public class SchopCraft {
 	
 	// Mod Constants
 	public static final String MOD_ID = "schopcraft";
-	public static final String MOD_NAME = "SchopCraft Universalis";
+	public static final String MOD_NAME = "SchopCraft";
 	public static final String VERSION = "0.1.1";
 	public static final String MCVERSION = "1.12";
 	public static final String DEPENDENCIES = "required-after:forge@[14.21.1.2387,)";
 	public static final String RESOURCE_PREFIX = MOD_ID + ":"; // schopcraft:
 	
-	// make an instance
+	// Make an instance of the mod.
 	@Instance(MOD_ID)
 	public static SchopCraft instance;
 	
@@ -30,7 +31,7 @@ public class SchopCraft {
 	@SidedProxy(clientSide = "net.schoperation.schopcraft.ClientProxy", serverSide = "net.schoperation.schopcraft.CommonProxy")
 	public static CommonProxy proxy;
 	
-	// event handler. handles crap. Go figure. Stop reading these dumb comments, I'm just as clueless.
+	// Event handler. handles crap. Go figure. Stop reading these dumb comments, I'm just as clueless.
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event) {
 		
@@ -49,12 +50,19 @@ public class SchopCraft {
 		proxy.postInit(event);
 	}
 	
-	// create tabs for creative mode
+	@EventHandler
+	public void serverStarted(FMLServerStartedEvent event) {
+		
+		proxy.serverStarted(event);
+	}
+	
+	// Create tab for creative mode.
 	public static CreativeTabs mainTab = new CreativeTabs(SchopCraft.RESOURCE_PREFIX + "mainTab") {
 		
 		@Override
 		public ItemStack getTabIconItem() {
-			return new ItemStack(ModItems.ITEMS[0]);
+			
+			return new ItemStack(ModItems.TAB_ICON);
 		}
 	};
 }

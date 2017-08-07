@@ -68,8 +68,7 @@ public class CapEvents {
 			// send temperature packet to client
 			ITemperature temperature = player.getCapability(TemperatureProvider.TEMPERATURE_CAP, null);
 			IMessage msgTemperature = new TemperaturePacket.TemperatureMessage(player.getCachedUniqueIdString(), temperature.getTemperature(), temperature.getMaxTemperature(), temperature.getMinTemperature(), temperature.getTargetTemperature());
-			SchopPackets.net.sendTo(msgTemperature, (EntityPlayerMP) player);
-			
+			SchopPackets.net.sendTo(msgTemperature, (EntityPlayerMP) player);	
 		}
 	}
 	

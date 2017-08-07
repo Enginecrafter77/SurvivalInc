@@ -478,7 +478,7 @@ public class SanityModifier {
 			sanity.increase(33f);
 			
 			// make player hungry for breakfast (or something...)
-			IMessage msgEffect = new PotionEffectPacket.PotionEffectMessage(player.getCachedUniqueIdString(), "hunger", 200, 8, false, false);
+			IMessage msgEffect = new PotionEffectPacket.PotionEffectMessage(player.getCachedUniqueIdString(), "hunger", 200, 10, false, false);
 			SchopPackets.net.sendToServer(msgEffect);
 
 			// send data to server
@@ -507,12 +507,12 @@ public class SanityModifier {
 					
 					// drop some essence. 50% chance for an extra essence.
 					int sizeOfList = drops.size();
-					drops.add(new EntityItem(player.world, entityKilled.posX, entityKilled.posY, entityKilled.posZ, new ItemStack(ModItems.ITEMS[3], 1)));
+					drops.add(new EntityItem(player.world, entityKilled.posX, entityKilled.posY, entityKilled.posZ, new ItemStack(ModItems.LUCID_DREAM_ESSENCE, 1)));
 					
 					double randChanceForAdditional = Math.random();
 					if (randChanceForAdditional < 0.50) {
 						
-						drops.add(new EntityItem(player.world, entityKilled.posX, entityKilled.posY, entityKilled.posZ, new ItemStack(ModItems.ITEMS[3], 1)));
+						drops.add(new EntityItem(player.world, entityKilled.posX, entityKilled.posY, entityKilled.posZ, new ItemStack(ModItems.LUCID_DREAM_ESSENCE, 1)));
 					}	
 				}
 				

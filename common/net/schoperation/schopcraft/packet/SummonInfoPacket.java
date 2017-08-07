@@ -6,10 +6,10 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.schoperation.schopcraft.packet.SummonInfoPacket.SummonInfoMessage;
-import net.schoperation.schopcraft.util.SchopClientParticles;
-import net.schoperation.schopcraft.util.SchopClientSounds;
 import net.schoperation.schopcraft.util.SchopServerParticles;
 import net.schoperation.schopcraft.util.SchopServerSounds;
+import net.schoperation.schopcraft.util.client.SchopClientParticles;
+import net.schoperation.schopcraft.util.client.SchopClientSounds;
 
 /*
  * Used for summoning particles and playing sounds.

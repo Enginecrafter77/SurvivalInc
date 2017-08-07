@@ -1,4 +1,4 @@
-package net.schoperation.schopcraft.util;
+package net.schoperation.schopcraft.util.client;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
