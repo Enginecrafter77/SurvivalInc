@@ -8,6 +8,9 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
 import net.schoperation.schopcraft.cap.CapEvents;
 import net.schoperation.schopcraft.cap.CapabilityHandler;
+import net.schoperation.schopcraft.cap.ghost.Ghost;
+import net.schoperation.schopcraft.cap.ghost.GhostStorage;
+import net.schoperation.schopcraft.cap.ghost.IGhost;
 import net.schoperation.schopcraft.cap.sanity.ISanity;
 import net.schoperation.schopcraft.cap.sanity.Sanity;
 import net.schoperation.schopcraft.cap.sanity.SanityStorage;
@@ -37,14 +40,15 @@ public class CommonProxy {
 		CapabilityManager.INSTANCE.register(IThirst.class, new ThirstStorage(), Thirst.class);
 		CapabilityManager.INSTANCE.register(ISanity.class, new SanityStorage(), Sanity.class);
 		CapabilityManager.INSTANCE.register(ITemperature.class, new TemperatureStorage(), Temperature.class);
+		CapabilityManager.INSTANCE.register(IGhost.class, new GhostStorage(), Ghost.class);
+	}
+	
+	public void init(FMLInitializationEvent event) {
 		
 		// Register event handlers
 		MinecraftForge.EVENT_BUS.register(new CapabilityHandler());
 		MinecraftForge.EVENT_BUS.register(new CapEvents());
 		MinecraftForge.EVENT_BUS.register(new TweakEvents());
-	}
-	
-	public void init(FMLInitializationEvent event) {
 		
 		// Register packets here
 		SchopPackets.initPackets();

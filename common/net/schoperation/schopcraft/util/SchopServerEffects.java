@@ -78,6 +78,24 @@ public class SchopServerEffects {
 					player.addPotionEffect(new PotionEffect(MobEffects.HUNGER, duration, amplifier, isAmbient, showParticles));
 				}
 				
+				// invisibility
+				else if (effect.equals("invisibility")) {
+					
+					player.addPotionEffect(new PotionEffect(MobEffects.INVISIBILITY, duration, amplifier, isAmbient, showParticles));
+				}
+				
+				// resistance
+				else if (effect.equals("resistance")) {
+					
+					player.addPotionEffect(new PotionEffect(MobEffects.RESISTANCE, duration, amplifier, isAmbient, showParticles));
+				}
+				
+				// saturation
+				else if (effect.equals("saturation")) {
+					
+					player.addPotionEffect(new PotionEffect(MobEffects.SATURATION, duration, amplifier, isAmbient, showParticles));
+				}
+				
 			}
 		}		
 	}

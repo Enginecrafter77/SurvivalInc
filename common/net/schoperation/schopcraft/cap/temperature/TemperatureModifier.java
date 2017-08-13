@@ -13,6 +13,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.schoperation.schopcraft.cap.ghost.GhostProvider;
+import net.schoperation.schopcraft.cap.ghost.IGhost;
 import net.schoperation.schopcraft.cap.wetness.IWetness;
 import net.schoperation.schopcraft.cap.wetness.WetnessProvider;
 import net.schoperation.schopcraft.lib.ModDamageSources;
@@ -269,7 +271,7 @@ public class TemperatureModifier {
 			// Then it'll get more and more serious.
 			
 			// Does the player have existing attributes with the same name? Remove them.
-			// Iterate through all of modifiers. If one of them is a thirst one, delete it so another one can take its place.
+			// Iterate through all of modifiers. If one of them is a temperature one, delete it so another one can take its place.
 			Iterator<AttributeModifier> speedModifiers = player.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getModifiers().iterator();
 			Iterator<AttributeModifier> damageModifiers = player.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getModifiers().iterator();
 			Iterator<AttributeModifier> attackSpeedModifiers = player.getEntityAttribute(SharedMonsterAttributes.ATTACK_SPEED).getModifiers().iterator();
@@ -307,7 +309,7 @@ public class TemperatureModifier {
 				}
 			}
 			
-			// Scale the modifiers according to current thirst.
+			// Scale the modifiers according to current temperature.
 			double speedDebuffHeatAmount = (temperature.getTemperature() - 80) * -0.002;
 			double damageDebuffHeatAmount = (temperature.getTemperature() - 80) * -0.02;
 			double attackSpeedDebuffHeatAmount = (temperature.getTemperature() - 80) * -0.08;
@@ -382,8 +384,11 @@ public class TemperatureModifier {
 			//           AESTHETICS
 			// =================================
 			
+			// ghost capability
+			IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
+			
 			// cold breath particles when the player is in a cold biome
-			if (biomeTemp < 0.2 && breathTimer > 100) {
+			if (biomeTemp < 0.2 && breathTimer > 100 && !ghost.isGhost()) {
 				
 				SchopServerParticles.summonParticle(player.getCachedUniqueIdString(), "ColdBreathParticles", playerPosX+player.getLookVec().x, playerPosY+1.5, playerPosZ+player.getLookVec().z);
 				breathTimer = 0;

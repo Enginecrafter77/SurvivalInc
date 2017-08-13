@@ -11,12 +11,17 @@ import net.minecraft.util.DamageSource;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
+import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerWakeUpEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.schoperation.schopcraft.cap.ghost.GhostMain;
+import net.schoperation.schopcraft.cap.ghost.GhostProvider;
+import net.schoperation.schopcraft.cap.ghost.IGhost;
 import net.schoperation.schopcraft.cap.sanity.ISanity;
 import net.schoperation.schopcraft.cap.sanity.SanityModifier;
 import net.schoperation.schopcraft.cap.sanity.SanityProvider;
@@ -29,6 +34,7 @@ import net.schoperation.schopcraft.cap.thirst.ThirstProvider;
 import net.schoperation.schopcraft.cap.wetness.IWetness;
 import net.schoperation.schopcraft.cap.wetness.WetnessModifier;
 import net.schoperation.schopcraft.cap.wetness.WetnessProvider;
+import net.schoperation.schopcraft.packet.GhostPacket;
 import net.schoperation.schopcraft.packet.SanityPacket;
 import net.schoperation.schopcraft.packet.SchopPackets;
 import net.schoperation.schopcraft.packet.TemperaturePacket;
@@ -50,25 +56,33 @@ public class CapEvents {
 		
 		if (player instanceof EntityPlayerMP) {
 			
-			// send wetness packet to client
+			// Cached UUID
+			String uuid = player.getCachedUniqueIdString();
+			
+			// Wetness packet
 			IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
-			IMessage msgWetness = new WetnessPacket.WetnessMessage(player.getCachedUniqueIdString(), wetness.getWetness(), wetness.getMaxWetness(), wetness.getMinWetness());
+			IMessage msgWetness = new WetnessPacket.WetnessMessage(uuid, wetness.getWetness(), wetness.getMaxWetness(), wetness.getMinWetness());
 			SchopPackets.net.sendTo(msgWetness, (EntityPlayerMP) player);
 			
-			// send thirst packet to client
+			// Thirst packet
 			IThirst thirst = player.getCapability(ThirstProvider.THIRST_CAP, null);
-			IMessage msgThirst = new ThirstPacket.ThirstMessage(player.getCachedUniqueIdString(), thirst.getThirst(), thirst.getMaxThirst(), thirst.getMinThirst());
+			IMessage msgThirst = new ThirstPacket.ThirstMessage(uuid, thirst.getThirst(), thirst.getMaxThirst(), thirst.getMinThirst());
 			SchopPackets.net.sendTo(msgThirst, (EntityPlayerMP) player);
 			
-			// send sanity packet to client
+			// Sanity packet
 			ISanity sanity = player.getCapability(SanityProvider.SANITY_CAP, null);
-			IMessage msgSanity = new SanityPacket.SanityMessage(player.getCachedUniqueIdString(), sanity.getSanity(), sanity.getMaxSanity(), sanity.getMinSanity());
+			IMessage msgSanity = new SanityPacket.SanityMessage(uuid, sanity.getSanity(), sanity.getMaxSanity(), sanity.getMinSanity());
 			SchopPackets.net.sendTo(msgSanity, (EntityPlayerMP) player);
 			
-			// send temperature packet to client
+			// Temperature packet
 			ITemperature temperature = player.getCapability(TemperatureProvider.TEMPERATURE_CAP, null);
-			IMessage msgTemperature = new TemperaturePacket.TemperatureMessage(player.getCachedUniqueIdString(), temperature.getTemperature(), temperature.getMaxTemperature(), temperature.getMinTemperature(), temperature.getTargetTemperature());
-			SchopPackets.net.sendTo(msgTemperature, (EntityPlayerMP) player);	
+			IMessage msgTemperature = new TemperaturePacket.TemperatureMessage(uuid, temperature.getTemperature(), temperature.getMaxTemperature(), temperature.getMinTemperature(), temperature.getTargetTemperature());
+			SchopPackets.net.sendTo(msgTemperature, (EntityPlayerMP) player);
+			
+			// Ghost stats packet
+			IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
+			IMessage msgGhost = new GhostPacket.GhostMessage(uuid, ghost.isGhost(), ghost.getEnergy());
+			SchopPackets.net.sendTo(msgGhost, (EntityPlayerMP) player);
 		}
 	}
 	
@@ -92,6 +106,7 @@ public class CapEvents {
 			ThirstModifier.onPlayerUpdate(player);
 			SanityModifier.onPlayerUpdate(player);
 			TemperatureModifier.onPlayerUpdate(player);
+			GhostMain.onPlayerUpdate(player);
 			
 			// fire this if the player is sleeping (not starting to sleep, legit sleeping)
 			if (player.isPlayerFullyAsleep() && player.world.isRemote) {
@@ -114,25 +129,30 @@ public class CapEvents {
 			// send capability data to clients for rendering
 			if (!player.world.isRemote) {
 					
-				// send wetness packet to client
+				// Wetness packet
 				IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
 				IMessage msgWetness = new WetnessPacket.WetnessMessage(player.getCachedUniqueIdString(), wetness.getWetness(), wetness.getMaxWetness(), wetness.getMinWetness());
 				SchopPackets.net.sendTo(msgWetness, (EntityPlayerMP) player);
 				
-				// send thirst packet to client
+				// Thirst packet
 				IThirst thirst = player.getCapability(ThirstProvider.THIRST_CAP, null);
 				IMessage msgThirst = new ThirstPacket.ThirstMessage(player.getCachedUniqueIdString(), thirst.getThirst(), thirst.getMaxThirst(), thirst.getMinThirst());
 				SchopPackets.net.sendTo(msgThirst, (EntityPlayerMP) player);
 				
-				// send sanity packet to client
+				// Sanity packet
 				ISanity sanity = player.getCapability(SanityProvider.SANITY_CAP, null);
 				IMessage msgSanity = new SanityPacket.SanityMessage(player.getCachedUniqueIdString(), sanity.getSanity(), sanity.getMaxSanity(), sanity.getMinSanity());
 				SchopPackets.net.sendTo(msgSanity, (EntityPlayerMP) player);
 				
-				// send temperature packet to client
+				// Temperature packet
 				ITemperature temperature = player.getCapability(TemperatureProvider.TEMPERATURE_CAP, null);
 				IMessage msgTemperature = new TemperaturePacket.TemperatureMessage(player.getCachedUniqueIdString(), temperature.getTemperature(), temperature.getMaxTemperature(), temperature.getMinTemperature(), temperature.getTargetTemperature());
 				SchopPackets.net.sendTo(msgTemperature, (EntityPlayerMP) player);
+				
+				// Ghost stats packet
+				IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
+				IMessage msgGhost = new GhostPacket.GhostMessage(player.getCachedUniqueIdString(), ghost.isGhost(), ghost.getEnergy());
+				SchopPackets.net.sendTo(msgGhost, (EntityPlayerMP) player);
 			}
 		}
 	}
@@ -143,6 +163,16 @@ public class CapEvents {
 		
 		// instance of player
 		EntityPlayer player = event.getEntityPlayer();
+		
+		// Cancel interacting with blocks if the player is a ghost. This must be done here.
+		// Capability
+		IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
+		
+		// Cancel if ghost
+		if (ghost.isGhost() && event.isCancelable()) {
+			
+			event.setCanceled(true);
+		}
 		
 		// fire methods
 		ThirstModifier.onPlayerInteract(player);
@@ -202,5 +232,34 @@ public class CapEvents {
 		
 		// fire methods
 		SanityModifier.onDropsDropped(entityKilled, drops, lootingLevel, damageSource);
+	}
+	
+	// When a player respawns.
+	@SubscribeEvent
+	public void onRespawn(PlayerRespawnEvent event) {
+		
+		// Going through the end portal back to the overworld counts as respawning. This shouldn't make you a ghost.
+		if (!event.isEndConquered()) {
+			
+			GhostMain.onPlayerRespawn(event.player);
+		}
+	}
+	
+	// When a player attempts to pick up items
+	@SubscribeEvent
+	public void onItemPickup(EntityItemPickupEvent event) {
+		
+		// Cancel picking up the items if the player is a ghost. This has to be done here.
+		// Instance of player
+		EntityPlayer player = event.getEntityPlayer();
+		
+		// Capability
+		IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
+		
+		// Cancel if ghost
+		if (ghost.isGhost()) {
+			
+			event.setCanceled(true);
+		}
 	}
 }

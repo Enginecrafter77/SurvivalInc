@@ -6,12 +6,14 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.schoperation.schopcraft.SchopCraft;
+import net.schoperation.schopcraft.cap.ghost.GhostProvider;
 import net.schoperation.schopcraft.cap.sanity.SanityProvider;
 import net.schoperation.schopcraft.cap.temperature.TemperatureProvider;
 import net.schoperation.schopcraft.cap.thirst.ThirstProvider;
 import net.schoperation.schopcraft.cap.wetness.WetnessProvider;
 
 public class CapabilityHandler {
+	
 	/*
 	 * This attaches all capabilities to the player
 	 */
@@ -19,6 +21,7 @@ public class CapabilityHandler {
 	public static final ResourceLocation THIRST_CAP = new ResourceLocation(SchopCraft.MOD_ID, "thirst");
 	public static final ResourceLocation SANITY_CAP = new ResourceLocation(SchopCraft.MOD_ID, "sanity");
 	public static final ResourceLocation TEMPERATURE_CAP = new ResourceLocation(SchopCraft.MOD_ID, "temperature");
+	public static final ResourceLocation GHOST_CAP = new ResourceLocation(SchopCraft.MOD_ID, "ghost");
 	
 	@SubscribeEvent
 	public void attachCapability(AttachCapabilitiesEvent<Entity> event) {
@@ -29,5 +32,6 @@ public class CapabilityHandler {
 		event.addCapability(THIRST_CAP, new ThirstProvider());
 		event.addCapability(SANITY_CAP, new SanityProvider());
 		event.addCapability(TEMPERATURE_CAP, new TemperatureProvider());
+		event.addCapability(GHOST_CAP, new GhostProvider());
 	}
 }

@@ -16,18 +16,18 @@ public class GuiRenderBar extends Gui {
 	private final ResourceLocation thirstBar = new ResourceLocation(SchopCraft.MOD_ID, "textures/gui/thirstbar.png");
 	private final ResourceLocation sanityBar = new ResourceLocation(SchopCraft.MOD_ID, "textures/gui/sanitybar.png");
 	private final ResourceLocation wetnessBar = new ResourceLocation(SchopCraft.MOD_ID, "textures/gui/wetnessbar.png");
-	private final int textureWidth = 100, textureHeight = 11, barWidth = 80;
+	private final ResourceLocation ghostEnergyBar = new ResourceLocation(SchopCraft.MOD_ID, "textures/gui/ghostenergybar.png");
+	private final int defaultTextureWidth = 100, defaultTextureHeight = 11, defaultBarWidth = 80;
+	private final int ghostTextureWidth = 200, ghostTextureHeight = 9, ghostBarWidth = 187;
 	
 	// Stats for rendering
-	private static float wetness = 0.00f;
-	private static float maxWetness = 100.00f;
-	private static float thirst = 100.00f;
-	private static float maxThirst = 100.00f;
-	private static float sanity = 100.00f;
-	private static float maxSanity = 100.00f;
-	private static float temperature = 68.0f;
-	private static float maxTemperature = 120.0f;
-	private static float targetTemperature = 68.0f;
+	private static float wetness = 0.00f, maxWetness = 100.00f;
+	private static float thirst = 100.00f, maxThirst = 100.00f;
+	private static float sanity = 100.00f, maxSanity = 100.00f;
+	private static float temperature = 68.00f, maxTemperature = 120.00f, targetTemperature = 68.00f;
+	
+	private static boolean isGhost = false;
+	private static float ghostEnergy = 0.00f, maxGhostEnergy = 100.00f;
 	
 	// These methods are to get the correct stats of the player.
 	public static void getServerThirst(float newThirst, float newMaxThirst) {
@@ -55,6 +55,12 @@ public class GuiRenderBar extends Gui {
 		targetTemperature = newTargetTemperature;
 	}
 	
+	public static void getServerGhostStats(boolean newIsGhost, float newGhostEnergy) {
+		
+		isGhost = newIsGhost;
+		ghostEnergy = newGhostEnergy;
+	}
+	
 	@SubscribeEvent
 	public void renderOverlay(RenderGameOverlayEvent event) {
 		
@@ -69,7 +75,7 @@ public class GuiRenderBar extends Gui {
 			int screenHeight = scaled.getScaledHeight();
 			
 			// Determine width of WETNESS bar.
-			double oneWetnessUnit = (double) barWidth / maxWetness; // default 0.8
+			double oneWetnessUnit = (double) defaultBarWidth / maxWetness; // default 0.8
 			int currentWidthWetness = (int) (oneWetnessUnit * wetness);
 			
 			// Show wetness value
@@ -77,7 +83,7 @@ public class GuiRenderBar extends Gui {
 			String textWetness = Double.toString(roundedWetness) + "%";
 			
 			// Determine width of THIRST bar.
-			double oneThirstUnit = (double) barWidth / maxThirst; // default 0.8
+			double oneThirstUnit = (double) defaultBarWidth / maxThirst; // default 0.8
 			int currentWidthThirst = (int) (oneThirstUnit * thirst);
 			
 			// Show thirst value
@@ -85,12 +91,20 @@ public class GuiRenderBar extends Gui {
 			String textThirst = Double.toString(roundedThirst) + "%";
 			
 			// Determine width of SANITY bar.
-			double oneSanityUnit = (double) barWidth / maxSanity; // default 0.8, could change
+			double oneSanityUnit = (double) defaultBarWidth / maxSanity; // default 0.8, could change
 			int currentWidthSanity = (int) (oneSanityUnit * sanity);
 			
 			// Show sanity value
 			double roundedSanity = (double) (Math.round(sanity * 10)) / 10;
 			String textSanity = Double.toString(roundedSanity);
+			
+			// Determine width of GHOST ENERGY bar.
+			double oneEnergyUnit = (double) ghostBarWidth / maxGhostEnergy;
+			int currentWidthEnergy = (int) (oneEnergyUnit * ghostEnergy);
+			
+			// Show ghost energy value
+			double roundedEnergy = (double) (Math.round(ghostEnergy * 10)) / 10;
+			String textEnergy = Double.toString(roundedEnergy) + " GPU";
 			
 			// Determine width of TEMPERATURE bar.
 			// This is also determined whether the user wants Celsius or Fahrenheit.
@@ -105,7 +119,7 @@ public class GuiRenderBar extends Gui {
 				double temperatureCelsius = (double) ((temperature - 32) / 1.8);
 				double maxTemperatureCelsius = (double) ((maxTemperature - 32) / 1.8);
 				
-				double oneTemperatureUnit = (double) barWidth / maxTemperatureCelsius; // default ~0.61
+				double oneTemperatureUnit = (double) defaultBarWidth / maxTemperatureCelsius; // default ~0.61
 				currentWidthTemperature = (int) (oneTemperatureUnit * temperatureCelsius);
 				
 				// Show temperature value
@@ -115,7 +129,7 @@ public class GuiRenderBar extends Gui {
 			else {
 				
 				// Use current temperature values (as they are set in fahrenheit in the mod itself)
-				double oneTemperatureUnit = (double) barWidth / maxTemperature; // default 0.66 repeating
+				double oneTemperatureUnit = (double) defaultBarWidth / maxTemperature; // default 0.66 repeating
 				currentWidthTemperature = (int) (oneTemperatureUnit * temperature);
 				
 				// Show temperature value
@@ -123,37 +137,47 @@ public class GuiRenderBar extends Gui {
 				textTemperature = Double.toString(roundedTemperature) + "°F";
 			}
 			
-			// Only show bars if the f3 debug screen isn't showing.
-			if (!mc.gameSettings.showDebugInfo) {
+			// Only show the main bars if the F3 debug screen is now showing, and if the player is not a ghost.
+			if (!mc.gameSettings.showDebugInfo && !isGhost) {
 				
 				// Top rect is bar, bottom rect is outline/icon
 				// TEMPERATURE
 				mc.renderEngine.bindTexture(tempBar);
-				drawTexturedModalRect(screenWidth-barWidth-2, screenHeight-(screenHeight/2)-20, 19, 14, currentWidthTemperature, textureHeight);
-				drawTexturedModalRect(screenWidth-textureWidth-1, screenHeight-(screenHeight/2)-23, 0, 0, textureWidth, textureHeight);
-				drawCenteredString(mc.fontRenderer, textTemperature, screenWidth-textureWidth-16, screenHeight-(screenHeight/2)-20, Integer.parseInt("FFFFFF", 16));
+				drawTexturedModalRect(screenWidth-defaultBarWidth-2, screenHeight-(screenHeight/2)-20, 19, 14, currentWidthTemperature, defaultTextureHeight);
+				drawTexturedModalRect(screenWidth-defaultTextureWidth-1, screenHeight-(screenHeight/2)-23, 0, 0, defaultTextureWidth, defaultTextureHeight);
+				drawCenteredString(mc.fontRenderer, textTemperature, screenWidth-defaultTextureWidth-16, screenHeight-(screenHeight/2)-20, Integer.parseInt("FFFFFF", 16));
 				
 				// THIRST
 				mc.renderEngine.bindTexture(thirstBar);
-				drawTexturedModalRect(screenWidth-barWidth-2, screenHeight-(screenHeight/2), 19, 14, currentWidthThirst, textureHeight);
-				drawTexturedModalRect(screenWidth-textureWidth-1, screenHeight-(screenHeight/2)-3, 0, 0, textureWidth, textureHeight);
-				drawCenteredString(mc.fontRenderer, textThirst, screenWidth-textureWidth-16, screenHeight-(screenHeight/2), Integer.parseInt("FFFFFF", 16));
+				drawTexturedModalRect(screenWidth-defaultBarWidth-2, screenHeight-(screenHeight/2), 19, 14, currentWidthThirst, defaultTextureHeight);
+				drawTexturedModalRect(screenWidth-defaultTextureWidth-1, screenHeight-(screenHeight/2)-3, 0, 0, defaultTextureWidth, defaultTextureHeight);
+				drawCenteredString(mc.fontRenderer, textThirst, screenWidth-defaultTextureWidth-16, screenHeight-(screenHeight/2), Integer.parseInt("FFFFFF", 16));
 				
 				// SANITY
 				mc.renderEngine.bindTexture(sanityBar);
-				drawTexturedModalRect(screenWidth-barWidth-2, screenHeight-(screenHeight/2)+20, 19, 14, currentWidthSanity, textureHeight);
-				drawTexturedModalRect(screenWidth-textureWidth-1, screenHeight-(screenHeight/2)+17, 0, 0, textureWidth, textureHeight);
-				drawCenteredString(mc.fontRenderer, textSanity, screenWidth-textureWidth-16, screenHeight-(screenHeight/2)+20, Integer.parseInt("FFFFFF", 16));
+				drawTexturedModalRect(screenWidth-defaultBarWidth-2, screenHeight-(screenHeight/2)+20, 19, 14, currentWidthSanity, defaultTextureHeight);
+				drawTexturedModalRect(screenWidth-defaultTextureWidth-1, screenHeight-(screenHeight/2)+17, 0, 0, defaultTextureWidth, defaultTextureHeight);
+				drawCenteredString(mc.fontRenderer, textSanity, screenWidth-defaultTextureWidth-16, screenHeight-(screenHeight/2)+20, Integer.parseInt("FFFFFF", 16));
 				
 				// WETNESS
 				// Only show wetness if there is wetness. This is in place so wetness isn't confused with thirst.
 				if (wetness > 0) {
 					
 					mc.renderEngine.bindTexture(wetnessBar);
-					drawTexturedModalRect(screenWidth-barWidth-2, screenHeight-(screenHeight/2)+40, 19, 14, currentWidthWetness, textureHeight);
-					drawTexturedModalRect(screenWidth-textureWidth-1, screenHeight-(screenHeight/2)+37, 0, 0, textureWidth, textureHeight);
-					drawCenteredString(mc.fontRenderer, textWetness, screenWidth-textureWidth-16, screenHeight-(screenHeight/2)+40, Integer.parseInt("FFFFFF", 16));
+					drawTexturedModalRect(screenWidth-defaultBarWidth-2, screenHeight-(screenHeight/2)+40, 19, 14, currentWidthWetness, defaultTextureHeight);
+					drawTexturedModalRect(screenWidth-defaultTextureWidth-1, screenHeight-(screenHeight/2)+37, 0, 0, defaultTextureWidth, defaultTextureHeight);
+					drawCenteredString(mc.fontRenderer, textWetness, screenWidth-defaultTextureWidth-16, screenHeight-(screenHeight/2)+40, Integer.parseInt("FFFFFF", 16));
 				}
+			}
+			
+			// Ghost energy bar, for when the player is a ghost. Right above their hotbar.
+			else if (isGhost) {
+				
+				// Top rect is bar, bottom rect is outline/icon
+				mc.renderEngine.bindTexture(ghostEnergyBar);
+				drawTexturedModalRect((screenWidth / 2)-93, screenHeight-50, 12, 10, currentWidthEnergy, ghostTextureHeight);
+				drawTexturedModalRect((screenWidth / 2)-105, screenHeight-52, 0, 0, ghostTextureWidth, ghostTextureHeight);
+				drawCenteredString(mc.fontRenderer, textEnergy, screenWidth / 2, screenHeight-60, Integer.parseInt("FFFFFF", 16));
 			}
 		}
 	}

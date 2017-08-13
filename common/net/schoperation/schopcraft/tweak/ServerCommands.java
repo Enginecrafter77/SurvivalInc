@@ -1,6 +1,7 @@
 package net.schoperation.schopcraft.tweak;
 
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
@@ -40,6 +41,11 @@ public class ServerCommands {
 		 * This sets the difficulty to hard. May as well.
 		 */
 		server.setDifficultyForAllWorlds(EnumDifficulty.HARD);
+		
+		/*
+		 * This sets the WORLD spawnpoint to 0,0. So having coordinates disabled isn't TOO bad.
+		 */
+		world.setSpawnPoint(new BlockPos(0,0,0));
 		
 	}
 }

@@ -29,6 +29,8 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.schoperation.schopcraft.cap.ghost.GhostProvider;
+import net.schoperation.schopcraft.cap.ghost.IGhost;
 import net.schoperation.schopcraft.cap.wetness.IWetness;
 import net.schoperation.schopcraft.cap.wetness.WetnessProvider;
 import net.schoperation.schopcraft.lib.ModItems;
@@ -192,11 +194,19 @@ public class SanityModifier {
 				// the chosen player
 				EntityPlayerMP otherPlayer = (EntityPlayerMP) nearbyPlayers.get(numPlayers);
 				
+				// ghost capability of other player
+				IGhost ghost = otherPlayer.getCapability(GhostProvider.GHOST_CAP, null);
+				
 				// now change sanity
-				// unless it's just the player themselves.
-				if (otherPlayer != player) {
+				// unless it's just the player themselves, or a ghost.
+				if (otherPlayer != player && !ghost.isGhost()) {
 					
 					sanity.increase(0.003f);
+				}
+				
+				else if (otherPlayer != player && ghost.isGhost()) {
+					
+					sanity.decrease(0.05f);
 				}
 			}
 			

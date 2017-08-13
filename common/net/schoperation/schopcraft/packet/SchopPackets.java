@@ -16,6 +16,7 @@ public class SchopPackets {
 		registerMessage(ThirstPacket.class, ThirstPacket.ThirstMessage.class);
 		registerMessage(SanityPacket.class, SanityPacket.SanityMessage.class);
 		registerMessage(TemperaturePacket.class, TemperaturePacket.TemperatureMessage.class);
+		registerMessage(GhostPacket.class, GhostPacket.GhostMessage.class);
 		registerMessage(SummonInfoPacket.class, SummonInfoPacket.SummonInfoMessage.class);
 		registerMessage(PotionEffectPacket.class, PotionEffectPacket.PotionEffectMessage.class);
 		

@@ -43,6 +43,7 @@ public class SchopServerParticles {
 				if (particleMethod.equals("DrinkWaterParticles")) { spawnDrinkWaterParticles(serverWorld, posX, posY, posZ); }
 				if (particleMethod.equals("SweatParticles")) { spawnSweatParticles(serverWorld, posX, posY, posZ); }
 				if (particleMethod.equals("ColdBreathParticles")) { spawnColdBreathParticles(serverWorld, posX, posY, posZ); }
+				if (particleMethod.equals("GhostParticles")) { spawnGhostParticles(serverWorld, posX, posY, posZ); }
 				
 			}
 		}
@@ -82,5 +83,11 @@ public class SchopServerParticles {
 	private static void spawnColdBreathParticles(WorldServer serverWorld, double posX, double posY, double posZ) {
 		
 		serverWorld.spawnParticle(EnumParticleTypes.CLOUD, posX, posY, posZ, 1, 0, 0.1, 0, 0.1, new int[0]);
+	}
+	
+	// Spawn some weird ghost particles to make a ghost visible (or what those ghost hunting shows call it: manifest themselves)
+	private static void spawnGhostParticles(WorldServer serverWorld, double posX, double posY, double posZ) {
+		
+		serverWorld.spawnParticle(EnumParticleTypes.CLOUD, posX, posY, posZ, 10, 0.25, 1.0, 0.25, 0.05, null);
 	}
 }
