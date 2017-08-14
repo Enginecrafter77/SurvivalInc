@@ -238,10 +238,25 @@ public class CapEvents {
 	@SubscribeEvent
 	public void onRespawn(PlayerRespawnEvent event) {
 		
+		// Instance of player
+		EntityPlayer player = event.player;
+		
 		// Going through the end portal back to the overworld counts as respawning. This shouldn't make you a ghost.
 		if (!event.isEndConquered()) {
 			
-			GhostMain.onPlayerRespawn(event.player);
+			GhostMain.onPlayerRespawn(player);
+		}
+		
+		else {
+			
+			// Set no gravity
+			player.setNoGravity(true);
+			
+			// Move player away from portal
+			player.setLocationAndAngles(player.posX+3, player.posY+1, player.posZ+3, 0.0f, 0.0f);
+			
+			// Set gravity
+			player.setNoGravity(false);
 		}
 	}
 	

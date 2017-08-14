@@ -1,5 +1,6 @@
 package net.schoperation.schopcraft.tweak;
 
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -15,6 +16,11 @@ public class TweakEvents {
 	@SubscribeEvent
 	public void onPlayerUpdate(LivingUpdateEvent event) {
 		
-		// nothing yet
+		// Continue if it's a player
+		if (event.getEntity() instanceof EntityPlayer) {
+			
+			// Server commands
+			ServerCommands.fireCommandsEveryTick();
+		}
 	}
 }

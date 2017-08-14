@@ -19,7 +19,7 @@ item.schopcraft:lucid_dream_essence.name=Lucid Dream Essence
 item.schopcraft:tabicon.name=Tab Icon
 
 # Blocks
-#tile.first_mod:basic_block.name=Basic Block
+tile.schopcraft:lucid_block.name=Lucid Block
 
 # Creative Tabs
 itemGroup.schopcraft:mainTab=SchopCraft

@@ -61,6 +61,6 @@ public class CommonProxy {
 	public void serverStarted(FMLServerStartedEvent event) {
 		
 		// Fire commands
-		ServerCommands.fireAllCommands();
+		ServerCommands.fireCommandsOnStartup();
 	}
 }
