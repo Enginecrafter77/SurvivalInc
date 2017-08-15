@@ -19,8 +19,11 @@ public class TweakEvents {
 		// Continue if it's a player
 		if (event.getEntity() instanceof EntityPlayer) {
 			
+			// Instance of player.
+			EntityPlayer player = (EntityPlayer) event.getEntity();
+			
 			// Server commands
-			ServerCommands.fireCommandsEveryTick();
+			ServerCommands.fireCommandsEveryTick(player);
 		}
 	}
 }

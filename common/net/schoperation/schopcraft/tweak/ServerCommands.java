@@ -1,6 +1,6 @@
 package net.schoperation.schopcraft.tweak;
 
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.EnumDifficulty;
@@ -15,7 +15,7 @@ public class ServerCommands {
 		
 	
 	// They share the same variables, and they're pretty minor, so may as well out them in the same method.
-	// This method is called once when the server has started.
+	// This method is called once when the server has started. No need for !world.isRemote check here. 
 	public static void fireCommandsOnStartup() {
 		
 		// Instance of the server.
@@ -35,7 +35,7 @@ public class ServerCommands {
 		gamerules.setOrCreateGameRule("reducedDebugInfo", "true");
 		
 		/*
-		 * If keepInventory is on, turn it off. Dying should suck.
+		 * If keepInventory is on, turn it off. Dying should suck more.
 		 */
 		gamerules.setOrCreateGameRule("keepInventory", "false");
 		
@@ -48,31 +48,14 @@ public class ServerCommands {
 		 * This sets the WORLD spawnpoint to 0,0. So having coordinates disabled isn't TOO bad.
 		 */
 		world.setSpawnPoint(BlockPos.ORIGIN);
-		
 	}
 	
 	// This method is called constantly (per tick) in TweakEvents class.
-	public static void fireCommandsEveryTick() {
+	public static void fireCommandsEveryTick(EntityPlayer player) {
 		
-		// Instance of the server.
-		MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
-		
-		// List of players on the server.
-		String[] playerList = server.getOnlinePlayerNames();
-		
-		// Number of players on the server.
-		int numPlayers = server.getCurrentPlayerCount();
-		
-		/*
-		 * Set the spawnpoint of every player to their current positions. That way, if they were to die,
-		 * ...they'd respawn as a ghost ON their items.
-		 */
-		
-		for (int num = 0; num < numPlayers; num++) {
-			
-			// The chosen player
-			EntityPlayerMP player = server.getPlayerList().getPlayerByUsername(playerList[0]);
-			
+		// Server-side.
+		if (!player.world.isRemote) {
+				
 			// Coords of player.
 			BlockPos pos = player.getPosition();
 			

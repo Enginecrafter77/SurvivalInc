@@ -236,7 +236,7 @@ public class CapEvents {
 	
 	// When a player respawns.
 	@SubscribeEvent
-	public void onRespawn(PlayerRespawnEvent event) {
+	public void onPlayerRespawn(PlayerRespawnEvent event) {
 		
 		// Instance of player
 		EntityPlayer player = event.player;

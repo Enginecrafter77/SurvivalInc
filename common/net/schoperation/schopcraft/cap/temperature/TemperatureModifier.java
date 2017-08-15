@@ -1,6 +1,7 @@
 package net.schoperation.schopcraft.cap.temperature;
 
 import java.util.Iterator;
+import java.util.List;
 
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -10,6 +11,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -187,6 +189,34 @@ public class TemperatureModifier {
 				else if (ItemStack.areItemStacksEqual(element, new ItemStack(Items.DIAMOND_LEGGINGS))) { temperature.increaseTarget(addedTemp * 1.5f); }
 				else if (ItemStack.areItemStacksEqual(element, new ItemStack(Items.DIAMOND_CHESTPLATE))) { temperature.increaseTarget(addedTemp * 2); }
 				else if (ItemStack.areItemStacksEqual(element, new ItemStack(Items.DIAMOND_HELMET))) { temperature.increaseTarget(addedTemp); }
+			}
+			
+			// Huddling with other players will warm you up.
+			// Ghosts do the opposite.
+			// Bounding box and list of nearby players.
+			AxisAlignedBB boundingBoxPlayers = player.getEntityBoundingBox().grow(1, 1, 1);
+			List nearbyPlayers = player.world.getEntitiesWithinAABB(EntityPlayer.class, boundingBoxPlayers);
+			
+			// now iterate through the list.
+			for (int numPlayers = 0; numPlayers < nearbyPlayers.size(); numPlayers++) {
+				
+				// the chosen player
+				EntityPlayerMP otherPlayer = (EntityPlayerMP) nearbyPlayers.get(numPlayers);
+				
+				// ghost capability of other player
+				IGhost ghost = otherPlayer.getCapability(GhostProvider.GHOST_CAP, null);
+				
+				// now change temperature...
+				// unless it's just the player themselves, or a ghost.
+				if (otherPlayer != player && !ghost.isGhost()) {
+					
+					temperature.increaseTarget(5.0f);
+				}
+				
+				else if (otherPlayer != player && ghost.isGhost()) {
+					
+					temperature.decreaseTarget(20.0f);
+				}
 			}
 			
 			// ==================================

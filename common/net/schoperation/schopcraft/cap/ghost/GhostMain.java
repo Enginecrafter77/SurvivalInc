@@ -29,9 +29,9 @@ import net.schoperation.schopcraft.util.SchopServerSounds;
 
 /*
  * On death, instead of respawning out of thin air, you'll become a ghost. You're quite limited on what you can do. You can't hold items, can't open GUIs, can't craft, etc.
- * However, you can't die (again), and you can be resurrected in a very cool way. The other stats (temperature, thirst, etc.) stay constant, so don't worry about those. 
+ * However, you can't die (again). The other stats (temperature, thirst, etc.) stay constant, so don't worry about those. 
  * Instead, there's an energy bar that appears above the health + hunger bar. It's pretty much "ghost stamina", like the stuff they say in those ghost hunting shows ("Man, I'm feeling this energy!" "Use my energy!" "HOLY SH*T!!!!")
- * You can use that energy to move around quicker, or haunt blocks. 
+ * You can use that energy to move around quicker, or resurrect yourself. 
  */
 
 public class GhostMain {
@@ -78,8 +78,8 @@ public class GhostMain {
 			temperature.set(68.0f);
 			
 			// Give ghosts invisibility and invincibility.
-			SchopServerEffects.affectPlayer(uuid, "invisibility", 40, 0, false, false);
-			SchopServerEffects.affectPlayer(uuid, "resistance", 40, 4, false, false);
+			SchopServerEffects.affectPlayer(uuid, "invisibility", 20, 0, false, false);
+			SchopServerEffects.affectPlayer(uuid, "resistance", 20, 4, false, false);
 			
 			// ==========================================
 			//  ENERGY (Measured in Ghastly Plasmic Units)
@@ -91,7 +91,7 @@ public class GhostMain {
 				ghost.increaseEnergy(0.05f);
 			}
 			
-			// Decreases while sprinting. If not enough energy, can't sprint.
+			// Decreases while sprinting.
 			if (player.isSprinting()) {
 				
 				ghost.decreaseEnergy(0.2f);	
