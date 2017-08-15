@@ -40,10 +40,12 @@ public class SchopServerParticles {
 				
 				// determine what particles need to be summoned/spawned/rendered/i used a million ways to describe that process of making particles appear
 				if (particleMethod.equals("WetnessParticles")) { spawnWetnessParticles(serverWorld, posX, posY, posZ, wetness.getWetness()); }
-				if (particleMethod.equals("DrinkWaterParticles")) { spawnDrinkWaterParticles(serverWorld, posX, posY, posZ); }
-				if (particleMethod.equals("SweatParticles")) { spawnSweatParticles(serverWorld, posX, posY, posZ); }
-				if (particleMethod.equals("ColdBreathParticles")) { spawnColdBreathParticles(serverWorld, posX, posY, posZ); }
-				if (particleMethod.equals("GhostParticles")) { spawnGhostParticles(serverWorld, posX, posY, posZ); }
+				else if (particleMethod.equals("DrinkWaterParticles")) { spawnDrinkWaterParticles(serverWorld, posX, posY, posZ); }
+				else if (particleMethod.equals("SweatParticles")) { spawnSweatParticles(serverWorld, posX, posY, posZ); }
+				else if (particleMethod.equals("ColdBreathParticles")) { spawnColdBreathParticles(serverWorld, posX, posY, posZ); }
+				else if (particleMethod.equals("GhostParticles")) { spawnGhostParticles(serverWorld, posX, posY, posZ); }
+				else if (particleMethod.equals("ResurrectionFlameParticles")) { spawnResurrectionFlameParticles(serverWorld, posX, posY, posZ); }
+				else if (particleMethod.equals("ResurrectionEnchantmentParticles")) { spawnResurrectionEnchantmentParticles(serverWorld, posX, posY, posZ); }
 				
 			}
 		}
@@ -89,5 +91,20 @@ public class SchopServerParticles {
 	private static void spawnGhostParticles(WorldServer serverWorld, double posX, double posY, double posZ) {
 		
 		serverWorld.spawnParticle(EnumParticleTypes.CLOUD, posX, posY, posZ, 10, 0.25, 1.0, 0.25, 0.05, null);
+	}
+	
+	// Spawn cool flame particles during resurrection
+	private static void spawnResurrectionFlameParticles(WorldServer serverWorld, double posX, double posY, double posZ) {
+			
+		serverWorld.spawnParticle(EnumParticleTypes.FLAME, posX+0.5, posY+1.75, posZ+3.5, 0, 0, 0.5, -1, 0.15, null);
+		serverWorld.spawnParticle(EnumParticleTypes.FLAME, posX+0.5, posY+1.75, posZ-2.5, 0, 0, 0.5, 1, 0.15, null);
+		serverWorld.spawnParticle(EnumParticleTypes.FLAME, posX+3.5, posY+1.75, posZ+0.5, 0, -1, 0.5, 0, 0.15, null);
+		serverWorld.spawnParticle(EnumParticleTypes.FLAME, posX-2.5, posY+1.75, posZ+0.5, 0, 1, 0.5, 0, 0.15, null);
+	}
+	
+	// Spawn enchantment particles during resurrection
+	private static void spawnResurrectionEnchantmentParticles(WorldServer serverWorld, double posX, double posY, double posZ) {
+		
+		serverWorld.spawnParticle(EnumParticleTypes.ENCHANTMENT_TABLE, posX, posY, posZ, 50, 3, 2, 3, 1, null);
 	}
 }

@@ -39,6 +39,7 @@ public class SchopServerSounds {
 				// now determine what sound needs to be played.
 				if (soundMethod.equals("WaterSound")) { playWaterSound(player, pos); }
 				else if (soundMethod.equals("FanWhooshSound")) { playFanWhooshSound(player, pos); }
+				else if (soundMethod.equals("PortalSound")) { playPortalSound(player, pos); }
 				
 			}
 		}
@@ -54,5 +55,11 @@ public class SchopServerSounds {
 	private static void playFanWhooshSound(Entity player, BlockPos pos) {
 		
 		player.world.playSound(null, pos, ModSounds.SOUNDS[0], SoundCategory.PLAYERS, 0.2f, 1.25f);
+	}
+	
+	// plays the portal sounds during resurrection of a player
+	private static void playPortalSound(Entity player, BlockPos pos) {
+		
+		player.world.playSound(null, pos, SoundEvents.BLOCK_PORTAL_TRAVEL, SoundCategory.AMBIENT, 0.5f, 1.5f);
 	}
 }
