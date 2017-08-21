@@ -298,5 +298,25 @@ public class GhostMain {
 		// The lucid block is used up. Delete it.
 		// TODO: Once finite torches are added, the torches should blow out as well.
 		player.world.setBlockToAir(pos);
+		
+		// Destroy the golden apple.
+		// EntityItems around the player
+		AxisAlignedBB boundingBox = player.getEntityBoundingBox().grow(1, 1, 1);
+		List nearbyItems = player.world.getEntitiesWithinAABB(EntityItem.class, boundingBox);
+		
+		// Now iterate through the items and see if one of them is a golden apple.
+		for (int num = 0; num < nearbyItems.size(); num++) {
+			
+			// the chosen EntityItem
+			EntityItem entityItem = (EntityItem) nearbyItems.get(num);
+			
+			// ItemStack
+			ItemStack stack = (ItemStack) entityItem.getItem();
+			
+			if (stack.areItemsEqual(stack, new ItemStack(Items.GOLDEN_APPLE))) {
+				
+				entityItem.setDead();
+			}
+		}
 	}
 }
