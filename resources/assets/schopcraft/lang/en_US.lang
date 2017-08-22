@@ -17,6 +17,9 @@ item.schopcraft:salt_water_hydropouch.name=Salt Water HydroPouch
 item.schopcraft:ice_cream.name=Ice Cream
 item.schopcraft:lucid_dream_essence.name=Lucid Dream Essence
 item.schopcraft:tabicon.name=Tab Icon
+item.schopcraft:dry_towel.name=Dry Towel
+item.schopcraft:partially_wet_towel.name=9Partially Wet Towel
+item.schopcraft:wet_towel.name=1Wet Towel
 
 # Blocks
 tile.schopcraft:lucid_block.name=Lucid Block

@@ -8,6 +8,7 @@ import net.schoperation.schopcraft.item.ItemHydroPouch;
 import net.schoperation.schopcraft.item.ItemIceCream;
 import net.schoperation.schopcraft.item.ItemLucidDreamEssence;
 import net.schoperation.schopcraft.item.ItemTabIcon;
+import net.schoperation.schopcraft.item.ItemTowel;
 
 public class ModItems {
 	
@@ -24,6 +25,7 @@ public class ModItems {
 	public static final Item ICE_CREAM = new ItemIceCream(4, 0.4f, false);
 	public static final Item LUCID_DREAM_ESSENCE = new ItemLucidDreamEssence();
 	public static final Item TAB_ICON = new ItemTabIcon();
+	public static final Item TOWEL = new ItemTowel();
 	
 	// This list is used to actually register the items.
 	public static final Item[] ITEMS = {
@@ -34,7 +36,8 @@ public class ModItems {
 				LUCID_DREAM_ESSENCE,
 				ICE_CREAM,
 				FEATHER_FAN,
-				HYDROPOUCH
+				HYDROPOUCH,
+				TOWEL
 				
 	};
 }

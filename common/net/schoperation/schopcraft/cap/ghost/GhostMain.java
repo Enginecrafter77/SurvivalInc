@@ -248,9 +248,15 @@ public class GhostMain {
 			}
 			
 			// Finish resurrection if resurrectionTimer is 100. Stop the timer.
-			if (resurrectionTimer >= 100) {
+			// If any of the components of the process are missing (excluding the energy one), stop the process, to prevent any possible exploits.
+			if (resurrectionTimer >= 100 && resurrectionProgress >= 6) {
 				
 				finishResurrection(player, pos);
+				resurrectionTimer = -1;
+			}
+			
+			else if (resurrectionProgress < 6) {
+				
 				resurrectionTimer = -1;
 			}
 		}

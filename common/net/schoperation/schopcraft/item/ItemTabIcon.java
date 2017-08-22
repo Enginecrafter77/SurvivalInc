@@ -7,6 +7,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.schoperation.schopcraft.SchopCraft;
 
@@ -33,7 +34,7 @@ public class ItemTabIcon extends Item {
 		
 		if (world.isRemote) {
 			
-			String versionMessage = "§eSchopCraft v" + SchopCraft.VERSION + " for Minecraft " + SchopCraft.MCVERSION;
+			String versionMessage = TextFormatting.YELLOW + "SchopCraft v" + SchopCraft.VERSION + " for Minecraft " + SchopCraft.MCVERSION;
 			player.sendMessage(new TextComponentString(versionMessage));
 		}
 		

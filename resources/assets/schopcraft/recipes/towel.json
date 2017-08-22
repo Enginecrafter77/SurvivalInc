@@ -1,0 +1,22 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"###",
+		"###",
+		" ^ "
+	],
+	"key": {
+		"#": {
+			"item": "minecraft:wool",
+			"data": 32767
+		},
+		"^": {
+			"item": "minecraft:string",
+			"data": 0
+		}
+	},
+	"result": {
+		"item": "schopcraft:towel",
+		"data": 0
+	}
+}
