@@ -4,7 +4,11 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import org.lwjgl.input.Mouse;
+
 import net.minecraft.block.BlockCauldron;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
@@ -26,18 +30,20 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.schoperation.schopcraft.SchopCraft;
 import net.schoperation.schopcraft.cap.wetness.IWetness;
 import net.schoperation.schopcraft.cap.wetness.WetnessProvider;
+import net.schoperation.schopcraft.util.ProximityDetect;
 import net.schoperation.schopcraft.util.SchopServerParticles;
 import net.schoperation.schopcraft.util.SchopServerSounds;
 
 public class ItemTowel extends Item {
 	
 	/*
-	 * A simple towel used to dry one's self or drench one's self. Whichever fits the situation.
+	 * A simple towel used to dry one's self or drench one's self. Whichever fits the situation. Also full of code. What the crap.
 	 */
 	
 	public ItemTowel() {
@@ -75,7 +81,7 @@ public class ItemTowel extends Item {
 						
 						wetness.decrease(1f);
 						nbt.setFloat("wetness", nbt.getFloat("wetness") + 1f);
-						stack.setTagCompound(nbt);
+						stack.setTagCompound(nbt);		
 					}
 					
 					else {
@@ -83,6 +89,9 @@ public class ItemTowel extends Item {
 						c = 100;
 					}
 				}
+				
+				// Play some sound
+				SchopServerSounds.playSound(player.getCachedUniqueIdString(), "TowelDrySound", player.posX, player.posY, player.posZ);
 			}
 			
 			// If they are, drench the player.
@@ -103,10 +112,12 @@ public class ItemTowel extends Item {
 						c = 100;
 					}
 				}
+				
+				// Play water splash sound
+				SchopServerSounds.playSound(player.getCachedUniqueIdString(), "WaterSound", player.posX, player.posY, player.posZ);	
 			}
 			
-			// Play water splash sound
-			SchopServerSounds.playSound(player.getCachedUniqueIdString(), "WaterSound", player.posX, player.posY, player.posZ);
+			
 		}
 		
 		return stack;
@@ -322,11 +333,11 @@ public class ItemTowel extends Item {
 			// Spawn water splash/drip particles while held.
 			if (isSelected && stack.getItemDamage() != 0) {
 				
-				// This is used to help spawn the particles right where the player is holding the towel. Yay trig
+				// This is used to help spawn the particles right where the player is holding the towel. Yay trig. Pretty broken, but cool.
 				double angleOffset = 0;
 				double particlePosY = player.posY + 0.75;
-				double particlePosX = (0.5 * (MathHelper.cos((float) (-player.rotationYaw + angleOffset)))) - (0.5 * (MathHelper.sin((float) (-player.rotationYaw + angleOffset)))) + player.posX;
-			   	double particlePosZ = (0.5 * (MathHelper.sin((float) (-player.rotationYaw + angleOffset)))) + (0.5 * (MathHelper.cos((float) (-player.rotationYaw + angleOffset)))) + player.posZ;
+				double particlePosX = (-0.5 * MathHelper.sin( (float) (player.rotationYaw + angleOffset))) + player.posX;
+			   	double particlePosZ = (0.5 * MathHelper.cos( (float) (player.rotationYaw + angleOffset))) + player.posZ;
 			   	
 				// Wet towel only
 				if (stack.getItemDamage() == 2) {
@@ -335,8 +346,91 @@ public class ItemTowel extends Item {
 				}
 			}
 			
+			// The towel will dry or drench depending on this crap below. Copied and pasted here from WetnessModifier.class.
+			// BlockPos of player
+			BlockPos pos = player.getPosition();
+			
+			// check if the player is in lava
+			if (player.isInLava()) {
+				
+				nbt.setFloat("wetness", nbt.getFloat("wetness") - 5f);
+			}
+			// check if the player is in the nether
+			else if (player.dimension == -1) {
+				
+				nbt.setFloat("wetness", nbt.getFloat("wetness") - 0.08f);
+			}
+			// check if the player is in water, whether that be rain or water
+			else if (player.isWet()) {
+				
+				// in water?
+				if (player.isInWater()) {
+					
+					nbt.setFloat("wetness", nbt.getFloat("wetness") + 3f);
+				}
+				
+				// in rain?
+				if (player.world.isRainingAt(pos)) {
+				
+					nbt.setFloat("wetness", nbt.getFloat("wetness") + 0.015f);
+				}
+			}
+				
+			// otherwise, allow for natural drying off (very slow)
+			else {
+				
+				// figure out the conditions of the world, then dry off naturally accordingly
+				if (player.world.isDaytime() && player.world.canBlockSeeSky(pos)) { nbt.setFloat("wetness", nbt.getFloat("wetness") - 0.02f); }
+				else { nbt.setFloat("wetness", nbt.getFloat("wetness") - 0.01f); }
+			}
+			
+			// ==============================================================
+			//                PROXIMITY DETECTION
+			// ==============================================================
+			
+			// these if-statement blocks is for stuff that directly doesn't have to do with water bombardment.
+			// check if the player is near a fire
+			if (ProximityDetect.isBlockNextToPlayer(pos.getX(), pos.getY(), pos.getZ(), Blocks.FIRE, player)) { nbt.setFloat("wetness", nbt.getFloat("wetness") - 0.35f); }
+			else if (ProximityDetect.isBlockNearPlayer2(pos.getX(), pos.getY(), pos.getZ(), Blocks.FIRE, player, false)) { nbt.setFloat("wetness", nbt.getFloat("wetness") - 0.20f); }
+			else if (ProximityDetect.isBlockUnderPlayer(pos.getX(), pos.getY(), pos.getZ(), Blocks.FIRE, player)) { nbt.setFloat("wetness", nbt.getFloat("wetness") - 0.25f); }
+			else if (ProximityDetect.isBlockUnderPlayer2(pos.getX(), pos.getY(), pos.getZ(), Blocks.FIRE, player, false)) { nbt.setFloat("wetness", nbt.getFloat("wetness") - 0.15f); }
+			else if (ProximityDetect.isBlockAtPlayerFace(pos.getX(), pos.getY(), pos.getZ(), Blocks.FIRE, player)) { nbt.setFloat("wetness", nbt.getFloat("wetness") - 0.35f); }
+			else if (ProximityDetect.isBlockAtPlayerFace2(pos.getX(), pos.getY(), pos.getZ(), Blocks.FIRE, player, false)) { nbt.setFloat("wetness", nbt.getFloat("wetness") - 0.20f); }
+			if (ProximityDetect.isBlockNextToPlayer(pos.getX(), pos.getY(), pos.getZ(), Blocks.LAVA, player)) { nbt.setFloat("wetness", nbt.getFloat("wetness") - 0.75f); }
+			else if (ProximityDetect.isBlockNearPlayer2(pos.getX(), pos.getY(), pos.getZ(), Blocks.LAVA, player, false)) { nbt.setFloat("wetness", nbt.getFloat("wetness") - 0.35f); }
+			else if (ProximityDetect.isBlockUnderPlayer(pos.getX(), pos.getY(), pos.getZ(), Blocks.LAVA, player)) { nbt.setFloat("wetness", nbt.getFloat("wetness") - 0.75f); }
+			else if (ProximityDetect.isBlockUnderPlayer2(pos.getX(), pos.getY(), pos.getZ(), Blocks.LAVA, player, false)) { nbt.setFloat("wetness", nbt.getFloat("wetness") - 0.35f); }
+			else if (ProximityDetect.isBlockNextToPlayer(pos.getX(), pos.getY(), pos.getZ(), Blocks.FLOWING_LAVA, player)) { nbt.setFloat("wetness", nbt.getFloat("wetness") - 0.75f); }
+			else if (ProximityDetect.isBlockNearPlayer2(pos.getX(), pos.getY(), pos.getZ(), Blocks.FLOWING_LAVA, player, false)) { nbt.setFloat("wetness", nbt.getFloat("wetness") - 0.35f); }
+			else if (ProximityDetect.isBlockUnderPlayer(pos.getX(), pos.getY(), pos.getZ(), Blocks.FLOWING_LAVA, player)) { nbt.setFloat("wetness", nbt.getFloat("wetness") - 0.75f); }
+			else if (ProximityDetect.isBlockUnderPlayer2(pos.getX(), pos.getY(), pos.getZ(), Blocks.FLOWING_LAVA, player, false)) { nbt.setFloat("wetness", nbt.getFloat("wetness") - 0.35f); }
+			if (ProximityDetect.isBlockNextToPlayer(pos.getX(), pos.getY(), pos.getZ(), Blocks.LIT_FURNACE, player)) { nbt.setFloat("wetness", nbt.getFloat("wetness") - 0.25f); }
+			else if (ProximityDetect.isBlockNearPlayer2(pos.getX(), pos.getY(), pos.getZ(), Blocks.LIT_FURNACE, player, false)) { nbt.setFloat("wetness", nbt.getFloat("wetness") - 0.12f); }
+			if (ProximityDetect.isBlockUnderPlayer(pos.getX(), pos.getY(), pos.getZ(), Blocks.MAGMA, player)) { nbt.setFloat("wetness", nbt.getFloat("wetness") - 0.25f); }
+			else if (ProximityDetect.isBlockUnderPlayer2(pos.getX(), pos.getY(), pos.getZ(), Blocks.MAGMA, player, false)) { nbt.setFloat("wetness", nbt.getFloat("wetness") - 0.12f); }
+			
 			// Set NBT tag
 			stack.setTagCompound(nbt);
+		}
+		
+		// Client-side crap.
+		else if (worldIn.isRemote) {
+			
+			// ItemRenderer instance
+			ItemRenderer ir = Minecraft.getMinecraft().getItemRenderer();
+			
+			// Stop the up and down animation. The NBT changes so much you can't see the towel for most of the time.
+			if (Mouse.isButtonDown(1) && isSelected) {
+				
+				ReflectionHelper.setPrivateValue(ItemRenderer.class, Minecraft.getMinecraft().getItemRenderer(), 0f, "equippedProgressMainHand");
+				ReflectionHelper.setPrivateValue(ItemRenderer.class, Minecraft.getMinecraft().getItemRenderer(), 0f, "equippedProgressOffHand");
+			}
+			
+			else if (isSelected) {
+				
+				ReflectionHelper.setPrivateValue(ItemRenderer.class, Minecraft.getMinecraft().getItemRenderer(), 1f, "equippedProgressMainHand");
+				ReflectionHelper.setPrivateValue(ItemRenderer.class, Minecraft.getMinecraft().getItemRenderer(), 1f, "equippedProgressOffHand");
+			}
 		}
 	}
 	
