@@ -90,6 +90,11 @@ public class ItemTowel extends Item {
 					}
 				}
 				
+				// Remove durability
+				nbt.setInteger("durability", nbt.getInteger("durability") - 1);
+				
+				stack.setTagCompound(nbt);
+				
 				// Play some sound
 				SchopServerSounds.playSound(player.getCachedUniqueIdString(), "TowelDrySound", player.posX, player.posY, player.posZ);
 			}
@@ -112,6 +117,11 @@ public class ItemTowel extends Item {
 						c = 100;
 					}
 				}
+				
+				// Remove durability
+				nbt.setInteger("durability", nbt.getInteger("durability") - 1);
+				
+				stack.setTagCompound(nbt);
 				
 				// Play water splash sound
 				SchopServerSounds.playSound(player.getCachedUniqueIdString(), "WaterSound", player.posX, player.posY, player.posZ);	
@@ -160,6 +170,10 @@ public class ItemTowel extends Item {
 					
 					// Now drench the towel in water.
 					nbt.setFloat("wetness", 100.0f);
+					
+					// Remove durability
+					nbt.setInteger("durability", nbt.getInteger("durability") - 1);
+					
 					heldItem.setTagCompound(nbt);
 					
 					// Play water splash sound
@@ -180,8 +194,14 @@ public class ItemTowel extends Item {
 					// Only drench the towel if the cauldron has water.
 					if (cauldronLevel > 0) {
 						
+						// Drench towel in water
 						nbt.setFloat("wetness", 100.0f);
+						
+						// Remove durability
+						nbt.setInteger("durability", nbt.getInteger("durability") - 1);
+						
 						heldItem.setTagCompound(nbt);
+						
 						cauldron.setWaterLevel(world, pos, world.getBlockState(pos), cauldronLevel-1);
 						
 						// Play water splash sound
@@ -252,6 +272,9 @@ public class ItemTowel extends Item {
 				nbt.setFloat("wetness", 100.0f);
 			}
 			
+			// Add durability NBT tag on there
+			nbt.setInteger("durability", 100);
+			
 			stack.setTagCompound(nbt);
 		}
     }
@@ -290,6 +313,9 @@ public class ItemTowel extends Item {
 					nbt.setFloat("wetness", 100.0f);
 				}
 				
+				// Add durability NBT tag on there
+				nbt.setInteger("durability", 100);
+				
 				stack.setTagCompound(nbt);
 			}
 			
@@ -323,6 +349,12 @@ public class ItemTowel extends Item {
 				else if (nbt.getFloat("wetness") < 0.0f) {
 					
 					nbt.setFloat("wetness", 0.0f);
+				}
+				
+				// If durability is 0, destroy the towel.
+				if (nbt.getInteger("durability") <= 0) {
+					
+					stack.shrink(1);
 				}
 			}
 			
@@ -389,7 +421,6 @@ public class ItemTowel extends Item {
 			// ==============================================================
 			
 			// these if-statement blocks is for stuff that directly doesn't have to do with water bombardment.
-			// check if the player is near a fire
 			if (ProximityDetect.isBlockNextToPlayer(pos.getX(), pos.getY(), pos.getZ(), Blocks.FIRE, player)) { nbt.setFloat("wetness", nbt.getFloat("wetness") - 0.35f); }
 			else if (ProximityDetect.isBlockNearPlayer2(pos.getX(), pos.getY(), pos.getZ(), Blocks.FIRE, player, false)) { nbt.setFloat("wetness", nbt.getFloat("wetness") - 0.20f); }
 			else if (ProximityDetect.isBlockUnderPlayer(pos.getX(), pos.getY(), pos.getZ(), Blocks.FIRE, player)) { nbt.setFloat("wetness", nbt.getFloat("wetness") - 0.25f); }
@@ -507,6 +538,45 @@ public class ItemTowel extends Item {
 	@Override
 	public boolean showDurabilityBar(ItemStack stack) {
 		
-		return false;
+		// Get durability (NBT durability)
+		NBTTagCompound nbt = stack.getTagCompound();
+		
+		if (nbt != null) {
+			
+			if (nbt.getInteger("durability") < 100) {
+			
+				return true;
+			}
+		
+			else {
+			
+				return false;
+			}
+		}
+		
+		else {
+			
+			return false;
+		}
+	}
+	
+	// Showing actual durability
+	@Override
+	public double getDurabilityForDisplay(ItemStack stack) {
+		
+		// NBT tag
+		NBTTagCompound nbt = stack.getTagCompound();
+		
+		if (nbt != null) {
+			
+			double percentLeft = (double) nbt.getInteger("durability") / 100;
+			double durabilityToShow = 1 - percentLeft;
+			return durabilityToShow;
+		}
+		
+		else {
+			
+			return 1;
+		}
 	}
 }
