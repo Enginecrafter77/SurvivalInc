@@ -16,15 +16,12 @@ import net.minecraft.world.biome.BiomeBeach;
 import net.minecraft.world.biome.BiomeOcean;
 import net.minecraft.world.biome.BiomeSwamp;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.schoperation.schopcraft.cap.temperature.ITemperature;
 import net.schoperation.schopcraft.cap.temperature.TemperatureProvider;
 import net.schoperation.schopcraft.lib.ModDamageSources;
-import net.schoperation.schopcraft.packet.PotionEffectPacket;
-import net.schoperation.schopcraft.packet.SchopPackets;
-import net.schoperation.schopcraft.packet.SummonInfoPacket;
-import net.schoperation.schopcraft.packet.ThirstPacket;
 import net.schoperation.schopcraft.util.SchopServerEffects;
+import net.schoperation.schopcraft.util.SchopServerParticles;
+import net.schoperation.schopcraft.util.SchopServerSounds;
 
 /*
  * Where thirst is modified.
@@ -172,19 +169,28 @@ public class ThirstModifier {
 		// get capability
 		IThirst thirst = player.getCapability(ThirstProvider.THIRST_CAP, null);
 		
-		// client-side crap
-		if (player.world.isRemote) {
+		// server-side crap
+		if (!player.world.isRemote) {
 			
-			thirst.set(10f);
+			//thirst.set(10f);
 			
-			// this is for drinking water with your bare hands. Pretty ineffective.
-			RayTraceResult raytrace = player.rayTrace(2, 1.0f);
+			// ray trace result for drinking with bare hands. pretty ineffective.
+			// first, some "boosts" to the vector
+			double vecX = 0;
+			double vecZ = 0;
+			if (player.getLookVec().x < 0) { vecX = -0.5; }
+			else if (player.getLookVec().x > 0) { vecX = 0.5; }
+			if (player.getLookVec().z < 0) { vecZ = -0.5; }
+			else if (player.getLookVec().z > 0) { vecZ = 0.5; }
+			
+			// now the actual raytrace
+			RayTraceResult raytrace = player.world.rayTraceBlocks(player.getPositionEyes(1.0f), player.getPositionEyes(1.0f).add(player.getLookVec().addVector(vecX, -1, vecZ)), true);
 			
 			// if there's something
 			if (raytrace != null) {
 				
-				// if it isn't a block (water isn't considered a block in this case).
-				if (raytrace.typeOfHit == RayTraceResult.Type.MISS) {
+				// if it is a block
+				if (raytrace.typeOfHit == RayTraceResult.Type.BLOCK) {
 					
 					BlockPos pos = raytrace.getBlockPos();
 					Iterator<ItemStack> handItems = player.getHeldEquipment().iterator();
@@ -202,10 +208,7 @@ public class ThirstModifier {
 						else if (biome instanceof BiomeSwamp) {
 							
 							thirst.increase(0.25f);
-							
-							// damage player for drinking dirty water
-							IMessage potionMsg = new PotionEffectPacket.PotionEffectMessage(player.getCachedUniqueIdString(), "poison", 12, 3, false, false);
-							SchopPackets.net.sendToServer(potionMsg);
+							SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "poison", 12, 3, false, false);
 						}
 						else {
 							
@@ -215,21 +218,16 @@ public class ThirstModifier {
 							double randomNum = Math.random();
 							if (randomNum <= 0.50) { // 50% chance
 								
-								IMessage potionMsg = new PotionEffectPacket.PotionEffectMessage(player.getCachedUniqueIdString(), "poison", 12, 1, false, false);
-								SchopPackets.net.sendToServer(potionMsg);
+								SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "poison", 12, 1, false, false);
 							}
 						}
 												
 						// spawn particles and sounds for drinking water
-						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(player.getCachedUniqueIdString(), "WaterSound", "DrinkWaterParticles", pos.getX(), pos.getY(), pos.getZ());
-						SchopPackets.net.sendToServer(msgStuff);
+						SchopServerParticles.summonParticle(player.getCachedUniqueIdString(), "DrinkWaterParticles", pos.getX(), pos.getY(), pos.getZ());
+						SchopServerSounds.playSound(player.getCachedUniqueIdString(), "WaterSound", pos.getX(), pos.getY(), pos.getZ());
 					}		
 				}
 			}
-			
-			// send thirst packet to server
-			IMessage msg = new ThirstPacket.ThirstMessage(player.getCachedUniqueIdString(), thirst.getThirst(), thirst.getMaxThirst(), thirst.getMinThirst());
-			SchopPackets.net.sendToServer(msg);	
 		}
 	}
 }

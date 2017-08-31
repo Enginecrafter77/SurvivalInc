@@ -16,6 +16,7 @@ import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.EntityOcelot;
 import net.minecraft.entity.passive.EntityParrot;
 import net.minecraft.entity.passive.EntitySheep;
+import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -96,6 +97,7 @@ public class SanityModifier {
 		List nearbyMobs = player.world.getEntitiesWithinAABB(EntityMob.class, boundingBox);
 		List nearbyAnimals = player.world.getEntitiesWithinAABB(EntityAnimal.class, boundingBox);
 		List nearbyPlayers = player.world.getEntitiesWithinAABB(EntityPlayer.class, boundingBoxPlayers);
+		List nearbyVillagers = player.world.getEntitiesWithinAABB(EntityVillager.class, boundingBoxPlayers);
 		
 		// server-side
 		if (!player.world.isRemote) {
@@ -151,11 +153,11 @@ public class SanityModifier {
 				// now change sanity according to what it is
 				if (mob instanceof EntityEnderman) {
 					
-					sanity.decrease(0.0035f);
+					sanity.decrease(0.005f);
 				}
 				else if (mob instanceof EntityEvoker || mob instanceof EntityIllusionIllager || mob instanceof EntitySpellcasterIllager || mob instanceof EntityVindicator) {
 					
-					sanity.decrease(0.003f);
+					sanity.decrease(0.004f);
 				}
 				else if (mob instanceof EntityWither) {
 					
@@ -163,7 +165,7 @@ public class SanityModifier {
 				}
 				else {
 					
-					sanity.decrease(0.002f);
+					sanity.decrease(0.003f);
 				}
 			}
 			
@@ -208,6 +210,12 @@ public class SanityModifier {
 					
 					sanity.decrease(0.05f);
 				}
+			}
+			
+			// aaanddd for villagers
+			for (int numVillagers = 0; numVillagers < nearbyVillagers.size(); numVillagers++) {
+				
+				sanity.increase(0.003f);
 			}
 			
 			// ===========================================================================

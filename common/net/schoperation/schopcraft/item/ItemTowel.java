@@ -4,11 +4,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import org.lwjgl.input.Mouse;
-
 import net.minecraft.block.BlockCauldron;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
@@ -30,7 +26,6 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.schoperation.schopcraft.SchopCraft;
@@ -443,26 +438,6 @@ public class ItemTowel extends Item {
 			// Set NBT tag
 			stack.setTagCompound(nbt);
 		}
-		
-		// Client-side crap.
-		else if (worldIn.isRemote) {
-			
-			// ItemRenderer instance
-			ItemRenderer ir = Minecraft.getMinecraft().getItemRenderer();
-			
-			// Stop the up and down animation. The NBT changes so much you can't see the towel for most of the time.
-			if (Mouse.isButtonDown(1) && isSelected) {
-				
-				ReflectionHelper.setPrivateValue(ItemRenderer.class, Minecraft.getMinecraft().getItemRenderer(), 0f, "equippedProgressMainHand");
-				ReflectionHelper.setPrivateValue(ItemRenderer.class, Minecraft.getMinecraft().getItemRenderer(), 0f, "equippedProgressOffHand");
-			}
-			
-			else if (isSelected) {
-				
-				ReflectionHelper.setPrivateValue(ItemRenderer.class, Minecraft.getMinecraft().getItemRenderer(), 1f, "equippedProgressMainHand");
-				ReflectionHelper.setPrivateValue(ItemRenderer.class, Minecraft.getMinecraft().getItemRenderer(), 1f, "equippedProgressOffHand");
-			}
-		}
 	}
 	
 	@Override
@@ -579,4 +554,10 @@ public class ItemTowel extends Item {
 			return 1;
 		}
 	}
+	
+	@Override
+	public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+		
+		return slotChanged;
+    }
 }
