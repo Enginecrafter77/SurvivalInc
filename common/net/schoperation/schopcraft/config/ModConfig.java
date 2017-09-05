@@ -14,6 +14,9 @@ public class ModConfig {
 	@Config.Comment("If true, the temperature will be shown in Celsius. If false, it will be shown in Fahrenheit")
 	public static boolean showCelsius = false;
 	
+	@Config.Comment("By default, the durability bar of the canteen (and HydroPouch) will show its durability. Set this to true to have the bar show the number of sips left instead, like before.")
+	public static boolean showSipsInDurabilityBar = false;
+	
 	// This deals with changed the config values in Forge's GUI in-game.
 	@Mod.EventBusSubscriber
 	private static class SchopConfig {

@@ -81,7 +81,7 @@ public class ItemTowel extends Item {
 					
 					else {
 						
-						c = 100;
+						break;
 					}
 				}
 				
@@ -109,7 +109,7 @@ public class ItemTowel extends Item {
 					
 					else {
 						
-						c = 100;
+						break;
 					}
 				}
 				

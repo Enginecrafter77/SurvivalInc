@@ -1,5 +1,5 @@
 {
-	"type": "minecraft:crafting_shapeless",
+	"type": "schopcraft:canteen_shapeless",
 	"ingredients": [
 		{
 			"item": "schopcraft:canteen",

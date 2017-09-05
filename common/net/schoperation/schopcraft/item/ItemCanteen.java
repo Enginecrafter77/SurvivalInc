@@ -39,6 +39,7 @@ import net.schoperation.schopcraft.cap.temperature.ITemperature;
 import net.schoperation.schopcraft.cap.temperature.TemperatureProvider;
 import net.schoperation.schopcraft.cap.thirst.IThirst;
 import net.schoperation.schopcraft.cap.thirst.ThirstProvider;
+import net.schoperation.schopcraft.config.ModConfig;
 import net.schoperation.schopcraft.util.SchopServerEffects;
 import net.schoperation.schopcraft.util.SchopServerParticles;
 import net.schoperation.schopcraft.util.SchopServerSounds;
@@ -59,11 +60,13 @@ public class ItemCanteen extends Item {
 		setCreativeTab(SchopCraft.mainTab);
 		setNoRepair();
 		setHasSubtypes(true);
-		
 	}
 	
 	// number of sips
 	private final int canteenSips = 3;
+	
+	// durability
+	private final int canteenDurability = 100;
 	
 	// drinking from the canteen
 	@Override
@@ -134,11 +137,15 @@ public class ItemCanteen extends Item {
 					
 					nbt.setInteger("sips", nbt.getInteger("sips") - 1);
 				}
+				
 				else {
 					
 					nbt.setInteger("sips", nbt.getInteger("sips") - 1);
 					stack.setItemDamage(0);
 				}
+				
+				nbt.setInteger("durability", nbt.getInteger("durability") - 1);
+				stack.setTagCompound(nbt);
 			}
 		}
 		
@@ -254,6 +261,7 @@ public class ItemCanteen extends Item {
 					
 					// set nbt properly
 					nbt.setInteger("sips", sips);
+					nbt.setInteger("durability", nbt.getInteger("durability") - 1);
 					heldItem.setTagCompound(nbt);
 					
 					return new ActionResult<ItemStack>(EnumActionResult.PASS, heldItem);
@@ -371,6 +379,7 @@ public class ItemCanteen extends Item {
 					
 					// set nbt properly
 					nbt.setInteger("sips", sips);
+					nbt.setInteger("durability", nbt.getInteger("durability") - 1);
 					heldItem.setTagCompound(nbt);
 					
 					return new ActionResult<ItemStack>(EnumActionResult.PASS, heldItem);
@@ -420,7 +429,7 @@ public class ItemCanteen extends Item {
 		else { stack.setItemDamage(0); return "item." + SchopCraft.RESOURCE_PREFIX + "empty_canteen";  }
 	}
 	
-	// When crafted, give this item an NBT tag to store its number of sips available
+	// When crafted, give this item an NBT tag to store its number of sips available, along with durability.
 	@Override
 	public void onCreated(ItemStack stack, World worldIn, EntityPlayer playerIn) {
 		
@@ -438,6 +447,8 @@ public class ItemCanteen extends Item {
 				nbt.setInteger("sips", canteenSips);
 			}
 			
+			// Add durability tag.
+			nbt.setInteger("durability", canteenDurability);
 			stack.setTagCompound(nbt);
 		}
     }
@@ -460,6 +471,8 @@ public class ItemCanteen extends Item {
 				nbt.setInteger("sips", canteenSips);
 			}
 			
+			// Add durability tag.
+			nbt.setInteger("durability", canteenDurability);
 			stack.setTagCompound(nbt);
 		}
 		
@@ -472,6 +485,18 @@ public class ItemCanteen extends Item {
 				
 				stack.setItemDamage(0);
 			}
+			
+			// Since durability is newer for canteens, if the canteen doesn't have durability tag, add it. This code will probably be here for a while.
+			if (!nbt.hasKey("durability")) {
+				
+				nbt.setInteger("durability", canteenDurability);
+			}
+			
+			// If durability is 0, destroy the canteen.
+			if (nbt.getInteger("durability") <= 0) {
+				
+				stack.shrink(1);
+			}
 		}
 	}
 	
@@ -479,6 +504,7 @@ public class ItemCanteen extends Item {
 	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
 		
+		// NBT Tag and percentLeft float to determine color.
 		NBTTagCompound nbt = stack.getTagCompound();
 		float percentLeft;
 		
@@ -510,6 +536,12 @@ public class ItemCanteen extends Item {
 				
 				tooltip.add(TextFormatting.WHITE + Integer.toString(nbt.getInteger("sips")) + " Sips Left"); 
 			}
+			
+			// Durability info. In an if-statement just in case.
+			if (nbt.hasKey("durability")) {
+				
+				tooltip.add(TextFormatting.GOLD + Integer.toString(nbt.getInteger("durability")) + " Durability");
+			}	
 		}
 		
 		else {
@@ -550,20 +582,41 @@ public class ItemCanteen extends Item {
 	@Override
 	public boolean showDurabilityBar(ItemStack stack) {
 		
-		// get nbt
+		// NBT
 		NBTTagCompound nbt = stack.getTagCompound();
 		
 		if (nbt != null) {
 			
-			if (nbt.getInteger("sips") > 0) {
+			// What is configured?
+			if (ModConfig.showSipsInDurabilityBar) {
 				
-				return true;
+				// Show sips
+				if (nbt.getInteger("sips") > 0) {
+					
+					return true;
+				}
+				
+				else {
+					
+					return false;
+				}
 			}
+			
 			else {
 				
-				return false;
+				// Show durability
+				if (nbt.getInteger("durability") >= 0) {
+					
+					return true;
+				}
+				
+				else {
+					
+					return false;
+				}
 			}
 		}
+		
 		else {
 			
 			return false;
@@ -573,15 +626,26 @@ public class ItemCanteen extends Item {
 	@Override
 	public double getDurabilityForDisplay(ItemStack stack) {
 		
-		// NBT Tag
+		// NBT Tag and necessary vars
 		NBTTagCompound nbt = stack.getTagCompound();
-		double percentLeft;
+		int percentLeft = 0;
+		double durabilityToShow = 0;
 		
 		if (nbt != null) {
 			
-			percentLeft = (int) Math.round((nbt.getInteger("sips") * 100) / canteenSips);
-			percentLeft = 1.0 - ((double) percentLeft / 100);
-			return percentLeft;
+			if (ModConfig.showSipsInDurabilityBar) {
+				
+				percentLeft = Math.round((nbt.getInteger("sips") * 100) / canteenSips);
+				durabilityToShow = 1.0 - ((double) percentLeft / 100);
+			}
+			
+			else {
+				
+				percentLeft = Math.round((nbt.getInteger("durability") * 100) / canteenDurability);
+				durabilityToShow = 1.0 - ((double) percentLeft / 100);
+			}
+			
+			return durabilityToShow;
 		}
 		
 		else {
