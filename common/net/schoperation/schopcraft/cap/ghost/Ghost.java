@@ -2,7 +2,7 @@ package net.schoperation.schopcraft.cap.ghost;
 
 public class Ghost implements IGhost {
 	
-	// Create ghost variables
+	// Create ghost variables.
 	private boolean isGhost = false;
 	private float ghostEnergy = 0.00f;
 	private float maxGhostEnergy = 100.00f;
@@ -24,7 +24,7 @@ public class Ghost implements IGhost {
 		return this.isGhost;
 	}
 	
-	// Methods for messing with ghost energy
+	// Methods for messing with ghost energy or getting it.
 	public void increaseEnergy(float amount) {
 		
 		this.ghostEnergy += amount;

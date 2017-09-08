@@ -6,7 +6,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.Capability.IStorage;
 
-// save sanity data for each player
+// Save sanity data for each player.
 public class SanityStorage implements IStorage<ISanity> {
 
 	@Override

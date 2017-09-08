@@ -14,7 +14,7 @@ public class ClientProxy extends CommonProxy {
 		
 		super.preInit(event);
 		
-		// Register models
+		// Register models.
 		MinecraftForge.EVENT_BUS.register(new ModelRegisterer());
 		
 	}
@@ -31,7 +31,7 @@ public class ClientProxy extends CommonProxy {
 		
 		super.postInit(event);
 		
-		// Render stat bars
+		// Render stat bars.
 		MinecraftForge.EVENT_BUS.register(new GuiRenderBar());
 	}
 }

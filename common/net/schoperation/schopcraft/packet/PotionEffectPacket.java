@@ -32,7 +32,7 @@ public class PotionEffectPacket implements IMessageHandler<PotionEffectMessage, 
 	
 	public static class PotionEffectMessage implements IMessage {
 
-		// variables used in the packet
+		// Variables used in the packet.
 		private String uuid;
 		private String effect;
 		private int duration;
@@ -40,7 +40,7 @@ public class PotionEffectPacket implements IMessageHandler<PotionEffectMessage, 
 		private boolean isAmbient;
 		private boolean showParticles;
 		
-		// constructor
+		// Necessary constructor.
 		public PotionEffectMessage() {}
 		
 		public PotionEffectMessage(String uuid, String effect, int duration, int amplifier, boolean isAmbient, boolean showParticles) {

@@ -6,7 +6,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.Capability.IStorage;
 
-// save ghost data for each player
+// Save ghost data for each player.
 public class GhostStorage implements IStorage<IGhost> {
 	
 	@Override

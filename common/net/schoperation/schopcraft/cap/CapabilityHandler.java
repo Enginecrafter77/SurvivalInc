@@ -15,13 +15,15 @@ import net.schoperation.schopcraft.cap.wetness.WetnessProvider;
 public class CapabilityHandler {
 	
 	/*
-	 * This attaches all capabilities to the player
+	 * This event handler attaches the capabilities onto the player.
 	 */
-	public static final ResourceLocation WETNESS_CAP = new ResourceLocation(SchopCraft.MOD_ID, "wetness");
-	public static final ResourceLocation THIRST_CAP = new ResourceLocation(SchopCraft.MOD_ID, "thirst");
-	public static final ResourceLocation SANITY_CAP = new ResourceLocation(SchopCraft.MOD_ID, "sanity");
-	public static final ResourceLocation TEMPERATURE_CAP = new ResourceLocation(SchopCraft.MOD_ID, "temperature");
-	public static final ResourceLocation GHOST_CAP = new ResourceLocation(SchopCraft.MOD_ID, "ghost");
+	
+	// Resource Locations
+	private static final ResourceLocation WETNESS_CAP = new ResourceLocation(SchopCraft.MOD_ID, "wetness");
+	private static final ResourceLocation THIRST_CAP = new ResourceLocation(SchopCraft.MOD_ID, "thirst");
+	private static final ResourceLocation SANITY_CAP = new ResourceLocation(SchopCraft.MOD_ID, "sanity");
+	private static final ResourceLocation TEMPERATURE_CAP = new ResourceLocation(SchopCraft.MOD_ID, "temperature");
+	private static final ResourceLocation GHOST_CAP = new ResourceLocation(SchopCraft.MOD_ID, "ghost");
 	
 	@SubscribeEvent
 	public void attachCapability(AttachCapabilitiesEvent<Entity> event) {

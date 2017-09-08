@@ -6,7 +6,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 
-// provides mechanic to player
+// Provides sanity mechanic to the player.
 public class SanityProvider implements ICapabilitySerializable<NBTBase> {
 	
 	@CapabilityInject(ISanity.class)

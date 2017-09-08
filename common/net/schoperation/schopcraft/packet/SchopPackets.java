@@ -22,7 +22,7 @@ public class SchopPackets {
 		
 	}
 	
-	// packets are just too dumb
+	// Packet ID to keep the packets separate.
 	private static int packetId = 0;
 	
 	private static void registerMessage(Class packet, Class message) {

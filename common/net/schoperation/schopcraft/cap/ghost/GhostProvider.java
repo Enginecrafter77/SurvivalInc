@@ -6,7 +6,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 
-// provides mechanic to player
+// Provides ghost mechanic to the player.
 public class GhostProvider implements ICapabilitySerializable<NBTBase> {
 	
 	@CapabilityInject(IGhost.class)

@@ -16,31 +16,30 @@ public class Registererer {
 	
 	/*
 	 * This is where all new crap added to the mod is registered (items, blocks, etc.)
-	 * And wow, it's much easier.
 	 */
 	
-	// Register all blocks
+	// Register all blocks.
 	@SubscribeEvent
 	public void registerBlocks(RegistryEvent.Register<Block> event) {
 		
 		event.getRegistry().registerAll(ModBlocks.BLOCKS);
 	}
 	
-	// Register all items
+	// Register all items.
 	@SubscribeEvent
 	public void registerItems(RegistryEvent.Register<Item> event) {
 		
-		// Register normal items
+		// Register normal items.
 		event.getRegistry().registerAll(ModItems.ITEMS);
 		
-		// Register itemblocks (items to represent the blocks)
+		// Register itemblocks (items to represent the blocks).
 		for (Block block : ModBlocks.BLOCKS) {
 			
 			event.getRegistry().register(new ItemBlock(block).setRegistryName(block.getRegistryName()));
 		}
 	}
 	
-	// Register all sounds
+	// Register all sounds.
 	@SubscribeEvent
 	public void registerSounds(RegistryEvent.Register<SoundEvent> event) {
 		

@@ -16,13 +16,13 @@ public class TweakEvents {
 	@SubscribeEvent
 	public void onPlayerUpdate(LivingUpdateEvent event) {
 		
-		// Continue if it's a player
+		// Continue if it's a player.
 		if (event.getEntity() instanceof EntityPlayer) {
 			
 			// Instance of player.
 			EntityPlayer player = (EntityPlayer) event.getEntity();
 			
-			// Server commands
+			// Server commands.
 			ServerCommands.fireCommandsEveryTick(player);
 		}
 	}

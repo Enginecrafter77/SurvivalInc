@@ -20,11 +20,11 @@ public class ItemTabIcon extends Item {
 	
 	public ItemTabIcon() {
 		
-		// setting registry name and crap
+		// Set registry and unlocalized names.
 		setRegistryName(new ResourceLocation(SchopCraft.MOD_ID, "tabicon"));
 		setUnlocalizedName(SchopCraft.RESOURCE_PREFIX + "tabicon");
 		
-		// additional properties
+		// Basic properties.
 		setMaxStackSize(1);
 		setCreativeTab(SchopCraft.mainTab);
 	}

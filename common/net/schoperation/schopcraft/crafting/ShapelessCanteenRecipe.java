@@ -35,14 +35,14 @@ public class ShapelessCanteenRecipe extends ShapelessOreRecipe {
 	@Override
 	public ItemStack getCraftingResult(@Nonnull InventoryCrafting inv) {
 		
-		// Original crafting result
+		// Original crafting result.
 		ItemStack output = super.getCraftingResult(inv);
 		
 		if (!output.isEmpty()) {
 			
 			for (int i = 0; i < inv.getSizeInventory(); i++) {
 				
-				// Currently selected ingredient
+				// Currently selected ingredient.
 				ItemStack ingredient = inv.getStackInSlot(i);
 				
 				// Is this something?

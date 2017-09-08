@@ -23,11 +23,11 @@ public class BlockLucid extends BlockFalling {
 		
 		super(Material.GLASS);
 		
-		// Names
+		// Registry and Unlocalized names.
 		setRegistryName(new ResourceLocation(SchopCraft.MOD_ID, "lucid_block"));
 		setUnlocalizedName(SchopCraft.RESOURCE_PREFIX + "lucid_block");
 		
-		// Properties
+		// Basic properties.
 		setCreativeTab(SchopCraft.mainTab);
 		setHardness(0.0f);
 		setResistance(1.0f);

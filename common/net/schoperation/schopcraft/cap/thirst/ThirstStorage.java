@@ -6,7 +6,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.Capability.IStorage;
 
-// saves the thirst data for each player
+// Saves thirst data for each player.
 public class ThirstStorage implements IStorage<IThirst> {
 	
 	@Override

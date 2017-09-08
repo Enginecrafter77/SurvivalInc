@@ -15,7 +15,7 @@ import net.schoperation.schopcraft.lib.ModItems;
 @Mod(modid = SchopCraft.MOD_ID, name = SchopCraft.MOD_NAME, version = SchopCraft.VERSION, acceptedMinecraftVersions = SchopCraft.MCVERSION, dependencies = SchopCraft.DEPENDENCIES)
 public class SchopCraft {
 	
-	// Mod Constants
+	// Basic mod constants.
 	public static final String MOD_ID = "schopcraft";
 	public static final String MOD_NAME = "SchopCraft";
 	public static final String VERSION = "0.2.0";
@@ -27,11 +27,11 @@ public class SchopCraft {
 	@Instance(MOD_ID)
 	public static SchopCraft instance;
 	
-	// create proxies to allow either client-side stuff or server-side stuff. And also both.
+	// Create proxies to load stuff correctly.
 	@SidedProxy(clientSide = "net.schoperation.schopcraft.ClientProxy", serverSide = "net.schoperation.schopcraft.CommonProxy")
 	public static CommonProxy proxy;
 	
-	// Event handler. handles crap. Go figure. Stop reading these dumb comments, I'm just as clueless.
+	// Basic event handlers. All of the work is done in the proxies.
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event) {
 		

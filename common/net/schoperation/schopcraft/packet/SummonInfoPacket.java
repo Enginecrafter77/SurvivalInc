@@ -47,7 +47,7 @@ public class SummonInfoPacket implements IMessageHandler<SummonInfoMessage, IMes
 	
 	public static class SummonInfoMessage implements IMessage {
 		
-		// variables used in the packet
+		// Variables used in the packet.
 		private String uuid;
 		private String soundPicker;
 		private String particlePicker;
@@ -55,7 +55,7 @@ public class SummonInfoPacket implements IMessageHandler<SummonInfoMessage, IMes
 		private double posY;
 		private double posZ;
 		
-		// dumb constructor
+		// Necessary constructor.
 		public SummonInfoMessage() {}
 		
 		public SummonInfoMessage(String uuid, String soundPicker, String particlePicker, double posX, double posY, double posZ) {

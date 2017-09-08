@@ -36,12 +36,12 @@ public class GhostPacket implements IMessageHandler<GhostMessage, IMessage> {
 	
 	public static class GhostMessage implements IMessage {
 		
-		// actual variables to be used and sent and crap
+		// Variables used in the packet.
 		private String uuid;
 		private boolean isGhost;
 		private float ghostEnergy;
 		
-		// dumb constructor WHY FML
+		// Necessary constructor.
 		public GhostMessage() {}
 		
 		public GhostMessage(String uuid, boolean isGhost, float ghostEnergy) {

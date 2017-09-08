@@ -17,20 +17,20 @@ public class ProximityDetect {
 	 * ==========================================================
 	 */
 	
-	// returns true if the block is right next to the player, horizontally/diagonally.
+	// Returns true if the block is right next to the player, horizontally/diagonally.
 	public static boolean isBlockNextToPlayer(int posX, int posY, int posZ, Block block, Entity player) {
 		
-		// basic variables
+		// Basic variables.
 		World world = player.world;
 		boolean result = false;
 		int x = 0;
 		int z = 0;
 		
-		// just iterate through all of the possible positions around the player! CODING!
-		// i've redone this four times already, and this one is more straightforward and NOT AS tedious.
+		// Just iterate through all of the possible positions around the player! CODING!
+		// I've redone this four times already, and this one is more straightforward and NOT AS tedious.
 		for (int pos = 0; pos < 9; pos++) {
 			
-			// these are the block positions; kek is the one being looped through
+			// These are the block positions; kek is the one being looped through.
 			Block kek = world.getBlockState(new BlockPos(posX+x,posY,posZ+z)).getBlock();
 			
 			if (x == 0 && z == 0) { z--; }
@@ -43,7 +43,7 @@ public class ProximityDetect {
 			else if (x == -1 && z == 0) { z--; }
 			else if (x == -1 && z == -1) { x++; }
 			
-			// see if that block is the specified block
+			// See if that block is the specified block.
 			if (kek == block) { 
 				
 				result = true;
@@ -54,10 +54,10 @@ public class ProximityDetect {
 		return result;
 	}
 	
-	// returns true if the block is within two blocks of the player, horizontally.
+	// Returns true if the block is within two blocks of the player, horizontally.
 	public static boolean isBlockNearPlayer2(int posX, int posY, int posZ, Block block, Entity player, boolean throughBlock) {
 		
-		// basic variables
+		// Basic variables.
 		World world = player.world;
 		Block air = Block.getBlockFromName("minecraft:air");
 		boolean result = false;
@@ -65,10 +65,9 @@ public class ProximityDetect {
 		int x = 0;
 		int z = 0;
 		
-		// da loop
 		for (int pos = 0; pos < 17; pos++) {
 			
-			// these are the block positions; kek is the one being looped through; the others are where a wall could be, blocking heat
+			// These are the block positions; kek is the one being looped through; the others are where a wall could be, blocking heat.
 			Block kek = world.getBlockState(new BlockPos(posX+x,posY,posZ+z)).getBlock();
 			Block blockingNorth = world.getBlockState(new BlockPos(posX+x,posY,posZ+z+1)).getBlock();
 			Block blockingEast = world.getBlockState(new BlockPos(posX+x-1,posY,posZ+z)).getBlock();
@@ -97,7 +96,7 @@ public class ProximityDetect {
 			else if (x == -2 && z == -2) { x++; if (blockingNorthwest != air && !throughBlock) { noWall = false; } else { noWall = true; } }
 			else if (x == -1 && z == -2) { x++; if (blockingNorth != air && !throughBlock) { noWall = false; } else { noWall = true; } }
 			
-			// see if that block is the specified block
+			// See if that block is the specified block.
 			if (kek == block && noWall) { 
 				
 				result = true;
@@ -113,20 +112,20 @@ public class ProximityDetect {
 	 * ============================================
 	 */
 	
-	// returns true if the block is right UNDER the player, horizontally/diagonally. One block radius.
+	// Returns true if the block is right UNDER the player, horizontally/diagonally. One block radius.
 	public static boolean isBlockUnderPlayer(int posX, int posY, int posZ, Block block, Entity player) {
 		
-		// basic variables
+		// Basic variables.
 		World world = player.world;
 		boolean result = false;
 		int x = 0;
 		int z = 0;
 		
-		// just iterate through all of the possible positions around the player! CODING!
-		// i've redone this four times already, and this one is more straightforward and NOT AS tedious.
+		// Just iterate through all of the possible positions around the player! CODING!
+		// I've redone this four times already, and this one is more straightforward and NOT AS tedious.
 		for (int pos = 0; pos < 9; pos++) {
 			
-			// these are the block positions; kek is the one being looped through
+			// These are the block positions; kek is the one being looped through.
 			Block kek = world.getBlockState(new BlockPos(posX+x,posY-1,posZ+z)).getBlock();
 			
 			if (x == 0 && z == 0) { z--; }
@@ -139,7 +138,7 @@ public class ProximityDetect {
 			else if (x == -1 && z == 0) { z--; }
 			else if (x == -1 && z == -1) { x++; }
 			
-			// see if that block is the specified block
+			// See if that block is the specified block.
 			if (kek == block) { 
 				
 				result = true;
@@ -150,10 +149,10 @@ public class ProximityDetect {
 		return result;
 	}
 	
-	// returns true if the block is within two blocks of the player, horizontally.
+	// Returns true if the block is within two blocks of the player, horizontally.
 	public static boolean isBlockUnderPlayer2(int posX, int posY, int posZ, Block block, Entity player, boolean throughBlock) {
 		
-		// basic variables
+		// Basic variables.
 		World world = player.world;
 		Block air = Block.getBlockFromName("minecraft:air");
 		boolean result = false;
@@ -161,10 +160,9 @@ public class ProximityDetect {
 		int x = 0;
 		int z = 0;
 		
-		// da loop
 		for (int pos = 0; pos < 17; pos++) {
 			
-			// these are the block positions; kek is the one being looped through; the others are where a wall could be, blocking heat
+			// These are the block positions; kek is the one being looped through; the others are where a wall could be, blocking heat.
 			Block kek = world.getBlockState(new BlockPos(posX+x,posY-1,posZ+z)).getBlock();
 			Block blockingNorth = world.getBlockState(new BlockPos(posX+x,posY,posZ+z+1)).getBlock();
 			Block blockingEast = world.getBlockState(new BlockPos(posX+x-1,posY,posZ+z)).getBlock();
@@ -201,7 +199,7 @@ public class ProximityDetect {
 			else if (x == -2 && z == -2) { x++; if (blockingNorthwest != air && !throughBlock && blockingNorthwestDown != air) { noWall = false; } else { noWall = true; } }
 			else if (x == -1 && z == -2) { x++; if (blockingNorth != air && !throughBlock && blockingNorthDown != air) { noWall = false; } else { noWall = true; } }
 			
-			// see if that block is the specified block
+			// See if that block is the specified block.
 			if (kek == block && noWall) { 
 				
 				result = true;
@@ -217,20 +215,20 @@ public class ProximityDetect {
 	 * ============================================
 	 */
 	
-	// returns true if the block is right at the player's face, horizontally/diagonally. One block radius.
+	// Returns true if the block is right at the player's face, horizontally/diagonally. One block radius.
 	public static boolean isBlockAtPlayerFace(int posX, int posY, int posZ, Block block, Entity player) {
 		
-		// basic variables
+		// Basic variables
 		World world = player.world;
 		boolean result = false;
 		int x = 0;
 		int z = 0;
 		
-		// just iterate through all of the possible positions around the player! CODING!
-		// i've redone this four times already, and this one is more straightforward and NOT AS tedious.
+		// Just iterate through all of the possible positions around the player! CODING!
+		// I've redone this four times already, and this one is more straightforward and NOT AS tedious.
 		for (int pos = 0; pos < 9; pos++) {
 			
-			// these are the block positions; kek is the one being looped through
+			// These are the block positions; kek is the one being looped through
 			Block kek = world.getBlockState(new BlockPos(posX+x,posY+1,posZ+z)).getBlock();
 			
 			if (x == 0 && z == 0) { z--; }
@@ -243,7 +241,7 @@ public class ProximityDetect {
 			else if (x == -1 && z == 0) { z--; }
 			else if (x == -1 && z == -1) { x++; }
 			
-			// see if that block is the specified block
+			// See if that block is the specified block
 			if (kek == block) { 
 				
 				result = true;
@@ -254,10 +252,10 @@ public class ProximityDetect {
 		return result;
 	}
 	
-	// returns true if the block is right at the player's face, horizontally/diagonally. Two block radius.
+	// Returns true if the block is right at the player's face, horizontally/diagonally. Two block radius.
 	public static boolean isBlockAtPlayerFace2(int posX, int posY, int posZ, Block block, Entity player, boolean throughBlock) {
 		
-		// basic variables
+		// Basic variables
 		World world = player.world;
 		Block air = Block.getBlockFromName("minecraft:air");
 		boolean result = false;
@@ -265,10 +263,9 @@ public class ProximityDetect {
 		int x = 0;
 		int z = 0;
 		
-		// da loop
 		for (int pos = 0; pos < 17; pos++) {
 			
-			// these are the block positions; kek is the one being looped through; the others are where a wall could be, blocking heat
+			// These are the block positions; kek is the one being looped through; the others are where a wall could be, blocking heat.
 			Block kek = world.getBlockState(new BlockPos(posX+x,posY+1,posZ+z)).getBlock();
 			Block blockingNorth = world.getBlockState(new BlockPos(posX+x,posY+1,posZ+z+1)).getBlock();
 			Block blockingEast = world.getBlockState(new BlockPos(posX+x-1,posY+1,posZ+z)).getBlock();
@@ -297,7 +294,7 @@ public class ProximityDetect {
 			else if (x == -2 && z == -2) { x++; if (blockingNorthwest != air && !throughBlock) { noWall = false; } else { noWall = true; } }
 			else if (x == -1 && z == -2) { x++; if (blockingNorth != air && !throughBlock) { noWall = false; } else { noWall = true; } }
 			
-			// see if that block is the specified block
+			// See if that block is the specified block.
 			if (kek == block && noWall) { 
 				
 				result = true;

@@ -2,12 +2,12 @@ package net.schoperation.schopcraft.cap.thirst;
 
 public class Thirst implements IThirst {
 	
-	// create thirst variables
+	// Create thirst variables.
 	private float thirst = 100.00f;
 	private float maxThirst = 100.00f;
 	private float minThirst = 0.00f;
 	
-	// methods for messing with thirst (or getting it)
+	// Methods for messing with thirst (or getting it).
 	public void increase(float amount) {
 		
 		this.thirst += amount;

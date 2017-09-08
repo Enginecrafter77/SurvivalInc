@@ -12,22 +12,22 @@ public class SchopClientParticles {
 	 * Mainly for insanity and ambiance.
 	 */
 	
-	// Main method to spawn particles
+	// Main method to spawn particles.
 	public static void summonParticle(String uuid, String particleMethod, double posX, double posY, double posZ) {
 		
-		// instance of Minecraft
+		// Instance of Minecraft.
 		Minecraft mc = Minecraft.getMinecraft();
 		
-		// instance of the player
+		// Instance of the player.
 		EntityPlayer player = mc.player;
 		
-		// the dimension/world the player is in
+		// The dimension/world the player is in.
 		WorldClient world = mc.world;
 		
-		// is this the correct player?
+		// Is this the correct player?
 		if (player.getCachedUniqueIdString().equals(uuid) && player.world.isRemote) {
 			
-			// determine what particles need to be summoned/spawned/rendered/i used a million ways to describe that process of making particles appear
+			// Determine what particles need to be summoned/spawned/rendered/i used a million ways to describe that process of making particles appear.
 			if (particleMethod.equals("EndermanParticles")) { spawnEndermanParticles(posX, posY, posZ, world); }
 			else if (particleMethod.equals("ExplosionParticles")) { spawnExplosionParticles(posX, posY, posZ, world); }
 			else if (particleMethod.equals("CreepyMistParticles")) { spawnCreepyMistParticles(posX, posY, posZ, world); }

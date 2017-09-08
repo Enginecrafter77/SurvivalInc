@@ -15,30 +15,30 @@ public class SchopServerParticles {
 	 * Client-side is another file, used for sanity, so players will think they're insane when they are. Efficient.
 	 */
 	
-	// Main method to summon particles
+	// Main method to summon particles.
 	public static void summonParticle(String uuid, String particleMethod, double posX, double posY, double posZ) {
 		
-		// basic variables
+		// Basic variables.
 		MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
 		int playerCount = server.getCurrentPlayerCount();
 		String[] playerList = server.getOnlinePlayerNames();
 		
-		// iterate through each player on the server
+		// Iterate through each player on the server.
 		for (int num = 0; num < playerCount; num++) {
 			
-			// instance of the player
+			// Instance of the player.
 			EntityPlayerMP player = server.getPlayerList().getPlayerByUsername(playerList[num]);
 			
-			// the dimension/world the player is in
+			// The dimension/world the player is in.
 			WorldServer serverWorld = server.getWorld(player.dimension);
 			
-			// any capabilities the player has (if needed here)
+			// Any capabilities the player has (if needed here).
 			IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
 			
-			// is this the correct player?
+			// Is this the correct player?
 			if (player.getCachedUniqueIdString().equals(uuid) && !player.world.isRemote) {
 				
-				// determine what particles need to be summoned/spawned/rendered/i used a million ways to describe that process of making particles appear
+				// Determine what particles need to be summoned/spawned/rendered/i used a million ways to describe that process of making particles appear
 				if (particleMethod.equals("WetnessParticles")) { spawnWetnessParticles(serverWorld, posX, posY, posZ, wetness.getWetness()); }
 				else if (particleMethod.equals("DrinkWaterParticles")) { spawnDrinkWaterParticles(serverWorld, posX, posY, posZ); }
 				else if (particleMethod.equals("SweatParticles")) { spawnSweatParticles(serverWorld, posX, posY, posZ); }

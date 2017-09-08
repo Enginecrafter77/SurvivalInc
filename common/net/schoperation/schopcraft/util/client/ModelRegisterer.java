@@ -25,7 +25,7 @@ public class ModelRegisterer {
 	@SubscribeEvent
 	public void registerModels(ModelRegistryEvent event) {
 		
-		// Register item models
+		// Register item models.
 		for (Item item : ModItems.ITEMS) {
 			
 			// If there are subitems (items with metadata), create a list of them and register those models separately.
@@ -56,7 +56,7 @@ public class ModelRegisterer {
 			}
 		}
 		
-		// Register block models
+		// Register block models.
 		for (Block block : ModBlocks.BLOCKS) {
 			
 			ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(block), 0, new ModelResourceLocation(block.getRegistryName(), "inventory"));

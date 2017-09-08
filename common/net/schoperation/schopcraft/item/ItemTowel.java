@@ -43,10 +43,10 @@ public class ItemTowel extends Item {
 	
 	public ItemTowel() {
 		
-		// Set registry name
+		// Set registry name.
 		setRegistryName(new ResourceLocation(SchopCraft.MOD_ID, "towel"));
 		
-		// Properties
+		// Basic properties.
 		setMaxStackSize(1);
 		setCreativeTab(SchopCraft.mainTab);
 		setHasSubtypes(true);
@@ -58,11 +58,11 @@ public class ItemTowel extends Item {
 		// Server side.
 		if (!world.isRemote && entityLiving instanceof EntityPlayerMP) {
 			
-			// Basic variables
+			// Basic variables.
 			EntityPlayerMP player = (EntityPlayerMP) entityLiving;
 			NBTTagCompound nbt = stack.getTagCompound();
 			
-			// Wetness capability
+			// Capability
 			IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
 			
 			// If they're not sneaking, dry the player off.
@@ -85,12 +85,12 @@ public class ItemTowel extends Item {
 					}
 				}
 				
-				// Remove durability
+				// Remove durability.
 				nbt.setInteger("durability", nbt.getInteger("durability") - 1);
 				
 				stack.setTagCompound(nbt);
 				
-				// Play some sound
+				// Play some sound.
 				SchopServerSounds.playSound(player.getCachedUniqueIdString(), "TowelDrySound", player.posX, player.posY, player.posZ);
 			}
 			
@@ -113,12 +113,12 @@ public class ItemTowel extends Item {
 					}
 				}
 				
-				// Remove durability
+				// Remove durability.
 				nbt.setInteger("durability", nbt.getInteger("durability") - 1);
 				
 				stack.setTagCompound(nbt);
 				
-				// Play water splash sound
+				// Play water splash sound.
 				SchopServerSounds.playSound(player.getCachedUniqueIdString(), "WaterSound", player.posX, player.posY, player.posZ);	
 			}
 			
@@ -128,7 +128,7 @@ public class ItemTowel extends Item {
 		return stack;
 	}
 	
-	// Using the towel to get water (or try to)
+	// Using the towel to get water (or try to).
 	// If right clicked on water or a filled cauldron, it'll be fully drenched in water.
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
@@ -136,8 +136,8 @@ public class ItemTowel extends Item {
 		// Server side.
 		if (!world.isRemote) {
 			
-			// RayTrace result
-			// First, some "boosts" to the vector
+			// RayTrace result.
+			// First, some "boosts" to the vector.
 			double vecX = 0;
 			double vecZ = 0;
 			if (player.getLookVec().x < 0) { vecX = -0.5; }
@@ -145,19 +145,19 @@ public class ItemTowel extends Item {
 			if (player.getLookVec().z < 0) { vecZ = -0.5; }
 			else if (player.getLookVec().z > 0) { vecZ = 0.5; }
 			
-			// Now the actual Raytrace
+			// Now the actual Raytrace.
 			RayTraceResult raytrace = world.rayTraceBlocks(player.getPositionEyes(1.0f), player.getPositionEyes(1.0f).add(player.getLookVec().addVector(vecX, -1, vecZ)), true);
 			
 			// Held Item
 			ItemStack heldItem = player.getHeldItem(hand);
 			
-			// NBT Tag of towel (it should have NBT data by now)
+			// NBT Tag of towel (it should have NBT data by now).
 			NBTTagCompound nbt = heldItem.getTagCompound();
 			
 			// Did they right click on a block?
 			if (raytrace != null && raytrace.typeOfHit == RayTraceResult.Type.BLOCK) {
 				
-				// Position of the raytrace
+				// Position of the raytrace.
 				BlockPos pos = raytrace.getBlockPos();
 				
 				// Was this water?
@@ -166,12 +166,12 @@ public class ItemTowel extends Item {
 					// Now drench the towel in water.
 					nbt.setFloat("wetness", 100.0f);
 					
-					// Remove durability
+					// Remove durability.
 					nbt.setInteger("durability", nbt.getInteger("durability") - 1);
 					
 					heldItem.setTagCompound(nbt);
 					
-					// Play water splash sound
+					// Play water splash sound.
 					SchopServerSounds.playSound(player.getCachedUniqueIdString(), "WaterSound", player.posX, player.posY, player.posZ);
 					
 					return new ActionResult<ItemStack>(EnumActionResult.PASS, player.getHeldItem(hand));
@@ -183,23 +183,23 @@ public class ItemTowel extends Item {
 					// Cauldron block
 					BlockCauldron cauldron = (BlockCauldron) world.getBlockState(pos).getBlock();
 					
-					// Amount of water in the cauldron
+					// Amount of water in the cauldron.
 					int cauldronLevel = world.getBlockState(pos).getValue(BlockCauldron.LEVEL);
 					
 					// Only drench the towel if the cauldron has water.
 					if (cauldronLevel > 0) {
 						
-						// Drench towel in water
+						// Drench towel in water.
 						nbt.setFloat("wetness", 100.0f);
 						
-						// Remove durability
+						// Remove durability.
 						nbt.setInteger("durability", nbt.getInteger("durability") - 1);
 						
 						heldItem.setTagCompound(nbt);
 						
 						cauldron.setWaterLevel(world, pos, world.getBlockState(pos), cauldronLevel-1);
 						
-						// Play water splash sound
+						// Play water splash sound.
 						SchopServerSounds.playSound(player.getCachedUniqueIdString(), "WaterSound", player.posX, player.posY, player.posZ);
 						
 						return new ActionResult<ItemStack>(EnumActionResult.PASS, player.getHeldItem(hand));
@@ -232,8 +232,7 @@ public class ItemTowel extends Item {
 			return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, player.getHeldItem(hand));
 		}
 	}
-	
-	// Different unlocalized names
+
 	@Override
 	public String getUnlocalizedName(ItemStack stack) {
 	
@@ -249,7 +248,7 @@ public class ItemTowel extends Item {
 		
 		if (!stack.hasTagCompound()) {
 			
-			// Making a new NBT tag with an amount of wetness, then tacking it onto the towel.
+			// Making a new NBT tag compound.
 			NBTTagCompound nbt = new NBTTagCompound();
 			
 			if (stack.getMetadata() == 0) {
@@ -267,7 +266,7 @@ public class ItemTowel extends Item {
 				nbt.setFloat("wetness", 100.0f);
 			}
 			
-			// Add durability NBT tag on there
+			// Add durability NBT tag.
 			nbt.setInteger("durability", 100);
 			
 			stack.setTagCompound(nbt);
@@ -308,7 +307,7 @@ public class ItemTowel extends Item {
 					nbt.setFloat("wetness", 100.0f);
 				}
 				
-				// Add durability NBT tag on there
+				// Add durability NBT tag.
 				nbt.setInteger("durability", 100);
 				
 				stack.setTagCompound(nbt);
@@ -377,36 +376,36 @@ public class ItemTowel extends Item {
 			// BlockPos of player
 			BlockPos pos = player.getPosition();
 			
-			// check if the player is in lava
+			// Check if the player is in lava.
 			if (player.isInLava()) {
 				
 				nbt.setFloat("wetness", nbt.getFloat("wetness") - 5f);
 			}
-			// check if the player is in the nether
+			// Check if the player is in the nether.
 			else if (player.dimension == -1) {
 				
 				nbt.setFloat("wetness", nbt.getFloat("wetness") - 0.08f);
 			}
-			// check if the player is in water, whether that be rain or water
+			// Check if the player is in water, whether that be rain or water.
 			else if (player.isWet()) {
 				
-				// in water?
+				// In water?
 				if (player.isInWater()) {
 					
 					nbt.setFloat("wetness", nbt.getFloat("wetness") + 3f);
 				}
 				
-				// in rain?
+				// In rain?
 				if (player.world.isRainingAt(pos)) {
 				
 					nbt.setFloat("wetness", nbt.getFloat("wetness") + 0.015f);
 				}
 			}
 				
-			// otherwise, allow for natural drying off (very slow)
+			// Otherwise, allow for natural drying off (very slow).
 			else {
 				
-				// figure out the conditions of the world, then dry off naturally accordingly
+				// Figure out the conditions of the world, then dry off naturally accordingly.
 				if (player.world.isDaytime() && player.world.canBlockSeeSky(pos)) { nbt.setFloat("wetness", nbt.getFloat("wetness") - 0.02f); }
 				else { nbt.setFloat("wetness", nbt.getFloat("wetness") - 0.01f); }
 			}
@@ -415,7 +414,7 @@ public class ItemTowel extends Item {
 			//                PROXIMITY DETECTION
 			// ==============================================================
 			
-			// these if-statement blocks is for stuff that directly doesn't have to do with water bombardment.
+			// These if-statement blocks is for stuff that directly doesn't have to do with water bombardment.
 			if (ProximityDetect.isBlockNextToPlayer(pos.getX(), pos.getY(), pos.getZ(), Blocks.FIRE, player)) { nbt.setFloat("wetness", nbt.getFloat("wetness") - 0.35f); }
 			else if (ProximityDetect.isBlockNearPlayer2(pos.getX(), pos.getY(), pos.getZ(), Blocks.FIRE, player, false)) { nbt.setFloat("wetness", nbt.getFloat("wetness") - 0.20f); }
 			else if (ProximityDetect.isBlockUnderPlayer(pos.getX(), pos.getY(), pos.getZ(), Blocks.FIRE, player)) { nbt.setFloat("wetness", nbt.getFloat("wetness") - 0.25f); }
@@ -481,7 +480,7 @@ public class ItemTowel extends Item {
 		}
 	}
 	
-	// Create sub items
+	// Create sub items.
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items) {
@@ -495,14 +494,14 @@ public class ItemTowel extends Item {
         }
 	}
 	
-	// Add animation for using towel
+	// Add animation for using towel.
 	@Override
 	public EnumAction getItemUseAction(ItemStack stack) {
 		
 		return EnumAction.BOW;
 	}
 	
-	// How long it takes to use it (how long to show the animation)
+	// How long it takes to use it (how long to show the animation).
 	@Override
 	public int getMaxItemUseDuration(ItemStack stack) {
 		
@@ -513,7 +512,7 @@ public class ItemTowel extends Item {
 	@Override
 	public boolean showDurabilityBar(ItemStack stack) {
 		
-		// Get durability (NBT durability)
+		// Get durability (NBT durability).
 		NBTTagCompound nbt = stack.getTagCompound();
 		
 		if (nbt != null) {
@@ -535,7 +534,7 @@ public class ItemTowel extends Item {
 		}
 	}
 	
-	// Showing actual durability
+	// Showing actual durability.
 	@Override
 	public double getDurabilityForDisplay(ItemStack stack) {
 		

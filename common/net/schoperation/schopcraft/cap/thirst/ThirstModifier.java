@@ -30,6 +30,7 @@ import net.schoperation.schopcraft.util.SchopServerSounds;
 public class ThirstModifier {
 	
 	// This allows the client to tell the server of any changes to the player's thirst that the server can't detect.
+	// TODO clean this mess up next commit
 	public static void getClientChange(String uuid, float newThirst, float newMaxThirst, float newMinThirst) {
 	
 		// basic server variables
@@ -56,33 +57,33 @@ public class ThirstModifier {
 	
 	public static void onPlayerUpdate(EntityPlayer player) {
 		
-		// get capabilities
+		// Capabilities
 		IThirst thirst = player.getCapability(ThirstProvider.THIRST_CAP, null);
 		ITemperature temperature = player.getCapability(TemperatureProvider.TEMPERATURE_CAP, null);
 		
-		// sizzlin' server side stuff (crappy attempt at a tongue twister there)
+		// Sizzlin' server side stuff (crappy attempt at a tongue twister there).
 		if (!player.world.isRemote) {
 			
-			// lava fries you well. This might be removed someday.
+			// Lava fries you well. Better grab a water.
 			if (player.isInLava()) {
 				
 				thirst.decrease(0.5f);
 			}
 			
-			// the nether is also good at frying.
+			// The nether is also good at frying.
 			else if (player.dimension == -1) {
 				
 				thirst.decrease(0.006f);
 			}
 			
-			// overheating dehydrates very well.
+			// Overheating dehydrates very well.
 			else if (temperature.getTemperature() > 90.0f) {
 				
 				float amountOfDehydration = temperature.getTemperature() / 10000;
 				thirst.decrease(amountOfDehydration);
 			}
 			
-			// natural dehydration. "Slow" is an understatement here.
+			// Natural dehydration. "Slow" is an understatement here.
 			else {
 				
 				thirst.decrease(0.003f);
@@ -142,7 +143,7 @@ public class ThirstModifier {
 			AttributeModifier damageDebuff = new AttributeModifier("thirstDamageDebuff", damageDebuffAmount, 0);
 			AttributeModifier attackSpeedDebuff = new AttributeModifier("thirstAttackSpeedDebuff", attackSpeedDebuffAmount, 0);
 			
-			// now determine when to debuff the player
+			// Now determine when to debuff the player
 			if (thirst.getThirst() < 5.0f) {
 				
 				player.attackEntityFrom(ModDamageSources.DEHYDRATION, 4.0f);
@@ -156,7 +157,7 @@ public class ThirstModifier {
 			
 			if (thirst.getThirst() < 40.0f) {
 				
-				// speed + damage + attack speed oh my
+				// Speed + damage + attack speed oh my!
 				player.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).applyModifier(speedDebuff);
 				player.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).applyModifier(damageDebuff);
 				player.getEntityAttribute(SharedMonsterAttributes.ATTACK_SPEED).applyModifier(attackSpeedDebuff);	
@@ -166,16 +167,16 @@ public class ThirstModifier {
 	
 	public static void onPlayerInteract(EntityPlayer player) {
 		
-		// get capability
+		// Capability
 		IThirst thirst = player.getCapability(ThirstProvider.THIRST_CAP, null);
 		
-		// server-side crap
+		// Server-side.
 		if (!player.world.isRemote) {
 			
 			//thirst.set(10f);
 			
-			// ray trace result for drinking with bare hands. pretty ineffective.
-			// first, some "boosts" to the vector
+			// Ray trace result for drinking with bare hands. pretty ineffective.
+			// First, some "boosts" to the vector.
 			double vecX = 0;
 			double vecZ = 0;
 			if (player.getLookVec().x < 0) { vecX = -0.5; }
@@ -183,22 +184,22 @@ public class ThirstModifier {
 			if (player.getLookVec().z < 0) { vecZ = -0.5; }
 			else if (player.getLookVec().z > 0) { vecZ = 0.5; }
 			
-			// now the actual raytrace
+			// Now the actual raytrace.
 			RayTraceResult raytrace = player.world.rayTraceBlocks(player.getPositionEyes(1.0f), player.getPositionEyes(1.0f).add(player.getLookVec().addVector(vecX, -1, vecZ)), true);
 			
-			// if there's something
+			// Is there something?
 			if (raytrace != null) {
 				
-				// if it is a block
+				// Is it a block?
 				if (raytrace.typeOfHit == RayTraceResult.Type.BLOCK) {
 					
 					BlockPos pos = raytrace.getBlockPos();
 					Iterator<ItemStack> handItems = player.getHeldEquipment().iterator();
 					
-					// if it is water and the player isn't holding jack squat (main hand)
+					// If it is water and the player isn't holding jack squat (main hand).
 					if (player.world.getBlockState(pos).getMaterial() == Material.WATER && handItems.next().isEmpty()) {
 						
-						// still more if statements. now see what biome the player is in, and quench thirst accordingly.
+						// Still more if statements. now see what biome the player is in, and quench thirst accordingly.
 						Biome biome = player.world.getBiome(pos);
 						
 						if (biome instanceof BiomeOcean || biome instanceof BiomeBeach) {
@@ -214,7 +215,7 @@ public class ThirstModifier {
 							
 							thirst.increase(0.25f);
 							
-							// random chance to damage player
+							// Random chance to damage player
 							double randomNum = Math.random();
 							if (randomNum <= 0.50) { // 50% chance
 								
@@ -222,7 +223,7 @@ public class ThirstModifier {
 							}
 						}
 												
-						// spawn particles and sounds for drinking water
+						// Spawn particles and sounds for drinking water
 						SchopServerParticles.summonParticle(player.getCachedUniqueIdString(), "DrinkWaterParticles", pos.getX(), pos.getY(), pos.getZ());
 						SchopServerSounds.playSound(player.getCachedUniqueIdString(), "WaterSound", pos.getX(), pos.getY(), pos.getZ());
 					}		

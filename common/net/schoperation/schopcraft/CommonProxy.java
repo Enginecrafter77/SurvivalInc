@@ -32,10 +32,10 @@ public class CommonProxy {
 	
 	public void preInit(FMLPreInitializationEvent event) {
 		
-		// Register all new items + blocks here
+		// Register all new items and blocks.
 		MinecraftForge.EVENT_BUS.register(new Registererer());
 		
-		// Register capabilities (mainly the new stats)
+		// Register capabilities.
 		CapabilityManager.INSTANCE.register(IWetness.class, new WetnessStorage(), Wetness.class);
 		CapabilityManager.INSTANCE.register(IThirst.class, new ThirstStorage(), Thirst.class);
 		CapabilityManager.INSTANCE.register(ISanity.class, new SanityStorage(), Sanity.class);
@@ -45,12 +45,12 @@ public class CommonProxy {
 	
 	public void init(FMLInitializationEvent event) {
 		
-		// Register event handlers
+		// Register event handlers.
 		MinecraftForge.EVENT_BUS.register(new CapabilityHandler());
 		MinecraftForge.EVENT_BUS.register(new CapEvents());
 		MinecraftForge.EVENT_BUS.register(new TweakEvents());
 		
-		// Register packets here
+		// Register network packets.
 		SchopPackets.initPackets();
 	}
 	
@@ -60,7 +60,7 @@ public class CommonProxy {
 	
 	public void serverStarted(FMLServerStartedEvent event) {
 		
-		// Fire commands
+		// Fire some simple commands on the server before players log on.
 		ServerCommands.fireCommandsOnStartup();
 	}
 }

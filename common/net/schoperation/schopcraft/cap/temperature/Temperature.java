@@ -2,13 +2,13 @@ package net.schoperation.schopcraft.cap.temperature;
 
 public class Temperature implements ITemperature {
 	
-	// create temperature variables
+	// Create temperature variables.
 	private float temperature = 68.0f;
 	private float maxTemperature = 120.0f;
 	private float minTemperature = -20.0f;
 	private float targetTemperature = 68.0f;
 	
-	// methods for messing with sanity or getting it
+	// Methods for messing with temperature, or getting it.
 	public void increase(float amount) {
 		
 		this.temperature += amount;

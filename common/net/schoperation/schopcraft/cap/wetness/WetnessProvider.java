@@ -6,7 +6,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 
-// this provides the mechanic/capability to the players
+// Provides wetness mechanic to the player.
 public class WetnessProvider implements ICapabilitySerializable<NBTBase> {
 	
 	@CapabilityInject(IWetness.class)

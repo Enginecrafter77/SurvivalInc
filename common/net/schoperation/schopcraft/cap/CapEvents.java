@@ -56,31 +56,33 @@ public class CapEvents {
 		
 		if (player instanceof EntityPlayerMP) {
 			
-			// Cached UUID
+			// Cached UUID.
 			String uuid = player.getCachedUniqueIdString();
 			
-			// Wetness packet
+			// Capabilities.
 			IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
+			IThirst thirst = player.getCapability(ThirstProvider.THIRST_CAP, null);
+			ISanity sanity = player.getCapability(SanityProvider.SANITY_CAP, null);
+			ITemperature temperature = player.getCapability(TemperatureProvider.TEMPERATURE_CAP, null);
+			IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
+			
+			// Send wetness data to client.
 			IMessage msgWetness = new WetnessPacket.WetnessMessage(uuid, wetness.getWetness(), wetness.getMaxWetness(), wetness.getMinWetness());
 			SchopPackets.net.sendTo(msgWetness, (EntityPlayerMP) player);
 			
-			// Thirst packet
-			IThirst thirst = player.getCapability(ThirstProvider.THIRST_CAP, null);
+			// Send thirst data to client.
 			IMessage msgThirst = new ThirstPacket.ThirstMessage(uuid, thirst.getThirst(), thirst.getMaxThirst(), thirst.getMinThirst());
 			SchopPackets.net.sendTo(msgThirst, (EntityPlayerMP) player);
 			
-			// Sanity packet
-			ISanity sanity = player.getCapability(SanityProvider.SANITY_CAP, null);
+			// Send sanity data to client.
 			IMessage msgSanity = new SanityPacket.SanityMessage(uuid, sanity.getSanity(), sanity.getMaxSanity(), sanity.getMinSanity());
 			SchopPackets.net.sendTo(msgSanity, (EntityPlayerMP) player);
 			
-			// Temperature packet
-			ITemperature temperature = player.getCapability(TemperatureProvider.TEMPERATURE_CAP, null);
+			// Send temperature data to client.
 			IMessage msgTemperature = new TemperaturePacket.TemperatureMessage(uuid, temperature.getTemperature(), temperature.getMaxTemperature(), temperature.getMinTemperature(), temperature.getTargetTemperature());
 			SchopPackets.net.sendTo(msgTemperature, (EntityPlayerMP) player);
 			
-			// Ghost stats packet
-			IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
+			// Send ghost data to client.
 			IMessage msgGhost = new GhostPacket.GhostMessage(uuid, ghost.isGhost(), ghost.getEnergy());
 			SchopPackets.net.sendTo(msgGhost, (EntityPlayerMP) player);
 		}
@@ -88,36 +90,35 @@ public class CapEvents {
 	
 	// When an entity is updated. So, all the time.
 	// This also deals with packets to the client. The modifiers themselves can send packets to the server if they need to.
-	
 	// Below is a wakeUpTimer variable used to delay the execution of SanityModifier.onPlayerWakeUp(EntityPlayer player).
 	private int wakeUpTimer = -1;
 	
 	@SubscribeEvent
 	public void onPlayerUpdate(LivingUpdateEvent event) {
 		
-		// only continue if it's a player.
+		// Only continue if it's a player.
 		if (event.getEntity() instanceof EntityPlayer) {
 			
-			// instance of player
+			// Instance of player.
 			EntityPlayer player = (EntityPlayer) event.getEntity();
 			
-			// now fire every method that should be fired here, passing the player as a parameter.
+			// Now fire every method that should be fired here, passing the player as a parameter.
 			WetnessModifier.onPlayerUpdate(player);
 			ThirstModifier.onPlayerUpdate(player);
 			SanityModifier.onPlayerUpdate(player);
 			TemperatureModifier.onPlayerUpdate(player);
 			GhostMain.onPlayerUpdate(player);
 			
-			// fire this if the player is sleeping (not starting to sleep, legit sleeping)
+			// Fire this if the player is sleeping (not starting to sleep, legit sleeping).
 			if (player.isPlayerFullyAsleep() && player.world.isRemote) {
 				
 				SanityModifier.onPlayerSleepInBed(player);
 			}
 			
-			// fire this if onPlayerWakeUp is fired (the event). It'll keep counting up until it reaches a certain value.
+			// Fire this if onPlayerWakeUp is fired (the event). It'll keep counting up until it reaches a certain value.
 			if (wakeUpTimer > 30 && player.world.isRemote) {
 				
-				// fire onWakeUp methods and reset wakeUpTimer
+				// Fire onWakeUp methods and reset wakeUpTimer.
 				SanityModifier.onPlayerWakeUp(player);
 				wakeUpTimer = -1;
 			}
@@ -126,111 +127,115 @@ public class CapEvents {
 				wakeUpTimer++;
 			}
 			
-			// send capability data to clients for rendering
+			// Send capability data to clients for rendering
 			if (!player.world.isRemote) {
 					
-				// Wetness packet
+				// Cached UUID.
+				String uuid = player.getCachedUniqueIdString();
+				
+				// Capabilities.
 				IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
-				IMessage msgWetness = new WetnessPacket.WetnessMessage(player.getCachedUniqueIdString(), wetness.getWetness(), wetness.getMaxWetness(), wetness.getMinWetness());
+				IThirst thirst = player.getCapability(ThirstProvider.THIRST_CAP, null);
+				ISanity sanity = player.getCapability(SanityProvider.SANITY_CAP, null);
+				ITemperature temperature = player.getCapability(TemperatureProvider.TEMPERATURE_CAP, null);
+				IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
+				
+				// Send wetness data to client.
+				IMessage msgWetness = new WetnessPacket.WetnessMessage(uuid, wetness.getWetness(), wetness.getMaxWetness(), wetness.getMinWetness());
 				SchopPackets.net.sendTo(msgWetness, (EntityPlayerMP) player);
 				
-				// Thirst packet
-				IThirst thirst = player.getCapability(ThirstProvider.THIRST_CAP, null);
-				IMessage msgThirst = new ThirstPacket.ThirstMessage(player.getCachedUniqueIdString(), thirst.getThirst(), thirst.getMaxThirst(), thirst.getMinThirst());
+				// Send thirst data to client.
+				IMessage msgThirst = new ThirstPacket.ThirstMessage(uuid, thirst.getThirst(), thirst.getMaxThirst(), thirst.getMinThirst());
 				SchopPackets.net.sendTo(msgThirst, (EntityPlayerMP) player);
 				
-				// Sanity packet
-				ISanity sanity = player.getCapability(SanityProvider.SANITY_CAP, null);
-				IMessage msgSanity = new SanityPacket.SanityMessage(player.getCachedUniqueIdString(), sanity.getSanity(), sanity.getMaxSanity(), sanity.getMinSanity());
+				// Send sanity data to client.
+				IMessage msgSanity = new SanityPacket.SanityMessage(uuid, sanity.getSanity(), sanity.getMaxSanity(), sanity.getMinSanity());
 				SchopPackets.net.sendTo(msgSanity, (EntityPlayerMP) player);
 				
-				// Temperature packet
-				ITemperature temperature = player.getCapability(TemperatureProvider.TEMPERATURE_CAP, null);
-				IMessage msgTemperature = new TemperaturePacket.TemperatureMessage(player.getCachedUniqueIdString(), temperature.getTemperature(), temperature.getMaxTemperature(), temperature.getMinTemperature(), temperature.getTargetTemperature());
+				// Send temperature data to client.
+				IMessage msgTemperature = new TemperaturePacket.TemperatureMessage(uuid, temperature.getTemperature(), temperature.getMaxTemperature(), temperature.getMinTemperature(), temperature.getTargetTemperature());
 				SchopPackets.net.sendTo(msgTemperature, (EntityPlayerMP) player);
 				
-				// Ghost stats packet
-				IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
-				IMessage msgGhost = new GhostPacket.GhostMessage(player.getCachedUniqueIdString(), ghost.isGhost(), ghost.getEnergy());
+				// Send ghost data to client.
+				IMessage msgGhost = new GhostPacket.GhostMessage(uuid, ghost.isGhost(), ghost.getEnergy());
 				SchopPackets.net.sendTo(msgGhost, (EntityPlayerMP) player);
 			}
 		}
 	}
 	
-	// When a player interacts with a block (usually right clicking)
+	// When a player interacts with a block (usually right clicking something).
 	@SubscribeEvent
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		
-		// instance of player
+		// Instance of player.
 		EntityPlayer player = event.getEntityPlayer();
 		
 		// Cancel interacting with blocks if the player is a ghost. This must be done here.
-		// Capability
 		IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
 		
-		// Cancel if ghost
 		if (ghost.isGhost() && event.isCancelable()) {
 			
 			event.setCanceled(true);
 		}
 		
-		// fire methods
+		// Fire methods.
 		ThirstModifier.onPlayerInteract(player);
 	}
 	
-	// When a player (kinda) finishes using an item.
+	// When a player (kind of) finishes using an item. Technically one tick before it's actually consumed.
 	@SubscribeEvent
 	public void onPlayerUseItem(LivingEntityUseItemEvent.Tick event) {
 
 		if (event.getEntity() instanceof EntityPlayer) {
 			 
-			// instance of player
+			// Instance of player.
 			EntityPlayer player = (EntityPlayer) event.getEntity();
 			
 			if (!player.world.isRemote && event.getDuration() == 1) {
 				
-				// item instance
+				// Instance of item.
 				ItemStack itemUsed = event.getItem();
 				
-				// fire methods
+				// Fire methods.
 				SanityModifier.onPlayerConsumeItem(player, itemUsed);
 				TemperatureModifier.onPlayerConsumeItem(player, itemUsed);
 			}
 		}
 	}
 	
-	// When a player wakes up from bed
+	// When a player wakes up from bed.
 	@SubscribeEvent
 	public void onPlayerWakeUp(PlayerWakeUpEvent event) {
 		
-		// instance of player
+		// Instance of player.
 		EntityPlayer player = event.getEntityPlayer();
 		
-		// start timer
+		// Start wakeUpTimer.
 		if (wakeUpTimer == -1 && player.world.isRemote) {
 			
 			wakeUpTimer = 0;
 		}
-		// the methods are fired in onPlayerUpdate.	
+		
+		// The methods related to onPlayerWakeUp are fired in onPlayerUpdate.	
 	}
 	
-	// When an entity's drops are dropped (so usually when one dies)
+	// When an entity's drops are dropped (so usually when one dies).
 	@SubscribeEvent
 	public void onDropsDropped(LivingDropsEvent event) {
 		
-		// the entity that was killed
+		// The entity that was killed.
 		Entity entityKilled = event.getEntity();
 		
-		// their drops
+		// A list of their drops.
 		List<EntityItem> drops = event.getDrops();
 		
-		// the looting level of the weapon
+		// The looting level of the weapon.
 		int lootingLevel = event.getLootingLevel();
 		
-		// source of damage
+		// Damage source.
 		DamageSource damageSource = event.getSource();
 		
-		// fire methods
+		// Fire methods.
 		SanityModifier.onDropsDropped(entityKilled, drops, lootingLevel, damageSource);
 	}
 	
@@ -238,7 +243,7 @@ public class CapEvents {
 	@SubscribeEvent
 	public void onPlayerRespawn(PlayerRespawnEvent event) {
 		
-		// Instance of player
+		// Instance of player.
 		EntityPlayer player = event.player;
 		
 		// Going through the end portal back to the overworld counts as respawning. This shouldn't make you a ghost.
@@ -249,29 +254,25 @@ public class CapEvents {
 		
 		else {
 			
-			// Set no gravity
+			// Set no gravity.
 			player.setNoGravity(true);
 			
-			// Move player away from portal
+			// Move player away from portal.
 			player.setLocationAndAngles(player.posX+3, player.posY+1, player.posZ+3, 0.0f, 0.0f);
 			
-			// Set gravity
+			// Set gravity back.
 			player.setNoGravity(false);
 		}
 	}
 	
-	// When a player attempts to pick up items
+	// When a player attempts to pick up items.
 	@SubscribeEvent
 	public void onItemPickup(EntityItemPickupEvent event) {
 		
 		// Cancel picking up the items if the player is a ghost. This has to be done here.
-		// Instance of player
 		EntityPlayer player = event.getEntityPlayer();
-		
-		// Capability
 		IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
 		
-		// Cancel if ghost
 		if (ghost.isGhost()) {
 			
 			event.setCanceled(true);

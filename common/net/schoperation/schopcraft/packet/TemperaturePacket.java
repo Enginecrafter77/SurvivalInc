@@ -38,14 +38,14 @@ public class TemperaturePacket implements IMessageHandler<TemperatureMessage, IM
 	
 	public static class TemperatureMessage implements IMessage {
 		
-		// variables used in the packet
+		// Variables used in the packet.
 		private String uuid;
 		private float temperature;
 		private float maxTemperature;
 		private float minTemperature;
 		private float targetTemperature;
 		
-		// dumb constructor
+		// Necessary constructor.
 		public TemperatureMessage() {}
 		
 		public TemperatureMessage(String uuid, float temperature, float maxTemperature, float minTemperature, float targetTemperature) {

@@ -78,7 +78,7 @@ public class GuiRenderBar extends Gui {
 			double oneWetnessUnit = (double) defaultBarWidth / maxWetness; // default 0.8
 			int currentWidthWetness = (int) (oneWetnessUnit * wetness);
 			
-			// Show wetness value
+			// Show wetness value.
 			double roundedWetness = (double) (Math.round(wetness * 10)) / 10;
 			String textWetness = Double.toString(roundedWetness) + "%";
 			
@@ -86,7 +86,7 @@ public class GuiRenderBar extends Gui {
 			double oneThirstUnit = (double) defaultBarWidth / maxThirst; // default 0.8
 			int currentWidthThirst = (int) (oneThirstUnit * thirst);
 			
-			// Show thirst value
+			// Show thirst value.
 			double roundedThirst = (double) (Math.round(thirst * 10)) / 10;
 			String textThirst = Double.toString(roundedThirst) + "%";
 			
@@ -94,7 +94,7 @@ public class GuiRenderBar extends Gui {
 			double oneSanityUnit = (double) defaultBarWidth / maxSanity; // default 0.8, could change
 			int currentWidthSanity = (int) (oneSanityUnit * sanity);
 			
-			// Show sanity value
+			// Show sanity value.
 			double roundedSanity = (double) (Math.round(sanity * 10)) / 10;
 			String textSanity = Double.toString(roundedSanity);
 			
@@ -102,37 +102,37 @@ public class GuiRenderBar extends Gui {
 			double oneEnergyUnit = (double) ghostBarWidth / maxGhostEnergy;
 			int currentWidthEnergy = (int) (oneEnergyUnit * ghostEnergy);
 			
-			// Show ghost energy value
+			// Show ghost energy value.
 			double roundedEnergy = (double) (Math.round(ghostEnergy * 10)) / 10;
 			String textEnergy = Double.toString(roundedEnergy) + " GPU";
 			
 			// Determine width of TEMPERATURE bar.
 			// This is also determined whether the user wants Celsius or Fahrenheit.
-			
-			// Fields for showing temp (due to config file)
+			// Fields for showing temp (due to config file).
 			int currentWidthTemperature;
 			String textTemperature;
 			
 			if (ModConfig.showCelsius) {
 				
-				// NEW temperature values to show (the actual will never change)
+				// NEW temperature values to show (the actual will never change).
 				double temperatureCelsius = (double) ((temperature - 32) / 1.8);
 				double maxTemperatureCelsius = (double) ((maxTemperature - 32) / 1.8);
 				
+				// Determine width.
 				double oneTemperatureUnit = (double) defaultBarWidth / maxTemperatureCelsius; // default ~0.61
 				currentWidthTemperature = (int) (oneTemperatureUnit * temperatureCelsius);
 				
-				// Show temperature value
+				// Show temperature value.
 				double roundedTemperature = (double) (Math.round(temperatureCelsius * 10)) / 10;
 				textTemperature = Double.toString(roundedTemperature) + "°C";
 			}
 			else {
 				
-				// Use current temperature values (as they are set in fahrenheit in the mod itself)
+				// Use current temperature values (as they are set in fahrenheit in the mod itself).
 				double oneTemperatureUnit = (double) defaultBarWidth / maxTemperature; // default 0.66 repeating
 				currentWidthTemperature = (int) (oneTemperatureUnit * temperature);
 				
-				// Show temperature value
+				// Show temperature value.
 				double roundedTemperature = (double) (Math.round(temperature * 10)) / 10;
 				textTemperature = Double.toString(roundedTemperature) + "°F";
 			}
@@ -140,7 +140,7 @@ public class GuiRenderBar extends Gui {
 			// Only show the main bars if the F3 debug screen is now showing, and if the player is not a ghost.
 			if (!mc.gameSettings.showDebugInfo && !isGhost) {
 				
-				// Top rect is bar, bottom rect is outline/icon
+				// Top rect is bar, bottom rect is outline/icon.
 				// TEMPERATURE
 				mc.renderEngine.bindTexture(tempBar);
 				drawTexturedModalRect(screenWidth-defaultBarWidth-2, screenHeight-(screenHeight/2)-20, 19, 14, currentWidthTemperature, defaultTextureHeight);
@@ -173,7 +173,7 @@ public class GuiRenderBar extends Gui {
 			// Ghost energy bar, for when the player is a ghost. Right above their hotbar.
 			else if (isGhost) {
 				
-				// Top rect is bar, bottom rect is outline/icon
+				// Top rect is bar, bottom rect is outline/icon.
 				mc.renderEngine.bindTexture(ghostEnergyBar);
 				drawTexturedModalRect((screenWidth / 2)-93, screenHeight-50, 12, 10, currentWidthEnergy, ghostTextureHeight);
 				drawTexturedModalRect((screenWidth / 2)-105, screenHeight-52, 0, 0, ghostTextureWidth, ghostTextureHeight);

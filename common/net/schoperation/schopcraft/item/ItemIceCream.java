@@ -25,14 +25,14 @@ public class ItemIceCream extends ItemFood {
 
 	public ItemIceCream(int amount, float saturation, boolean isWolfFood) {
 		
-		// get + apply stuff
+		// Get and apply stuff.
 		super(amount, saturation, isWolfFood);
 		
-		// name crap
+		// Set registry and unlocalized names.
 		setRegistryName(new ResourceLocation(SchopCraft.MOD_ID, "ice_cream"));
 		setUnlocalizedName(SchopCraft.RESOURCE_PREFIX + "ice_cream");
 		
-		// basic properties
+		// Basic properties.
 		setMaxStackSize(2);
 		setCreativeTab(SchopCraft.mainTab);
 	}
@@ -42,7 +42,7 @@ public class ItemIceCream extends ItemFood {
 		
         if (entityLiving instanceof EntityPlayer) {
         	
-        	// default eating crap
+        	// Default eating crap.
             EntityPlayer entityplayer = (EntityPlayer)entityLiving;
             entityplayer.getFoodStats().addStats(this, stack);
             world.playSound((EntityPlayer) null, entityplayer.posX, entityplayer.posY, entityplayer.posZ, SoundEvents.ENTITY_PLAYER_BURP, SoundCategory.PLAYERS, 0.5F, world.rand.nextFloat() * 0.1F + 0.9F);
@@ -54,17 +54,17 @@ public class ItemIceCream extends ItemFood {
                 CriteriaTriggers.CONSUME_ITEM.trigger((EntityPlayerMP)entityplayer, stack);
             }
             
-            // server-side stuff for adjusting temp
+            // Server-side stuff for adjusting temp.
             if (!world.isRemote) {
             	
-            	// get capabilities
+            	// Capabilities
             	ITemperature temperature = entityLiving.getCapability(TemperatureProvider.TEMPERATURE_CAP, null);
             	ISanity sanity = entityLiving.getCapability(SanityProvider.SANITY_CAP, null);
             	
-            	// lower temp
+            	// Lower temperature
             	temperature.decrease(20.0f);
             	
-            	// increase sanity
+            	// Increase sanity
             	sanity.increase(20.0f);
             }
         }

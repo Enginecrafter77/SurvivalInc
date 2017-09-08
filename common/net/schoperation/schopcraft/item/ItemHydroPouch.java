@@ -52,40 +52,40 @@ public class ItemHydroPouch extends Item {
 	
 	public ItemHydroPouch() {
 		
-		// setting registry name and crap
+		// Set registry and unlocalized names.
 		setRegistryName(new ResourceLocation(SchopCraft.MOD_ID, "hydropouch"));
 		
-		// properties
+		// Basic properties.
 		setMaxStackSize(1);
 		setCreativeTab(SchopCraft.mainTab);
 		setNoRepair();
 		setHasSubtypes(true);
 	}
 	
-	// number of sips
+	// Number of sips.
 	private final int hydroPouchSips = 12;
 	
-	// durability
+	// Durability
 	private final int hydroPouchDurability = 300;
 	
-	// drinking from the canteen
+	// Drinking from the canteen.
 	@Override
 	public ItemStack onItemUseFinish(ItemStack stack, World world, EntityLivingBase entityLiving) {
 		
-		// server-side
+		// Server-side.
 		if (entityLiving instanceof EntityPlayerMP && !world.isRemote) {
 			
-			// basic variables
+			// Basic variables.
 			EntityPlayerMP player = (EntityPlayerMP) entityLiving;
 			String uuid = player.getCachedUniqueIdString();
 			int canteenType = stack.getMetadata();
 			
-			// capabilities
+			// Capabilities
 			IThirst thirst = player.getCapability(ThirstProvider.THIRST_CAP, null);
 			ITemperature temperature = player.getCapability(TemperatureProvider.TEMPERATURE_CAP, null);
 			ISanity sanity = player.getCapability(SanityProvider.SANITY_CAP, null);
 			
-			// Determine type of water, and quench thirst accordingly
+			// Determine type of water, and quench thirst accordingly.
 			// Fresh water
 			if (canteenType == 1) {
 				
@@ -102,14 +102,14 @@ public class ItemHydroPouch extends Item {
 				SchopServerEffects.affectPlayer(uuid, "poison", 50, 2, false, false);
 			}
 			
-			// salt water
+			// Salt water
 			else if (canteenType == 3) {
 				
 				thirst.decrease(20f);
 				sanity.decrease(15f);
 			}
 			
-			// filtered water
+			// Filtered water
 			else if (canteenType == 4) {
 				
 				thirst.increase(15f);
@@ -118,7 +118,7 @@ public class ItemHydroPouch extends Item {
 				if (randChanceOfPoison < 0.25) { SchopServerEffects.affectPlayer(uuid, "poison", 50, 0, false, false); }
 			}
 			
-			// cold water
+			// Cold water
 			else if (canteenType == 5) {
 				
 				thirst.increase(15f);
@@ -128,7 +128,7 @@ public class ItemHydroPouch extends Item {
 				if (randChanceOfPoison < 0.15) { SchopServerEffects.affectPlayer(uuid, "poison", 50, 0, false, false); }
 			}
 			
-			// decrease durability
+			// Decrease durability and set sips.
 			NBTTagCompound nbt = stack.getTagCompound();
 			
 			if (nbt != null) {
@@ -153,17 +153,17 @@ public class ItemHydroPouch extends Item {
 	}
 	
 	
-	// right click to get water. If the player is holding an empty canteen, it will attempt to fill it up with water.
-	// if holding a canteen partially filled with water, it will refill it with water.
-	// if holding a full canteen with the same type of water it's going to get, it'll empty itself, becoming an empty canteen.
+	// Right click to get water. If the player is holding an empty canteen, it will attempt to fill it up with water.
+	// If holding a canteen partially filled with water, it will refill it with water.
+	// If holding a full canteen with the same type of water it's going to get, it'll empty itself, becoming an empty canteen.
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
 		
-		// server-side.
+		// Server-side.
 		if (!world.isRemote) {
 			
-			// ray trace result
-			// first, some "boosts" to the vector
+			// Ray trace result.
+			// First, some "boosts" to the vector.
 			double vecX = 0;
 			double vecZ = 0;
 			if (player.getLookVec().x < 0) { vecX = -0.5; }
@@ -171,101 +171,101 @@ public class ItemHydroPouch extends Item {
 			if (player.getLookVec().z < 0) { vecZ = -0.5; }
 			else if (player.getLookVec().z > 0) { vecZ = 0.5; }
 			
-			// now the actual raytrace
+			// Now the actual raytrace.
 			RayTraceResult raytrace = world.rayTraceBlocks(player.getPositionEyes(1.0f), player.getPositionEyes(1.0f).add(player.getLookVec().addVector(vecX, -1, vecZ)), true);
 			
-			// held item
+			// Held item
 			ItemStack heldItem = player.getHeldItem(hand);
 			
-			// NBT Tag of canteen (which it should have by now)
+			// NBT Tag of canteen (which it should have by now).
 			NBTTagCompound nbt = heldItem.getTagCompound();
 			int sips = nbt.getInteger("sips");
 			
 			// Did they right click on a block?
 			if (raytrace != null && raytrace.typeOfHit == RayTraceResult.Type.BLOCK) {
 				
-				// position of the raytrace
+				// Position of the raytrace.
 				BlockPos pos = raytrace.getBlockPos();
 				
-				// was this water?
+				// Was this water?
 				if (world.getBlockState(pos).getBlock() == Blocks.WATER || world.getBlockState(pos).getBlock() == Blocks.FLOWING_WATER) {
 					
-					// This is a bigger canteen, so take a watersource block if it's empty.
+					// This is a bigger canteen, so take a water source block if it's empty.
 					if (heldItem.getMetadata() == 0) {
 						
 						world.setBlockToAir(pos);
 					}
 					
-					// now figure out the biome of the block
+					// Now figure out the biome.
 					Biome biome = world.getBiome(pos);
 					
 					// Ocean biome
 					if (biome instanceof BiomeOcean || biome instanceof BiomeBeach) {
 						
-						// what is the player holding?
-						// empty canteen
+						// What is the player holding?
+						// Empty canteen
 						if (heldItem.getMetadata() == 0) { heldItem.setItemDamage(3); sips = hydroPouchSips; }
 						
-						// full canteen (of any type)
+						// Full canteen (of any type)
 						else if (sips == hydroPouchSips) { heldItem.setItemDamage(0); sips = 0; }
 						
-						// otherwise just refill it with salt water
+						// Otherwise just refill it with salt water.
 						else { heldItem.setItemDamage(3); sips = hydroPouchSips; }
 					}
 					
 					// Swamp biome
 					else if (biome instanceof BiomeSwamp) {
 						
-						// empty canteen
+						// Empty canteen
 						if (heldItem.getMetadata() == 0) { heldItem.setItemDamage(2); sips = hydroPouchSips; }
 					
-						// full canteen (of any type)
+						// Full canteen (of any type)
 						else if (sips == hydroPouchSips) { heldItem.setItemDamage(0); sips = 0; }
 						
-						// otherwise just refill it with dirty water
+						// Otherwise just refill it with dirty water.
 						else { heldItem.setItemDamage(2); sips = hydroPouchSips; }
 					}
 					
-					// snow biome
+					// Snow biome
 					else if (biome instanceof BiomeSnow) {
 						
-						// random chance to give cold water opposed to dirty water.
+						// Random chance to give cold water opposed to dirty water.
 						double randomNum = Math.random();
 						
-						// empty canteen
+						// Empty canteen
 						if (heldItem.getMetadata() == 0) { if (randomNum < 0.80) { heldItem.setItemDamage(2); } else { heldItem.setItemDamage(5); } sips = hydroPouchSips; }
 						
-						// full canteen (of any type)
+						// Full canteen (of any type)
 						else if (sips == hydroPouchSips) { heldItem.setItemDamage(0); sips = 0; }
 						
-						// otherwise fill it with dirty water or cold water, according to what's already in it
+						// Otherwise fill it with dirty water or cold water, according to what's already in it.
 						else if (heldItem.getMetadata() == 2 || heldItem.getMetadata() == 4) { heldItem.setItemDamage(2); sips = hydroPouchSips; }
 						else { if (randomNum < 0.80) { heldItem.setItemDamage(2); } else { heldItem.setItemDamage(5); } sips = hydroPouchSips; }
 					}
 					
-					// other biomes
+					// Other biomes
 					else {
 						
-						// random chance to give fresh water opposed to dirty water.
+						// Random chance to give fresh water opposed to dirty water.
 						double randomNum = Math.random();
 						
-						// empty canteen
+						// Empty canteen
 						if (heldItem.getMetadata() == 0) { if (randomNum < 0.98) { heldItem.setItemDamage(2); } else { heldItem.setItemDamage(1); } sips = hydroPouchSips; }
 						
-						// full canteen (of any type)
+						// Full canteen (of any type)
 						else if (sips == hydroPouchSips) { heldItem.setItemDamage(0); sips = 0; }
 						
-						// otherwise fill it with dirty water or fresh water, according to what's already in it
+						// Otherwise fill it with dirty water or fresh water, according to what's already in it.
 						else if (heldItem.getMetadata() == 2 || heldItem.getMetadata() == 4) { heldItem.setItemDamage(2); sips = hydroPouchSips; }
 						else { if (randomNum < 0.98) { heldItem.setItemDamage(2); } else { heldItem.setItemDamage(1); } sips = hydroPouchSips; }
 						
 					}
 					
-					// play sounds and particles directly (as this is already server-side)
+					// Play sounds and particles directly.
 					SchopServerParticles.summonParticle(player.getCachedUniqueIdString(), "DrinkWaterParticles", pos.getX(), pos.getY(), pos.getZ());
 					SchopServerSounds.playSound(player.getCachedUniqueIdString(), "WaterSound", pos.getX(), pos.getY(), pos.getZ());
 					
-					// set nbt properly
+					// Set NBT properly.
 					nbt.setInteger("sips", sips);
 					nbt.setInteger("durability", nbt.getInteger("durability") - 1);
 					heldItem.setTagCompound(nbt);
@@ -273,22 +273,23 @@ public class ItemHydroPouch extends Item {
 					return new ActionResult<ItemStack>(EnumActionResult.PASS, heldItem);
 				}
 				
-				// a cauldron will act as a rain collector in this mod.
-				// ============================ START OF CAULDRON CODE ===========================================================================
+				// ======================================================
+				//  A cauldron will act as a rain collector in this mod.
+				// ======================================================
 				else if (world.getBlockState(pos).getBlock() == Blocks.CAULDRON) {
 					
-					// the amount of water in the cauldron
+					// The amount of water in the cauldron.
 					int cauldronLevel = world.getBlockState(pos).getValue(BlockCauldron.LEVEL);
 					
-					// the block itself
+					// The block itself.
 					BlockCauldron cauldron = (BlockCauldron) world.getBlockState(pos).getBlock();
 					
-					// only allow it to be filled when the cauldron...
-					// 1. Is full of water
+					// Only allow it to be filled when the cauldron...
+					// 1. Is full of water.
 					// 2. It's raining and the cauldron can see the sky.
 					if (cauldronLevel == 3 && world.isRainingAt(new BlockPos(pos.getX(), pos.getY()+1, pos.getZ()))) {
 						
-						// empty canteen... give it some nice, fresh rain water
+						// Empty canteen... give it some nice, fresh rain water.
 						if (heldItem.getMetadata() == 0) {
 							
 							heldItem.setItemDamage(1);
@@ -296,7 +297,7 @@ public class ItemHydroPouch extends Item {
 							cauldron.setWaterLevel(world, pos, world.getBlockState(pos), 0);
 						}
 						
-						// full canteen (of any type)
+						// Full canteen (of any type)
 						else if (sips == hydroPouchSips) { 
 							
 							heldItem.setItemDamage(0);
@@ -304,7 +305,7 @@ public class ItemHydroPouch extends Item {
 							cauldron.setWaterLevel(world, pos, world.getBlockState(pos), 3);
 						}
 						
-						// fresh water canteen (not full)
+						// Fresh water canteen (not full)
 						else if (heldItem.getMetadata() == 1) {
 							
 							heldItem.setItemDamage(1);
@@ -312,7 +313,7 @@ public class ItemHydroPouch extends Item {
 							cauldron.setWaterLevel(world, pos, world.getBlockState(pos), 0);
 						}
 						
-						// cold water (not full)
+						// Cold water (not full)
 						else if (heldItem.getMetadata() == 5) {
 							
 							heldItem.setItemDamage(1);
@@ -320,7 +321,7 @@ public class ItemHydroPouch extends Item {
 							cauldron.setWaterLevel(world, pos, world.getBlockState(pos), 0);
 						}
 						
-						// otherwise do dirty water
+						// Otherwise do dirty water
 						else {
 							
 							heldItem.setItemDamage(2);
@@ -328,15 +329,15 @@ public class ItemHydroPouch extends Item {
 							cauldron.setWaterLevel(world, pos, world.getBlockState(pos), 0);
 						}
 						
-						// play sounds and particles directly (as this is already server-side)
+						// Play sounds and particles directly.
 						SchopServerParticles.summonParticle(player.getCachedUniqueIdString(), "DrinkWaterParticles", pos.getX(), pos.getY(), pos.getZ());
 						SchopServerSounds.playSound(player.getCachedUniqueIdString(), "WaterSound", pos.getX(), pos.getY(), pos.getZ());
 					}
 					
-					// if it's not raining... but there's water...
+					// If it's not raining... but there's water...
 					else if (cauldronLevel == 3) {
 						
-						// empty canteen... dirty water
+						// Empty canteen... dirty water
 						if (heldItem.getMetadata() == 0) {
 							
 							heldItem.setItemDamage(2);
@@ -344,7 +345,7 @@ public class ItemHydroPouch extends Item {
 							cauldron.setWaterLevel(world, pos, world.getBlockState(pos), 0);
 						}
 						
-						// full canteen (of any type)
+						// Full canteen (of any type)
 						else if (sips == hydroPouchSips) { 
 							
 							heldItem.setItemDamage(0);
@@ -352,7 +353,7 @@ public class ItemHydroPouch extends Item {
 							cauldron.setWaterLevel(world, pos, world.getBlockState(pos), 3);
 						}
 						
-						// otherwise do dirty water or salt water
+						// Otherwise do dirty water or salt water
 						else {
 							
 							double saltOrDirt = Math.random();
@@ -362,28 +363,28 @@ public class ItemHydroPouch extends Item {
 							cauldron.setWaterLevel(world, pos, world.getBlockState(pos), 0);
 						}
 						
-						// play sounds and particles directly (as this is already server-side)
+						// Play sounds and particles directly.
 						SchopServerParticles.summonParticle(player.getCachedUniqueIdString(), "DrinkWaterParticles", pos.getX(), pos.getY(), pos.getZ());
 						SchopServerSounds.playSound(player.getCachedUniqueIdString(), "WaterSound", pos.getX(), pos.getY(), pos.getZ());
 					}
 					
-					// if the cauldron is empty...
+					// If the cauldron is empty...
 					else {
 						
-						// anything but an empty canteen
+						// Anything but an empty canteen.
 						if (heldItem.getMetadata() != 0 && sips == hydroPouchSips) {
 							
 							heldItem.setItemDamage(0);
 							sips = 0;
 							cauldron.setWaterLevel(world, pos, world.getBlockState(pos), 3);
 							
-							// play sounds and particles directly (as this is already server-side)
+							// Play sounds and particles directly.
 							SchopServerParticles.summonParticle(player.getCachedUniqueIdString(), "DrinkWaterParticles", pos.getX(), pos.getY(), pos.getZ());
 							SchopServerSounds.playSound(player.getCachedUniqueIdString(), "WaterSound", pos.getX(), pos.getY(), pos.getZ());
 						}
 					}
 					
-					// set nbt properly
+					// Set NBT properly.
 					nbt.setInteger("sips", sips);
 					nbt.setInteger("durability", nbt.getInteger("durability") - 1);
 					heldItem.setTagCompound(nbt);
@@ -393,7 +394,7 @@ public class ItemHydroPouch extends Item {
 				
 				// ============================ END OF CAULDRON CODE ======================================================
 				
-				// all of this crap is to ensure that the player can drink from the canteen if it isn't empty.
+				// All of this crap is to ensure that the player can drink from the canteen if it isn't empty.
 				else if (heldItem.getMetadata() == 0) {
 					
 					return new ActionResult<ItemStack>(EnumActionResult.PASS, heldItem);
@@ -421,8 +422,6 @@ public class ItemHydroPouch extends Item {
 		}    
 	}
 	
-	
-	// different unlocalized names
 	@Override
 	public String getUnlocalizedName(ItemStack stack) {
 	
@@ -441,7 +440,7 @@ public class ItemHydroPouch extends Item {
 		
 		if (!stack.hasTagCompound()) {
 			
-			// Making a new NBT tag with a # of sips, and tacking it onto the canteen
+			// Making a new NBT tag compound.
 			NBTTagCompound nbt = new NBTTagCompound();
 			
 			if (stack.getMetadata() == 0) {
@@ -458,13 +457,13 @@ public class ItemHydroPouch extends Item {
 			stack.setTagCompound(nbt);
 		}
     }
-	// This is to ensure the canteen always has NBT
+	// This is to ensure the canteen always has NBT.
 	@Override
 	public void onUpdate(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
 		
 		if (!stack.hasTagCompound()) {
 			
-			// Making a new NBT tag with a # of sips, and tacking it onto the canteen
+			// Making a new NBT tag compound.
 			NBTTagCompound nbt = new NBTTagCompound();
 			
 			if (stack.getMetadata() == 0) {
@@ -484,7 +483,7 @@ public class ItemHydroPouch extends Item {
 		
 		else {
 			
-			// If there are zero sips left, make it an empty canteen
+			// If there are zero sips left, make it an empty canteen.
 			NBTTagCompound nbt = stack.getTagCompound();
 			
 			if (nbt.getInteger("sips") <= 0) {
@@ -493,6 +492,7 @@ public class ItemHydroPouch extends Item {
 			}
 			
 			// Since durability is newer for canteens, if the canteen doesn't have durability tag, add it. This code will probably be here for a while.
+			// TODO Remove this in the far future (release?)
 			if (!nbt.hasKey("durability")) {
 				
 				nbt.setInteger("durability", hydroPouchDurability);
@@ -555,7 +555,7 @@ public class ItemHydroPouch extends Item {
 		}
 	}
 	
-	// create sub items
+	// Create sub items.
 	@SideOnly(Side.CLIENT)
 	@Override
 	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items) {
@@ -569,21 +569,21 @@ public class ItemHydroPouch extends Item {
         }
 	}
 	
-	// makes it a drink
+	// Make it a drink.
 	@Override
 	public EnumAction getItemUseAction(ItemStack stack) {
 		
 		return EnumAction.DRINK;
 	}
 	
-	// how long it takes to drink it (how long to show the animation)
+	// How long it takes to drink it (how long to show the animation).
 	@Override
 	public int getMaxItemUseDuration(ItemStack stack) {
 		
 		return 32;
 	}
 	
-	// figure out when to show durability
+	// Figure out when to show durability.
 	@Override
 	public boolean showDurabilityBar(ItemStack stack) {
 		
@@ -631,7 +631,7 @@ public class ItemHydroPouch extends Item {
 	@Override
 	public double getDurabilityForDisplay(ItemStack stack) {
 		
-		// NBT Tag and necessary vars
+		// NBT Tag and necessary variables.
 		NBTTagCompound nbt = stack.getTagCompound();
 		int percentLeft = 0;
 		double durabilityToShow = 0;

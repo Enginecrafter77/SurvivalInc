@@ -36,13 +36,13 @@ public class SanityPacket implements IMessageHandler<SanityMessage, IMessage> {
 	
 	public static class SanityMessage implements IMessage {
 		
-		// variables used in the packet
+		// Variables used in the packet.
 		private String uuid;
 		private float sanity;
 		private float maxSanity;
 		private float minSanity;
 		
-		// dumb constructor
+		// Necessary constructor.
 		public SanityMessage() {}
 		
 		public SanityMessage(String uuid, float sanity, float maxSanity, float minSanity) {

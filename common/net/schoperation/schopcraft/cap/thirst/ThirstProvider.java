@@ -6,7 +6,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 
-// this provides the mechanic/capability to the players
+// Provides thirst mechanic to the player.
 public class ThirstProvider implements ICapabilitySerializable<NBTBase> {
 	
 	@CapabilityInject(IThirst.class)

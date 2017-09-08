@@ -36,13 +36,13 @@ public class WetnessPacket implements IMessageHandler<WetnessMessage, IMessage> 
 	
 	public static class WetnessMessage implements IMessage {
 		
-		// actual variables to be used and sent and crap
+		// Variables used in the packet.
 		private String uuid;
 		private float wetness;
 		private float maxWetness;
 		private float minWetness;
 		
-		// dumb constructor WHY FML
+		// Necessary constructor.
 		public WetnessMessage() {}
 		
 		public WetnessMessage(String uuid, float wetness, float maxWetness, float minWetness) {

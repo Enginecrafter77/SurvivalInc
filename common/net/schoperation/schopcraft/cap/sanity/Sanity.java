@@ -2,12 +2,12 @@ package net.schoperation.schopcraft.cap.sanity;
 
 public class Sanity implements ISanity {
 	
-	// create sanity variables
+	// Create sanity variables.
 	private float sanity = 100.00f;
 	private float maxSanity = 100.00f;
 	private float minSanity = 0.00f;
 	
-	// methods for messing with sanity or getting it
+	// Methods for messing with sanity or getting it.
 	public void increase(float amount) {
 		
 		this.sanity += amount;

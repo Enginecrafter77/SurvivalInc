@@ -39,10 +39,10 @@ public class GhostMain {
 	// Mark the player as a ghost upon death.
 	public static void onPlayerRespawn(EntityPlayer player) {
 		
-		// Ghost capability
+		// Ghost capability.
 		IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
 		
-		// Make them a ghost
+		// Make them a ghost.
 		ghost.setGhost();
 		
 		// Put them in adventure mode.
@@ -52,23 +52,23 @@ public class GhostMain {
 	// This is in place for the resurrection to be delayed properly.
 	private static int resurrectionTimer = -1;
 	
-	// Main method
+	// The main method.
 	public static void onPlayerUpdate(EntityPlayer player) {
 		
-		// Capabilities
+		// Capabilities.
 		IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
 		IThirst thirst = player.getCapability(ThirstProvider.THIRST_CAP, null);
 		ISanity sanity = player.getCapability(SanityProvider.SANITY_CAP, null);
 		ITemperature temperature = player.getCapability(TemperatureProvider.TEMPERATURE_CAP, null);
 		IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
 		
-		// Block position of player
+		// Block position of player.
 		BlockPos pos = player.getPosition();
 		
-		// Cached UUID
+		// Cached UUID.
 		String uuid = player.getCachedUniqueIdString();
 		
-		// Server side & while they're a ghost
+		// While on the server-side and while the player is a ghost.
 		if (!player.world.isRemote && ghost.isGhost()) {
 			
 			// Constantly set the other values to default. Ghosts don't worry about that crap.
@@ -85,13 +85,13 @@ public class GhostMain {
 			//  ENERGY (Measured in Ghastly Plasmic Units)
 			// ==========================================
 			
-			// Increases at night
+			// Increases at night!
 			if (!player.world.isDaytime()) {
 				
 				ghost.increaseEnergy(0.05f);
 			}
 			
-			// Decreases while sprinting.
+			// Decreases while sprinting!
 			if (player.isSprinting()) {
 				
 				ghost.decreaseEnergy(0.2f);	
@@ -108,18 +108,18 @@ public class GhostMain {
 				player.getFoodStats().setFoodLevel(20);
 			}
 			
-			// Become visible (with particles)
+			// Manifest yourself with particles. Cheap, but cool.
 			if (ghost.getEnergy() >= 90.0f) {
 				
 				SchopServerParticles.summonParticle(uuid, "GhostParticles", player.posX, player.posY, player.posZ);
 			}
 			
-			// Attribute modifier stuff for speed. More energy = more speed
+			// Attribute modifier stuff for speed. More energy = more speed.
 			// Does the player have existing attributes with the same name? Remove them.
 			// Iterate through all of modifiers. If one of them is a ghost one, delete it so another one can take its place.
 			Iterator<AttributeModifier> speedModifiers = player.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getModifiers().iterator();
 			
-			// Speed
+			// Speed.
 			while (speedModifiers.hasNext()) {
 				
 				AttributeModifier element = speedModifiers.next();
@@ -149,7 +149,7 @@ public class GhostMain {
 			// In order for a player to be resurrected, they must be standing IN a lucid block, surrounded by 4 soul sand with torches on top.
 			// Also, a golden apple must be placed at your feet.
 			
-			// Variable to keep track of how many "steps" or things the ghost has to resurrection.
+			// Variable to keep track of how many "steps" closer the ghost is to resurrection.
 			int resurrectionProgress = 0;
 			
 			// Look for a lucid block at their feet.
@@ -158,11 +158,10 @@ public class GhostMain {
 				resurrectionProgress++;
 			}
 			
-			// Look for soul sand near the player (3 blocks away) on each cardinal direction.
+			// Look for soul sand near the player (3 blocks away) on each cardinal direction. There must also be a torch on top of the sand.
 			// Positive X
 			if (player.world.getBlockState(new BlockPos(pos.getX()+3, pos.getY(), pos.getZ())).getBlock() == Blocks.SOUL_SAND) {
 				
-				// Torch?
 				if (player.world.getBlockState(new BlockPos(pos.getX()+3, pos.getY()+1, pos.getZ())).getBlock() == Blocks.TORCH) {
 					
 					resurrectionProgress++;
@@ -172,7 +171,6 @@ public class GhostMain {
 			// Negative X
 			if (player.world.getBlockState(new BlockPos(pos.getX()-3, pos.getY(), pos.getZ())).getBlock() == Blocks.SOUL_SAND) {
 				
-				// Torch?
 				if (player.world.getBlockState(new BlockPos(pos.getX()-3, pos.getY()+1, pos.getZ())).getBlock() == Blocks.TORCH) {
 					
 					resurrectionProgress++;
@@ -182,7 +180,6 @@ public class GhostMain {
 			// Positive Z
 			if (player.world.getBlockState(new BlockPos(pos.getX(), pos.getY(), pos.getZ()+3)).getBlock() == Blocks.SOUL_SAND) {
 				
-				// Torch?
 				if (player.world.getBlockState(new BlockPos(pos.getX(), pos.getY()+1, pos.getZ()+3)).getBlock() == Blocks.TORCH) {
 					
 					resurrectionProgress++;
@@ -192,7 +189,6 @@ public class GhostMain {
 			// Negative Z
 			if (player.world.getBlockState(new BlockPos(pos.getX(), pos.getY(), pos.getZ()-3)).getBlock() == Blocks.SOUL_SAND) {
 				
-				// Torch?
 				if (player.world.getBlockState(new BlockPos(pos.getX(), pos.getY()+1, pos.getZ()-3)).getBlock() == Blocks.TORCH) {
 					
 					resurrectionProgress++;
@@ -207,7 +203,7 @@ public class GhostMain {
 			// Now iterate through the items and see if one of them is a golden apple.
 			for (int num = 0; num < nearbyItems.size(); num++) {
 				
-				// the chosen EntityItem
+				// The chosen EntityItem
 				EntityItem entityItem = (EntityItem) nearbyItems.get(num);
 				
 				// ItemStack
@@ -228,7 +224,7 @@ public class GhostMain {
 			// Enough "resurrection points" to continue?
 			if (resurrectionProgress == 7) {
 				
-				// fire method
+				// Fire the resurrection process.
 				startResurrection(player, pos);
 				
 				// take away energy so this isn't repeated
@@ -239,10 +235,10 @@ public class GhostMain {
 			// Also spawn the particles.
 			if (resurrectionTimer >= 0) {
 				
-				// increment
+				// Increment
 				resurrectionTimer++;
 				
-				// particle methods
+				// Particle methods
 				SchopServerParticles.summonParticle(uuid, "ResurrectionFlameParticles", pos.getX(), pos.getY(), pos.getZ());
 				SchopServerParticles.summonParticle(uuid, "ResurrectionEnchantmentParticles", pos.getX(), pos.getY(), pos.getZ());
 			}
@@ -262,20 +258,20 @@ public class GhostMain {
 		}
 	}
 	
-	// This method starts the legit resurrection process
+	// This method starts the legitimate resurrection process.
 	private static void startResurrection(EntityPlayer player, BlockPos pos) {
 		
-		// Player cached UUID
+		// Player cached UUID.
 		String uuid = player.getCachedUniqueIdString();
 		
-		// Do portal sound
+		// Do portal sound.
 		SchopServerSounds.playSound(uuid, "PortalSound", pos.getX(), pos.getY(), pos.getZ());
 		
 		// Start timer which'll resurrect the player at the end of the main method.
 		resurrectionTimer = 0;
 	}
 	
-	// Finish resurrection
+	// Finish resurrection!
 	private static void finishResurrection(EntityPlayer player, BlockPos pos) {
 		
 		// Capabilities
@@ -285,7 +281,7 @@ public class GhostMain {
 		ITemperature temperature = player.getCapability(TemperatureProvider.TEMPERATURE_CAP, null);
 		IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
 		
-		// Summon lightning on the player
+		// Summon lightning on the player.
 		EntityLightningBolt lightning = new EntityLightningBolt(player.world, pos.getX(), pos.getY(), pos.getZ(), true);
 		player.world.addWeatherEffect(lightning);
 		
@@ -313,7 +309,7 @@ public class GhostMain {
 		// Now iterate through the items and see if one of them is a golden apple.
 		for (int num = 0; num < nearbyItems.size(); num++) {
 			
-			// the chosen EntityItem
+			// The chosen EntityItem
 			EntityItem entityItem = (EntityItem) nearbyItems.get(num);
 			
 			// ItemStack

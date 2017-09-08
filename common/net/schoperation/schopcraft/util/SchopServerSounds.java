@@ -16,27 +16,27 @@ public class SchopServerSounds {
 	 * Only call playSound on the server, if you can't figure that out.
 	 */
 	
-	// Main method to play sounds
+	// Main method to play sounds.
 	public static void playSound(String uuid, String soundMethod, double posX, double posY, double posZ) {
 		
-		// basic variables
+		// Basic variables.
 		MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
 		int playerCount = server.getCurrentPlayerCount();
 		String[] playerList = server.getOnlinePlayerNames();
 		
-		// iterate through each player on the server
+		// Iterate through each player on the server.
 		for (int num = 0; num < playerCount; num++) {
 			
-			// instance of the player
+			// Instance of the player.
 			EntityPlayerMP player = server.getPlayerList().getPlayerByUsername(playerList[num]);
 			
-			// position of the sound
+			// Position of the sound.
 			BlockPos pos = new BlockPos(posX, posY, posZ);
 			
-			// is this the right player? If not, go to the next player
+			// Is this the right player? If not, go to the next player.
 			if (player.getCachedUniqueIdString().equals(uuid) && !player.world.isRemote) {
 				
-				// now determine what sound needs to be played.
+				// Now determine what sound needs to be played.
 				if (soundMethod.equals("WaterSound")) { playWaterSound(player, pos); }
 				else if (soundMethod.equals("FanWhooshSound")) { playFanWhooshSound(player, pos); }
 				else if (soundMethod.equals("PortalSound")) { playPortalSound(player, pos); }
@@ -46,25 +46,25 @@ public class SchopServerSounds {
 		}
 	}
 	
-	// plays cute splash sound when a player drinks water from a water source
+	// Plays cute splash sound when a player drinks water from a water source.
 	private static void playWaterSound(Entity player, BlockPos pos) {
 		
 		player.world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_SWIM, SoundCategory.NEUTRAL, 0.5f, 1.5f);
 	}
 	
-	// plays fan whoosh sound when a player uses a fan (handheld one)
+	// Plays fan whoosh sound when a player uses a fan (handheld one).
 	private static void playFanWhooshSound(Entity player, BlockPos pos) {
 		
 		player.world.playSound(null, pos, ModSounds.FAN_WHOOSH, SoundCategory.PLAYERS, 0.2f, 1.25f);
 	}
 	
-	// plays the portal sounds during resurrection of a player
+	// Plays the portal sounds during resurrection of a player.
 	private static void playPortalSound(Entity player, BlockPos pos) {
 		
 		player.world.playSound(null, pos, SoundEvents.BLOCK_PORTAL_TRAVEL, SoundCategory.AMBIENT, 0.5f, 1.5f);
 	}
 	
-	// plays the towel drying sound
+	// Plays the towel drying sound.
 	private static void playTowelDrySound(Entity player, BlockPos pos) {
 		
 		player.world.playSound(null, pos, SoundEvents.ITEM_ARMOR_EQUIP_GENERIC, SoundCategory.PLAYERS, 1.0f, 0.5f);

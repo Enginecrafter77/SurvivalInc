@@ -12,11 +12,11 @@ public class ItemLucidDreamEssence extends Item {
 	
 	public ItemLucidDreamEssence() {
 		
-		// names
+		// Set registry and unlocalized names.
 		setRegistryName(new ResourceLocation(SchopCraft.MOD_ID, "lucid_dream_essence"));
 		setUnlocalizedName(SchopCraft.RESOURCE_PREFIX + "lucid_dream_essence");
 		
-		// properties
+		// Basic properties.
 		setMaxStackSize(64);
 		setCreativeTab(SchopCraft.mainTab);
 	}

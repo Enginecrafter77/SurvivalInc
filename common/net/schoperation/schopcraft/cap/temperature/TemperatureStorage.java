@@ -6,7 +6,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.Capability.IStorage;
 
-// save temp data for each player
+// Save temperature data for each player.
 public class TemperatureStorage implements IStorage<ITemperature> {
 	
 	@Override

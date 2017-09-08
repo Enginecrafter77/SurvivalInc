@@ -24,7 +24,7 @@ public class ModConfig {
 		@SubscribeEvent
 		public static void onConfigChanged(final ConfigChangedEvent.OnConfigChangedEvent event) {
 			
-			// make sure it's the right mod
+			// Make sure it's the right mod.
 			if (event.getModID().equals(SchopCraft.MOD_ID)) {
 				
 				ConfigManager.sync(SchopCraft.MOD_ID, Config.Type.INSTANCE);

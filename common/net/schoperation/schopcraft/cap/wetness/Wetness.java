@@ -2,12 +2,12 @@ package net.schoperation.schopcraft.cap.wetness;
 
 public class Wetness implements IWetness {
 	
-	// create wetness variables
+	// Create wetness variables.
 	private float wetness = 0.00f;
 	private float maxWetness = 100.00f;
 	private float minWetness = 0.00f;
 	
-	// methods for messing with wetness (or getting it)
+	// Methods for messing with wetness (or getting it).
 	public void increase(float amount) {
 		
 		this.wetness += amount;

@@ -36,13 +36,13 @@ public class ThirstPacket implements IMessageHandler<ThirstMessage, IMessage> {
 	
 	public static class ThirstMessage implements IMessage {
 		
-		// variables used in the packet
+		// Variables used in the packet.
 		private String uuid;
 		private float thirst;
 		private float maxThirst;
 		private float minThirst;
 		
-		// dumb constructor
+		// Necessary constructor.
 		public ThirstMessage() {}
 		
 		public ThirstMessage(String uuid, float thirst, float maxThirst, float minThirst) {

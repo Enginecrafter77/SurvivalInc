@@ -19,6 +19,7 @@ import net.schoperation.schopcraft.util.SchopServerParticles;
 public class WetnessModifier {
 	
 	// This allows the client to tell the server of any changes to the player's wetness that the server can't detect.
+	// TODO Clean this mess up. Is this even used? I doubt it
 	public static void getClientChange(String uuid, float newWetness, float newMaxWetness, float newMinWetness) {
 		
 		// basic server variables
@@ -45,11 +46,11 @@ public class WetnessModifier {
 	
 	public static void onPlayerUpdate(Entity player) {
 		
-		// get capability
+		// Capability
 		IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
 		
-		// get coords of player
-		BlockPos pos = new BlockPos(player.posX, player.posY, player.posZ);
+		// Coordinates of player (block position and actual).
+		BlockPos pos = player.getPosition();
 		BlockPos posFace = new BlockPos(player.posX, player.posY+1, player.posZ);
 		int playerPosX = pos.getX();
 		int playerPosY = pos.getY();
@@ -58,7 +59,7 @@ public class WetnessModifier {
 		double doublePlayerPosY = player.posY;
 		double doublePlayerPosZ = player.posZ;
 		
-		// client-side. not much right now. Kept as an example just in case.
+		// Client-side. Not much right now. Kept as an example just in case.
 		if (player.world.isRemote) {
 			
 			// pre-set wetness (since this is client side. I just picked ten because it still can't be lower than zero or higher than 100.)
@@ -69,48 +70,51 @@ public class WetnessModifier {
 			//SchopPackets.net.sendToServer(msg);	
 		}
 		
-		// server-side
+		// Server-side.
 		if (!player.world.isRemote) {
 			
-			// check if the player is in lava
+			// Check if the player is in lava.
 			if (player.isInLava()) {
 				
 				wetness.decrease(5f);
 			}
-			// check if the player is in the nether
+			
+			// Check if the player is in the nether.
 			else if (player.dimension == -1) {
 				
 				wetness.decrease(0.08f);
 			}
-			// check if the player is in water, whether that be rain or water
+			
+			// Check if the player is in water, whether that be rain or water.
 			else if (player.isWet()) {
 				
-				// in water?
+				// In water?
 				if (player.isInWater()) {
 					
-					// hey now, the player could just be in one block of water at their feet. If so, just go to 50% wetness Or somewhere around there.
-					// we'll check if water is in the player's face. If so, 100%. If not, 50%.
+					// Hey now, the player could just be in one block of water at their feet. If so, just go to 50% wetness Or somewhere around there.
+					// We'll check if water is in the player's face. If so, 100%. If not, 50%.
 					if (player.world.getBlockState(posFace).getBlock() != Blocks.WATER && player.world.getBlockState(posFace).getBlock() != Blocks.FLOWING_WATER) {
 					
 						if (wetness.getWetness() < 50) { wetness.increase(1.5f); }
 					}
+					
 					else {
 						
 						wetness.increase(5f);
 					}
 				}
 				
-				// in rain?
+				// In rain?
 				if (player.world.isRainingAt(posFace)) {
 				
 					wetness.increase(0.015f);
 				}
 			}
 				
-			// otherwise, allow for natural drying off (very slow)
+			// Otherwise, allow for natural drying off (very slow).
 			else {
 				
-				// figure out the conditions of the world, then dry off naturally accordingly
+				// Figure out the conditions of the world, then dry off naturally accordingly.
 				if (player.world.isDaytime() && player.world.canBlockSeeSky(pos)) { wetness.decrease(0.02f); }
 				else { wetness.decrease(0.01f); }
 			}
@@ -119,83 +123,82 @@ public class WetnessModifier {
 			//                PROXIMITY DETECTION
 			// ==============================================================
 			
-			// these if-statement blocks is for stuff that directly doesn't have to do with water bombardment.
-			// check if the player is near a fire
+			// These if-statement blocks is for stuff that directly doesn't have to do with water bombardment.
+			// Check if the player is near a fire.
 			if (ProximityDetect.isBlockNextToPlayer(playerPosX, playerPosY, playerPosZ, Blocks.FIRE, player)) {
 				
-				// are they in the rain? If so, the fire is less effective
+				// Are they in the rain? If so, the fire is less effective.
 				if (player.isWet()) { wetness.decrease(0.25f); }
 				else { wetness.decrease(0.5f); }
 			}
 			
-			// check if the player is near a fire - two blocks away. if there's a block between the player and the fire, it won't count.
+			// Check if the player is near a fire - two blocks away. if there's a block between the player and the fire, it won't count.
 			else if (ProximityDetect.isBlockNearPlayer2(playerPosX, playerPosY, playerPosZ, Blocks.FIRE, player, false)) {
 				
-				// are they in the rain? If so, the fire is less effective
+				// Are they in the rain? If so, the fire is less effective.
 				if (player.isWet()) { wetness.decrease(0.15f); }
 				else { wetness.decrease(0.25f); }
 			}
 			
-			// check if the fire is below the player ...one block
+			// Check if the fire is below the player ...one block.
 			else if (ProximityDetect.isBlockUnderPlayer(playerPosX, playerPosY, playerPosZ, Blocks.FIRE, player)) {
 				
-				// are they in the rain? If so, the fire is less effective
+				// Are they in the rain? If so, the fire is less effective.
 				if (player.isWet()) { wetness.decrease(0.20f); }
 				else { wetness.decrease(0.30f); }
 			}
 			
-			// ...and two blocks
+			// ...And two blocks.
 			else if (ProximityDetect.isBlockUnderPlayer2(playerPosX, playerPosY, playerPosZ, Blocks.FIRE, player, false)) {
 				
-				// are they in the rain? If so, the fire is less effective
+				// Are they in the rain? If so, the fire is less effective.
 				if (player.isWet()) { wetness.decrease(0.10f); }
 				else { wetness.decrease(0.20f); }
 			}
 			
-			// check if the fire is at the player's face... one block
+			// Check if the fire is at the player's face... one block.
 			else if (ProximityDetect.isBlockAtPlayerFace(playerPosX, playerPosY, playerPosZ, Blocks.FIRE, player)) {
 				
-				// are they in the rain? If so, the fire is less effective
+				// Are they in the rain? If so, the fire is less effective.
 				if (player.isWet()) { wetness.decrease(0.25f); }
 				else { wetness.decrease(0.5f); }
 			}
 		
-			// ...and two blocks
+			// ...And two blocks.
 			else if (ProximityDetect.isBlockAtPlayerFace2(playerPosX, playerPosY, playerPosZ, Blocks.FIRE, player, false)) {
 				
 				if (player.isWet()) { wetness.decrease(0.15f); }
 				else { wetness.decrease(0.25f); }
 			}
 			
-			// ==============================================================================================================================
-			// check if the player is near lava
+			// Check if the player is near lava.
 			if (ProximityDetect.isBlockNextToPlayer(playerPosX, playerPosY, playerPosZ, Blocks.LAVA, player)) {
 				
-				// are they in the rain? If so, the lava is less effective
+				// Are they in the rain? If so, the lava is less effective.
 				if (player.isWet()) { wetness.decrease(0.5f); }
 				else { wetness.decrease(1f); }
 			}
 			
-			// check if the player is near lava - two blocks away.
+			// Check if the player is near lava - two blocks away.
 			else if (ProximityDetect.isBlockNearPlayer2(playerPosX, playerPosY, playerPosZ, Blocks.LAVA, player, false)) {
 				
-				// are they in the rain? If so, the lava is less effective
+				// are they in the rain? If so, the lava is less effective.
 				if (player.isWet()) { wetness.decrease(0.25f); }
 				else { wetness.decrease(0.45f); }
 			}
 			
-			// check if the lava is below the player... one block
+			// Check if the lava is below the player... one block.
 			else if (ProximityDetect.isBlockUnderPlayer(playerPosX, playerPosY, playerPosZ, Blocks.LAVA, player)) {
 				
-				// are they in the rain? If so, the lava is less effective
+				// Are they in the rain? If so, the lava is less effective.
 				if (player.isWet()) { wetness.decrease(0.5f); }
 				else { wetness.decrease(1f); }
 			}
 			
-			// ...and two blocks
+			// ...And two blocks.
 			else if (ProximityDetect.isBlockUnderPlayer2(playerPosX, playerPosY, playerPosZ, Blocks.LAVA, player, false)) {
 				
-				// are they in the rain? If so, the lava is less effective
+				// Are they in the rain? If so, the lava is less effective.
 				if (player.isWet()) { wetness.decrease(0.25f); }
 				else { wetness.decrease(0.45f); }
 			}
@@ -203,70 +206,68 @@ public class WetnessModifier {
 			// FLOWING LAVA
 			else if (ProximityDetect.isBlockNextToPlayer(playerPosX, playerPosY, playerPosZ, Blocks.FLOWING_LAVA, player)) {
 				
-				// are they in the rain? If so, the lava is less effective
+				// Are they in the rain? If so, the lava is less effective.
 				if (player.isWet()) { wetness.decrease(0.5f); }
 				else { wetness.decrease(1f); }
 			}
 			
-			// check if the player is near lava - two blocks away.
+			// Check if the player is near lava - two blocks away.
 			else if (ProximityDetect.isBlockNearPlayer2(playerPosX, playerPosY, playerPosZ, Blocks.FLOWING_LAVA, player, false)) {
 				
-				// are they in the rain? If so, the lava is less effective
+				// Are they in the rain? If so, the lava is less effective.
 				if (player.isWet()) { wetness.decrease(0.25f); }
 				else { wetness.decrease(0.45f); }
 			}
 			
-			// check if the lava is below the player... one block
+			// Check if the lava is below the player... one block.
 			else if (ProximityDetect.isBlockUnderPlayer(playerPosX, playerPosY, playerPosZ, Blocks.FLOWING_LAVA, player)) {
 				
-				// are they in the rain? If so, the lava is less effective
+				// Are they in the rain? If so, the lava is less effective.
 				if (player.isWet()) { wetness.decrease(0.5f); }
 				else { wetness.decrease(1f); }
 			}
 			
-			// ...and two blocks
+			// ...And two blocks.
 			else if (ProximityDetect.isBlockUnderPlayer2(playerPosX, playerPosY, playerPosZ, Blocks.FLOWING_LAVA, player, false)) {
 				
-				// are they in the rain? If so, the lava is less effective
+				// Are they in the rain? If so, the lava is less effective.
 				if (player.isWet()) { wetness.decrease(0.25f); }
 				else { wetness.decrease(0.45f); }
 			}
 			
-			// =============================================================================================================================
-			// burning furnace proximity... only same y-level
+			// Burning furnace proximity... only same y-level.
 			if (ProximityDetect.isBlockNextToPlayer(playerPosX, playerPosY, playerPosZ, Blocks.LIT_FURNACE, player)) {
 				
-				// are they in the rain? If so, the furnace is less effective
+				// Are they in the rain? If so, the furnace is less effective.
 				if (player.isWet()) { wetness.decrease(0.10f); }
 				else { wetness.decrease(0.40f); }
 			}
 			
-			// two blocks
+			// Two blocks.
 			else if (ProximityDetect.isBlockNearPlayer2(playerPosX, playerPosY, playerPosZ, Blocks.LIT_FURNACE, player, false)) {
 				
-				// are they in the rain? If so, the furnace is less effective
+				// Are they in the rain? If so, the furnace is less effective.
 				if (player.isWet()) { wetness.decrease(0.05f); }
 				else { wetness.decrease(0.20f); }
 			}
 			
-			// =============================================================================================================================
-			// magma block proximity... only one y-level under
+			// Magma block proximity... only one y-level under.
 			if (ProximityDetect.isBlockUnderPlayer(playerPosX, playerPosY, playerPosZ, Blocks.MAGMA, player)) {
 				
-				// are they in the rain? If so, the magma block is less effective
+				// Are they in the rain? If so, the magma block is less effective.
 				if (player.isWet()) { wetness.decrease(0.10f); }
 				else { wetness.decrease(0.40f); }
 			}
 			
-			// two blocks
+			// Two blocks.
 			else if (ProximityDetect.isBlockUnderPlayer2(playerPosX, playerPosY, playerPosZ, Blocks.MAGMA, player, false)) {
 				
-				// are they in the rain? If so, the magma block is less effective
+				// Are they in the rain? If so, the magma block is less effective.
 				if (player.isWet()) { wetness.decrease(0.05f); }
 				else { wetness.decrease(0.20f); }
 			}
 			
-			// summon wetness particles. We don't need a packet for this, as it's already on the server.
+			// Summon wetness particles. 
 			SchopServerParticles.summonParticle(player.getCachedUniqueIdString(), "WetnessParticles", doublePlayerPosX, doublePlayerPosY, doublePlayerPosZ);
 		}
 	}

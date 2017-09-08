@@ -6,7 +6,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.Capability.IStorage;
 
-// saves the wetness data for each player
+// Saves the wetness data for each player.
 public class WetnessStorage implements IStorage<IWetness> {
 	
 	@Override

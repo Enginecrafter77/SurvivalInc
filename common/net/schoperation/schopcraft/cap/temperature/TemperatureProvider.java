@@ -6,7 +6,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 
-// provides mechanic to player
+// Provides temperature mechanic to the player.
 public class TemperatureProvider implements ICapabilitySerializable<NBTBase> {
 	
 	@CapabilityInject(ITemperature.class)

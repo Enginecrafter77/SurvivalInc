@@ -12,11 +12,11 @@ public class ItemCharcoalFilter extends Item {
 	
 	public ItemCharcoalFilter() {
 		
-		// names
+		// Set registry and unlocalized name.
 		setRegistryName(new ResourceLocation(SchopCraft.MOD_ID, "charcoal_filter"));
 		setUnlocalizedName(SchopCraft.RESOURCE_PREFIX + "charcoal_filter");
 		
-		// properties
+		// Basic properties.
 		setMaxStackSize(16);
 		setCreativeTab(SchopCraft.mainTab);
 	}

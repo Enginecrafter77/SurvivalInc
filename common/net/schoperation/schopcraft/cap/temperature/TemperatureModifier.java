@@ -55,136 +55,142 @@ public class TemperatureModifier {
 			}
 		}
 	}
-	// timer variable used to spawn cold breath particles in cold biomes
+	
+	// Timer variable used to spawn cold breath particles in cold biomes.
+	// TODO Move this to tweaks.
 	private static int breathTimer = 0;
 	
 	public static void onPlayerUpdate(EntityPlayer player) {
 		
-		// get capabilities
+		// Capabilities
 		ITemperature temperature = player.getCapability(TemperatureProvider.TEMPERATURE_CAP, null);
 		IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
 		
-		// server-side
+		// Server-side
 		if (!player.world.isRemote) {
 			
-			// player coords
+			// Player's coordinates.
 			double playerPosX = player.posX;
 			double playerPosY = player.posY;
 			double playerPosZ = player.posZ;
 			
-			// more "blocky" coords
-			BlockPos blockPos = new BlockPos(playerPosX, playerPosY, playerPosZ);
+			// Player's Block position.
+			BlockPos blockPos = player.getPosition();
 			
 			// =============================================
 			//       FIRST FACTOR: THE BIOME
 			// =============================================
 			// Technically, the temperature of the biome. The temperature for the plains biome is 0.8. Desert is 2.0. Cold Taiga is -0.5. Blah blah blah
 			
-			// instance of biome at player position
-			Biome biome = player.world.getBiome(new BlockPos(playerPosX, playerPosY, playerPosZ));
+			// Biome at player position.
+			Biome biome = player.world.getBiome(blockPos);
 			
-			// biome temperature
-			float biomeTemp = biome.getFloatTemperature(new BlockPos(playerPosX, playerPosY, playerPosZ));
+			// Biome's temperature.
+			float biomeTemp = biome.getFloatTemperature(blockPos);
 			
-			// cold taiga is the only biome with a negative biome temperature. Make it zero.
-			// the hot biomes are too hot for the newTargetTemp below. Make them a bit less hot.
+			// Cold taiga is the only biome with a negative biome temperature. Make it zero.
+			// The hot biomes are too hot for the newTargetTemp below. Make them a bit less hot.
 			if (biomeTemp < 0) {
 				
 				biomeTemp = 0.0f;
 			}
+			
 			else if (biomeTemp > 1.5) {
 				
 				biomeTemp = 1.5f;
 			}
 			
-			// if in a cave, stick with a cool, constant temperature
+			// If in a cave, stick with a cool, constant temperature
 			if (playerPosY <= (player.world.getSeaLevel() - 15)) {
 				
 				biomeTemp = 0.7f;
 			}
 			
-			// new target temperature based on biome. This constant right here will probs change quite a bit. Perhaps with seasons. Seasons will probably be a pain. Their temps are private... why Mojang
+			// New target temperature based on biome. This constant right here will probably change quite a bit. Perhaps with seasons. Seasons will probably be a pain.
 			float newTargetTemp = 78 * biomeTemp;
 					
-			// set it. any other factor will either add to it or take from it.
+			// Set it. any other factor will either add to it or take from it.
 			temperature.setTarget(newTargetTemp);
 			
 			// =====================================================
-			//          MISC. FACTORS AFFECTING TARGET TEMP
+			//        MISC. FACTORS AFFECTING TARGET TEMP
 			// =====================================================
 			
-			// is the player directly in the sun?
+			// Is the player directly in the sun?
 			if (player.world.isDaytime() && player.world.canBlockSeeSky(blockPos)) {
 				
 				temperature.increaseTarget(10.0f);
 			}
+			
 			else if (!player.world.isDaytime() && playerPosY >= (player.world.getSeaLevel() - 10)) {
 				
 				temperature.decreaseTarget(10.0f);
 			}
+			
 			else if (!player.world.canBlockSeeSky(blockPos)) {
 				
 				temperature.decreaseTarget(5.0f);
 			}
 			
-			// is the player in the rain?
+			// Is the player in the rain?
 			if (player.isWet()) {
 				
 				temperature.decreaseTarget(15.0f);
 			}
 			
-			// is the player wet? (wetness) (scaled)
+			// Cool down the player if they're wet.
 			temperature.decreaseTarget(wetness.getWetness() * 0.40f);
 			
-			// what is the player wearing? If it's leather, then it warms the player. Otherwise, it could go either way.
-			// list of items
+			// What is the player wearing? If it's leather, then it warms the player. Otherwise, it could go either way.
+			// List of armor items.
 			Iterator<ItemStack> armorList = player.getArmorInventoryList().iterator();
 			
-			// iterate through items. 0 = boots, 1 = leggings, 2 = chestplate, 3 = helmet;
+			// Iterate through items. 0 = boots, 1 = leggings, 2 = chestplate, 3 = helmet.
 			while (armorList.hasNext()) {
 				
-				// element
+				// Element
 				ItemStack element = armorList.next();
 				
-				// some float to be added when armor is some metal
+				// Some float to be added when armor is some metal
 				float addedTemp = 0.0f;
 				
-				// this will determine whether metal armor will increase or decrease the target temp.
+				// This will determine whether metal armor will increase or decrease the target temp.
 				if (temperature.getTargetTemperature() < 50.0f) {
 					
 					addedTemp = -5.0f;
 				}
+				
 				else {
 					
 					addedTemp = 5.0f;
 				}
 				
-				// now see what armor it is yeeeeeee
-				// leather. This area is different because of the different colors. It's weird.
+				// Now see what armor it is!
+				// Leather. This area is different because of the different colors. It's weird. So gotta use unlocalized names for now.
 				if (element.getUnlocalizedName().equals("item.bootsCloth")) { temperature.increaseTarget(5.0f); }
 				else if (element.getUnlocalizedName().equals("item.leggingsCloth")) { temperature.increaseTarget(5.0f); }
 				else if (element.getUnlocalizedName().equals("item.chestplateCloth")) { temperature.increaseTarget(10.0f); }
 				else if (element.getUnlocalizedName().equals("item.helmetCloth")) { temperature.increaseTarget(5.0f); }
 				
-				// chain
+				// Chain
 				else if (ItemStack.areItemStacksEqual(element, new ItemStack(Items.CHAINMAIL_BOOTS))) { temperature.increaseTarget(addedTemp); }
 				else if (ItemStack.areItemStacksEqual(element, new ItemStack(Items.CHAINMAIL_LEGGINGS))) { temperature.increaseTarget(addedTemp * 1.5f); }
 				else if (ItemStack.areItemStacksEqual(element, new ItemStack(Items.CHAINMAIL_CHESTPLATE))) { temperature.increaseTarget(addedTemp * 2); }
 				else if (ItemStack.areItemStacksEqual(element, new ItemStack(Items.CHAINMAIL_HELMET))) { temperature.increaseTarget(addedTemp); }
 				
-				// gold
+				// Gold
 				else if (ItemStack.areItemStacksEqual(element, new ItemStack(Items.GOLDEN_BOOTS))) { temperature.increaseTarget(addedTemp); }
 				else if (ItemStack.areItemStacksEqual(element, new ItemStack(Items.GOLDEN_LEGGINGS))) { temperature.increaseTarget(addedTemp * 1.5f); }
 				else if (ItemStack.areItemStacksEqual(element, new ItemStack(Items.GOLDEN_CHESTPLATE))) { temperature.increaseTarget(addedTemp * 2); }
 				else if (ItemStack.areItemStacksEqual(element, new ItemStack(Items.GOLDEN_HELMET))) { temperature.increaseTarget(addedTemp); }
 				
-				// iron
+				// Iron
 				else if (ItemStack.areItemStacksEqual(element, new ItemStack(Items.IRON_BOOTS))) { temperature.increaseTarget(addedTemp); }
 				else if (ItemStack.areItemStacksEqual(element, new ItemStack(Items.IRON_LEGGINGS))) { temperature.increaseTarget(addedTemp * 1.5f); }
 				else if (ItemStack.areItemStacksEqual(element, new ItemStack(Items.IRON_CHESTPLATE))) { temperature.increaseTarget(addedTemp * 2); }
 				else if (ItemStack.areItemStacksEqual(element, new ItemStack(Items.IRON_HELMET))) { temperature.increaseTarget(addedTemp); }
 				
-				// diamond
+				// Diamond
 				else if (ItemStack.areItemStacksEqual(element, new ItemStack(Items.DIAMOND_BOOTS))) { temperature.increaseTarget(addedTemp); }
 				else if (ItemStack.areItemStacksEqual(element, new ItemStack(Items.DIAMOND_LEGGINGS))) { temperature.increaseTarget(addedTemp * 1.5f); }
 				else if (ItemStack.areItemStacksEqual(element, new ItemStack(Items.DIAMOND_CHESTPLATE))) { temperature.increaseTarget(addedTemp * 2); }
@@ -197,17 +203,16 @@ public class TemperatureModifier {
 			AxisAlignedBB boundingBoxPlayers = player.getEntityBoundingBox().grow(1, 1, 1);
 			List nearbyPlayers = player.world.getEntitiesWithinAABB(EntityPlayer.class, boundingBoxPlayers);
 			
-			// now iterate through the list.
+			// Now iterate through the list.
 			for (int numPlayers = 0; numPlayers < nearbyPlayers.size(); numPlayers++) {
 				
-				// the chosen player
+				// Chosen player
 				EntityPlayerMP otherPlayer = (EntityPlayerMP) nearbyPlayers.get(numPlayers);
 				
-				// ghost capability of other player
+				// Ghost capability of other player.
 				IGhost ghost = otherPlayer.getCapability(GhostProvider.GHOST_CAP, null);
 				
-				// now change temperature...
-				// unless it's just the player themselves, or a ghost.
+				// Now change temperature accordingly.
 				if (otherPlayer != player && !ghost.isGhost()) {
 					
 					temperature.increaseTarget(5.0f);
@@ -220,11 +225,11 @@ public class TemperatureModifier {
 			}
 			
 			// ==================================
-			//           PROXIMITY DETECT
+			//        PROXIMITY DETECT
 			// ==================================
 			
 			// These blocks of if-statements are used to detect blocks near the player, either warming them or cooling them.
-			// check if the player is near fire. Warm the player.
+			// Check if the player is near fire. Warm the player.
 			if (ProximityDetect.isBlockNextToPlayer(blockPos.getX(), blockPos.getY(), blockPos.getZ(), Blocks.FIRE, player)) { if (player.world.canBlockSeeSky(blockPos)) { temperature.increaseTarget(20.0f); } else { temperature.increaseTarget(30.0f); } }
 			else if (ProximityDetect.isBlockNearPlayer2(blockPos.getX(), blockPos.getY(), blockPos.getZ(), Blocks.FIRE, player, false)) { if (player.world.canBlockSeeSky(blockPos)) { temperature.increaseTarget(10.0f); } else { temperature.increaseTarget(15.0f); } }
 			else if (ProximityDetect.isBlockUnderPlayer(blockPos.getX(), blockPos.getY(), blockPos.getZ(), Blocks.FIRE, player)) { if (player.world.canBlockSeeSky(blockPos)) { temperature.increaseTarget(20.0f); } else { temperature.increaseTarget(30.0f); } }	
@@ -232,7 +237,7 @@ public class TemperatureModifier {
 			else if (ProximityDetect.isBlockAtPlayerFace(blockPos.getX(), blockPos.getY(), blockPos.getZ(), Blocks.FIRE, player)) { if (player.world.canBlockSeeSky(blockPos)) { temperature.increaseTarget(20.0f); } else { temperature.increaseTarget(30.0f); } }
 			else if (ProximityDetect.isBlockAtPlayerFace2(blockPos.getX(), blockPos.getY(), blockPos.getZ(), Blocks.FIRE, player, false)) { if (player.world.canBlockSeeSky(blockPos)) { temperature.increaseTarget(10.0f); } else { temperature.increaseTarget(15.0f); } }
 			
-			// lava. Warm the player.
+			// Lava. Warm the player.
 			if (ProximityDetect.isBlockNextToPlayer(blockPos.getX(), blockPos.getY(), blockPos.getZ(), Blocks.LAVA, player)) { if (player.world.canBlockSeeSky(blockPos)) { temperature.increaseTarget(40.0f); } else { temperature.increaseTarget(45.0f); } }
 			else if (ProximityDetect.isBlockNearPlayer2(blockPos.getX(), blockPos.getY(), blockPos.getZ(), Blocks.LAVA, player, false)) { if (player.world.canBlockSeeSky(blockPos)) { temperature.increaseTarget(20.0f); } else { temperature.increaseTarget(25.0f); } }
 			else if (ProximityDetect.isBlockUnderPlayer(blockPos.getX(), blockPos.getY(), blockPos.getZ(), Blocks.LAVA, player)) { if (player.world.canBlockSeeSky(blockPos)) { temperature.increaseTarget(40.0f); } else { temperature.increaseTarget(45.0f); } }	
@@ -242,13 +247,13 @@ public class TemperatureModifier {
 			else if (ProximityDetect.isBlockUnderPlayer(blockPos.getX(), blockPos.getY(), blockPos.getZ(), Blocks.FLOWING_LAVA, player)) { if (player.world.canBlockSeeSky(blockPos)) { temperature.increaseTarget(30.0f); } else { temperature.increaseTarget(35.0f); } }	
 			else if (ProximityDetect.isBlockUnderPlayer2(blockPos.getX(), blockPos.getY(), blockPos.getZ(), Blocks.FLOWING_LAVA, player, false)) { if (player.world.canBlockSeeSky(blockPos)) { temperature.increaseTarget(15.0f); } else { temperature.increaseTarget(20.0f); } }
 			
-			// lit furnace. could act as a heater for now. same y-level only. And at the face.
+			// Lit furnace. could act as a heater for now. same y-level only. And at the face.
 			if (ProximityDetect.isBlockNextToPlayer(blockPos.getX(), blockPos.getY(), blockPos.getZ(), Blocks.LIT_FURNACE, player)) { if (player.world.canBlockSeeSky(blockPos)) { temperature.increaseTarget(15.0f); } else { temperature.increaseTarget(30.0f); } }
 			else if (ProximityDetect.isBlockNearPlayer2(blockPos.getX(), blockPos.getY(), blockPos.getZ(), Blocks.LIT_FURNACE, player, false)) { if (player.world.canBlockSeeSky(blockPos)) { temperature.increaseTarget(7.5f); } else { temperature.increaseTarget(15.0f); } }
 			else if (ProximityDetect.isBlockAtPlayerFace(blockPos.getX(), blockPos.getY(), blockPos.getZ(), Blocks.LIT_FURNACE, player)) { if (player.world.canBlockSeeSky(blockPos)) { temperature.increaseTarget(15.0f); } else { temperature.increaseTarget(30.0f); } }
 			else if (ProximityDetect.isBlockAtPlayerFace2(blockPos.getX(), blockPos.getY(), blockPos.getZ(), Blocks.LIT_FURNACE, player, false)) { if (player.world.canBlockSeeSky(blockPos)) { temperature.increaseTarget(7.5f); } else { temperature.increaseTarget(15.0f); } }
 			
-			// magma block. one y-level down only
+			// Magma block. One y-level down only.
 			if (ProximityDetect.isBlockUnderPlayer(blockPos.getX(), blockPos.getY(), blockPos.getZ(), Blocks.MAGMA, player)) { if (player.world.canBlockSeeSky(blockPos)) { temperature.increaseTarget(10.0f); } else { temperature.increaseTarget(20.0f); } }
 			else if (ProximityDetect.isBlockUnderPlayer2(blockPos.getX(), blockPos.getY(), blockPos.getZ(), Blocks.MAGMA, player, false)) { if (player.world.canBlockSeeSky(blockPos)) { temperature.increaseTarget(5.0f); } else { temperature.increaseTarget(10.0f); } }
 			
@@ -282,6 +287,7 @@ public class TemperatureModifier {
 					
 					temperature.decrease(1 / ((wetness.getWetness() + 1) * 10));
 				}
+				
 				else {
 					
 					temperature.decrease(2 / ((wetness.getWetness() + 1) * 10));
@@ -376,16 +382,16 @@ public class TemperatureModifier {
 				SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "mining_fatigue", 40, 2, false, false);
 			}
 
-			// Apply attributes and sweat particles
+			// Apply attributes and sweat particles.
 			if (temperature.getTemperature() > 80.0f) {
 				
-				// Particles
-				SchopServerParticles.summonParticle(player.getCachedUniqueIdString(), "SweatParticles", playerPosX, playerPosY+1.5, playerPosZ);
-				
-				// Attributes
 				player.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).applyModifier(speedDebuffHot);
 				player.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).applyModifier(damageDebuffHot);
 				player.getEntityAttribute(SharedMonsterAttributes.ATTACK_SPEED).applyModifier(attackSpeedDebuffHot);
+				
+				SchopServerParticles.summonParticle(player.getCachedUniqueIdString(), "SweatParticles", playerPosX, playerPosY+1.5, playerPosZ);
+				
+				
 			}
 			
 			// Freezing
@@ -404,7 +410,6 @@ public class TemperatureModifier {
 			// Apply attributes
 			if (temperature.getTemperature() < 30.0f) {
 				
-				// Attributes
 				player.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).applyModifier(speedDebuffCold);
 				player.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).applyModifier(damageDebuffCold);
 				player.getEntityAttribute(SharedMonsterAttributes.ATTACK_SPEED).applyModifier(attackSpeedDebuffCold);
@@ -412,12 +417,13 @@ public class TemperatureModifier {
 			
 			// =================================
 			//           AESTHETICS
+			// TODO Move this to tweaks. Next commit.
 			// =================================
 			
-			// ghost capability
+			// Capability
 			IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
 			
-			// cold breath particles when the player is in a cold biome
+			// Cold breath particles when the player is in a cold biome.
 			if (biomeTemp < 0.2 && breathTimer > 100 && !ghost.isGhost()) {
 				
 				SchopServerParticles.summonParticle(player.getCachedUniqueIdString(), "ColdBreathParticles", playerPosX+player.getLookVec().x, playerPosY+1.5, playerPosZ+player.getLookVec().z);
@@ -433,16 +439,16 @@ public class TemperatureModifier {
 	// This checks any consumed item by the player, and affects temperature accordingly.
 	public static void onPlayerConsumeItem(EntityPlayer player, ItemStack item) {
 		
-		// capability
+		// Capability
 		ITemperature temperature = player.getCapability(TemperatureProvider.TEMPERATURE_CAP, null);
 		
-		// server-side
+		// Server-side.
 		if (!player.world.isRemote) {
 			
-			// number of items
+			// Number of items.
 			int amount = item.getCount();
 			
-			// if cooked food, increase temperature
+			// If cooked food, increase temperature.
 			if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_CHICKEN, amount))) { temperature.increase(5.0f); }
 			else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_BEEF, amount))) { temperature.increase(5.0f); }
 			else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_RABBIT, amount))) { temperature.increase(5.0f); }
@@ -461,19 +467,19 @@ public class TemperatureModifier {
 	// The bigger the difference between the target temp and player temp, the quicker the player temp changes towards the target temp, positive or negative.
 	private static void changeRateOfTemperature(EntityPlayer player) {
 		
-		// server-side mate
+		// Server-side mate.
 		if (!player.world.isRemote) {
 			
-			// get capability
+			// Capability
 			ITemperature temperature = player.getCapability(TemperatureProvider.TEMPERATURE_CAP, null);
 		
-			// difference between target temp and player temp
+			// Difference between target temp and player temp.
 			float tempDifference = temperature.getTargetTemperature() - temperature.getTemperature();
 			
-			// rate at which the player's temp shall change. This constant might change as well.
+			// Rate at which the player's temp shall change. This constant might change as well.
 			float rateOfChange = tempDifference * 0.003f;
 			
-			// change player's temp
+			// Change player's temp.
 			temperature.increase(rateOfChange);
 		}
 	}
