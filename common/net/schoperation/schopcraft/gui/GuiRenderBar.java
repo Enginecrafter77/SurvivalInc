@@ -29,38 +29,25 @@ public class GuiRenderBar extends Gui {
 	private static boolean isGhost = false;
 	private static float ghostEnergy = 0.00f, maxGhostEnergy = 100.00f;
 	
-	// These methods are to get the correct stats of the player.
-	public static void getServerThirst(float newThirst, float newMaxThirst) {
-		
-		thirst = newThirst;
-		maxThirst = newMaxThirst;
-	}
-	
-	public static void getServerSanity(float newSanity, float newMaxSanity) {
-		
-		sanity = newSanity;
-		maxSanity = newMaxSanity;
-	}
-	
-	public static void getServerWetness(float newWetness, float newMaxWetness) {
-		
-		wetness = newWetness;
-		maxWetness = newMaxWetness;
-	}
-	
-	public static void getServerTemperature(float newTemperature, float newMaxTemperature, float newTargetTemperature) {
+	// This method gets the correct stats of the player. The min parameters will be kept here just in case they're needed in the future.
+	public static void getServerStats(float newTemperature, float newMaxTemperature, float newMinTemperature, float newTargetTemperature, float newThirst, float newMaxThirst, float newMinThirst, float newSanity, float newMaxSanity, float newMinSanity, float newWetness, float newMaxWetness, float newMinWetness, boolean newIsGhost, float newGhostEnergy) {
 		
 		temperature = newTemperature;
 		maxTemperature = newMaxTemperature;
-		targetTemperature = newTargetTemperature;
-	}
-	
-	public static void getServerGhostStats(boolean newIsGhost, float newGhostEnergy) {
+		
+		thirst = newThirst;
+		maxThirst = newMaxThirst;
+		
+		sanity = newSanity;
+		maxSanity = newMaxSanity;
+		
+		wetness = newWetness;
+		maxWetness = newMaxWetness;
 		
 		isGhost = newIsGhost;
 		ghostEnergy = newGhostEnergy;
 	}
-	
+
 	@SubscribeEvent
 	public void renderOverlay(RenderGameOverlayEvent event) {
 		
@@ -124,7 +111,7 @@ public class GuiRenderBar extends Gui {
 				
 				// Show temperature value.
 				double roundedTemperature = (double) (Math.round(temperatureCelsius * 10)) / 10;
-				textTemperature = Double.toString(roundedTemperature) + "Â°C";
+				textTemperature = Double.toString(roundedTemperature) + "°C";
 			}
 			else {
 				
@@ -134,7 +121,7 @@ public class GuiRenderBar extends Gui {
 				
 				// Show temperature value.
 				double roundedTemperature = (double) (Math.round(temperature * 10)) / 10;
-				textTemperature = Double.toString(roundedTemperature) + "Â°F";
+				textTemperature = Double.toString(roundedTemperature) + "°F";
 			}
 			
 			// Only show the main bars if the F3 debug screen is now showing, and if the player is not a ghost.

@@ -6,7 +6,6 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.schoperation.schopcraft.cap.sanity.SanityModifier;
-import net.schoperation.schopcraft.gui.GuiRenderBar;
 import net.schoperation.schopcraft.packet.SanityPacket.SanityMessage;
 
 public class SanityPacket implements IMessageHandler<SanityMessage, IMessage> {
@@ -14,15 +13,7 @@ public class SanityPacket implements IMessageHandler<SanityMessage, IMessage> {
 	@Override
 	public IMessage onMessage(SanityMessage message, MessageContext ctx) {
 		
-		if (ctx.side.isClient()) {
-			
-			String uuid = message.uuid;
-			float sanity = message.sanity;
-			float maxSanity = message.maxSanity;
-			float minSanity = message.minSanity;
-			GuiRenderBar.getServerSanity(sanity, maxSanity);
-		}
-		else {
+		if (ctx.side.isServer()) {
 			
 			String uuid = message.uuid;
 			float sanity = message.sanity;

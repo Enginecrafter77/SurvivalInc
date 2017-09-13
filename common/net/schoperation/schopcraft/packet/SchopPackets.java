@@ -12,14 +12,10 @@ public class SchopPackets {
 	public static void initPackets() {
 		
 		net = NetworkRegistry.INSTANCE.newSimpleChannel(SchopCraft.MOD_ID);
-		registerMessage(WetnessPacket.class, WetnessPacket.WetnessMessage.class);
-		registerMessage(ThirstPacket.class, ThirstPacket.ThirstMessage.class);
+		registerMessage(GuiRenderPacket.class, GuiRenderPacket.GuiRenderMessage.class);
 		registerMessage(SanityPacket.class, SanityPacket.SanityMessage.class);
-		registerMessage(TemperaturePacket.class, TemperaturePacket.TemperatureMessage.class);
-		registerMessage(GhostPacket.class, GhostPacket.GhostMessage.class);
 		registerMessage(SummonInfoPacket.class, SummonInfoPacket.SummonInfoMessage.class);
-		registerMessage(PotionEffectPacket.class, PotionEffectPacket.PotionEffectMessage.class);
-		
+		registerMessage(PotionEffectPacket.class, PotionEffectPacket.PotionEffectMessage.class);	
 	}
 	
 	// Packet ID to keep the packets separate.

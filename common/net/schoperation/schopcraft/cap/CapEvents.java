@@ -34,12 +34,8 @@ import net.schoperation.schopcraft.cap.thirst.ThirstProvider;
 import net.schoperation.schopcraft.cap.wetness.IWetness;
 import net.schoperation.schopcraft.cap.wetness.WetnessModifier;
 import net.schoperation.schopcraft.cap.wetness.WetnessProvider;
-import net.schoperation.schopcraft.packet.GhostPacket;
-import net.schoperation.schopcraft.packet.SanityPacket;
+import net.schoperation.schopcraft.packet.GuiRenderPacket;
 import net.schoperation.schopcraft.packet.SchopPackets;
-import net.schoperation.schopcraft.packet.TemperaturePacket;
-import net.schoperation.schopcraft.packet.ThirstPacket;
-import net.schoperation.schopcraft.packet.WetnessPacket;
 
 /*
  * This is the event handler regarding capabilities and changes to individual stats.
@@ -59,32 +55,16 @@ public class CapEvents {
 			// Cached UUID.
 			String uuid = player.getCachedUniqueIdString();
 			
-			// Capabilities.
+			// Capabilities
 			IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
 			IThirst thirst = player.getCapability(ThirstProvider.THIRST_CAP, null);
 			ISanity sanity = player.getCapability(SanityProvider.SANITY_CAP, null);
 			ITemperature temperature = player.getCapability(TemperatureProvider.TEMPERATURE_CAP, null);
 			IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
 			
-			// Send wetness data to client.
-			IMessage msgWetness = new WetnessPacket.WetnessMessage(uuid, wetness.getWetness(), wetness.getMaxWetness(), wetness.getMinWetness());
-			SchopPackets.net.sendTo(msgWetness, (EntityPlayerMP) player);
-			
-			// Send thirst data to client.
-			IMessage msgThirst = new ThirstPacket.ThirstMessage(uuid, thirst.getThirst(), thirst.getMaxThirst(), thirst.getMinThirst());
-			SchopPackets.net.sendTo(msgThirst, (EntityPlayerMP) player);
-			
-			// Send sanity data to client.
-			IMessage msgSanity = new SanityPacket.SanityMessage(uuid, sanity.getSanity(), sanity.getMaxSanity(), sanity.getMinSanity());
-			SchopPackets.net.sendTo(msgSanity, (EntityPlayerMP) player);
-			
-			// Send temperature data to client.
-			IMessage msgTemperature = new TemperaturePacket.TemperatureMessage(uuid, temperature.getTemperature(), temperature.getMaxTemperature(), temperature.getMinTemperature(), temperature.getTargetTemperature());
-			SchopPackets.net.sendTo(msgTemperature, (EntityPlayerMP) player);
-			
-			// Send ghost data to client.
-			IMessage msgGhost = new GhostPacket.GhostMessage(uuid, ghost.isGhost(), ghost.getEnergy());
-			SchopPackets.net.sendTo(msgGhost, (EntityPlayerMP) player);
+			// Send data to client for rendering.
+			IMessage msgGui = new GuiRenderPacket.GuiRenderMessage(uuid, temperature.getTemperature(), temperature.getMaxTemperature(), temperature.getMinTemperature(), temperature.getTargetTemperature(), thirst.getThirst(), thirst.getMaxThirst(), thirst.getMinThirst(), sanity.getSanity(), sanity.getMaxSanity(), sanity.getMinSanity(), wetness.getWetness(), wetness.getMaxWetness(), wetness.getMinWetness(), ghost.isGhost(), ghost.getEnergy());
+			SchopPackets.net.sendTo(msgGui, (EntityPlayerMP) player);
 		}
 	}
 	
@@ -140,25 +120,9 @@ public class CapEvents {
 				ITemperature temperature = player.getCapability(TemperatureProvider.TEMPERATURE_CAP, null);
 				IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
 				
-				// Send wetness data to client.
-				IMessage msgWetness = new WetnessPacket.WetnessMessage(uuid, wetness.getWetness(), wetness.getMaxWetness(), wetness.getMinWetness());
-				SchopPackets.net.sendTo(msgWetness, (EntityPlayerMP) player);
-				
-				// Send thirst data to client.
-				IMessage msgThirst = new ThirstPacket.ThirstMessage(uuid, thirst.getThirst(), thirst.getMaxThirst(), thirst.getMinThirst());
-				SchopPackets.net.sendTo(msgThirst, (EntityPlayerMP) player);
-				
-				// Send sanity data to client.
-				IMessage msgSanity = new SanityPacket.SanityMessage(uuid, sanity.getSanity(), sanity.getMaxSanity(), sanity.getMinSanity());
-				SchopPackets.net.sendTo(msgSanity, (EntityPlayerMP) player);
-				
-				// Send temperature data to client.
-				IMessage msgTemperature = new TemperaturePacket.TemperatureMessage(uuid, temperature.getTemperature(), temperature.getMaxTemperature(), temperature.getMinTemperature(), temperature.getTargetTemperature());
-				SchopPackets.net.sendTo(msgTemperature, (EntityPlayerMP) player);
-				
-				// Send ghost data to client.
-				IMessage msgGhost = new GhostPacket.GhostMessage(uuid, ghost.isGhost(), ghost.getEnergy());
-				SchopPackets.net.sendTo(msgGhost, (EntityPlayerMP) player);
+				// Send data to client for rendering.
+				IMessage msgGui = new GuiRenderPacket.GuiRenderMessage(uuid, temperature.getTemperature(), temperature.getMaxTemperature(), temperature.getMinTemperature(), temperature.getTargetTemperature(), thirst.getThirst(), thirst.getMaxThirst(), thirst.getMinThirst(), sanity.getSanity(), sanity.getMaxSanity(), sanity.getMinSanity(), wetness.getWetness(), wetness.getMaxWetness(), wetness.getMinWetness(), ghost.isGhost(), ghost.getEnergy());
+				SchopPackets.net.sendTo(msgGui, (EntityPlayerMP) player);
 			}
 		}
 	}
