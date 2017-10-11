@@ -1,11 +1,8 @@
 package net.schoperation.schopcraft.cap.wetness;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.schoperation.schopcraft.util.ProximityDetect;
 import net.schoperation.schopcraft.util.SchopServerParticles;
 
@@ -17,32 +14,6 @@ import net.schoperation.schopcraft.util.SchopServerParticles;
  */
 
 public class WetnessModifier {
-	
-	// This allows the client to tell the server of any changes to the player's wetness that the server can't detect.
-	// TODO Clean this mess up. Is this even used? I doubt it
-	public static void getClientChange(String uuid, float newWetness, float newMaxWetness, float newMinWetness) {
-		
-		// basic server variables
-		MinecraftServer serverworld = FMLCommonHandler.instance().getMinecraftServerInstance();
-		int playerCount = serverworld.getCurrentPlayerCount();
-		String[] playerlist = serverworld.getOnlinePlayerNames();	
-		
-		// loop through each player and see if the uuid matches the sent one.
-		for (int num = 0; num < playerCount; num++) {
-			
-			EntityPlayerMP player = serverworld.getPlayerList().getPlayerByUsername(playerlist[num]);
-			String playeruuid = player.getCachedUniqueIdString();
-			IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
-			boolean equalStrings = uuid.equals(playeruuid);
-			
-			if (equalStrings) {
-
-				wetness.increase(newWetness-10);
-				wetness.setMax(newMaxWetness);
-				wetness.setMin(newMinWetness);
-			}
-		}
-	}
 	
 	public static void onPlayerUpdate(Entity player) {
 		
@@ -58,17 +29,6 @@ public class WetnessModifier {
 		double doublePlayerPosX = player.posX;
 		double doublePlayerPosY = player.posY;
 		double doublePlayerPosZ = player.posZ;
-		
-		// Client-side. Not much right now. Kept as an example just in case.
-		if (player.world.isRemote) {
-			
-			// pre-set wetness (since this is client side. I just picked ten because it still can't be lower than zero or higher than 100.)
-			//wetness.set(10f);
-			
-			// send wetness data to server
-			//IMessage msg = new WetnessPacket.WetnessMessage(player.getCachedUniqueIdString(), wetness.getWetness(), wetness.getMaxWetness(), wetness.getMinWetness());
-			//SchopPackets.net.sendToServer(msg);	
-		}
 		
 		// Server-side.
 		if (!player.world.isRemote) {

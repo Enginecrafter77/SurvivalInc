@@ -550,7 +550,7 @@ public class SanityModifier {
 					if (randChanceForAdditional < 0.50) {
 						
 						drops.add(new EntityItem(player.world, entityKilled.posX, entityKilled.posY, entityKilled.posZ, new ItemStack(ModItems.LUCID_DREAM_ESSENCE, 1)));
-					}	
+					}
 				}
 				
 				// The player regains sanity for killing one of their fears.

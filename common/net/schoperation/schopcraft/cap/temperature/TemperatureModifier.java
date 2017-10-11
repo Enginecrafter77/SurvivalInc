@@ -10,11 +10,9 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.biome.Biome;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.schoperation.schopcraft.cap.ghost.GhostProvider;
 import net.schoperation.schopcraft.cap.ghost.IGhost;
 import net.schoperation.schopcraft.cap.wetness.IWetness;
@@ -29,36 +27,6 @@ import net.schoperation.schopcraft.util.SchopServerParticles;
  */
 
 public class TemperatureModifier {
-	
-	// This allows the client to tell the server of any changes to the player's temperature that the server can't detect.
-	public static void getClientChange(String uuid, float newTemperature, float newMaxTemperature, float newMinTemperature, float newTargetTemperature) {
-		
-		// basic server variables
-		MinecraftServer serverworld = FMLCommonHandler.instance().getMinecraftServerInstance();
-		int playerCount = serverworld.getCurrentPlayerCount();
-		String[] playerlist = serverworld.getOnlinePlayerNames();	
-		
-		// loop through each player and see if the uuid matches the sent one.
-		for (int num = 0; num < playerCount; num++) {
-			
-			EntityPlayerMP player = serverworld.getPlayerList().getPlayerByUsername(playerlist[num]);
-			String playeruuid = player.getCachedUniqueIdString();
-			ITemperature temperature = player.getCapability(TemperatureProvider.TEMPERATURE_CAP, null);
-			boolean equalStrings = uuid.equals(playeruuid);
-			
-			if (equalStrings) {
-	
-				temperature.increase(newTemperature-50);
-				temperature.setMax(newMaxTemperature);
-				temperature.setMin(newMinTemperature);
-				temperature.increaseTarget(newTargetTemperature-50);
-			}
-		}
-	}
-	
-	// Timer variable used to spawn cold breath particles in cold biomes.
-	// TODO Move this to tweaks.
-	private static int breathTimer = 0;
 	
 	public static void onPlayerUpdate(EntityPlayer player) {
 		
@@ -413,25 +381,6 @@ public class TemperatureModifier {
 				player.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).applyModifier(speedDebuffCold);
 				player.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).applyModifier(damageDebuffCold);
 				player.getEntityAttribute(SharedMonsterAttributes.ATTACK_SPEED).applyModifier(attackSpeedDebuffCold);
-			}
-			
-			// =================================
-			//           AESTHETICS
-			// TODO Move this to tweaks. Next commit.
-			// =================================
-			
-			// Capability
-			IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
-			
-			// Cold breath particles when the player is in a cold biome.
-			if (biomeTemp < 0.2 && breathTimer > 100 && !ghost.isGhost()) {
-				
-				SchopServerParticles.summonParticle(player.getCachedUniqueIdString(), "ColdBreathParticles", playerPosX+player.getLookVec().x, playerPosY+1.5, playerPosZ+player.getLookVec().z);
-				breathTimer = 0;
-			}
-			else {
-				
-				breathTimer++;
 			}
 		}
 	}

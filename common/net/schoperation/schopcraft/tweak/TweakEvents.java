@@ -24,6 +24,9 @@ public class TweakEvents {
 			
 			// Server commands.
 			ServerCommands.fireCommandsEveryTick(player);
+			
+			// Cold breath particles
+			ColdBreath.incrementTimer(player);
 		}
 	}
 }

@@ -6,16 +6,13 @@ import net.minecraft.block.material.Material;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeBeach;
 import net.minecraft.world.biome.BiomeOcean;
 import net.minecraft.world.biome.BiomeSwamp;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.schoperation.schopcraft.cap.temperature.ITemperature;
 import net.schoperation.schopcraft.cap.temperature.TemperatureProvider;
 import net.schoperation.schopcraft.lib.ModDamageSources;
@@ -28,32 +25,6 @@ import net.schoperation.schopcraft.util.SchopServerSounds;
  */
 
 public class ThirstModifier {
-	
-	// This allows the client to tell the server of any changes to the player's thirst that the server can't detect.
-	// TODO clean this mess up next commit
-	public static void getClientChange(String uuid, float newThirst, float newMaxThirst, float newMinThirst) {
-	
-		// basic server variables
-		MinecraftServer serverworld = FMLCommonHandler.instance().getMinecraftServerInstance();
-		int playerCount = serverworld.getCurrentPlayerCount();
-		String[] playerlist = serverworld.getOnlinePlayerNames();	
-		
-		// loop through each player and see if the uuid matches the sent one.
-		for (int num = 0; num < playerCount; num++) {
-			
-			EntityPlayerMP player = serverworld.getPlayerList().getPlayerByUsername(playerlist[num]);
-			String playeruuid = player.getCachedUniqueIdString();
-			IThirst thirst = player.getCapability(ThirstProvider.THIRST_CAP, null);
-			boolean equalStrings = uuid.equals(playeruuid);
-			
-			if (equalStrings) {
-	
-				thirst.increase(newThirst-10);
-				thirst.setMax(newMaxThirst);
-				thirst.setMin(newMinThirst);
-			}
-		}
-	}
 	
 	public static void onPlayerUpdate(EntityPlayer player) {
 		
@@ -172,8 +143,6 @@ public class ThirstModifier {
 		
 		// Server-side.
 		if (!player.world.isRemote) {
-			
-			//thirst.set(10f);
 			
 			// Ray trace result for drinking with bare hands. pretty ineffective.
 			// First, some "boosts" to the vector.
