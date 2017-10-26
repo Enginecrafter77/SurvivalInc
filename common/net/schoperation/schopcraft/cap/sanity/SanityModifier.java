@@ -541,8 +541,8 @@ public class SanityModifier {
 				
 				// Now, was the player insane (or insane enough)?
 				if (sanity.getSanity() <= (sanity.getMaxSanity() * 0.50)) {
-					
-					// Drop some essence. 50% chance for an extra essence.
+										
+					// Drop some essence. 50% chance for an extra essence (by default).
 					int sizeOfList = drops.size();
 					drops.add(new EntityItem(player.world, entityKilled.posX, entityKilled.posY, entityKilled.posZ, new ItemStack(ModItems.LUCID_DREAM_ESSENCE, 1)));
 					
@@ -550,6 +550,16 @@ public class SanityModifier {
 					if (randChanceForAdditional < 0.50) {
 						
 						drops.add(new EntityItem(player.world, entityKilled.posX, entityKilled.posY, entityKilled.posZ, new ItemStack(ModItems.LUCID_DREAM_ESSENCE, 1)));
+					}
+					
+					// A higher looting level on the weapon will give a chance for more essence to drop.
+					for (int i = 0; i < lootingLevel; i++) {
+						
+						double anotherOne = Math.random();
+						if (anotherOne < 0.75) {
+							
+							drops.add(new EntityItem(player.world, entityKilled.posX, entityKilled.posY, entityKilled.posZ, new ItemStack(ModItems.LUCID_DREAM_ESSENCE, 1)));
+						}
 					}
 				}
 				
