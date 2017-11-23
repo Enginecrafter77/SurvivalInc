@@ -7,6 +7,7 @@ import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.schoperation.schopcraft.config.ModConfig;
 
 /*
  * These commands are all run when the server is starting. Usually just messing with the properties a bit.
@@ -60,7 +61,7 @@ public class ServerCommands {
 			BlockPos pos = player.getPosition();
 			
 			// Set their spawnpoint to those coordinates.
-			if (!player.isDead) {
+			if (!player.isDead && ModConfig.enableGhost) {
 				
 				player.setSpawnPoint(pos, true);
 			}

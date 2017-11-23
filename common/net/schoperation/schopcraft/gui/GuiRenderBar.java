@@ -111,7 +111,7 @@ public class GuiRenderBar extends Gui {
 				
 				// Show temperature value.
 				double roundedTemperature = (double) (Math.round(temperatureCelsius * 10)) / 10;
-				textTemperature = Double.toString(roundedTemperature) + "°C";
+				textTemperature = Double.toString(roundedTemperature) + "Â°C";
 			}
 			else {
 				
@@ -121,7 +121,7 @@ public class GuiRenderBar extends Gui {
 				
 				// Show temperature value.
 				double roundedTemperature = (double) (Math.round(temperature * 10)) / 10;
-				textTemperature = Double.toString(roundedTemperature) + "°F";
+				textTemperature = Double.toString(roundedTemperature) + "Â°F";
 			}
 			
 			// Only show the main bars if the F3 debug screen is now showing, and if the player is not a ghost.
@@ -129,26 +129,35 @@ public class GuiRenderBar extends Gui {
 				
 				// Top rect is bar, bottom rect is outline/icon.
 				// TEMPERATURE
-				mc.renderEngine.bindTexture(tempBar);
-				drawTexturedModalRect(screenWidth-defaultBarWidth-2, screenHeight-(screenHeight/2)-20, 19, 14, currentWidthTemperature, defaultTextureHeight);
-				drawTexturedModalRect(screenWidth-defaultTextureWidth-1, screenHeight-(screenHeight/2)-23, 0, 0, defaultTextureWidth, defaultTextureHeight);
-				drawCenteredString(mc.fontRenderer, textTemperature, screenWidth-defaultTextureWidth-16, screenHeight-(screenHeight/2)-20, Integer.parseInt("FFFFFF", 16));
+				if (ModConfig.enableTemperature) {
+					
+					mc.renderEngine.bindTexture(tempBar);
+					drawTexturedModalRect(screenWidth-defaultBarWidth-2, screenHeight-(screenHeight/2)-20, 19, 14, currentWidthTemperature, defaultTextureHeight);
+					drawTexturedModalRect(screenWidth-defaultTextureWidth-1, screenHeight-(screenHeight/2)-23, 0, 0, defaultTextureWidth, defaultTextureHeight);
+					drawCenteredString(mc.fontRenderer, textTemperature, screenWidth-defaultTextureWidth-16, screenHeight-(screenHeight/2)-20, Integer.parseInt("FFFFFF", 16));
+				}
 				
 				// THIRST
-				mc.renderEngine.bindTexture(thirstBar);
-				drawTexturedModalRect(screenWidth-defaultBarWidth-2, screenHeight-(screenHeight/2), 19, 14, currentWidthThirst, defaultTextureHeight);
-				drawTexturedModalRect(screenWidth-defaultTextureWidth-1, screenHeight-(screenHeight/2)-3, 0, 0, defaultTextureWidth, defaultTextureHeight);
-				drawCenteredString(mc.fontRenderer, textThirst, screenWidth-defaultTextureWidth-16, screenHeight-(screenHeight/2), Integer.parseInt("FFFFFF", 16));
+				if (ModConfig.enableThirst) {
+					
+					mc.renderEngine.bindTexture(thirstBar);
+					drawTexturedModalRect(screenWidth-defaultBarWidth-2, screenHeight-(screenHeight/2), 19, 14, currentWidthThirst, defaultTextureHeight);
+					drawTexturedModalRect(screenWidth-defaultTextureWidth-1, screenHeight-(screenHeight/2)-3, 0, 0, defaultTextureWidth, defaultTextureHeight);
+					drawCenteredString(mc.fontRenderer, textThirst, screenWidth-defaultTextureWidth-16, screenHeight-(screenHeight/2), Integer.parseInt("FFFFFF", 16));
+				}
 				
 				// SANITY
-				mc.renderEngine.bindTexture(sanityBar);
-				drawTexturedModalRect(screenWidth-defaultBarWidth-2, screenHeight-(screenHeight/2)+20, 19, 14, currentWidthSanity, defaultTextureHeight);
-				drawTexturedModalRect(screenWidth-defaultTextureWidth-1, screenHeight-(screenHeight/2)+17, 0, 0, defaultTextureWidth, defaultTextureHeight);
-				drawCenteredString(mc.fontRenderer, textSanity, screenWidth-defaultTextureWidth-16, screenHeight-(screenHeight/2)+20, Integer.parseInt("FFFFFF", 16));
+				if (ModConfig.enableSanity) {
+					
+					mc.renderEngine.bindTexture(sanityBar);
+					drawTexturedModalRect(screenWidth-defaultBarWidth-2, screenHeight-(screenHeight/2)+20, 19, 14, currentWidthSanity, defaultTextureHeight);
+					drawTexturedModalRect(screenWidth-defaultTextureWidth-1, screenHeight-(screenHeight/2)+17, 0, 0, defaultTextureWidth, defaultTextureHeight);
+					drawCenteredString(mc.fontRenderer, textSanity, screenWidth-defaultTextureWidth-16, screenHeight-(screenHeight/2)+20, Integer.parseInt("FFFFFF", 16));
+				}
 				
 				// WETNESS
 				// Only show wetness if there is wetness. This is in place so wetness isn't confused with thirst.
-				if (wetness > 0) {
+				if (wetness > 0 && ModConfig.enableWetness) {
 					
 					mc.renderEngine.bindTexture(wetnessBar);
 					drawTexturedModalRect(screenWidth-defaultBarWidth-2, screenHeight-(screenHeight/2)+40, 19, 14, currentWidthWetness, defaultTextureHeight);

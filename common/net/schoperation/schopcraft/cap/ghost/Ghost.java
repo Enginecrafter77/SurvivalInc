@@ -28,10 +28,14 @@ public class Ghost implements IGhost {
 	public void increaseEnergy(float amount) {
 		
 		this.ghostEnergy += amount;
+		
 		if (this.ghostEnergy > this.maxGhostEnergy) {
+			
 			this.ghostEnergy = this.maxGhostEnergy;
 		}
+		
 		else if (this.ghostEnergy < this.minGhostEnergy) {
+			
 			this.ghostEnergy = this.minGhostEnergy;
 		}
 	}
@@ -39,10 +43,14 @@ public class Ghost implements IGhost {
 	public void decreaseEnergy(float amount) {
 		
 		this.ghostEnergy -= amount;
+		
 		if (this.ghostEnergy < this.minGhostEnergy) {
+			
 			this.ghostEnergy = this.minGhostEnergy;
 		}
+		
 		else if (this.ghostEnergy > this.maxGhostEnergy) {
+			
 			this.ghostEnergy = this.maxGhostEnergy;
 		}
 	}
@@ -50,10 +58,14 @@ public class Ghost implements IGhost {
 	public void setEnergy(float amount) {
 		
 		this.ghostEnergy = amount;
+		
 		if (this.ghostEnergy > this.maxGhostEnergy) {
+			
 			this.ghostEnergy = this.maxGhostEnergy;
 		}
+		
 		else if (this.ghostEnergy < this.minGhostEnergy) {
+			
 			this.ghostEnergy = this.minGhostEnergy;
 		}
 	}

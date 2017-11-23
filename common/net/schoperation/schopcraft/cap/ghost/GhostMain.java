@@ -22,6 +22,7 @@ import net.schoperation.schopcraft.cap.thirst.IThirst;
 import net.schoperation.schopcraft.cap.thirst.ThirstProvider;
 import net.schoperation.schopcraft.cap.wetness.IWetness;
 import net.schoperation.schopcraft.cap.wetness.WetnessProvider;
+import net.schoperation.schopcraft.config.ModConfig;
 import net.schoperation.schopcraft.lib.ModBlocks;
 import net.schoperation.schopcraft.util.SchopServerEffects;
 import net.schoperation.schopcraft.util.SchopServerParticles;
@@ -42,11 +43,14 @@ public class GhostMain {
 		// Ghost capability.
 		IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
 		
-		// Make them a ghost.
-		ghost.setGhost();
-		
-		// Put them in adventure mode.
-		player.setGameType(GameType.ADVENTURE);
+		// Make them a ghost (if enabled)
+		if (ModConfig.enableGhost) {
+			
+			ghost.setGhost();
+			
+			// Put them in adventure mode.
+			player.setGameType(GameType.ADVENTURE);
+		}
 	}
 	
 	// This is in place for the resurrection to be delayed properly.
