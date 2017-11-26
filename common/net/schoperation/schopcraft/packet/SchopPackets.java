@@ -16,6 +16,7 @@ public class SchopPackets {
 		registerMessage(SanityPacket.class, SanityPacket.SanityMessage.class);
 		registerMessage(SummonInfoPacket.class, SummonInfoPacket.SummonInfoMessage.class);
 		registerMessage(PotionEffectPacket.class, PotionEffectPacket.PotionEffectMessage.class);	
+		registerMessage(ConfigPacket.class, ConfigPacket.ConfigMessage.class);
 	}
 	
 	// Packet ID to keep the packets separate.
