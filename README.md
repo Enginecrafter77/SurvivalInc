@@ -7,7 +7,7 @@ Eventually, this mod will add hardship with new mechanics added to the game, new
 You may check out the main forum thread here:
 http://www.minecraftforum.net/forums/mapping-and-modding/minecraft-mods/wip-mods/2843096-schopcraft-making-minecraft-harder-cooler-and
 
-Requires at least Forge 14.23.0.2491 for Minecraft 1.12.2 as of 10/10/2017
+Requires AT LEAST Forge 14.21.1.2387; For Minecraft 1.12.x as of 11/26/2017
 
 NOTE: This is technically a "Work-In-Progress" (WIP). Crap will be tacked onto this mod in the near future.
 
