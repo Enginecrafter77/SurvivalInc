@@ -1,5 +1,8 @@
 package net.schoperation.schopcraft;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.Mod;
@@ -18,7 +21,7 @@ public class SchopCraft {
 	// Basic mod constants.
 	public static final String MOD_ID = "schopcraft";
 	public static final String MOD_NAME = "SchopCraft";
-	public static final String VERSION = "0.2.1";
+	public static final String VERSION = "0.2.2";
 	public static final String MCVERSION = "1.12";
 	public static final String DEPENDENCIES = "required-after:forge@[14.21.1.2387,)";
 	public static final String RESOURCE_PREFIX = MOD_ID + ":"; // schopcraft:
@@ -26,6 +29,9 @@ public class SchopCraft {
 	// Make an instance of the mod.
 	@Instance(MOD_ID)
 	public static SchopCraft instance;
+	
+	// Logger
+	public static final Logger logger = LogManager.getLogger(MOD_NAME);
 	
 	// Create proxies to load stuff correctly.
 	@SidedProxy(clientSide = "net.schoperation.schopcraft.ClientProxy", serverSide = "net.schoperation.schopcraft.CommonProxy")
