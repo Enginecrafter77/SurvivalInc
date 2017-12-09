@@ -11,10 +11,10 @@ public enum Season {
 	SUMMER, 
 	AUTUMN;
 	
-	// Cheap way to goto the next season without integer crap
-	public Season nextSeason(Season season) {
+	// Goto next season
+	public Season nextSeason() {
 		
-		switch(season) {
+		switch(Season.this) {
 		
 			case WINTER: return SPRING;
 			case SPRING: return SUMMER;
