@@ -37,7 +37,7 @@ public class ItemTabIcon extends Item {
 			String versionMessage = TextFormatting.YELLOW + "SchopCraft v" + SchopCraft.VERSION + " for Minecraft " + SchopCraft.MCVERSION;
 			player.sendMessage(new TextComponentString(versionMessage));
 		}
-		
+
 		return super.onItemRightClick(world, player, hand);
 	}
 }
