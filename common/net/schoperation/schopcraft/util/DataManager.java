@@ -49,6 +49,8 @@ public class DataManager {
 		data.season = SchopWorldData.seasonToInt(seasonNew);
 		data.daysIntoSeason = daysIntoSeasonNew;
 		
+		SchopCraft.logger.info("Saving data to disk.");
+		
 		// Mark dirty for saving
 		data.markDirty();
 	}

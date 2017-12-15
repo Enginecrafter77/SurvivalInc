@@ -6,6 +6,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
+import net.schoperation.schopcraft.SchopCraft;
 
 @Mod.EventBusSubscriber
 public class WorldSeason {
@@ -36,6 +37,16 @@ public class WorldSeason {
 		if (player instanceof EntityPlayerMP) {
 			
 			// Sync server season and daysIntoSeason with client
+			// TODO Gotta use a packet, that's for next time
+			if (player.world.isRemote) {
+				
+				SchopCraft.logger.info("Hello! According to the logical CLIENT, the season is " + season + " and daysIntoSeason is " + daysIntoSeason);
+			}
+			
+			else {
+				
+				SchopCraft.logger.info("Hello! According to the logical SERVER, the season is " + season + " and daysIntoSeason is " + daysIntoSeason);
+			}
 		}
 	}
 	

@@ -13,6 +13,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.biome.Biome;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.schoperation.schopcraft.cap.ghost.GhostProvider;
 import net.schoperation.schopcraft.cap.ghost.IGhost;
 import net.schoperation.schopcraft.cap.wetness.IWetness;
@@ -54,7 +55,9 @@ public class TemperatureModifier {
 			Biome biome = player.world.getBiome(blockPos);
 			
 			// Biome's temperature.
-			float biomeTemp = biome.getFloatTemperature(blockPos);
+			float biomeTemp = biome.getTemperature(blockPos);
+			
+			//ReflectionHelper.setPrivateValue(Biome.class, biome, 0.0f, "temperature"); change this shit
 			
 			// Cold taiga is the only biome with a negative biome temperature. Make it zero.
 			// The hot biomes are too hot for the newTargetTemp below. Make them a bit less hot.

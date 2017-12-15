@@ -42,7 +42,7 @@ public class ColdBreath {
 			Biome biome = player.world.getBiome(player.getPosition());
 			
 			// Biome temperature
-			float biomeTemp = biome.getFloatTemperature(player.getPosition());
+			float biomeTemp = biome.getTemperature(player.getPosition());
 			
 			// Cold breath particles when the player is in a cold biome.
 			if (biomeTemp < 0.2 && !ghost.isGhost()) {
