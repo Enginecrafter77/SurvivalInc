@@ -1,27 +1,30 @@
-package net.schoperation.schopcraft.season;
+package net.schoperation.schopcraft;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraft.world.storage.WorldSavedData;
-import net.schoperation.schopcraft.SchopCraft;
+import net.schoperation.schopcraft.season.Season;
 
-public class SeasonData extends WorldSavedData {
+public class SchopWorldData extends WorldSavedData {
 
 	// Identifier
-	private static final String ID = "schopcraft_season";
+	private static final String ID = "schopcraft";
 	
-	// Stuff to save 
+	// Stuff to save
+	// Season data
 	// 1 = winter, 2 = spring, 3 = summer, 4 = autumn
 	public int season = 0;
-	public int seasonTicks = 0;
+	public int daysIntoSeason = 0;
+	
+	// Put anymore data here whenever necessary
 	
 	// Constructors
-	public SeasonData() {
+	public SchopWorldData() {
 		
 		super(ID);
 	}
 	
-	public SeasonData(String id) {
+	public SchopWorldData(String id) {
 		
 		super(id);
 	}
@@ -30,30 +33,33 @@ public class SeasonData extends WorldSavedData {
 	public void readFromNBT(NBTTagCompound nbt) {
 		
 		season = nbt.getInteger("season");
-		seasonTicks = nbt.getInteger("seasonTicks");
+		daysIntoSeason = nbt.getInteger("daysIntoSeason");
 	}
 
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		
 		compound.setInteger("season", season);
-		compound.setInteger("seasonTicks", seasonTicks);
+		compound.setInteger("daysIntoSeason", daysIntoSeason);
 		
 		return compound;
 	}
 	
-	// Easy loading (Do SeasonData seasonData = SeasonData.load(world);)
-	public static SeasonData load(World world) {
+	// Easy loading (Do SchopWorldData data = SchopWorldData.load(world);)
+	public static SchopWorldData load(World world) {
 		
-		SeasonData data = (SeasonData) world.getMapStorage().getOrLoadData(SeasonData.class, ID);
+		SchopWorldData data = (SchopWorldData) world.getMapStorage().getOrLoadData(SchopWorldData.class, ID);
 
 		// Does it not exist?
 		if (data == null) {
 			
-			SchopCraft.logger.warn("No season world data found. Creating new file.");
+			SchopCraft.logger.warn("No world data found for SchopCraft. Creating new file.");
 			
-			data = new SeasonData();
+			data = new SchopWorldData();
 			
+			// Predetermine some values if necessary
+			
+			// Seasons
 			// Determine starting season
 			double springOrFall = Math.random();
 			
@@ -67,18 +73,17 @@ public class SeasonData extends WorldSavedData {
 				data.season = 4;
 			}
 			
-			data.seasonTicks = 0;
+			data.daysIntoSeason = 0;
+			
 			
 			data.markDirty();
 			world.getMapStorage().setData(ID, data);
 		}
-		
-		SchopCraft.logger.info("Loaded season world data. Current season is " + data.getSeasonFromData() + " and seasonTicks is " + data.seasonTicks + ".");
-		
+			
 		return data;
 	}
 	
-	// Conversion methods
+	// Conversion methods for seasons
 	public static int seasonToInt(Season season) {
 		
 		switch(season) {

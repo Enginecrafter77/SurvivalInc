@@ -27,6 +27,7 @@ import net.schoperation.schopcraft.packet.SchopPackets;
 import net.schoperation.schopcraft.season.WorldSeason;
 import net.schoperation.schopcraft.tweak.ServerCommands;
 import net.schoperation.schopcraft.tweak.TweakEvents;
+import net.schoperation.schopcraft.util.DataManager;
 import net.schoperation.schopcraft.util.Registererer;
 
 public class CommonProxy {
@@ -65,7 +66,7 @@ public class CommonProxy {
 		// Fire some simple commands on the server before players log on.
 		ServerCommands.fireCommandsOnStartup();
 		
-		// Load season data from file
-		WorldSeason.loadSeasonData();
+		// Load world data from file
+		DataManager.loadWorldDataFromDisk();
 	}
 }
