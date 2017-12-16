@@ -1,11 +1,18 @@
 package net.schoperation.schopcraft.season;
 
+import java.lang.reflect.Field;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.world.biome.Biome;
+import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.schoperation.schopcraft.SchopWorldData;
+import net.schoperation.schopcraft.packet.SchopPackets;
+import net.schoperation.schopcraft.packet.SeasonPacket;
 
 @Mod.EventBusSubscriber
 public class WorldSeason {
@@ -36,15 +43,46 @@ public class WorldSeason {
 		
 		if (player instanceof EntityPlayerMP) {
 			
-			// Sync server season and daysIntoSeason with client
-			// TODO Gotta use a packet, that's for next time
-			
+			// Sync server stuff with client.
+			// This is needed so the snow, foliage, and stuff gets rendered correctly.
+			int seasonInt = SchopWorldData.seasonToInt(season);
+			IMessage msg = new SeasonPacket.SeasonMessage(seasonInt, daysIntoSeason);
+			SchopPackets.net.sendTo(msg, (EntityPlayerMP) player); 
 		}
 	}
 	
-	// The clock
+	// The clock - determines when to move on to stuff
 	@SubscribeEvent
-	public void worldTick(WorldTickEvent event) {
+	public void onPlayerUpdate(LivingUpdateEvent event) {
 		
+		if (event.getEntity() instanceof EntityPlayer) {
+			
+			// Player
+			EntityPlayer player = (EntityPlayer) event.getEntity();
+			
+			// Server-side
+			if (!player.world.isRemote) {
+				
+				// ehehehehehehehe this is pretty hacky but it'll work
+				// TODO dont do this here, move it to BiomeTemp#changeBiomeTemperatures()
+				try {
+					Field f = Biome.class.getDeclaredField("temperature");
+					f.setAccessible(true);
+					f.set(player.world.getBiome(player.getPosition()), 0.8f);
+				} catch (NoSuchFieldException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (SecurityException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalArgumentException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 }

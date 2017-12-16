@@ -9,11 +9,12 @@ import net.schoperation.schopcraft.SchopCraft;
 public class BiomeTemp {
 	
 	/*
-	 * This stores the original biome temperatures, modifies the base temps if necessary, and changes them as the seasons go by.
+	 * This stores the original biome temperatures, modifying the base temps if necessary.
+	 * It also deals with changing the temperature of each biome according to the season, and where we are in the season.
 	 */
 	
-	// The array of temperatures.
-	private static float[] temperatures;
+	// The array of temperatures. Plz don't touch it outside of this class. If outside, you can only look.
+	public static float[] temperatures;
 	
 	// This method goes through every biome and grabs the original temperature. Called at the beginning.
 	public static void storeOriginalTemperatures() {
@@ -37,11 +38,10 @@ public class BiomeTemp {
 			// Grab the temperature and store it and go
 			float biomeTemp = choosenBiome.getDefaultTemperature();
 			temperatures[counter] = biomeTemp;
-			SchopCraft.logger.info("Biome #" + counter + " is " + choosenBiome.getBiomeName() + ", whose temp is " + temperatures[counter]);
 			counter++;
-			
-			
 		}
+		
+		SchopCraft.logger.info("Stored " + (counter + 1) + " biome temperatures.");
 	}
 	
 	// Want some original temp for a specific biome? Use this thingy-a-method here!
@@ -57,7 +57,7 @@ public class BiomeTemp {
 			// The biome
 			Biome choosenBiome = biomeList.next();
 			
-			// Is this the right one? Normal biome doesn't work, how about name?
+			// Is this the right one?
 			if (biome.equals(choosenBiome)) {
 				
 				return temperatures[counter];
@@ -70,5 +70,11 @@ public class BiomeTemp {
 		}
 		
 		return counter;
+	}
+	
+	// TODO do this damn thing
+	public static void changeBiomeTemperatures(Season season, int daysIntoSeason) {
+		
+		
 	}
 }

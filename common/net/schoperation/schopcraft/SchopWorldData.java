@@ -60,7 +60,7 @@ public class SchopWorldData extends WorldSavedData {
 			// Predetermine some values if necessary
 			
 			// Seasons
-			// Determine starting season
+			// Determine starting season and daysIntoSeason
 			double springOrFall = Math.random();
 			
 			if (springOrFall < 0.50) {
@@ -73,8 +73,15 @@ public class SchopWorldData extends WorldSavedData {
 				data.season = 4;
 			}
 			
-			data.daysIntoSeason = 0;
+			if (data.season == 2) {
+				
+				data.daysIntoSeason = 7; // TODO when making length of season configurable, dont forgot to change this
+			}
 			
+			else {
+				
+				data.daysIntoSeason = 0;
+			}
 			
 			data.markDirty();
 			world.getMapStorage().setData(ID, data);
@@ -93,6 +100,18 @@ public class SchopWorldData extends WorldSavedData {
 			case SUMMER: return 3;
 			case AUTUMN: return 4;
 			default: return 0;
+		}
+	}
+	
+	public static Season intToSeason(int seasonInt) {
+		
+		switch(seasonInt) {
+		
+			case 1: return Season.WINTER;
+			case 2: return Season.SPRING;
+			case 3: return Season.SUMMER;
+			case 4: return Season.AUTUMN;
+			default: return null;
 		}
 	}
 	
