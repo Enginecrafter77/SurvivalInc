@@ -24,6 +24,19 @@ public enum Season {
 		}
 	}
 	
+	// Get previous season
+	public Season prevSeason(Season season) {
+		
+		switch(season) {
+		
+			case WINTER: return AUTUMN;
+			case SPRING: return WINTER;
+			case SUMMER: return SPRING;
+			case AUTUMN: return SUMMER;
+			default: return SPRING;
+		}
+	}
+	
 	// Methods for setting the seasons apart.
 	// Length of the season in Minecraft days TODO: make this configurable
 	public int getLength(Season season) {
@@ -38,8 +51,8 @@ public enum Season {
 		}
 	}
 	
-	/* Temperature difference of the season.
-	 * With the changing seasons come the changing of the biome temperatures. Mid-spring and mid-autumn are the points where the temperatures are normal (vanilla values).
+	/* Temperature difference of the season, relation to the original temperature of the biome.
+	 * With the changing seasons come the changing of the biome temperatures. Mid-spring and early-autumn are the points where the temperatures are normal (vanilla values).
 	 * The temperatures discretely increase from mid-winter to mid-summer, and decrease for the other half of the time. 
 	 * Since I've made the effective temperature limited to between 0.0 and 1.5:
 	 * 
@@ -50,54 +63,54 @@ public enum Season {
 	 * 
 	 * The longer the length of a season, the more gradual the change is.
 	 * It also has to check if we are in the middle of a season, because in the summer and winter, it changes direction.
-	 * Remember, these are called at the beginning and middle of each season.
+	 * Remember, this is called at the beginning and middle of each season.
 	 */
-	public float getTemperatureDifference(Season season, int daysElapsed) {
+	public float getTemperatureDifference(int daysElapsed) {
 		
-		switch(season) {
+		switch(Season.this) {
 		
 			case WINTER: 
 				
-				// If we're at the middle of the season (second half)
-				if (daysElapsed >= ((double) season.getLength(WINTER) / 2)) {
+				// If we're at the second half of the season
+				if (daysElapsed > ((double) getLength(WINTER) / 2)) {
 					
-					return 0.4f;
+					return -0.6f;
 				}
 				
 				else {
 					
-					return -0.4f;
+					return -1.0f;
 				}
 				
 			case SPRING:
 				
-				if (daysElapsed >= ((double) season.getLength(SPRING) / 2)) {
+				if (daysElapsed > ((double) getLength(SPRING) / 2)) {
 					
 					return 0.2f;
 				}
 				
 				else {
 					
-					return 0.6f;
+					return 0.0f;
 				}
 				
 			case SUMMER:
 				
-				if (daysElapsed >= ((double) season.getLength(SUMMER) / 2)) {
+				if (daysElapsed > ((double) getLength(SUMMER) / 2)) {
 					
-					return -0.5f;
+					return 0.0f;
 				}
 				
 				else {
 					
-					return 0.3f;
+					return 0.5f;
 				}
 				
 			case AUTUMN: 
 				
-				if (daysElapsed >= ((double) season.getLength(AUTUMN) / 2)) {
+				if (daysElapsed > ((double) getLength(AUTUMN) / 2)) {
 					
-					return -0.3f;
+					return -0.6f;
 				}
 				
 				else {

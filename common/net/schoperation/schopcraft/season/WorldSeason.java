@@ -1,15 +1,13 @@
 package net.schoperation.schopcraft.season;
 
-import java.lang.reflect.Field;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.world.biome.Biome;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.schoperation.schopcraft.SchopCraft;
 import net.schoperation.schopcraft.SchopWorldData;
 import net.schoperation.schopcraft.packet.SchopPackets;
 import net.schoperation.schopcraft.packet.SeasonPacket;
@@ -65,6 +63,7 @@ public class WorldSeason {
 				
 				// ehehehehehehehe this is pretty hacky but it'll work
 				// TODO dont do this here, move it to BiomeTemp#changeBiomeTemperatures()
+				/*
 				try {
 					Field f = Biome.class.getDeclaredField("temperature");
 					f.setAccessible(true);
@@ -82,6 +81,7 @@ public class WorldSeason {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+				*/
 			}
 		}
 	}
