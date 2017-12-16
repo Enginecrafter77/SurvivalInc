@@ -73,7 +73,7 @@ public class SchopWorldData extends WorldSavedData {
 				data.season = 4;
 			}
 			
-			data.daysIntoSeason = 1;
+			data.daysIntoSeason = 0;
 			
 			
 			data.markDirty();
