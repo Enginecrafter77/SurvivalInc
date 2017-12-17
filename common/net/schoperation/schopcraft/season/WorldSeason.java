@@ -20,7 +20,7 @@ public class WorldSeason {
 	 * This does not affect temperature. That's another file.
 	 */
 	
-	// Wonderful global variables for this class yay
+	// Wonderful fields for this class yay
 	// Anytime these change, save them
 	private static Season season;
 	private static int daysIntoSeason;
@@ -63,15 +63,20 @@ public class WorldSeason {
 				
 				// testing stuff
 				// TODO put this season crap on a clock
-				season = Season.SPRING;
-				daysIntoSeason = 7;
-				BiomeTemp.changeBiomeTemperatures(season, daysIntoSeason);
+				season = Season.WINTER;
+				daysIntoSeason = 8;
+				BiomeTemp.changeBiomeTemperatures(season, daysIntoSeason, true);
 				
 				int seasonInt = SchopWorldData.seasonToInt(season);
 				IMessage msg = new SeasonPacket.SeasonMessage(seasonInt, daysIntoSeason);
 				SchopPackets.net.sendTo(msg, (EntityPlayerMP) player); 
 				
-				SchopCraft.logger.info("Temperature: " + player.world.getBiome(player.getPosition()).getDefaultTemperature());
+				SchopCraft.logger.info("Temperature on SERVER: " + player.world.getBiome(player.getPosition()).getDefaultTemperature());
+			}
+			
+			else {
+				
+				SchopCraft.logger.info("Temperature on CLIENT: " + player.world.getBiome(player.getPosition()).getDefaultTemperature());
 			}
 		}
 	}

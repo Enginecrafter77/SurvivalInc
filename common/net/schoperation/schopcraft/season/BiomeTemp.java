@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.util.Iterator;
 
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.BiomeOcean;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.schoperation.schopcraft.SchopCraft;
 
@@ -75,7 +76,7 @@ public class BiomeTemp {
 	
 	// This actually changes the biome temperatures every morning
 	// Using reflection! Yeah it's very hacky, hackish, whatever you wanna call it but it works.
-	public static void changeBiomeTemperatures(Season season, int daysIntoSeason) {
+	public static void changeBiomeTemperatures(Season season, int daysIntoSeason, boolean tempFieldExists) {
 		
 		// Get all of the biomes and iterate through them
 		Iterator<Biome> biomeList = ForgeRegistries.BIOMES.getValues().iterator();
@@ -103,7 +104,7 @@ public class BiomeTemp {
 			//      --------------********************-
 			// - = first difference, * = second difference
 			
-			// Our base temp is NOT the original. We'll start out by applying the previous season's difference immediately. (Second half of previous)
+			// Our base temp is NOT the original. We'll start out by applying the previous season's difference. (Second half of previous)
 			// If we're in a middle of a season, don't use the previous season, use the same one. (First half of current)
 			float prevTempDiff;
 			
@@ -117,9 +118,6 @@ public class BiomeTemp {
 				Season prevSeason = season.prevSeason(season);
 				prevTempDiff = prevSeason.getTemperatureDifference(halfSeason + 1);
 			}
-			
-			// Instantly apply that one
-			// never mind
 			
 			// Now apply the CURRENT temp difference to the original temp. That's the temp we have to get to.
 			float targetTemp = origTemp + tempDiff;
@@ -145,23 +143,59 @@ public class BiomeTemp {
 			// Create the REAL difference
 			float newDiff = diffPerDay * halfDays;
 			
-			// Apply the differences. First the previous one from the previous half season. Then the new one we just calculated.
-			try {
-				Field f = Biome.class.getDeclaredField("temperature");
-				f.setAccessible(true);
-				f.set(choosenBiome, (origTemp + prevTempDiff + newDiff));
-			} catch (NoSuchFieldException e) {
-				e.printStackTrace();
-			} catch (SecurityException e) {
-				e.printStackTrace();
-			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
+			// NEW temperature!!!!
+			float newTemperature = origTemp + prevTempDiff + newDiff;
+			
+			// Exceptions
+			// Any biome with a normal temperature above 0.9 is usually a pretty warm biome. They should really stay warm. Snow on jungles is pretty weird.
+			if (origTemp > 0.9f && newTemperature < 0.5f) {
+				
+				newTemperature = 0.5f;
 			}
 			
-			// Now do this for every fricking biome there is!
-			// TODO add exceptions (ex. make jungles not become winter wonderlands in the winter)
+			// Oceans freezing during the winter sound fun but really aren't.
+			if (choosenBiome instanceof BiomeOcean && newTemperature < 0.5f) {
+				
+				newTemperature = 0.5f;
+			}
+			
+			// Apply the differences. First the previous one from the previous half season. Then the new one we just calculated.
+			// The fields appear to be different when compiled. So that's why there's two different ways, as I'll continue using the dev workspace.
+			if (tempFieldExists) {
+				
+				try {
+					Field f = Biome.class.getDeclaredField("temperature");
+					f.setAccessible(true);
+					f.set(choosenBiome, newTemperature);
+				} catch (NoSuchFieldException e) {
+					SchopCraft.logger.warn("Did not find temperature field. Probably means that this isn't a dev workspace. Going to use the funky one.");
+					changeBiomeTemperatures(season, daysIntoSeason, false);
+					break;
+				} catch (SecurityException e) {
+					e.printStackTrace();
+				} catch (IllegalArgumentException e) {
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			else {
+				
+				try {
+					Field f = Biome.class.getDeclaredField("field_76750_F");
+					f.setAccessible(true);
+					f.set(choosenBiome, newTemperature);
+				} catch (NoSuchFieldException e) {
+					SchopCraft.logger.error("Did not find funky field. Contact Schoperation if you get this error. It means he has to work harder. Damn it.");
+				} catch (SecurityException e) {
+					e.printStackTrace();
+				} catch (IllegalArgumentException e) {
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 }
