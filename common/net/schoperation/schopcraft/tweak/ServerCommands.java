@@ -28,6 +28,9 @@ public class ServerCommands {
 		// GameRules
 		GameRules gamerules = world.getGameRules();
 		
+		// World time
+		long worldTime = world.getWorldTime();
+		
 		/*
 		 * This enables ReducedDebugInfo automatically on server startup. This disables coordinates on the F3 debug screen.
 		 * The coordinate system definitely helps with finding our way around. Now we'll need to depend on landmarks, maps, and compasses for once.
@@ -39,6 +42,16 @@ public class ServerCommands {
 		 * If keepInventory is on, turn it off. Dying should suck more.
 		 */
 		gamerules.setOrCreateGameRule("keepInventory", "false");
+		
+		/*
+		 * This is for seasons. Make sure the time stays at 0 until a player joins.
+		 */
+		gamerules.setOrCreateGameRule("doDaylightCycle", "false");
+		
+		if (worldTime % 24000 == 0) {
+			
+			world.setWorldTime(worldTime + 1);
+		}
 		
 		/*
 		 * This sets the difficulty to hard. May as well.

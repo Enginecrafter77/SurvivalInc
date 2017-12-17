@@ -2,15 +2,19 @@ package net.schoperation.schopcraft.season;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.schoperation.schopcraft.SchopCraft;
 import net.schoperation.schopcraft.SchopWorldData;
 import net.schoperation.schopcraft.packet.SchopPackets;
 import net.schoperation.schopcraft.packet.SeasonPacket;
+import net.schoperation.schopcraft.util.DataManager;
 
 @Mod.EventBusSubscriber
 public class WorldSeason {
@@ -20,7 +24,7 @@ public class WorldSeason {
 	 * This does not affect temperature. That's another file.
 	 */
 	
-	// Wonderful fields for this class yay
+	// Wonderful variables for this class yay
 	// Anytime these change, save them
 	private static Season season;
 	private static int daysIntoSeason;
@@ -47,6 +51,23 @@ public class WorldSeason {
 			IMessage msg = new SeasonPacket.SeasonMessage(seasonInt, daysIntoSeason);
 			SchopPackets.net.sendTo(msg, (EntityPlayerMP) player); 
 		}
+		
+		// Turn on day-night cycle
+		SeasonCycle.toggleCycle(true);
+	}
+	
+	@SubscribeEvent
+	public void onPlayerLogsOut(PlayerLoggedOutEvent event) {
+		
+		// Turn off day-night cycle if no more people on
+		MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+		
+		int playerCount = server.getCurrentPlayerCount();
+		
+		if (playerCount <= 1) {
+			
+			SeasonCycle.toggleCycle(false);
+		}
 	}
 	
 	// The clock - determines when to move on to stuff
@@ -61,22 +82,38 @@ public class WorldSeason {
 			// Server-side
 			if (!player.world.isRemote) {
 				
-				// testing stuff
-				// TODO put this season crap on a clock
-				season = Season.WINTER;
-				daysIntoSeason = 8;
-				BiomeTemp.changeBiomeTemperatures(season, daysIntoSeason, true);
+				// Time
+				long worldTime = player.world.getWorldTime();
 				
-				int seasonInt = SchopWorldData.seasonToInt(season);
-				IMessage msg = new SeasonPacket.SeasonMessage(seasonInt, daysIntoSeason);
-				SchopPackets.net.sendTo(msg, (EntityPlayerMP) player); 
-				
-				SchopCraft.logger.info("Temperature on SERVER: " + player.world.getBiome(player.getPosition()).getDefaultTemperature());
-			}
-			
-			else {
-				
-				SchopCraft.logger.info("Temperature on CLIENT: " + player.world.getBiome(player.getPosition()).getDefaultTemperature());
+				// Is it early morning?
+				if (worldTime % 24000 == 0) {
+					
+					// Increment daysIntoSeason
+					daysIntoSeason++;
+					
+					// Is it the next season?
+					if (daysIntoSeason > season.getLength(season)) {
+						
+						// Head on over to the next season.
+						daysIntoSeason = 0;
+						season = season.nextSeason();
+					}
+					
+					// Save world data
+					DataManager.saveData(season, daysIntoSeason);
+					
+					// Change temperatures
+					BiomeTemp.changeBiomeTemperatures(season, daysIntoSeason, true);
+					
+					int seasonInt = SchopWorldData.seasonToInt(season);
+					IMessage msg = new SeasonPacket.SeasonMessage(seasonInt, daysIntoSeason);
+					SchopPackets.net.sendTo(msg, (EntityPlayerMP) player); 
+					
+					// TODO Change weather
+					
+					// Log it
+					SchopCraft.logger.info("Day " + daysIntoSeason + " of " + season + ".");
+				}
 			}
 		}
 	}

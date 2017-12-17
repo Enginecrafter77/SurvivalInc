@@ -168,9 +168,7 @@ public class BiomeTemp {
 					f.setAccessible(true);
 					f.set(choosenBiome, newTemperature);
 				} catch (NoSuchFieldException e) {
-					SchopCraft.logger.warn("Did not find temperature field. Probably means that this isn't a dev workspace. Going to use the funky one.");
 					changeBiomeTemperatures(season, daysIntoSeason, false);
-					break;
 				} catch (SecurityException e) {
 					e.printStackTrace();
 				} catch (IllegalArgumentException e) {
