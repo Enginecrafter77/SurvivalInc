@@ -61,27 +61,17 @@ public class WorldSeason {
 			// Server-side
 			if (!player.world.isRemote) {
 				
-				// ehehehehehehehe this is pretty hacky but it'll work
-				// TODO dont do this here, move it to BiomeTemp#changeBiomeTemperatures()
-				/*
-				try {
-					Field f = Biome.class.getDeclaredField("temperature");
-					f.setAccessible(true);
-					f.set(player.world.getBiome(player.getPosition()), 0.8f);
-				} catch (NoSuchFieldException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (SecurityException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IllegalArgumentException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				*/
+				// testing stuff
+				// TODO put this season crap on a clock
+				season = Season.SPRING;
+				daysIntoSeason = 7;
+				BiomeTemp.changeBiomeTemperatures(season, daysIntoSeason);
+				
+				int seasonInt = SchopWorldData.seasonToInt(season);
+				IMessage msg = new SeasonPacket.SeasonMessage(seasonInt, daysIntoSeason);
+				SchopPackets.net.sendTo(msg, (EntityPlayerMP) player); 
+				
+				SchopCraft.logger.info("Temperature: " + player.world.getBiome(player.getPosition()).getDefaultTemperature());
 			}
 		}
 	}

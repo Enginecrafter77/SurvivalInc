@@ -90,6 +90,9 @@ public class BiomeTemp {
 			// Its original temperature
 			float origTemp = getOriginalTemperature(choosenBiome);
 			
+			// Half of the season.
+			int halfSeason = season.getLength(season) / 2;
+			
 			// The temperature changes everyday, so it's more gradual.
 			// Every half of each season has a specified temperature change that should be COMPLETELY added to the ORIGINAL temperature by the end of said half.
 			// We can get the total temperature change through the Season class methods.
@@ -104,7 +107,7 @@ public class BiomeTemp {
 			// If we're in a middle of a season, don't use the previous season, use the same one. (First half of current)
 			float prevTempDiff;
 			
-			if (daysIntoSeason > ((double) season.getLength(season) / 2)) {
+			if (daysIntoSeason > halfSeason) {
 				
 				prevTempDiff = season.getTemperatureDifference(0);
 			}
@@ -112,14 +115,41 @@ public class BiomeTemp {
 			else {
 				
 				Season prevSeason = season.prevSeason(season);
-				prevTempDiff = prevSeason.getTemperatureDifference(prevSeason.getLength(prevSeason));
+				prevTempDiff = prevSeason.getTemperatureDifference(halfSeason + 1);
 			}
 			
 			// Instantly apply that one
+			// never mind
+			
+			// Now apply the CURRENT temp difference to the original temp. That's the temp we have to get to.
+			float targetTemp = origTemp + tempDiff;
+			
+			// The difference between the target temp and current temp
+			float actualDiff = targetTemp - (origTemp + prevTempDiff);
+			
+			// Divide this difference by the amount of days in half a season.
+			float diffPerDay = actualDiff / halfSeason;
+			
+			// Now, we must edit daysIntoSeason so we can correctly calculate the difference to add onto the temperature.
+			int halfDays = 0;
+			if (daysIntoSeason > halfSeason) {
+				
+				halfDays = daysIntoSeason - halfSeason;
+			}
+			
+			else {
+				
+				halfDays = daysIntoSeason;
+			}
+			
+			// Create the REAL difference
+			float newDiff = diffPerDay * halfDays;
+			
+			// Apply the differences. First the previous one from the previous half season. Then the new one we just calculated.
 			try {
 				Field f = Biome.class.getDeclaredField("temperature");
 				f.setAccessible(true);
-				f.set(choosenBiome, (origTemp + prevTempDiff));
+				f.set(choosenBiome, (origTemp + prevTempDiff + newDiff));
 			} catch (NoSuchFieldException e) {
 				e.printStackTrace();
 			} catch (SecurityException e) {
@@ -130,8 +160,8 @@ public class BiomeTemp {
 				e.printStackTrace();
 			}
 			
-			// Now apply the CURRENT temp difference to the original temp. That's the temp we have to get to.
-			float targetTemp = origTemp + tempDiff;
+			// Now do this for every fricking biome there is!
+			// TODO add exceptions (ex. make jungles not become winter wonderlands in the winter)
 		}
 	}
 }

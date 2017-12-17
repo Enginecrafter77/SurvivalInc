@@ -33,7 +33,7 @@ public class SeasonPacket implements IMessageHandler<SeasonMessage, IMessage> {
 			// Change temperatures
 			BiomeTemp.changeBiomeTemperatures(season, daysIntoSeason);
 			
-			SchopCraft.logger.info("Synced the client's season data with the server's.");
+			//SchopCraft.logger.info("Synced the client's season data with the server's.");
 		}
 		
 		return null;

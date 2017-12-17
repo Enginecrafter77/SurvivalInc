@@ -72,7 +72,7 @@ public enum Season {
 			case WINTER: 
 				
 				// If we're at the second half of the season
-				if (daysElapsed > ((double) getLength(WINTER) / 2)) {
+				if (daysElapsed > (getLength(WINTER) / 2)) {
 					
 					return -0.6f;
 				}
@@ -84,7 +84,7 @@ public enum Season {
 				
 			case SPRING:
 				
-				if (daysElapsed > ((double) getLength(SPRING) / 2)) {
+				if (daysElapsed > (getLength(SPRING) / 2)) {
 					
 					return 0.2f;
 				}
@@ -96,7 +96,7 @@ public enum Season {
 				
 			case SUMMER:
 				
-				if (daysElapsed > ((double) getLength(SUMMER) / 2)) {
+				if (daysElapsed > (getLength(SUMMER) / 2)) {
 					
 					return 0.0f;
 				}
@@ -108,7 +108,7 @@ public enum Season {
 				
 			case AUTUMN: 
 				
-				if (daysElapsed > ((double) getLength(AUTUMN) / 2)) {
+				if (daysElapsed > (getLength(AUTUMN) / 2)) {
 					
 					return -0.6f;
 				}
