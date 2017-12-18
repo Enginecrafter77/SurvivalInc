@@ -54,12 +54,14 @@ public enum Season {
 	/* Temperature difference of the season, relation to the original temperature of the biome.
 	 * With the changing seasons come the changing of the biome temperatures. Mid-spring and early-autumn are the points where the temperatures are normal (vanilla values).
 	 * The temperatures discretely increase from mid-winter to mid-summer, and decrease for the other half of the time. 
-	 * Since I've made the effective temperature limited to between 0.0 and 1.5:
+	 * Since I've made the effective temperature limited to between -0.2 and 1.5:
 	 * 
 	 * -From mid-spring to mid-summer, the biome temperature will gradually increase by 0.5.
 	 * -From mid-summer to mid-autumn, it will decrease gradually by 0.8.
 	 * -From mid-autumn to mid-winter, it will decrease gradually by 0.7.
 	 * -From mid-winter to mid-spring, it will increase gradually by 1.0.
+	 * 
+	 * (unevenly)
 	 * 
 	 * The longer the length of a season, the more gradual the change is.
 	 * It also has to check if we are in the middle of a season, because in the summer and winter, it changes direction.
@@ -123,9 +125,9 @@ public enum Season {
 	}
 	
 	// Chance of getting precipitation on a particular day during a season.
-	public float getPrecipitationChance(Season season) {
+	public float getPrecipitationChance() {
 		
-		switch(season) {
+		switch(Season.this) {
 		
 			case WINTER: return 0.60f;
 			case SPRING: return 0.70f;

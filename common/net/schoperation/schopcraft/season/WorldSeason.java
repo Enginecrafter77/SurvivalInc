@@ -3,6 +3,7 @@ package net.schoperation.schopcraft.season;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.World;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
@@ -79,11 +80,14 @@ public class WorldSeason {
 			// Player
 			EntityPlayer player = (EntityPlayer) event.getEntity();
 			
+			// World
+			World world = player.world;
+			
 			// Server-side
-			if (!player.world.isRemote) {
+			if (!world.isRemote) {
 				
 				// Time
-				long worldTime = player.world.getWorldTime();
+				long worldTime = world.getWorldTime();
 				
 				// Is it early morning?
 				if (worldTime % 24000 == 0) {
@@ -109,7 +113,13 @@ public class WorldSeason {
 					IMessage msg = new SeasonPacket.SeasonMessage(seasonInt, daysIntoSeason);
 					SchopPackets.net.sendTo(msg, (EntityPlayerMP) player); 
 					
-					// TODO Change weather
+					// Determine the weather. The season is the main factor.
+					double randWeather = Math.random();
+					
+					if (randWeather < season.getPrecipitationChance()) {
+						
+						WeatherHandler.makeItRain(world, season);
+					}
 					
 					// Log it
 					SchopCraft.logger.info("Day " + daysIntoSeason + " of " + season + ".");
