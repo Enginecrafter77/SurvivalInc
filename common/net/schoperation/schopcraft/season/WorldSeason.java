@@ -71,6 +71,9 @@ public class WorldSeason {
 		}
 	}
 	
+	// To help set the rain stuff correctly
+	private static boolean didRainStart = true;
+	
 	// The clock - determines when to move on to stuff
 	@SubscribeEvent
 	public void onPlayerUpdate(LivingUpdateEvent event) {
@@ -89,8 +92,8 @@ public class WorldSeason {
 				// Time
 				long worldTime = world.getWorldTime();
 				
-				// Is it early morning?
-				if (worldTime % 24000 == 0) {
+				// Is it early morning? It's not exactly 0 because of beds.
+				if (worldTime % 24000 == 40) {
 					
 					// Increment daysIntoSeason
 					daysIntoSeason++;
@@ -114,15 +117,28 @@ public class WorldSeason {
 					SchopPackets.net.sendTo(msg, (EntityPlayerMP) player); 
 					
 					// Determine the weather. The season is the main factor.
-					double randWeather = Math.random();
+					float randWeather = (float) Math.random();
 					
 					if (randWeather < season.getPrecipitationChance()) {
 						
 						WeatherHandler.makeItRain(world, season);
+						didRainStart = false;
+					}
+					
+					else {
+						
+						WeatherHandler.makeItNotRain(world);
 					}
 					
 					// Log it
 					SchopCraft.logger.info("Day " + daysIntoSeason + " of " + season + ".");
+				}
+				
+				// If it's going to rain, we'll need to send the rain data when it starts.
+				if (world.isRaining() && !didRainStart) {
+					
+					didRainStart = true;
+					WeatherHandler.applyToRain(world);
 				}
 			}
 		}

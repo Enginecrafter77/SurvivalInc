@@ -44,13 +44,16 @@ public class ServerCommands {
 		gamerules.setOrCreateGameRule("keepInventory", "false");
 		
 		/*
-		 * This is for seasons. Make sure the time stays at 0 until a player joins.
+		 * This is for seasons. Make sure the time stays there until a player joins.
 		 */
 		gamerules.setOrCreateGameRule("doDaylightCycle", "false");
 		
-		if (worldTime % 24000 == 0) {
+		if (worldTime % 24000 <= 40) {
 			
-			world.setWorldTime(worldTime + 1);
+			while(worldTime % 24000 <= 40) {
+				
+				world.setWorldTime(worldTime + 1);
+			}
 		}
 		
 		/*
