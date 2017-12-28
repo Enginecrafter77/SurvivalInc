@@ -94,33 +94,23 @@ public class GuiRenderBar extends Gui {
 			String textEnergy = Double.toString(roundedEnergy) + " GPU";
 			
 			// Determine width of TEMPERATURE bar.
-			// This is also determined whether the user wants Celsius or Fahrenheit.
-			// Fields for showing temp (due to config file).
-			int currentWidthTemperature;
+			double oneTemperatureUnit = (double) defaultBarWidth / maxTemperature; // default 0.66 repeating
+			int currentWidthTemperature = (int) (oneTemperatureUnit * temperature);
+			
+			// Show temperature value. Either convert it to Celsius or stay with Fahrenheit.
+			double roundedTemperature;
 			String textTemperature;
 			
 			if (ModConfig.showCelsius) {
 				
-				// NEW temperature values to show (the actual will never change).
-				double temperatureCelsius = (double) ((temperature - 32) / 1.8);
-				double maxTemperatureCelsius = (double) ((maxTemperature - 32) / 1.8);
-				
-				// Determine width.
-				double oneTemperatureUnit = (double) defaultBarWidth / maxTemperatureCelsius; // default ~0.61
-				currentWidthTemperature = (int) (oneTemperatureUnit * temperatureCelsius);
-				
-				// Show temperature value.
-				double roundedTemperature = (double) (Math.round(temperatureCelsius * 10)) / 10;
+				float tempInCelsius = (temperature - 32) / 1.8f;
+				roundedTemperature = (double) (Math.round(tempInCelsius * 10)) / 10;
 				textTemperature = Double.toString(roundedTemperature) + "°C";
 			}
+			
 			else {
 				
-				// Use current temperature values (as they are set in fahrenheit in the mod itself).
-				double oneTemperatureUnit = (double) defaultBarWidth / maxTemperature; // default 0.66 repeating
-				currentWidthTemperature = (int) (oneTemperatureUnit * temperature);
-				
-				// Show temperature value.
-				double roundedTemperature = (double) (Math.round(temperature * 10)) / 10;
+				roundedTemperature = (double) (Math.round(temperature * 10)) / 10;
 				textTemperature = Double.toString(roundedTemperature) + "°F";
 			}
 			
