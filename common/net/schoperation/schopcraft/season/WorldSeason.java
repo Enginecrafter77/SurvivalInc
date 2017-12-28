@@ -144,7 +144,6 @@ public class WorldSeason {
 				// We need to melt snow and ice manually in the spring and summer.
 				if (season == Season.SPRING || season == Season.SUMMER) {
 					
-					daysIntoSeason = 8;
 					SnowMelter.melt(world, player, season, daysIntoSeason);
 				}
 			}

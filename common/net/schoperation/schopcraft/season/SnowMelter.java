@@ -14,71 +14,63 @@ public class SnowMelter {
 	 * All about melting that ice and snow after winter has done its messy work.
 	 */
 	
-	// We'll only go in one direction per tick, to reduce load. These variables help determine that.
-	/*          5  6  7
-	 *           \ | /
-	 * 			  \|/
-	 *       4 --------- 0
-	 *            /|\
-	 *           / | \
-	 *          3  2  1
+	// We'll only go in one direction per tick, to reduce load.
+	/*        
+	 *  17 ------------------------>  |
+	 *  16 ------------------------>  |
+	 *  15 ------------------------>  | positive Z
+	 *  14 ------------------------>  |
+	 *  13 ------------------------>  V
+	 *  12 ------------------------>
+	 *  11 ------------------------>
+	 *  10 ------------------------>  
+	 *  0 --------player---------->
+	 *  1 ------------------------>
+	 *  2 ------------------------>
+	 *  3 ------------------------>
+	 *  4 ------------------------>  
+	 *  5 ------------------------>  
+	 *  6 ------------------------>
+	 *  7 ------------------------>
+	 *  8 ------------------------>
+	 * 
+	 * Each row is 16 chunks.
 	 */
-	private static Random rand = new Random();
-	private static int directionId = 0;
-	private static int changeX = 1;
-	private static int changeZ = 0;
 	
-	// Change directions
-	private static void changeDirections() {
+	// Yay pseudorandom
+	private static Random rand = new Random();
+	
+	// What chunks to go through?
+	private static int setOffset() {
+		
+		// Offset
+		int offsetZ = 0;
 		
 		// Grab a direction ID
-		directionId = rand.nextInt(8);
+		int rowId = rand.nextInt(18);
 		
-		// Now set directions based on id
-		switch(directionId) {
-		
-			case 0:
-				changeX = 1;
-				changeZ = 0;
-				break;
-			case 1:
-				changeX = 1;
-				changeZ = 1;
-				break;
-			case 2:
-				changeX = 0;
-				changeZ = 1;
-				break;
-			case 3:
-				changeX = -1;
-				changeZ = 1;
-				break;
-			case 4:
-				changeX = -1;
-				changeZ = 0;
-				break;
-			case 5:
-				changeX = -1;
-				changeZ = -1;
-				break;
-			case 6:
-				changeX = 0;
-				changeZ = -1;
-				break;
-			case 7:
-				changeX = 1;
-				changeZ = -1;
-				break;
-			default:
-				changeX = 1;
-				changeZ = 0;
-				break;
+		// Now set offset based on id
+		if (rowId < 9) {
+			
+			offsetZ = rowId % 9;
 		}
+		
+		else if (rowId > 9) {
+			
+			offsetZ = (rowId % 9) * -1;
+		}
+		
+		else {
+			
+			offsetZ = 0;
+		}
+		
+		return offsetZ;
 	}
 	
-	private static Chunk nextChunk(World world, int currentX, int currentZ) {
+	private static Chunk nextChunk(World world, int currentX, int offsetZ) {
 		
-		Chunk chunk = world.getChunkFromChunkCoords(currentX + changeX, currentZ + changeZ);
+		Chunk chunk = world.getChunkFromChunkCoords(currentX, offsetZ);
 		
 		if (chunk.isLoaded()) {
 			
@@ -94,18 +86,27 @@ public class SnowMelter {
 	// The actual method that melts the snow and ice
 	public static void melt(World world, EntityPlayer player, Season season, int daysIntoSeason) {
 		
-		// Change directions
-		changeDirections();
+		// Grab a random z offset
+		int offsetZ = setOffset();
 		
-		// Grab a chunk
-		Chunk chunk = world.getChunkFromChunkCoords(player.chunkCoordX, player.chunkCoordZ);
+		// Is X negative or positive?
+		int changeX = 1;
+		int posX = player.getPosition().getX();
 		
-		// Go up to 8 chunks
-		int chunkLimit = 8;
-		int chunkCount = 0;
+		if (posX < 0) {
+			
+			changeX = -1;
+		}
+		
+		// Grab first chunk
+		Chunk chunk = world.getChunkFromChunkCoords(player.chunkCoordX + (-8 * changeX), player.chunkCoordZ + offsetZ);
+		
+		// Go up to 16 chunks in that row
+		int chunkLimit = 16;
+		int chunkNum = 0;
 		
 		// Lets go
-		while (chunkCount < chunkLimit && chunk != null) {
+		while (chunkNum < chunkLimit && chunk != null) {
 			
 			// There will be a random chance to remove a snow layer or ice block in a given chunk.
 			// If lady luck happens to be on this chunk's side, we'll choose a random block to remove snow/ice from.
@@ -113,7 +114,7 @@ public class SnowMelter {
 			float threshold = 0.1f;
 			if (season == Season.SPRING) { threshold = 0.1f * (daysIntoSeason + 1); }
 			else if (season == Season.SUMMER) { threshold = 1.0f; } // get the damn snow outta here
-			if (world.isRaining()) { threshold += 0.1f; } 
+			if (world.isRaining()) { threshold = threshold * 2f; } 
 			
 			// Are we gonna try to remove something?
 			if (rand.nextFloat() < threshold) {
@@ -132,17 +133,6 @@ public class SnowMelter {
 					// Random offsets
 					int xOffset = rand.nextInt(16);
 					int zOffset = rand.nextInt(16);
-					
-					// If negative, make offset negative.
-					if (cx < 0) {
-						
-						xOffset = xOffset * -1;
-					}
-					
-					if (cz < 0) {
-						
-						zOffset = zOffset * -1;
-					}
 					
 					// The Blockpos
 					BlockPos pos = new BlockPos(cx + xOffset, 0, cz + zOffset);
@@ -184,10 +174,10 @@ public class SnowMelter {
 			chunk.markDirty();
 			
 			// Goto next chunk
-			chunk = nextChunk(world, chunk.x, chunk.z);
+			chunk = nextChunk(world, chunk.x + changeX, chunk.z);
 			
 			// Increment chunkcount
-			chunkCount++;
+			chunkNum++;
 		}
 	}
 }
