@@ -120,7 +120,7 @@ public enum Season {
 					return -0.3f;
 				}
 				
-			default: return 0;
+			default: return 0.0f;
 		}
 	}
 	
