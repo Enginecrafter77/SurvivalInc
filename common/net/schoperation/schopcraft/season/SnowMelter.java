@@ -38,10 +38,10 @@ public class SnowMelter {
 	 */
 	
 	// Yay pseudorandom
-	private static Random rand = new Random();
+	private Random rand = new Random();
 	
 	// What chunks to go through?
-	private static int setOffset() {
+	private int setOffset() {
 		
 		// Offset
 		int offsetZ = 0;
@@ -68,7 +68,7 @@ public class SnowMelter {
 		return offsetZ;
 	}
 	
-	private static Chunk nextChunk(World world, int currentX, int offsetZ) {
+	private Chunk nextChunk(World world, int currentX, int offsetZ) {
 		
 		Chunk chunk = world.getChunkFromChunkCoords(currentX, offsetZ);
 		
@@ -84,7 +84,7 @@ public class SnowMelter {
 	}
 	
 	// The actual method that melts the snow and ice
-	public static void melt(World world, EntityPlayer player, Season season, int daysIntoSeason) {
+	public void melt(World world, EntityPlayer player, Season season, int daysIntoSeason) {
 		
 		// Grab a random z offset
 		int offsetZ = setOffset();

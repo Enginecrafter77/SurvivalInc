@@ -6,13 +6,13 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.schoperation.schopcraft.SchopCraft;
 
-public class SeasonCycle {
+public class CycleController {
 	
 	/*
 	 * Everything to do with the day and night cycle, whether it be toggling it or modifying it as the seasons go on.
 	 */
 	
-	public static void toggleCycle(boolean enable) {
+	public void toggleCycle(boolean enable) {
 		
 		// Server
 		MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();

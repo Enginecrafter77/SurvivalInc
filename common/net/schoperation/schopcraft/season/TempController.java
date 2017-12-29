@@ -8,7 +8,7 @@ import net.minecraft.world.biome.BiomeOcean;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.schoperation.schopcraft.SchopCraft;
 
-public class BiomeTemp {
+public class TempController {
 	
 	/*
 	 * This stores the original biome temperatures, modifying the base temps if necessary.
@@ -47,7 +47,7 @@ public class BiomeTemp {
 	}
 	
 	// Want some original temp for a specific biome? Use this thingy-a-method here!
-	public static float getOriginalTemperature(Biome biome) {
+	private float getOriginalTemperature(Biome biome) {
 		
 		// Iterator
 		Iterator<Biome> biomeList = ForgeRegistries.BIOMES.getValues().iterator();
@@ -76,7 +76,7 @@ public class BiomeTemp {
 	
 	// This actually changes the biome temperatures every morning
 	// Using reflection! Yeah it's very hacky, hackish, whatever you wanna call it but it works.
-	public static void changeBiomeTemperatures(Season season, int daysIntoSeason, boolean tempFieldExists) {
+	public void changeBiomeTemperatures(Season season, int daysIntoSeason, boolean tempFieldExists) {
 		
 		// Get all of the biomes and iterate through them
 		Iterator<Biome> biomeList = ForgeRegistries.BIOMES.getValues().iterator();

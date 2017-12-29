@@ -7,8 +7,8 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.schoperation.schopcraft.SchopCraft;
 import net.schoperation.schopcraft.SchopWorldData;
 import net.schoperation.schopcraft.packet.SeasonPacket.SeasonMessage;
-import net.schoperation.schopcraft.season.BiomeTemp;
 import net.schoperation.schopcraft.season.Season;
+import net.schoperation.schopcraft.season.TempController;
 
 public class SeasonPacket implements IMessageHandler<SeasonMessage, IMessage> {
 	
@@ -22,16 +22,18 @@ public class SeasonPacket implements IMessageHandler<SeasonMessage, IMessage> {
 			int daysIntoSeason = message.daysIntoSeason;
 			
 			// Get original biome temps if not gotten them already, for the client.
-			if (BiomeTemp.temperatures == null) {
+			TempController controller = new TempController();
+			
+			if (controller.temperatures == null) {
 				
-				BiomeTemp.storeOriginalTemperatures();
+				controller.storeOriginalTemperatures();
 			}
 			
 			// Actual season
 			Season season = SchopWorldData.intToSeason(seasonInt);
 			
 			// Change temperatures
-			BiomeTemp.changeBiomeTemperatures(season, daysIntoSeason, true);
+			controller.changeBiomeTemperatures(season, daysIntoSeason, true);
 			
 			SchopCraft.logger.info("Synced the client's season data with the server's.");
 		}

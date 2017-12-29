@@ -17,7 +17,7 @@ public class WeatherHandler {
 	private static int tickDuration = 0;
 	
 	// This doesn't actually change the weather, but randomizes it, and pushes stuff to a method that does change it.
-	public static void makeItRain(World world, Season season) {
+	public void makeItRain(World world, Season season) {
 		
 		// Time for more randomness, to determine whether to have a thunderstorm or not.
 		// Summer usually has more thunderstorms than other seasons, followed by spring and autumn.
@@ -76,7 +76,7 @@ public class WeatherHandler {
 		// The other variables will be used when it actually starts raining.
 	}
 	
-	public static void makeItNotRain(World world) {
+	public void makeItNotRain(World world) {
 		
 		// WorldInfo instance
 		WorldInfo worldinfo = world.getWorldInfo();
@@ -87,7 +87,7 @@ public class WeatherHandler {
 		worldinfo.setRainTime(100000000);
 	}
 	
-	public static void applyToRain(World world) {
+	public void applyToRain(World world) {
 		
 		// Apply the stuff
 		// WorldInfo instance

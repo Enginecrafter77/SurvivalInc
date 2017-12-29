@@ -30,6 +30,15 @@ public class WorldSeason {
 	private static Season season;
 	private static int daysIntoSeason;
 	
+	// To help set the rain stuff correctly
+	private boolean didRainStart = true;
+	
+	// Handlers and Melters.
+	private final WeatherHandler weatherHandler = new WeatherHandler();
+	private final CycleController cycleController = new CycleController();
+	private final TempController tempController = new TempController();
+	private final SnowMelter melter = new SnowMelter();
+	
 	
 	// This fires on server startup. Load the data from file here
 	public static void getSeasonData(Season dataSeason, int days) {
@@ -54,7 +63,7 @@ public class WorldSeason {
 		}
 		
 		// Turn on day-night cycle
-		SeasonCycle.toggleCycle(true);
+		cycleController.toggleCycle(true);
 	}
 	
 	@SubscribeEvent
@@ -67,12 +76,9 @@ public class WorldSeason {
 		
 		if (playerCount <= 1) {
 			
-			SeasonCycle.toggleCycle(false);
+			cycleController.toggleCycle(false);
 		}
 	}
-	
-	// To help set the rain stuff correctly
-	private static boolean didRainStart = true;
 	
 	// The clock - determines when to move on to stuff
 	@SubscribeEvent
@@ -110,8 +116,9 @@ public class WorldSeason {
 					DataManager.saveData(season, daysIntoSeason);
 					
 					// Change temperatures
-					BiomeTemp.changeBiomeTemperatures(season, daysIntoSeason, true);
+					tempController.changeBiomeTemperatures(season, daysIntoSeason, true);
 					
+					// Send new season data to client
 					int seasonInt = SchopWorldData.seasonToInt(season);
 					IMessage msg = new SeasonPacket.SeasonMessage(seasonInt, daysIntoSeason);
 					SchopPackets.net.sendTo(msg, (EntityPlayerMP) player); 
@@ -121,14 +128,16 @@ public class WorldSeason {
 					
 					if (randWeather < season.getPrecipitationChance()) {
 						
-						WeatherHandler.makeItRain(world, season);
+						weatherHandler.makeItRain(world, season);
 						didRainStart = false;
 					}
 					
 					else {
 						
-						WeatherHandler.makeItNotRain(world);
+						weatherHandler.makeItNotRain(world);
 					}
+					
+					// Change the length of day and night TODO
 					
 					// Log it
 					SchopCraft.logger.info("Day " + daysIntoSeason + " of " + season + ".");
@@ -138,13 +147,13 @@ public class WorldSeason {
 				if (world.isRaining() && !didRainStart) {
 					
 					didRainStart = true;
-					WeatherHandler.applyToRain(world);
+					weatherHandler.applyToRain(world);
 				}
 				
 				// We need to melt snow and ice manually in the spring and summer.
 				if (season == Season.SPRING || season == Season.SUMMER) {
 					
-					SnowMelter.melt(world, player, season, daysIntoSeason);
+					melter.melt(world, player, season, daysIntoSeason);
 				}
 			}
 		}
