@@ -83,7 +83,7 @@ public class SnowMelter {
 		}
 	}
 	
-	// The actual method that melts the snow and ice
+	// The actual method that melts the snow and ice. SPRING ONLY
 	public void melt(World world, EntityPlayer player, Season season, int daysIntoSeason) {
 		
 		// Grab a random z offset
@@ -112,9 +112,15 @@ public class SnowMelter {
 			// If lady luck happens to be on this chunk's side, we'll choose a random block to remove snow/ice from.
 			// Also, if the biome's temp is still low enough to have snow, don't bother to do this.
 			float threshold = 0.1f;
-			if (season == Season.SPRING) { threshold = 0.1f * (daysIntoSeason + 1); }
-			else if (season == Season.SUMMER) { threshold = 1.0f; } // get the damn snow outta here
-			if (world.isRaining()) { threshold = threshold * 2f; } 
+			if (season == Season.SPRING) { 
+				
+				threshold = 0.1f * (daysIntoSeason + 1); 
+			}
+
+			if (world.isRaining()) { 
+				
+				threshold = threshold * 2f; 
+			} 
 			
 			// Are we gonna try to remove something?
 			if (rand.nextFloat() < threshold) {
@@ -126,9 +132,10 @@ public class SnowMelter {
 				
 				// Counter
 				int counter = 0;
+				int counterTarget = 2 * (daysIntoSeason + 1);
 				
-				// We'll try 4 random locations before moving on to the next chunk.
-				while (counter < 4) {
+				// We'll try <counterTarget> random locations before moving on to the next chunk.
+				while (counter < counterTarget) {
 					
 					// Random offsets
 					int xOffset = rand.nextInt(16);
@@ -141,7 +148,7 @@ public class SnowMelter {
 					// Is this the right temperature? If not, screw all this.
 					if (chunk.getBiome(pos, world.getBiomeProvider()).getDefaultTemperature() <= 0.15f) {
 						
-						counter = 4;
+						counter = counterTarget;
 					}
 					
 					else {
@@ -151,7 +158,7 @@ public class SnowMelter {
 							
 							// Remove it.
 							world.setBlockToAir(pos);
-							counter = 4;
+							counter = counterTarget;
 						}
 						
 						// How about an ice block? This'll be one block down.
@@ -159,7 +166,7 @@ public class SnowMelter {
 							
 							// Remove it.
 							world.setBlockState(pos.down(), Blocks.WATER.getDefaultState());
-							counter = 4;
+							counter = counterTarget;
 						}
 						
 						else {
@@ -180,4 +187,6 @@ public class SnowMelter {
 			chunkNum++;
 		}
 	}
+	
+	// Used in summer. By now, any non-snow biome shouldn't have snow.
 }

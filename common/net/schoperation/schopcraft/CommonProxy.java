@@ -24,7 +24,7 @@ import net.schoperation.schopcraft.cap.wetness.IWetness;
 import net.schoperation.schopcraft.cap.wetness.Wetness;
 import net.schoperation.schopcraft.cap.wetness.WetnessStorage;
 import net.schoperation.schopcraft.packet.SchopPackets;
-import net.schoperation.schopcraft.season.TempController;
+import net.schoperation.schopcraft.season.BiomeTempController;
 import net.schoperation.schopcraft.season.WorldSeason;
 import net.schoperation.schopcraft.tweak.ServerCommands;
 import net.schoperation.schopcraft.tweak.TweakEvents;
@@ -68,7 +68,7 @@ public class CommonProxy {
 		ServerCommands.fireCommandsOnStartup();
 		
 		// Grab initial biome temperatures.
-		TempController.storeOriginalTemperatures();
+		BiomeTempController.storeOriginalTemperatures();
 				
 		// Load world data from file.
 		DataManager.loadWorldDataFromDisk();

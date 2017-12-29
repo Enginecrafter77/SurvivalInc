@@ -36,7 +36,7 @@ public class WorldSeason {
 	// Handlers and Melters.
 	private final WeatherHandler weatherHandler = new WeatherHandler();
 	private final CycleController cycleController = new CycleController();
-	private final TempController tempController = new TempController();
+	private final BiomeTempController biomeTemp = new BiomeTempController();
 	private final SnowMelter melter = new SnowMelter();
 	
 	
@@ -64,6 +64,22 @@ public class WorldSeason {
 		
 		// Turn on day-night cycle
 		cycleController.toggleCycle(true);
+		
+		// Alter if needed
+		if (season == Season.SUMMER) {
+			
+			cycleController.changeLengthOfCycle(15000);
+		}
+		
+		else if (season == Season.WINTER) {
+			
+			cycleController.changeLengthOfCycle(9000);
+		}
+		
+		else {
+			
+			cycleController.changeLengthOfCycle(12000);
+		}
 	}
 	
 	@SubscribeEvent
@@ -116,7 +132,7 @@ public class WorldSeason {
 					DataManager.saveData(season, daysIntoSeason);
 					
 					// Change temperatures
-					tempController.changeBiomeTemperatures(season, daysIntoSeason, true);
+					biomeTemp.changeBiomeTemperatures(season, daysIntoSeason, true);
 					
 					// Send new season data to client
 					int seasonInt = SchopWorldData.seasonToInt(season);
@@ -137,11 +153,28 @@ public class WorldSeason {
 						weatherHandler.makeItNotRain(world);
 					}
 					
-					// Change the length of day and night TODO
+					// Change the length of day and night if needed
+					if (season == Season.SUMMER) {
+						
+						cycleController.changeLengthOfCycle(15000);
+					}
+					
+					else if (season == Season.WINTER) {
+						
+						cycleController.changeLengthOfCycle(9000);
+					}
+					
+					else {
+						
+						cycleController.changeLengthOfCycle(12000);
+					}
 					
 					// Log it
 					SchopCraft.logger.info("Day " + daysIntoSeason + " of " + season + ".");
 				}
+				
+				// Affect daytime
+				cycleController.alter(world);
 				
 				// If it's going to rain, we'll need to send the rain data when it starts.
 				if (world.isRaining() && !didRainStart) {

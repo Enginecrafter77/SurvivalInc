@@ -8,7 +8,7 @@ import net.minecraft.world.biome.BiomeOcean;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.schoperation.schopcraft.SchopCraft;
 
-public class TempController {
+public class BiomeTempController {
 	
 	/*
 	 * This stores the original biome temperatures, modifying the base temps if necessary.

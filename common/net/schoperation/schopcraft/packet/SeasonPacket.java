@@ -8,7 +8,7 @@ import net.schoperation.schopcraft.SchopCraft;
 import net.schoperation.schopcraft.SchopWorldData;
 import net.schoperation.schopcraft.packet.SeasonPacket.SeasonMessage;
 import net.schoperation.schopcraft.season.Season;
-import net.schoperation.schopcraft.season.TempController;
+import net.schoperation.schopcraft.season.BiomeTempController;
 
 public class SeasonPacket implements IMessageHandler<SeasonMessage, IMessage> {
 	
@@ -22,7 +22,7 @@ public class SeasonPacket implements IMessageHandler<SeasonMessage, IMessage> {
 			int daysIntoSeason = message.daysIntoSeason;
 			
 			// Get original biome temps if not gotten them already, for the client.
-			TempController controller = new TempController();
+			BiomeTempController controller = new BiomeTempController();
 			
 			if (controller.temperatures == null) {
 				
