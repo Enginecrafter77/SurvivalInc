@@ -64,8 +64,6 @@ public class CycleController {
 			
 			targetTicks = 12000 / dayDiff;
 		}
-		
-		SchopCraft.logger.info("targetTicks is " + targetTicks);
 	}
 	
 	// This actually does the tick addition/subtraction

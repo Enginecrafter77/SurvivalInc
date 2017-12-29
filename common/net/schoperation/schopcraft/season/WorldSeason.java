@@ -4,6 +4,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
+import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
@@ -183,11 +184,31 @@ public class WorldSeason {
 					weatherHandler.applyToRain(world);
 				}
 				
-				// We need to melt snow and ice manually in the spring and summer.
-				if (season == Season.SPRING || season == Season.SUMMER) {
+				// We need to melt snow and ice manually in the spring.
+				// Summer has a different melting method.
+				if (season == Season.SPRING) {
 					
-					melter.melt(world, player, season, daysIntoSeason);
+					melter.melt(world, player, daysIntoSeason);
 				}
+			}
+		}
+	}
+	
+	// Helps to melt snow in summer. Where there shouldn't be any snow.
+	@SubscribeEvent
+	public void onChunkWalkIn(EntityEvent.EnteringChunk event) {
+		
+		// Was this a player?
+		if (event.getEntity() instanceof EntityPlayer) {
+			
+			EntityPlayer player = (EntityPlayer) event.getEntity();
+			
+			// Is it summer? Then let's try to remove some snow and ice.
+			if (season == Season.SUMMER && !player.world.isRemote) {
+				
+				int chunkCoordX = event.getNewChunkX();
+				int chunkCoordZ = event.getNewChunkZ();
+				melter.meltCompletely(chunkCoordX, chunkCoordZ, player.world);
 			}
 		}
 	}

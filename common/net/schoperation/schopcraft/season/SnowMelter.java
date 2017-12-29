@@ -6,7 +6,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
+import net.schoperation.schopcraft.SchopCraft;
 
 public class SnowMelter {
 	
@@ -83,8 +85,8 @@ public class SnowMelter {
 		}
 	}
 	
-	// The actual method that melts the snow and ice. SPRING ONLY
-	public void melt(World world, EntityPlayer player, Season season, int daysIntoSeason) {
+	/** The actual method that melts the snow and ice. SPRING ONLY **/
+	public void melt(World world, EntityPlayer player, int daysIntoSeason) {
 		
 		// Grab a random z offset
 		int offsetZ = setOffset();
@@ -111,11 +113,7 @@ public class SnowMelter {
 			// There will be a random chance to remove a snow layer or ice block in a given chunk.
 			// If lady luck happens to be on this chunk's side, we'll choose a random block to remove snow/ice from.
 			// Also, if the biome's temp is still low enough to have snow, don't bother to do this.
-			float threshold = 0.1f;
-			if (season == Season.SPRING) { 
-				
-				threshold = 0.1f * (daysIntoSeason + 1); 
-			}
+			float threshold = 0.1f * (daysIntoSeason + 1); 
 
 			if (world.isRaining()) { 
 				
@@ -188,5 +186,112 @@ public class SnowMelter {
 		}
 	}
 	
-	// Used in summer. By now, any non-snow biome shouldn't have snow.
+	/*
+	 * ALL THIS BELOW IS FOR SUMMER ONLY
+	 * 
+	 */
+	/** By summer, any non-snow biome shouldn't have snow. SUMMER ONLY **/
+	public void meltCompletely(int startX, int startZ, World world) {
+		
+		/*
+		 * We'll go like this, to avoid wasting precious CPU. Because this'll happen everytime someone enters a chunk.
+		 * ^---------------------->
+		 * |                      |
+		 * |                      |
+		 * |          o           |
+		 * |                      |
+		 * |                      |
+		 * |                      |
+		 * <----------------------V
+		 */
+		
+		// Starting chunk.
+		Chunk chunk = world.getChunkFromChunkCoords(startX - 8, startZ - 8);
+
+		// Northwest corner. Add one to x.
+		for (int x = 0; x < 15; x++) {
+			
+			meltSingleChunk(chunk, world);
+			chunk = world.getChunkFromChunkCoords(chunk.x + 1, chunk.z);
+		}
+		
+		// Northeast corner. Add one to z.
+		for (int z = 0; z < 15; z++) {
+			
+			chunk = world.getChunkFromChunkCoords(chunk.x, chunk.z + 1);
+			meltSingleChunk(chunk, world);
+			
+		}
+		
+		// Southeast corner. Subtract one from x.
+		for (int x = 0; x < 15; x++) {
+			
+			chunk = world.getChunkFromChunkCoords(chunk.x - 1, chunk.z);
+			meltSingleChunk(chunk, world);
+			
+		}
+		
+		// Southwest corner. Subtract one from z.
+		for (int z = 0; z < 15; z++) {
+			
+			chunk = world.getChunkFromChunkCoords(chunk.x, chunk.z - 1);
+			meltSingleChunk(chunk, world);
+			
+		}
+	}
+	
+	// Actually melts.
+	private void meltSingleChunk(Chunk chunk, World world) {
+		
+		// Starting coords
+		int cx = chunk.getPos().getXStart();
+		int cz = chunk.getPos().getZStart();
+		BlockPos pos = new BlockPos(cx, 64, cz);
+		
+		// Is the chunk a warm(er) biome? If not, don't bother to melt anything.
+		Biome biome = chunk.getBiome(pos, world.getBiomeProvider());
+		
+		if (biome.getDefaultTemperature() <= 0.15f) {
+			
+			// NOPE
+		}
+		
+		else {
+			
+			// Iterate through all of the top-blocks and remove any snow and ice.
+			for (int x = 0; x < 16; x++) {
+				
+				for (int z = 0; z < 16; z++) {
+					
+					// New BlockPos; add one to zed coordinate, then get correct y-value.
+					pos = chunk.getPrecipitationHeight(pos);
+					
+					// Now, is this a snow layer?
+					if (world.getBlockState(pos).getBlock() == Blocks.SNOW_LAYER) {
+						
+						// Remove it.
+						world.setBlockToAir(pos);
+					}
+					
+					// No? How about an ice block below?
+					pos = pos.down();
+					if (world.getBlockState(pos).getBlock() == Blocks.ICE) {
+						
+						// Remove it.
+						world.setBlockState(pos, Blocks.WATER.getDefaultState());
+					}
+					
+					// Goto next z
+					pos = pos.south();
+				}
+				
+				// Goto next x
+				pos = pos.east();
+				pos = pos.north(16);
+			}
+			
+			// Mark chunk dirty just in case.
+			chunk.markDirty();
+		}
+	}
 }
