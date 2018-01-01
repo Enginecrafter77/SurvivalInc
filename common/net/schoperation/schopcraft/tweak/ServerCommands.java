@@ -29,7 +29,7 @@ public class ServerCommands {
 		GameRules gamerules = world.getGameRules();
 		
 		// World time
-		long worldTime = world.getWorldTime();
+		long worldTime = world.getWorldInfo().getWorldTime();
 		
 		/*
 		 * This enables ReducedDebugInfo automatically on server startup. This disables coordinates on the F3 debug screen.
@@ -48,12 +48,9 @@ public class ServerCommands {
 		 */
 		gamerules.setOrCreateGameRule("doDaylightCycle", "false");
 		
-		if (worldTime % 24000 <= 40) {
+		if (worldTime <= 40) {
 			
-			while(worldTime % 24000 <= 40) {
-				
-				world.setWorldTime(worldTime + 1);
-			}
+			world.setWorldTime(42);
 		}
 		
 		/*

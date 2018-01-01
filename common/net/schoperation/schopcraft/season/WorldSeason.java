@@ -115,8 +115,8 @@ public class WorldSeason {
 				// Time
 				long worldTime = world.getWorldTime();
 				
-				// Is it early morning? It's not exactly 0 because of beds.
-				if (worldTime % 24000 == 40) {
+				// Is it early morning? It's not exactly 0 because of beds. And it's an odd number because CycleController.
+				if (worldTime % 24000 == 41) {
 					
 					// Increment daysIntoSeason
 					daysIntoSeason++;
@@ -186,7 +186,7 @@ public class WorldSeason {
 				
 				// We need to melt snow and ice manually in the spring.
 				// Summer has a different melting method.
-				if (season == Season.SPRING) {
+				if (season == Season.SPRING && world.getTotalWorldTime() > 24000) {
 					
 					melter.melt(world, player, daysIntoSeason);
 				}
@@ -204,7 +204,7 @@ public class WorldSeason {
 			EntityPlayer player = (EntityPlayer) event.getEntity();
 			
 			// Is it summer? Then let's try to remove some snow and ice.
-			if (season == Season.SUMMER && !player.world.isRemote) {
+			if (season == Season.SUMMER && !player.world.isRemote && player.world.getTotalWorldTime() > 24000) {
 				
 				int chunkCoordX = event.getNewChunkX();
 				int chunkCoordZ = event.getNewChunkZ();

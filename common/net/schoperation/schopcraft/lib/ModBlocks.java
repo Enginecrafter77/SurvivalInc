@@ -2,6 +2,7 @@ package net.schoperation.schopcraft.lib;
 
 import net.minecraft.block.Block;
 import net.schoperation.schopcraft.block.BlockLucid;
+import net.schoperation.schopcraft.block.BlockRedLeaves;
 
 public class ModBlocks {
 	
@@ -12,10 +13,12 @@ public class ModBlocks {
 	// List for easy referencing.
 	
 	public static final Block LUCID_BLOCK = new BlockLucid();
+	public static final Block RED_LEAVES = new BlockRedLeaves();
 	
 	public static final Block[] BLOCKS = {
 				
-				LUCID_BLOCK
+				LUCID_BLOCK,
+				RED_LEAVES
 			
 	};
 }
