@@ -23,7 +23,8 @@ item.schopcraft:wet_towel.name=§1Wet Towel
 
 # Blocks
 tile.schopcraft:lucid_block.name=Lucid Block
-tile.schopcraft:red_leaves.name=Red Leaves
+tile.schopcraft:red_leaves.name=Red Autumn Leaves
+tile.schopcraft:yellow_leaves.name=Yellow Autumn Leaves
 
 # Creative Tabs
 itemGroup.schopcraft:mainTab=SchopCraft
