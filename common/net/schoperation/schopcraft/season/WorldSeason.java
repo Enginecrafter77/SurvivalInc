@@ -46,6 +46,11 @@ public class WorldSeason {
 		
 		season = dataSeason;
 		daysIntoSeason = days;
+		
+		// Change biome temperatures immediately.
+		BiomeTempController temporaryController = new BiomeTempController();
+		temporaryController.changeBiomeTemperatures(season, daysIntoSeason);
+		temporaryController = null;
 	}
 	
 	
@@ -66,7 +71,7 @@ public class WorldSeason {
 		// Turn on day-night cycle
 		cycleController.toggleCycle(true);
 		
-		// Alter if needed
+		// Alter cycle if needed
 		if (season == Season.SUMMER) {
 			
 			cycleController.changeLengthOfCycle(15000);
@@ -85,7 +90,7 @@ public class WorldSeason {
 	
 	@SubscribeEvent
 	public void onPlayerLogsOut(PlayerLoggedOutEvent event) {
-		
+
 		// Turn off day-night cycle if no more people on
 		MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
 		
@@ -94,6 +99,20 @@ public class WorldSeason {
 		if (playerCount <= 1) {
 			
 			cycleController.toggleCycle(false);
+		}
+		
+		// Is this singleplayer? If so, reset their temps here.
+		if (server.isSinglePlayer()) {
+			
+			biomeTemp.resetBiomeTemperatures();
+		}
+		
+		// No? Do it via packet.
+		else if (event.player instanceof EntityPlayerMP) {
+			
+			int seasonInt = SchopWorldData.seasonToInt(season);
+			IMessage msg = new SeasonPacket.SeasonMessage(seasonInt, -21);
+			SchopPackets.net.sendTo(msg, (EntityPlayerMP) event.player); 
 		}
 	}
 	
@@ -113,10 +132,10 @@ public class WorldSeason {
 			if (!world.isRemote) {
 				
 				// Time
-				long worldTime = world.getWorldTime();
+				long worldTime = world.getWorldInfo().getWorldTime();
 				
 				// Is it early morning? It's not exactly 0 because of beds. And it's an odd number because CycleController.
-				if (worldTime % 24000 == 41) {
+				if (worldTime == 41) {
 					
 					// Increment daysIntoSeason
 					daysIntoSeason++;
@@ -133,7 +152,7 @@ public class WorldSeason {
 					DataManager.saveData(season, daysIntoSeason);
 					
 					// Change temperatures
-					biomeTemp.changeBiomeTemperatures(season, daysIntoSeason, true);
+					biomeTemp.changeBiomeTemperatures(season, daysIntoSeason);
 					
 					// Send new season data to client
 					int seasonInt = SchopWorldData.seasonToInt(season);
@@ -186,7 +205,7 @@ public class WorldSeason {
 				
 				// We need to melt snow and ice manually in the spring.
 				// Summer has a different melting method.
-				if (season == Season.SPRING && world.getTotalWorldTime() > 24000) {
+				if (season == Season.SPRING) {
 					
 					melter.melt(world, player, daysIntoSeason);
 				}
@@ -204,7 +223,7 @@ public class WorldSeason {
 			EntityPlayer player = (EntityPlayer) event.getEntity();
 			
 			// Is it summer? Then let's try to remove some snow and ice.
-			if (season == Season.SUMMER && !player.world.isRemote && player.world.getTotalWorldTime() > 24000) {
+			if (season == Season.SUMMER && !player.world.isRemote) {
 				
 				int chunkCoordX = event.getNewChunkX();
 				int chunkCoordZ = event.getNewChunkZ();

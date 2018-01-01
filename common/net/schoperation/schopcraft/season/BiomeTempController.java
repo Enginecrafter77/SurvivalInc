@@ -15,35 +15,44 @@ public class BiomeTempController {
 	 * It also deals with changing the temperature of each biome according to the season, and where we are in the season.
 	 */
 	
-	// The array of temperatures. Plz don't touch it outside of this class. If outside, you can only look.
-	public static float[] temperatures;
+	// The array of original temperatures.
+	private static float[] temperatures;
 	
 	// This method goes through every biome and grabs the original temperature. Called at the beginning.
-	public static void storeOriginalTemperatures() {
+	public void storeOriginalTemperatures() {
 		
-		// Number of biomes
-		int biomeNumber = ForgeRegistries.BIOMES.getValues().size();
-		
-		// Allocate enough space for array
-		temperatures = new float[biomeNumber];
-		
-		// Iterator
-		Iterator<Biome> biomeList = ForgeRegistries.BIOMES.getValues().iterator();
-		int counter = 0;
-		
-		// Iterate kek
-		while (biomeList.hasNext()) {
+		// Is temperatures already filled up? Then don't bother doing this crap again.
+		if (temperatures != null) {
 			
-			// The biome
-			Biome choosenBiome = biomeList.next();
-			
-			// Grab the temperature and store it and go
-			float biomeTemp = choosenBiome.getDefaultTemperature();
-			temperatures[counter] = biomeTemp;
-			counter++;
+			SchopCraft.logger.info("Original temperatures already stored. Not doing it again.");
 		}
 		
-		SchopCraft.logger.info("Stored " + (counter + 1) + " biome temperatures.");
+		else {
+			
+			// Number of biomes
+			int biomeNumber = ForgeRegistries.BIOMES.getValues().size();
+			
+			// Allocate enough space for array
+			temperatures = new float[biomeNumber];
+			
+			// Iterator
+			Iterator<Biome> biomeList = ForgeRegistries.BIOMES.getValues().iterator();
+			int counter = 0;
+			
+			// Iterate kek
+			while (biomeList.hasNext()) {
+				
+				// The biome
+				Biome choosenBiome = biomeList.next();
+				
+				// Grab the temperature and store it and go
+				float biomeTemp = choosenBiome.getDefaultTemperature();
+				temperatures[counter] = biomeTemp;
+				counter++;
+			}
+			
+			SchopCraft.logger.info("Stored " + (counter + 1) + " biome temperatures.");
+		}
 	}
 	
 	// Want some original temp for a specific biome? Use this thingy-a-method here!
@@ -76,11 +85,10 @@ public class BiomeTempController {
 	
 	// This actually changes the biome temperatures every morning
 	// Using reflection! Yeah it's very hacky, hackish, whatever you wanna call it but it works.
-	public void changeBiomeTemperatures(Season season, int daysIntoSeason, boolean tempFieldExists) {
+	public void changeBiomeTemperatures(Season season, int daysIntoSeason) {
 		
 		// Get all of the biomes and iterate through them
 		Iterator<Biome> biomeList = ForgeRegistries.BIOMES.getValues().iterator();
-		int counter = 0;
 		
 		// Iterate kek
 		while (biomeList.hasNext()) {
@@ -161,39 +169,89 @@ public class BiomeTempController {
 			
 			// Apply the differences. First the previous one from the previous half season. Then the new one we just calculated.
 			// The fields appear to be different when compiled. So that's why there's two different ways, as I'll continue using the dev workspace.
-			if (tempFieldExists) {
 				
-				try {
-					Field f = Biome.class.getDeclaredField("temperature");
-					f.setAccessible(true);
-					f.set(choosenBiome, newTemperature);
-				} catch (NoSuchFieldException e) {
-					changeBiomeTemperatures(season, daysIntoSeason, false);
-				} catch (SecurityException e) {
-					e.printStackTrace();
-				} catch (IllegalArgumentException e) {
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					e.printStackTrace();
-				}
-			}
-			
-			else {
+			try {
+				Field f = Biome.class.getDeclaredField("temperature");
+				f.setAccessible(true);
+				f.set(choosenBiome, newTemperature);
+			} catch (NoSuchFieldException e) {
 				
+				// Okay, so we're not in a dev environment. Try to other one.
 				try {
 					Field f = Biome.class.getDeclaredField("field_76750_F");
 					f.setAccessible(true);
 					f.set(choosenBiome, newTemperature);
-				} catch (NoSuchFieldException e) {
+				} catch (NoSuchFieldException ex) {
 					SchopCraft.logger.error("Did not find funky field. Contact Schoperation if you get this error. It means he has to work harder. Damn it.");
-				} catch (SecurityException e) {
-					e.printStackTrace();
-				} catch (IllegalArgumentException e) {
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					e.printStackTrace();
+				} catch (SecurityException ex) {
+					ex.printStackTrace();
+				} catch (IllegalArgumentException ex) {
+					ex.printStackTrace();
+				} catch (IllegalAccessException ex) {
+					ex.printStackTrace();
 				}
+				
+			} catch (SecurityException e) {
+				e.printStackTrace();
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
 			}
 		}
+	}
+	
+	// Used to reset temperatures upon leaving a world, as biome temperatures are changed for the entire JVM session.
+	public void resetBiomeTemperatures() {
+		
+		// Iterator
+		Iterator<Biome> biomeList = ForgeRegistries.BIOMES.getValues().iterator();
+		int counter = 0;
+		
+		// Iterate kek
+		while (biomeList.hasNext()) {
+			
+			// The biome
+			Biome choosenBiome = biomeList.next();
+			
+			// Grab the original temperature
+			float origBiomeTemp = temperatures[counter];
+			
+			// Now change the temperature back to the original
+			try {
+				Field f = Biome.class.getDeclaredField("temperature");
+				f.setAccessible(true);
+				f.set(choosenBiome, origBiomeTemp);
+			} catch (NoSuchFieldException e) {
+				
+				try {
+					Field f = Biome.class.getDeclaredField("field_76750_F");
+					f.setAccessible(true);
+					f.set(choosenBiome, origBiomeTemp);
+				} catch (NoSuchFieldException ex) {
+					SchopCraft.logger.error("Did not find funky field. Contact Schoperation if you get this error. It means he has to work harder. Damn it.");
+				} catch (SecurityException ex) {
+					ex.printStackTrace();
+				} catch (IllegalArgumentException ex) {
+					ex.printStackTrace();
+				} catch (IllegalAccessException ex) {
+					ex.printStackTrace();
+				}
+				
+				
+			} catch (SecurityException e) {
+				e.printStackTrace();
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			}
+			
+			// Increment counter.
+			counter++;
+		}
+		
+		// Log it
+		SchopCraft.logger.info("Restored " + (counter + 1) + " biome temperatures to their originals.");
 	}
 }

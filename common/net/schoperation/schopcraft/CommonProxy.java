@@ -68,7 +68,9 @@ public class CommonProxy {
 		ServerCommands.fireCommandsOnStartup();
 		
 		// Grab initial biome temperatures.
-		BiomeTempController.storeOriginalTemperatures();
+		BiomeTempController biomeTemp = new BiomeTempController();
+		biomeTemp.storeOriginalTemperatures();
+		biomeTemp = null;
 				
 		// Load world data from file.
 		DataManager.loadWorldDataFromDisk();

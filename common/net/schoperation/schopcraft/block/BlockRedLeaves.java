@@ -54,8 +54,55 @@ public class BlockRedLeaves extends BlockLeaves {
 	@Override
 	public int getMetaFromState(IBlockState state) {
 		
-		// TODO Make this actually return different return values so blockstates are saved properly on world unload
-		return 0;
+		if (state.getValue(DECAYABLE).booleanValue()) {
+			
+			if (state.getValue(CHECK_DECAY).booleanValue()) {
+				
+				return 0;
+			}
+			
+			else {
+				
+				return 1;
+			}
+		}
+		
+		else {
+			
+			if (state.getValue(CHECK_DECAY).booleanValue()) {
+				
+				return 2;
+			}
+			
+			else {
+				
+				return 3;
+			}
+		}
+	}
+	
+	@Override
+	public IBlockState getStateFromMeta(int meta) {
+		
+		if (meta == 0) {
+			
+			return getDefaultState().withProperty(DECAYABLE, true).withProperty(CHECK_DECAY, true);
+		}
+		
+		else if (meta == 1) {
+			
+			return getDefaultState().withProperty(DECAYABLE, true).withProperty(CHECK_DECAY, false);
+		}
+		
+		else if (meta == 2) {
+			
+			return getDefaultState().withProperty(DECAYABLE, false).withProperty(CHECK_DECAY, true);
+		}
+		
+		else {
+			
+			return getDefaultState().withProperty(DECAYABLE, false).withProperty(CHECK_DECAY, false);
+		}
 	}
 
 	@Override

@@ -7,8 +7,8 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.schoperation.schopcraft.SchopCraft;
 import net.schoperation.schopcraft.SchopWorldData;
 import net.schoperation.schopcraft.packet.SeasonPacket.SeasonMessage;
-import net.schoperation.schopcraft.season.Season;
 import net.schoperation.schopcraft.season.BiomeTempController;
+import net.schoperation.schopcraft.season.Season;
 
 public class SeasonPacket implements IMessageHandler<SeasonMessage, IMessage> {
 	
@@ -21,21 +21,27 @@ public class SeasonPacket implements IMessageHandler<SeasonMessage, IMessage> {
 			int seasonInt = message.season;
 			int daysIntoSeason = message.daysIntoSeason;
 			
-			// Get original biome temps if not gotten them already, for the client.
 			BiomeTempController controller = new BiomeTempController();
 			
-			if (controller.temperatures == null) {
+			// Is daysIntoSeason -21? That's the code to restore biome temperatures.
+			if (daysIntoSeason == -21) {
 				
-				controller.storeOriginalTemperatures();
+				controller.resetBiomeTemperatures();
 			}
 			
-			// Actual season
-			Season season = SchopWorldData.intToSeason(seasonInt);
-			
-			// Change temperatures
-			controller.changeBiomeTemperatures(season, daysIntoSeason, true);
-			
-			SchopCraft.logger.info("Synced the client's season data with the server's.");
+			else {
+				
+				// Get original biome temps if not gotten them already, for the client.
+				controller.storeOriginalTemperatures();
+				
+				// Actual season
+				Season season = SchopWorldData.intToSeason(seasonInt);
+				
+				// Change temperatures
+				controller.changeBiomeTemperatures(season, daysIntoSeason);
+				
+				SchopCraft.logger.info("Synced the client's season data with the server's.");
+			}
 		}
 		
 		return null;

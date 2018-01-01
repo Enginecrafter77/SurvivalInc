@@ -12,14 +12,15 @@ public class CycleController {
 	 * Everything to do with the day and night cycle, whether it be toggling it or modifying it as the seasons go on.
 	 */
 	
-	// Length of day
-	private int dayTicks = 12000;
-	
 	// Timer used to add or subtract a tick
 	private int tickTimer = 0;
 	
 	// Add/subtract a tick every <targetTicks> ticks
 	private int targetTicks = 0;
+	private int targetTicksNight = 0;
+	
+	// isNight bool
+	private boolean isNight = false;
 	
 	public void toggleCycle(boolean enable) {
 		
@@ -58,11 +59,13 @@ public class CycleController {
 		if (dayDiff == 0) {
 			
 			targetTicks = 0;
+			targetTicksNight = 0;
 		}
 		
 		else {
 			
 			targetTicks = 12000 / dayDiff;
+			targetTicksNight = targetTicks * -1;
 		}
 	}
 	
@@ -85,14 +88,16 @@ public class CycleController {
 		else if (targetTicks > 0) {
 			
 			// Daytime?
-			if (world.getWorldTime() % 24000 >= 0 && world.getWorldTime() % 24000 < 12000) {
+			if (world.getWorldInfo().getWorldTime() >= 0 && world.getWorldInfo().getWorldTime() < 12000) {
 				
+				isNight = false;
 				tickTimer++;
 				subtractTick(world);
 			}
 			
 			else {
 				
+				isNight = true;
 				tickTimer--;
 				addTick(world);
 			}
@@ -102,14 +107,16 @@ public class CycleController {
 		else {
 			
 			// Daytime?
-			if (world.getWorldTime() % 24000 >= 0 && world.getWorldTime() % 24000 < 12000) {
+			if (world.getWorldInfo().getWorldTime() >= 0 && world.getWorldInfo().getWorldTime() < 12000) {
 				
+				isNight = false;
 				tickTimer--;
 				addTick(world);
 			}
 			
 			else {
 				
+				isNight = true;
 				tickTimer++;
 				subtractTick(world);
 			}
@@ -123,7 +130,13 @@ public class CycleController {
 		long currentTime = world.getWorldTime();
 		
 		// Now... is tickTimer at its target?
-		if (tickTimer <= targetTicks) {
+		if (tickTimer < targetTicks && !isNight) {
+			
+			world.setWorldTime(currentTime + 1);
+			tickTimer = 0;
+		}
+		
+		else if (tickTimer < targetTicksNight && isNight) {
 			
 			world.setWorldTime(currentTime + 1);
 			tickTimer = 0;
@@ -137,7 +150,13 @@ public class CycleController {
 		long currentTime = world.getWorldTime();
 		
 		// Now... is tickTimer at its target?
-		if (tickTimer >= targetTicks) {
+		if (tickTimer > targetTicks && !isNight) {
+			
+			world.setWorldTime(currentTime - 1);
+			tickTimer = 0;
+		}
+		
+		else if (tickTimer > targetTicksNight && isNight) {
 			
 			world.setWorldTime(currentTime - 1);
 			tickTimer = 0;
