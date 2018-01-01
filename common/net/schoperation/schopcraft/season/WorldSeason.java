@@ -132,10 +132,10 @@ public class WorldSeason {
 			if (!world.isRemote) {
 				
 				// Time
-				long worldTime = world.getWorldInfo().getWorldTime();
+				long worldTime = world.getWorldTime();
 				
 				// Is it early morning? It's not exactly 0 because of beds. And it's an odd number because CycleController.
-				if (worldTime == 41) {
+				if (worldTime % 24000 == 41) {
 					
 					// Increment daysIntoSeason
 					daysIntoSeason++;

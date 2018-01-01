@@ -88,7 +88,7 @@ public class CycleController {
 		else if (targetTicks > 0) {
 			
 			// Daytime?
-			if (world.getWorldInfo().getWorldTime() >= 0 && world.getWorldInfo().getWorldTime() < 12000) {
+			if (world.getWorldTime() % 24000 >= 0 && world.getWorldTime() % 24000 < 12000) {
 				
 				isNight = false;
 				tickTimer++;
@@ -107,7 +107,7 @@ public class CycleController {
 		else {
 			
 			// Daytime?
-			if (world.getWorldInfo().getWorldTime() >= 0 && world.getWorldInfo().getWorldTime() < 12000) {
+			if (world.getWorldTime() % 24000 >= 0 && world.getWorldTime() % 24000 < 12000) {
 				
 				isNight = false;
 				tickTimer--;

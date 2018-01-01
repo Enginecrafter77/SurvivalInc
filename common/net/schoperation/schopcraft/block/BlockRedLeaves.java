@@ -6,7 +6,6 @@ import java.util.Random;
 
 import net.minecraft.block.BlockLeaves;
 import net.minecraft.block.BlockPlanks.EnumType;
-import net.minecraft.block.SoundType;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
@@ -37,12 +36,8 @@ public class BlockRedLeaves extends BlockLeaves {
 		setRegistryName(new ResourceLocation(SchopCraft.MOD_ID, "red_leaves"));
 		setUnlocalizedName(SchopCraft.RESOURCE_PREFIX + "red_leaves");
 		
-		// Crap
+		// Set correct tab
 		setCreativeTab(SchopCraft.mainTab);
-		setTickRandomly(true);
-        setHardness(0.2F);
-        setLightOpacity(1);
-        setSoundType(SoundType.PLANT);
 	}
 	
 	@Override
