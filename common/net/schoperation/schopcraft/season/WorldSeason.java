@@ -4,8 +4,10 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
+import net.minecraftforge.event.terraingen.BiomeEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -249,6 +251,49 @@ public class WorldSeason {
 					int chunkCoordX = event.getNewChunkX();
 					int chunkCoordZ = event.getNewChunkZ();
 					leaves.change(chunkCoordX, chunkCoordZ, player.world, season);
+				}
+			}
+		}
+	}
+	
+	// Change grass color in Autumn and Summer
+	// It'll stay in this class as it isn't much code.
+	@SubscribeEvent
+	public void biomeGrass(BiomeEvent.GetGrassColor event) {
+		
+		// Get biome and original temperature of that biome.
+		Biome biome = event.getBiome();
+		float originalTemperature = biomeTemp.getOriginalTemperature(biome);
+		
+		// Determine what season it is
+		if (season == Season.SUMMER) {
+			
+			// Is the temperature above 0.8? We'll change its grass color then.
+			if (originalTemperature >= 0.80f) {
+				
+				// New grass color
+				final int summerGrassColor = 13296206;
+				
+				// Is the grass color already this color?
+				if (event.getNewColor() != summerGrassColor) {
+					
+					event.setNewColor(summerGrassColor);
+				}
+			}
+		}
+		
+		else if (season == Season.AUTUMN) {
+			
+			// BELOW 0.8(1)?
+			if (originalTemperature <= 0.80f) {
+				
+				// New grass color
+				final int autumnGrassColor = 13925888;
+				
+				// Is the grass color already this color?
+				if (event.getNewColor() != autumnGrassColor) {
+					
+					event.setNewColor(autumnGrassColor);
 				}
 			}
 		}

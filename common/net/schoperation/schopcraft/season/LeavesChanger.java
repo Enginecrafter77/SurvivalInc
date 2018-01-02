@@ -1,6 +1,7 @@
 package net.schoperation.schopcraft.season;
 
 import net.minecraft.block.BlockLeaves;
+import net.minecraft.block.BlockNewLeaf;
 import net.minecraft.block.BlockOldLeaf;
 import net.minecraft.block.BlockPlanks.EnumType;
 import net.minecraft.block.state.IBlockState;
@@ -233,7 +234,45 @@ public class LeavesChanger {
 			}
 		}
 		
-		// No? How about one of the modded leaves? Red and yellow?
+		// What about the OTHER type of leaf block (acacia and dark oak)?
+		else if (state.getBlock() == Blocks.LEAVES2) {
+			
+			// Alright, it's the secondary type of leaves.
+			// Is it Autumn, where they should be colorful?
+			if (season == Season.AUTUMN) {
+				
+				// Okay. This block needs to change. What type of leaves? Just in case
+				if (state.getBlock() instanceof BlockNewLeaf) {
+					
+					// Dark oak leaves? Make them orange.
+					if (state.getValue(BlockNewLeaf.VARIANT) == EnumType.DARK_OAK && state.getValue(BlockLeaves.DECAYABLE).booleanValue()) {
+						
+						world.setBlockState(pos, ModBlocks.ORANGE_LEAVES.getDefaultState().withProperty(BlockLeaves.DECAYABLE, true).withProperty(BlockLeaves.CHECK_DECAY, false));
+						return true;
+					}
+					
+					// No? Screw it. They're fine. Acacia's fine.
+					else {
+						
+						return false;
+					}
+				}
+				
+				else {
+					
+					// Ehh no. Not enough metadata. Perhaps with 1.13, when metadata is gonna disappear. Oh dear.
+					return false;
+				}	
+			}
+			
+			else {
+				
+				// Leave em.
+				return false;
+			}
+		}
+		
+		// No? How about one of the modded leaves? Red?
 		else if (state.getBlock() ==  ModBlocks.RED_LEAVES && state.getValue(BlockLeaves.DECAYABLE).booleanValue()) {
 			
 			// Okay, red leaves. Is it Spring?
@@ -259,6 +298,24 @@ public class LeavesChanger {
 				
 				// Alrighty. Change them back.
 				world.setBlockState(pos, Blocks.LEAVES.getDefaultState().withProperty(BlockLeaves.DECAYABLE, true).withProperty(BlockLeaves.CHECK_DECAY, false).withProperty(BlockOldLeaf.VARIANT, EnumType.BIRCH));
+				return true;
+			}
+			
+			else {
+				
+				// Don't bother.
+				return false;
+			}
+		}
+		
+		// Orange?
+		else if (state.getBlock() ==  ModBlocks.ORANGE_LEAVES && state.getValue(BlockLeaves.DECAYABLE).booleanValue()) {
+			
+			// Okay, orange leaves. Is it Spring?
+			if (season == Season.SPRING) {
+				
+				// Alrighty. Change them back.
+				world.setBlockState(pos, Blocks.LEAVES2.getDefaultState().withProperty(BlockLeaves.DECAYABLE, true).withProperty(BlockLeaves.CHECK_DECAY, false).withProperty(BlockNewLeaf.VARIANT, EnumType.DARK_OAK));
 				return true;
 			}
 			

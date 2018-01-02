@@ -56,7 +56,7 @@ public class BiomeTempController {
 	}
 	
 	// Want some original temp for a specific biome? Use this thingy-a-method here!
-	private float getOriginalTemperature(Biome biome) {
+	public float getOriginalTemperature(Biome biome) {
 		
 		// Iterator
 		Iterator<Biome> biomeList = ForgeRegistries.BIOMES.getValues().iterator();
