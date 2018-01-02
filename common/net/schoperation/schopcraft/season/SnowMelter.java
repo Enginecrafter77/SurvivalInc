@@ -8,7 +8,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
-import net.schoperation.schopcraft.SchopCraft;
 
 public class SnowMelter {
 	
@@ -220,7 +219,6 @@ public class SnowMelter {
 			
 			chunk = world.getChunkFromChunkCoords(chunk.x, chunk.z + 1);
 			meltSingleChunk(chunk, world);
-			
 		}
 		
 		// Southeast corner. Subtract one from x.
@@ -228,7 +226,6 @@ public class SnowMelter {
 			
 			chunk = world.getChunkFromChunkCoords(chunk.x - 1, chunk.z);
 			meltSingleChunk(chunk, world);
-			
 		}
 		
 		// Southwest corner. Subtract one from z.
@@ -236,7 +233,6 @@ public class SnowMelter {
 			
 			chunk = world.getChunkFromChunkCoords(chunk.x, chunk.z - 1);
 			meltSingleChunk(chunk, world);
-			
 		}
 	}
 	
@@ -263,7 +259,7 @@ public class SnowMelter {
 				
 				for (int z = 0; z < 16; z++) {
 					
-					// New BlockPos; add one to zed coordinate, then get correct y-value.
+					// New BlockPos; get correct y-value.
 					pos = chunk.getPrecipitationHeight(pos);
 					
 					// Now, is this a snow layer?

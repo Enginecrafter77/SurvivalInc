@@ -39,6 +39,7 @@ public class WorldSeason {
 	private final CycleController cycleController = new CycleController();
 	private final BiomeTempController biomeTemp = new BiomeTempController();
 	private final SnowMelter melter = new SnowMelter();
+	private final LeavesChanger leaves = new LeavesChanger();
 	
 	
 	// This fires on server startup. Load the data from file here
@@ -148,6 +149,15 @@ public class WorldSeason {
 						season = season.nextSeason();
 					}
 					
+					// Is it the start of spring or autumn? Initiate initial leaf changing.
+					if (daysIntoSeason == 0) {
+						
+						if (season == Season.SPRING || season == Season.AUTUMN) {
+							
+							leaves.changeInitial(season, world, player);
+						}
+					}
+					
 					// Save world data
 					DataManager.saveData(season, daysIntoSeason);
 					
@@ -214,6 +224,7 @@ public class WorldSeason {
 	}
 	
 	// Helps to melt snow in summer. Where there shouldn't be any snow.
+	// Also does the leaves.
 	@SubscribeEvent
 	public void onChunkWalkIn(EntityEvent.EnteringChunk event) {
 		
@@ -228,6 +239,17 @@ public class WorldSeason {
 				int chunkCoordX = event.getNewChunkX();
 				int chunkCoordZ = event.getNewChunkZ();
 				melter.meltCompletely(chunkCoordX, chunkCoordZ, player.world);
+			}
+			
+			// How about spring or autumn? Let's try to change some leaves.
+			else if (season == Season.SPRING || season == Season.AUTUMN) {
+				
+				if (!player.world.isRemote) {
+					
+					int chunkCoordX = event.getNewChunkX();
+					int chunkCoordZ = event.getNewChunkZ();
+					leaves.change(chunkCoordX, chunkCoordZ, player.world, season);
+				}
 			}
 		}
 	}

@@ -75,12 +75,12 @@ public class SchopWorldData extends WorldSavedData {
 			
 			if (data.season == 2) {
 				
-				data.daysIntoSeason = 7; // TODO when making length of season configurable, dont forgot to change this
+				data.daysIntoSeason = 6; // TODO when making length of season configurable, dont forgot to change this
 			}
 			
 			else {
 				
-				data.daysIntoSeason = 0;
+				data.daysIntoSeason = -1;
 			}
 			
 			data.markDirty();
