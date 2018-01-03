@@ -59,14 +59,12 @@ public class WeatherHandler {
 		int ticksUntilStart;
 		ticksUntilStart = rand.nextInt(9000);
 		
-		// Determine how long the rain shall last
-		// Either half a day or all day
+		// Determine how long the rain shall last		
+		tickDuration = rand.nextInt(18000);
 		
-		tickDuration = rand.nextInt(24000);
-		
-		if (tickDuration < 12000) {
+		if (tickDuration < 9000) {
 			
-			tickDuration += 12000;
+			tickDuration += 9000;
 		}
 		
 		// Actually change the weather
