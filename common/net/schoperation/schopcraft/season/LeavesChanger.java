@@ -9,6 +9,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.BiomeJungle;
 import net.minecraft.world.chunk.Chunk;
 import net.schoperation.schopcraft.lib.ModBlocks;
 
@@ -143,40 +145,52 @@ public class LeavesChanger {
 		int cz = chunk.getPos().getZStart();
 		BlockPos pos = new BlockPos(cx, 64, cz);
 		
-		// Iterate through all of the top-blocks and remove any snow and ice.
-		for (int x = 0; x < 16; x++) {
+		// Biome
+		Biome biome = chunk.getBiome(pos, world.getBiomeProvider());
+		
+		// Does this biome allow for changing leaves?
+		if (biome instanceof BiomeJungle) {
 			
-			for (int z = 0; z < 16; z++) {
+			// NOPE
+		}
+		
+		else {
+			
+			// Iterate through all of the top-blocks and remove any snow and ice.
+			for (int x = 0; x < 16; x++) {
 				
-				// New BlockPos; get the top-most y-value. Then go down one, because precipitation height is one block above the ground.
-				pos = chunk.getPrecipitationHeight(pos);
-				pos = pos.down();
-				
-				// Loop through each y-level below until it's not leaves, or the column isn't worth changing.
-				for (int y = 0; y < 20; y++) {
+				for (int z = 0; z < 16; z++) {
 					
-					// Determine if this block should be replaced.
-					boolean success = tryToChangeSingleBlock(world, pos, season);
+					// New BlockPos; get the top-most y-value. Then go down one, because precipitation height is one block above the ground.
+					pos = chunk.getPrecipitationHeight(pos);
+					pos = pos.down();
 					
-					// Next y-level down, if this succeeded.
-					if (success) {
+					// Loop through each y-level below until it's not leaves, or the column isn't worth changing.
+					for (int y = 0; y < 20; y++) {
 						
-						pos = pos.down();
-					}
-					
-					else {
+						// Determine if this block should be replaced.
+						boolean success = tryToChangeSingleBlock(world, pos, season);
 						
-						break;
+						// Next y-level down, if this succeeded.
+						if (success) {
+							
+							pos = pos.down();
+						}
+						
+						else {
+							
+							break;
+						}
 					}
+	
+					// Goto next z
+					pos = pos.south();
 				}
-
-				// Goto next z
-				pos = pos.south();
+				
+				// Goto next x
+				pos = pos.east();
+				pos = pos.north(16);
 			}
-			
-			// Goto next x
-			pos = pos.east();
-			pos = pos.north(16);
 		}
 		
 		// Mark chunk dirty just in case

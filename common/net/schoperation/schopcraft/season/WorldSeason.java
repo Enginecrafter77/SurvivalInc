@@ -1,12 +1,17 @@
 package net.schoperation.schopcraft.season;
 
+import java.util.List;
+
+import net.minecraft.block.BlockCrops;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.terraingen.BiomeEvent;
+import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -163,13 +168,16 @@ public class WorldSeason {
 					// Save world data
 					DataManager.saveData(season, daysIntoSeason);
 					
-					// Change temperatures
-					biomeTemp.changeBiomeTemperatures(season, daysIntoSeason);
-					
 					// Send new season data to client
 					int seasonInt = SchopWorldData.seasonToInt(season);
 					IMessage msg = new SeasonPacket.SeasonMessage(seasonInt, daysIntoSeason);
 					SchopPackets.net.sendTo(msg, (EntityPlayerMP) player); 
+					
+					// Change temperatures
+					biomeTemp.changeBiomeTemperatures(season, daysIntoSeason);
+					
+					// Change plant growth speed
+					tweaks.affectPlantGrowth(world, season);
 					
 					// Determine the weather. The season is the main factor.
 					float randWeather = (float) Math.random();
@@ -269,6 +277,32 @@ public class WorldSeason {
 		else if (event.getNewColor() != color) {
 			
 			event.setNewColor(color);
+		}
+	}
+	
+	// Add bonus harvest drops from crops in the Autumn.
+	@SubscribeEvent
+	public void harvestDrops(BlockEvent.HarvestDropsEvent event) {
+		
+		// Is it actually Autumn?
+		if (season == Season.AUTUMN) {
+			
+			// Is this a legit crop?
+			if (event.getState().getBlock() instanceof BlockCrops) {
+
+				// Block
+				BlockCrops crop = (BlockCrops) event.getState().getBlock();
+				
+				// Drops
+				List<ItemStack> drops = event.getDrops();
+				
+				// Now, we should only award bonus drops if it's fully grown.
+				if (crop.isMaxAge(event.getState()) && !event.getWorld().isRemote) {
+				
+					// Let's go
+					drops = tweaks.addBonusHarvest(drops);
+				}
+			}
 		}
 	}
 }
