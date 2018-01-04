@@ -28,7 +28,7 @@ import net.schoperation.schopcraft.util.SchopServerParticles;
 
 public class TemperatureModifier {
 	
-	public static void onPlayerUpdate(EntityPlayer player) {
+	public void onPlayerUpdate(EntityPlayer player) {
 		
 		// Capabilities
 		ITemperature temperature = player.getCapability(TemperatureProvider.TEMPERATURE_CAP, null);
@@ -110,89 +110,6 @@ public class TemperatureModifier {
 			// Cool down the player if they're wet.
 			temperature.decreaseTarget(wetness.getWetness() * 0.40f);
 			
-			// What is the player wearing? If it's leather, then it warms the player. Otherwise, it could go either way.
-			// List of armor items.
-			Iterator<ItemStack> armorList = player.getArmorInventoryList().iterator();
-			
-			// Iterate through items. 0 = boots, 1 = leggings, 2 = chestplate, 3 = helmet.
-			while (armorList.hasNext()) {
-				
-				// Element
-				ItemStack element = armorList.next();
-				
-				// Some float to be added when armor is some metal
-				float addedTemp = 0.0f;
-				
-				// This will determine whether metal armor will increase or decrease the target temp.
-				if (temperature.getTargetTemperature() < 50.0f) {
-					
-					addedTemp = -5.0f;
-				}
-				
-				else {
-					
-					addedTemp = 5.0f;
-				}
-				
-				// Now see what armor it is!
-				// Leather. This area is different because of the different colors. It's weird. So gotta use unlocalized names for now.
-				if (element.getUnlocalizedName().equals("item.bootsCloth")) { temperature.increaseTarget(5.0f); }
-				else if (element.getUnlocalizedName().equals("item.leggingsCloth")) { temperature.increaseTarget(5.0f); }
-				else if (element.getUnlocalizedName().equals("item.chestplateCloth")) { temperature.increaseTarget(10.0f); }
-				else if (element.getUnlocalizedName().equals("item.helmetCloth")) { temperature.increaseTarget(5.0f); }
-				
-				// Chain
-				else if (ItemStack.areItemStacksEqual(element, new ItemStack(Items.CHAINMAIL_BOOTS))) { temperature.increaseTarget(addedTemp); }
-				else if (ItemStack.areItemStacksEqual(element, new ItemStack(Items.CHAINMAIL_LEGGINGS))) { temperature.increaseTarget(addedTemp * 1.5f); }
-				else if (ItemStack.areItemStacksEqual(element, new ItemStack(Items.CHAINMAIL_CHESTPLATE))) { temperature.increaseTarget(addedTemp * 2); }
-				else if (ItemStack.areItemStacksEqual(element, new ItemStack(Items.CHAINMAIL_HELMET))) { temperature.increaseTarget(addedTemp); }
-				
-				// Gold
-				else if (ItemStack.areItemStacksEqual(element, new ItemStack(Items.GOLDEN_BOOTS))) { temperature.increaseTarget(addedTemp); }
-				else if (ItemStack.areItemStacksEqual(element, new ItemStack(Items.GOLDEN_LEGGINGS))) { temperature.increaseTarget(addedTemp * 1.5f); }
-				else if (ItemStack.areItemStacksEqual(element, new ItemStack(Items.GOLDEN_CHESTPLATE))) { temperature.increaseTarget(addedTemp * 2); }
-				else if (ItemStack.areItemStacksEqual(element, new ItemStack(Items.GOLDEN_HELMET))) { temperature.increaseTarget(addedTemp); }
-				
-				// Iron
-				else if (ItemStack.areItemStacksEqual(element, new ItemStack(Items.IRON_BOOTS))) { temperature.increaseTarget(addedTemp); }
-				else if (ItemStack.areItemStacksEqual(element, new ItemStack(Items.IRON_LEGGINGS))) { temperature.increaseTarget(addedTemp * 1.5f); }
-				else if (ItemStack.areItemStacksEqual(element, new ItemStack(Items.IRON_CHESTPLATE))) { temperature.increaseTarget(addedTemp * 2); }
-				else if (ItemStack.areItemStacksEqual(element, new ItemStack(Items.IRON_HELMET))) { temperature.increaseTarget(addedTemp); }
-				
-				// Diamond
-				else if (ItemStack.areItemStacksEqual(element, new ItemStack(Items.DIAMOND_BOOTS))) { temperature.increaseTarget(addedTemp); }
-				else if (ItemStack.areItemStacksEqual(element, new ItemStack(Items.DIAMOND_LEGGINGS))) { temperature.increaseTarget(addedTemp * 1.5f); }
-				else if (ItemStack.areItemStacksEqual(element, new ItemStack(Items.DIAMOND_CHESTPLATE))) { temperature.increaseTarget(addedTemp * 2); }
-				else if (ItemStack.areItemStacksEqual(element, new ItemStack(Items.DIAMOND_HELMET))) { temperature.increaseTarget(addedTemp); }
-			}
-			
-			// Huddling with other players will warm you up.
-			// Ghosts do the opposite.
-			// Bounding box and list of nearby players.
-			AxisAlignedBB boundingBoxPlayers = player.getEntityBoundingBox().grow(1, 1, 1);
-			List nearbyPlayers = player.world.getEntitiesWithinAABB(EntityPlayer.class, boundingBoxPlayers);
-			
-			// Now iterate through the list.
-			for (int numPlayers = 0; numPlayers < nearbyPlayers.size(); numPlayers++) {
-				
-				// Chosen player
-				EntityPlayerMP otherPlayer = (EntityPlayerMP) nearbyPlayers.get(numPlayers);
-				
-				// Ghost capability of other player.
-				IGhost ghost = otherPlayer.getCapability(GhostProvider.GHOST_CAP, null);
-				
-				// Now change temperature accordingly.
-				if (otherPlayer != player && !ghost.isGhost()) {
-					
-					temperature.increaseTarget(5.0f);
-				}
-				
-				else if (otherPlayer != player && ghost.isGhost()) {
-					
-					temperature.decreaseTarget(20.0f);
-				}
-			}
-			
 			// ==================================
 			//        PROXIMITY DETECT
 			// ==================================
@@ -225,6 +142,99 @@ public class TemperatureModifier {
 			// Magma block. One y-level down only.
 			if (ProximityDetect.isBlockUnderPlayer(blockPos.getX(), blockPos.getY(), blockPos.getZ(), Blocks.MAGMA, player)) { if (player.world.canBlockSeeSky(blockPos)) { temperature.increaseTarget(10.0f); } else { temperature.increaseTarget(20.0f); } }
 			else if (ProximityDetect.isBlockUnderPlayer2(blockPos.getX(), blockPos.getY(), blockPos.getZ(), Blocks.MAGMA, player, false)) { if (player.world.canBlockSeeSky(blockPos)) { temperature.increaseTarget(5.0f); } else { temperature.increaseTarget(10.0f); } }
+
+			
+			// Huddling with other players will warm you up.
+			// Ghosts do the opposite.
+			// Bounding box and list of nearby players.
+			AxisAlignedBB boundingBoxPlayers = player.getEntityBoundingBox().grow(1, 1, 1);
+			List nearbyPlayers = player.world.getEntitiesWithinAABB(EntityPlayer.class, boundingBoxPlayers);
+			
+			// Now iterate through the list.
+			for (int numPlayers = 0; numPlayers < nearbyPlayers.size(); numPlayers++) {
+				
+				// Chosen player
+				EntityPlayerMP otherPlayer = (EntityPlayerMP) nearbyPlayers.get(numPlayers);
+				
+				// Ghost capability of other player.
+				IGhost ghost = otherPlayer.getCapability(GhostProvider.GHOST_CAP, null);
+				
+				// Now change temperature accordingly.
+				if (otherPlayer != player && !ghost.isGhost()) {
+					
+					temperature.increaseTarget(5.0f);
+				}
+				
+				else if (otherPlayer != player && ghost.isGhost()) {
+					
+					temperature.decreaseTarget(20.0f);
+				}
+			}
+			
+			// ================================
+			//            ARMOR
+			// ================================
+			
+			// What is the player wearing? If it's leather, then it warms the player. Otherwise, it could go either way.
+			// List of armor items.
+			Iterator<ItemStack> armorList = player.getArmorInventoryList().iterator();
+			
+			// Iterate through items. 0 = boots, 1 = leggings, 2 = chestplate, 3 = helmet.
+			while (armorList.hasNext()) {
+				
+				// Element
+				ItemStack element = armorList.next();
+				
+				// Some float to be added when armor is some metal
+				float addedTemp = 0.0f;
+				
+				// This will determine whether metal armor will increase or decrease the target temp.
+				if (temperature.getTargetTemperature() > 40.0f && temperature.getTargetTemperature() < 60.0f) {
+					
+					addedTemp = 0.5f;
+				}
+				
+				else if (temperature.getTargetTemperature() < 40.0f) {
+					
+					addedTemp = -2.5f;
+				}
+				
+				else {
+					
+					addedTemp = 2.5f;
+				}
+				
+				// Now see what armor it is!
+				// Leather. This area is different because of the different colors. It's weird. So gotta use unlocalized names for now.
+				if (element.getUnlocalizedName().equals("item.bootsCloth")) { temperature.increaseTarget(4.0f); }
+				else if (element.getUnlocalizedName().equals("item.leggingsCloth")) { temperature.increaseTarget(6.0f); }
+				else if (element.getUnlocalizedName().equals("item.chestplateCloth")) { temperature.increaseTarget(10.0f); }
+				else if (element.getUnlocalizedName().equals("item.helmetCloth")) { temperature.increaseTarget(5.0f); }
+				
+				// Chain
+				else if (ItemStack.areItemsEqualIgnoreDurability(element, new ItemStack(Items.CHAINMAIL_BOOTS))) { temperature.increaseTarget(addedTemp); }
+				else if (ItemStack.areItemsEqualIgnoreDurability(element, new ItemStack(Items.CHAINMAIL_LEGGINGS))) { temperature.increaseTarget(addedTemp * 1.5f); }
+				else if (ItemStack.areItemsEqualIgnoreDurability(element, new ItemStack(Items.CHAINMAIL_CHESTPLATE))) { temperature.increaseTarget(addedTemp * 2); }
+				else if (ItemStack.areItemsEqualIgnoreDurability(element, new ItemStack(Items.CHAINMAIL_HELMET))) { temperature.increaseTarget(addedTemp); }
+				
+				// Gold
+				else if (ItemStack.areItemsEqualIgnoreDurability(element, new ItemStack(Items.GOLDEN_BOOTS))) { temperature.increaseTarget(addedTemp); }
+				else if (ItemStack.areItemsEqualIgnoreDurability(element, new ItemStack(Items.GOLDEN_LEGGINGS))) { temperature.increaseTarget(addedTemp * 1.5f); }
+				else if (ItemStack.areItemsEqualIgnoreDurability(element, new ItemStack(Items.GOLDEN_CHESTPLATE))) { temperature.increaseTarget(addedTemp * 2); }
+				else if (ItemStack.areItemsEqualIgnoreDurability(element, new ItemStack(Items.GOLDEN_HELMET))) { temperature.increaseTarget(addedTemp); }
+				
+				// Iron
+				else if (ItemStack.areItemsEqualIgnoreDurability(element, new ItemStack(Items.IRON_BOOTS))) { temperature.increaseTarget(addedTemp); }
+				else if (ItemStack.areItemsEqualIgnoreDurability(element, new ItemStack(Items.IRON_LEGGINGS))) { temperature.increaseTarget(addedTemp * 1.5f); }
+				else if (ItemStack.areItemsEqualIgnoreDurability(element, new ItemStack(Items.IRON_CHESTPLATE))) { temperature.increaseTarget(addedTemp * 2); }
+				else if (ItemStack.areItemsEqualIgnoreDurability(element, new ItemStack(Items.IRON_HELMET))) { temperature.increaseTarget(addedTemp); }
+				
+				// Diamond
+				else if (ItemStack.areItemsEqualIgnoreDurability(element, new ItemStack(Items.DIAMOND_BOOTS))) { temperature.increaseTarget(addedTemp); }
+				else if (ItemStack.areItemsEqualIgnoreDurability(element, new ItemStack(Items.DIAMOND_LEGGINGS))) { temperature.increaseTarget(addedTemp * 1.5f); }
+				else if (ItemStack.areItemsEqualIgnoreDurability(element, new ItemStack(Items.DIAMOND_CHESTPLATE))) { temperature.increaseTarget(addedTemp * 2); }
+				else if (ItemStack.areItemsEqualIgnoreDurability(element, new ItemStack(Items.DIAMOND_HELMET))) { temperature.increaseTarget(addedTemp); }
+			}
 			
 			// ===========================================
 			//      FACTORS THAT AFFECT TEMP DIRECTLY
@@ -387,7 +397,7 @@ public class TemperatureModifier {
 	}
 	
 	// This checks any consumed item by the player, and affects temperature accordingly.
-	public static void onPlayerConsumeItem(EntityPlayer player, ItemStack item) {
+	public void onPlayerConsumeItem(EntityPlayer player, ItemStack item) {
 		
 		// Capability
 		ITemperature temperature = player.getCapability(TemperatureProvider.TEMPERATURE_CAP, null);
@@ -415,7 +425,7 @@ public class TemperatureModifier {
 		
 	// This is called in order to affect the rate of the player's temperature, based on the target temperature.
 	// The bigger the difference between the target temp and player temp, the quicker the player temp changes towards the target temp, positive or negative.
-	private static void changeRateOfTemperature(EntityPlayer player) {
+	private void changeRateOfTemperature(EntityPlayer player) {
 		
 		// Server-side mate.
 		if (!player.world.isRemote) {

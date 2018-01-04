@@ -1,7 +1,5 @@
 package net.schoperation.schopcraft.cap.temperature;
 
-import net.schoperation.schopcraft.config.ModConfig;
-
 public class Temperature implements ITemperature {
 	
 	// Create temperature variables.
@@ -12,98 +10,74 @@ public class Temperature implements ITemperature {
 	
 	// Methods for messing with temperature, or getting it.
 	public void increase(float amount) {
+
+		this.temperature += amount;
 		
-		if (ModConfig.enableTemperature) {
+		if (this.temperature > this.maxTemperature) {
 			
-			this.temperature += amount;
+			this.temperature = this.maxTemperature;
+		}
+		
+		else if (this.temperature < this.minTemperature) {
 			
-			if (this.temperature > this.maxTemperature) {
-				
-				this.temperature = this.maxTemperature;
-			}
-			
-			else if (this.temperature < this.minTemperature) {
-				
-				this.temperature = this.minTemperature;
-			}
+			this.temperature = this.minTemperature;
 		}
 	}
 	
 	public void decrease(float amount) {
 		
-		if (ModConfig.enableTemperature) {
+		this.temperature -= amount;
+	
+		if (this.temperature < this.minTemperature) {
 			
-			this.temperature -= amount;
+			this.temperature = this.minTemperature;
+		}
 		
-			if (this.temperature < this.minTemperature) {
-				
-				this.temperature = this.minTemperature;
-			}
+		else if (this.temperature > this.maxTemperature) {
 			
-			else if (this.temperature > this.maxTemperature) {
-				
-				this.temperature = this.maxTemperature;
-			}
+			this.temperature = this.maxTemperature;
 		}
 	}
 		
 	
 	public void set(float amount) {
+
+		this.temperature = amount;
 		
-		if (ModConfig.enableTemperature) {
+		if (this.temperature > this.maxTemperature) {
 			
-			this.temperature = amount;
+			this.temperature = this.maxTemperature;
+		}
+		
+		else if (this.temperature < this.minTemperature) {
 			
-			if (this.temperature > this.maxTemperature) {
-				
-				this.temperature = this.maxTemperature;
-			}
-			
-			else if (this.temperature < this.minTemperature) {
-				
-				this.temperature = this.minTemperature;
-			}
+			this.temperature = this.minTemperature;
 		}
 	}
 	
 	public void setMax(float amount) {
 		
-		if (ModConfig.enableTemperature) {
-			
-			this.maxTemperature = amount;
-		}	
+		this.maxTemperature = amount;
 	}
 	
 	public void setMin(float amount) {
-		
-		if (ModConfig.enableTemperature) {
-			
-			this.minTemperature = amount;
-		}
+
+		this.minTemperature = amount;
 	}
 	
 	public void increaseTarget(float amount) {
 		
-		if (ModConfig.enableTemperature) {
-			
-			this.targetTemperature += amount;
-		}	
+		this.targetTemperature += amount;
 	}
 	
 	public void decreaseTarget(float amount) {
-		
-		if (ModConfig.enableTemperature) {
-			
-			this.targetTemperature -= amount;
-		}	
+
+		this.targetTemperature -= amount;
 	}
 	
 	public void setTarget(float amount) {
 		
-		if (ModConfig.enableTemperature) {
-			
-			this.targetTemperature = amount;
-		}
+		this.targetTemperature = amount;
 	}
 	
 	public float getTemperature() {

@@ -75,10 +75,10 @@ public class SanityModifier {
 	
 	// The first variable is used for the timer at the end of onPlayerUpdate to allow for a hallucination once per 20 ticks.
 	// The other is for spawning "Them".
-	private static int lucidTimer = 0;
-	private static int spawnThemTimer = 0;
+	private int lucidTimer = 0;
+	private int spawnThemTimer = 0;
 	
-	public static void onPlayerUpdate(Entity player) {
+	public void onPlayerUpdate(Entity player) {
 		
 		// Capabilities
 		ISanity sanity = player.getCapability(SanityProvider.SANITY_CAP, null);
@@ -140,12 +140,12 @@ public class SanityModifier {
 			// Being drenched for a long time won't do you good.
 			if (wetness.getWetness() > 90.0f) {
 				
-				sanity.decrease(0.005f);
+				sanity.decrease(0.003f);
 			}
 			
 			else if (wetness.getWetness() > 70.0f) {
 				
-				sanity.decrease(0.003f);
+				sanity.decrease(0.001f);
 			}
 			
 			// Now iterate through each mob that appears on the list of nearby mobs.
@@ -323,7 +323,7 @@ public class SanityModifier {
 							SchopPackets.net.sendTo(msgStuff, (EntityPlayerMP) player);
 						}
 						
-						// A villager sound... are they lost?
+						// Aï¿½villager sound... are they lost?
 						else if (pickAHallucination >= 0.80 && pickAHallucination < 0.90) {
 							
 							IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(player.getCachedUniqueIdString(), "VillagerSound", "null", playerPosX+randOffset, playerPosY+randOffset, playerPosZ+randOffset);
@@ -440,7 +440,7 @@ public class SanityModifier {
 	}
 	
 	// This checks any consumed item by the player, and affects sanity accordingly. Just vanilla items for now.
-	public static void onPlayerConsumeItem(EntityPlayer player, ItemStack item) {
+	public void onPlayerConsumeItem(EntityPlayer player, ItemStack item) {
 		
 		// Capability
 		ISanity sanity = player.getCapability(SanityProvider.SANITY_CAP, null);
@@ -480,7 +480,7 @@ public class SanityModifier {
 	// This pretty much will not be fired if the world is singleplayer, as by the time the player is fully asleep,
 	// ...the time will be day, kicking the player out of bed. Called on client-side, because when I tried to do it server-side...
 	// ...only one player would get the +33 sanity from waking up, even if more than one player woke up.
-	public static void onPlayerSleepInBed(EntityPlayer player) {
+	public void onPlayerSleepInBed(EntityPlayer player) {
 		
 		// Capability
 		ISanity sanity = player.getCapability(SanityProvider.SANITY_CAP, null);
@@ -503,7 +503,7 @@ public class SanityModifier {
 	
 	// At this point, the player has awoke from their sleep. This "sleep" could've been 1 second or 1 day.
 	// Figure out if it is daytime (the sleep is successful). If so, grant extra sanity and drain extra hunger.
-	public static void onPlayerWakeUp(EntityPlayer player) {
+	public void onPlayerWakeUp(EntityPlayer player) {
 		
 		// Capability
 		ISanity sanity = player.getCapability(SanityProvider.SANITY_CAP, null);
@@ -525,7 +525,7 @@ public class SanityModifier {
 	}
 	
 	// As we know, They will spawn near insane players. They should drop lucid dream essence when killed.
-	public static void onDropsDropped(Entity entityKilled, List<EntityItem> drops, int lootingLevel, DamageSource damageSource) {
+	public void onDropsDropped(Entity entityKilled, List<EntityItem> drops, int lootingLevel, DamageSource damageSource) {
 		
 		// Was this mob killed by a player? (and server-side).
 		if (damageSource.getDamageType() == "player" && !entityKilled.world.isRemote) {

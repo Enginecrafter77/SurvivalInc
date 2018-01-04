@@ -29,8 +29,8 @@ public class GuiRenderBar extends Gui {
 	private static boolean isGhost = false;
 	private static float ghostEnergy = 0.00f, maxGhostEnergy = 100.00f;
 	
-	// This method gets the correct stats of the player. The min parameters will be kept here just in case they're needed in the future.
-	public static void getServerStats(float newTemperature, float newMaxTemperature, float newMinTemperature, float newTargetTemperature, float newThirst, float newMaxThirst, float newMinThirst, float newSanity, float newMaxSanity, float newMinSanity, float newWetness, float newMaxWetness, float newMinWetness, boolean newIsGhost, float newGhostEnergy) {
+	// This method gets the correct stats of the player.
+	public static void getServerStats(float newTemperature, float newMaxTemperature, float newTargetTemperature, float newThirst, float newMaxThirst, float newSanity, float newMaxSanity, float newWetness, float newMaxWetness, boolean newIsGhost, float newGhostEnergy) {
 		
 		temperature = newTemperature;
 		maxTemperature = newMaxTemperature;

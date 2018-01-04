@@ -1,7 +1,5 @@
 package net.schoperation.schopcraft.cap.sanity;
 
-import net.schoperation.schopcraft.config.ModConfig;
-
 public class Sanity implements ISanity {
 	
 	// Create sanity variables.
@@ -12,72 +10,57 @@ public class Sanity implements ISanity {
 	// Methods for messing with sanity or getting it.
 	public void increase(float amount) {
 		
-		if (ModConfig.enableSanity) {
+		this.sanity += amount;
+		
+		if (this.sanity > this.maxSanity) {
 			
-			this.sanity += amount;
+			this.sanity = this.maxSanity;
+		}
+		
+		else if (this.sanity < this.minSanity) {
 			
-			if (this.sanity > this.maxSanity) {
-				
-				this.sanity = this.maxSanity;
-			}
-			
-			else if (this.sanity < this.minSanity) {
-				
-				this.sanity = this.minSanity;
-			}
+			this.sanity = this.minSanity;
 		}
 	}
 	
 	public void decrease(float amount) {
 		
-		if (ModConfig.enableSanity) {
+		this.sanity -= amount;
+		
+		if (this.sanity < this.minSanity) {
 			
-			this.sanity -= amount;
+			this.sanity = this.minSanity;
+		}
+		
+		else if (this.sanity > this.maxSanity) {
 			
-			if (this.sanity < this.minSanity) {
-				
-				this.sanity = this.minSanity;
-			}
-			
-			else if (this.sanity > this.maxSanity) {
-				
-				this.sanity = this.maxSanity;
-			}
+			this.sanity = this.maxSanity;
 		}
 	}
 	
 	public void set(float amount) {
 		
-		if (ModConfig.enableSanity) {
+		this.sanity = amount;
+		
+		if (this.sanity > this.maxSanity) {
 			
-			this.sanity = amount;
+			this.sanity = this.maxSanity;
+		}
+		
+		else if (this.sanity < this.minSanity) {
 			
-			if (this.sanity > this.maxSanity) {
-				
-				this.sanity = this.maxSanity;
-			}
-			
-			else if (this.sanity < this.minSanity) {
-				
-				this.sanity = this.minSanity;
-			}
+			this.sanity = this.minSanity;
 		}
 	}
 	
 	public void setMax(float amount) {
 		
-		if (ModConfig.enableSanity) {
-			
-			this.maxSanity = amount;
-		}	
+		this.maxSanity = amount;
 	}
 	
 	public void setMin(float amount) {
 		
-		if (ModConfig.enableSanity) {
-			
-			this.minSanity = amount;
-		}
+		this.minSanity = amount;
 	}
 	
 	public float getSanity() {

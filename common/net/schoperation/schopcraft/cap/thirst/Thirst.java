@@ -1,7 +1,5 @@
 package net.schoperation.schopcraft.cap.thirst;
 
-import net.schoperation.schopcraft.config.ModConfig;
-
 public class Thirst implements IThirst {
 	
 	// Create thirst variables.
@@ -12,72 +10,57 @@ public class Thirst implements IThirst {
 	// Methods for messing with thirst (or getting it).
 	public void increase(float amount) {
 		
-		if (ModConfig.enableThirst) {
+		this.thirst += amount;
+		
+		if (this.thirst > this.maxThirst) {
 			
-			this.thirst += amount;
+			this.thirst = this.maxThirst;
+		}
+		
+		else if (this.thirst < this.minThirst) {
 			
-			if (this.thirst > this.maxThirst) {
-				
-				this.thirst = this.maxThirst;
-			}
-			
-			else if (this.thirst < this.minThirst) {
-				
-				this.thirst = this.minThirst;
-			}
+			this.thirst = this.minThirst;
 		}
 	}
 	
 	public void decrease(float amount) {
 		
-		if (ModConfig.enableThirst) {
+		this.thirst -= amount;
+		
+		if (this.thirst < this.minThirst) {
 			
-			this.thirst -= amount;
+			this.thirst = this.minThirst;
+		}
+		
+		else if (this.thirst > this.maxThirst) {
 			
-			if (this.thirst < this.minThirst) {
-				
-				this.thirst = this.minThirst;
-			}
-			
-			else if (this.thirst > this.maxThirst) {
-				
-				this.thirst = this.maxThirst;
-			}
+			this.thirst = this.maxThirst;
 		}
 	}
 	
 	public void set(float amount) {
 		
-		if (ModConfig.enableThirst) {
+		this.thirst = amount;
+		
+		if (this.thirst > this.maxThirst) {
 			
-			this.thirst = amount;
-			
-			if (this.thirst > this.maxThirst) {
-				
-				this.thirst = this.maxThirst;
-			}
-			
-			else if (this.thirst < this.minThirst) {
-			
-				this.thirst = this.minThirst;
-			}
+			this.thirst = this.maxThirst;
+		}
+		
+		else if (this.thirst < this.minThirst) {
+		
+			this.thirst = this.minThirst;
 		}
 	}
 	
 	public void setMax(float amount) {
-		
-		if (ModConfig.enableThirst) {
-			
-			this.maxThirst = amount;
-		}	
+
+		this.maxThirst = amount;
 	}
 	
 	public void setMin(float amount) {
 		
-		if (ModConfig.enableThirst) {
-			
-			this.minThirst = amount;
-		}
+		this.minThirst = amount;
 	}
 	
 	public float getThirst() {

@@ -15,7 +15,7 @@ import net.schoperation.schopcraft.util.SchopServerParticles;
 
 public class WetnessModifier {
 	
-	public static void onPlayerUpdate(Entity player) {
+	public void onPlayerUpdate(Entity player) {
 		
 		// Capability
 		IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
@@ -51,11 +51,11 @@ public class WetnessModifier {
 				// In water?
 				if (player.isInWater()) {
 					
-					// Hey now, the player could just be in one block of water at their feet. If so, just go to 50% wetness Or somewhere around there.
-					// We'll check if water is in the player's face. If so, 100%. If not, 50%.
+					// Hey now, the player could just be in one block of water at their feet. If so, just go to 40% wetness Or somewhere around there.
+					// We'll check if water is in the player's face. If so, 100%. If not, 40%.
 					if (player.world.getBlockState(posFace).getBlock() != Blocks.WATER && player.world.getBlockState(posFace).getBlock() != Blocks.FLOWING_WATER) {
 					
-						if (wetness.getWetness() < 50) { wetness.increase(1.5f); }
+						if (wetness.getWetness() < 40) { wetness.increase(1.25f); }
 					}
 					
 					else {
@@ -67,7 +67,7 @@ public class WetnessModifier {
 				// In rain?
 				if (player.world.isRainingAt(posFace)) {
 				
-					wetness.increase(0.015f);
+					wetness.increase(0.01f);
 				}
 			}
 				
@@ -75,8 +75,8 @@ public class WetnessModifier {
 			else {
 				
 				// Figure out the conditions of the world, then dry off naturally accordingly.
-				if (player.world.isDaytime() && player.world.canBlockSeeSky(pos)) { wetness.decrease(0.02f); }
-				else { wetness.decrease(0.01f); }
+				if (player.world.isDaytime() && player.world.canBlockSeeSky(pos)) { wetness.decrease(0.01f); }
+				else { wetness.decrease(0.005f); }
 			}
 			
 			// ==============================================================

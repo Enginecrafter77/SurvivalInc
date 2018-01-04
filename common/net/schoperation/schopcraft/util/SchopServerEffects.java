@@ -27,7 +27,7 @@ public class SchopServerEffects {
 			EntityPlayerMP player = server.getPlayerList().getPlayerByUsername(playerList[num]);
 			
 			// Is this the right player? check UUIDs.
-			if (player.getCachedUniqueIdString().equals(uuid) && !player.world.isRemote) {
+			if (!player.isCreative() && player.getCachedUniqueIdString().equals(uuid) && !player.world.isRemote) {
 				
 				// Decipher potion effect string and affect the player accordingly.
 				// Poison

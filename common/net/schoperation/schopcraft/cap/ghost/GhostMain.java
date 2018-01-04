@@ -38,7 +38,7 @@ import net.schoperation.schopcraft.util.SchopServerSounds;
 public class GhostMain {
 	
 	// Mark the player as a ghost upon death.
-	public static void onPlayerRespawn(EntityPlayer player) {
+	public void onPlayerRespawn(EntityPlayer player) {
 		
 		// Ghost capability.
 		IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
@@ -54,10 +54,10 @@ public class GhostMain {
 	}
 	
 	// This is in place for the resurrection to be delayed properly.
-	private static int resurrectionTimer = -1;
+	private int resurrectionTimer = -1;
 	
 	// The main method.
-	public static void onPlayerUpdate(EntityPlayer player) {
+	public void onPlayerUpdate(EntityPlayer player) {
 		
 		// Capabilities.
 		IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
@@ -263,7 +263,7 @@ public class GhostMain {
 	}
 	
 	// This method starts the legitimate resurrection process.
-	private static void startResurrection(EntityPlayer player, BlockPos pos) {
+	private void startResurrection(EntityPlayer player, BlockPos pos) {
 		
 		// Player cached UUID.
 		String uuid = player.getCachedUniqueIdString();
@@ -276,7 +276,7 @@ public class GhostMain {
 	}
 	
 	// Finish resurrection!
-	private static void finishResurrection(EntityPlayer player, BlockPos pos) {
+	private void finishResurrection(EntityPlayer player, BlockPos pos) {
 		
 		// Capabilities
 		IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);

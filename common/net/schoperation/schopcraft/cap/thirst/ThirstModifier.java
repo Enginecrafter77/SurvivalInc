@@ -26,7 +26,7 @@ import net.schoperation.schopcraft.util.SchopServerSounds;
 
 public class ThirstModifier {
 	
-	public static void onPlayerUpdate(EntityPlayer player) {
+	public void onPlayerUpdate(EntityPlayer player) {
 		
 		// Capabilities
 		IThirst thirst = player.getCapability(ThirstProvider.THIRST_CAP, null);
@@ -136,7 +136,7 @@ public class ThirstModifier {
 		}
 	}
 	
-	public static void onPlayerInteract(EntityPlayer player) {
+	public void onPlayerInteract(EntityPlayer player) {
 		
 		// Capability
 		IThirst thirst = player.getCapability(ThirstProvider.THIRST_CAP, null);

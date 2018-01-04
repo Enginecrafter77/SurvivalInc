@@ -17,29 +17,28 @@ public class GuiRenderPacket implements IMessageHandler<GuiRenderMessage, IMessa
 			
 			String uuid = message.uuid;
 			
+			// Temperature
 			float temperature = message.temperature;
 			float maxTemperature = message.maxTemperature;
-			float minTemperature = message.minTemperature;
 			float targetTemperature = message.targetTemperature;
 			
+			// Thirst
 			float thirst = message.thirst;
 			float maxThirst = message.maxThirst;
-			float minThirst = message.minThirst;
 			
 			// Sanity
 			float sanity = message.sanity;
 			float maxSanity = message.maxSanity;
-			float minSanity = message.minSanity;
 			
 			// Wetness
 			float wetness = message.wetness;
 			float maxWetness = message.maxWetness;
-			float minWetness = message.minWetness;
 			
 			// Ghost Stats
 			boolean isGhost = message.isGhost;
 			float ghostEnergy = message.ghostEnergy;
-			GuiRenderBar.getServerStats(temperature, maxTemperature, minTemperature, targetTemperature, thirst, maxThirst, minThirst, sanity, maxSanity, minSanity, wetness, maxWetness, minWetness, isGhost, ghostEnergy);
+			
+			GuiRenderBar.getServerStats(temperature, maxTemperature, targetTemperature, thirst, maxThirst, sanity, maxSanity, wetness, maxWetness, isGhost, ghostEnergy);
 		}
 		
 		return null;
@@ -53,23 +52,19 @@ public class GuiRenderPacket implements IMessageHandler<GuiRenderMessage, IMessa
 		// Temperature
 		private float temperature;
 		private float maxTemperature;
-		private float minTemperature;
 		private float targetTemperature;
 		
 		// Thirst
 		private float thirst;
 		private float maxThirst;
-		private float minThirst;
 		
 		// Sanity
 		private float sanity;
 		private float maxSanity;
-		private float minSanity;
 		
 		// Wetness
 		private float wetness;
 		private float maxWetness;
-		private float minWetness;
 		
 		// Ghost Stats
 		private boolean isGhost;
@@ -78,22 +73,18 @@ public class GuiRenderPacket implements IMessageHandler<GuiRenderMessage, IMessa
 		// Necessary constructor.
 		public GuiRenderMessage() {}
 		
-		public GuiRenderMessage(String uuid, float temperature, float maxTemperature, float minTemperature, float targetTemperature, float thirst, float maxThirst, float minThirst, float sanity, float maxSanity, float minSanity, float wetness, float maxWetness, float minWetness, boolean isGhost, float ghostEnergy) {
+		public GuiRenderMessage(String uuid, float temperature, float maxTemperature, float targetTemperature, float thirst, float maxThirst, float sanity, float maxSanity, float wetness, float maxWetness, boolean isGhost, float ghostEnergy) {
 			
 			this.uuid = uuid;
 			this.temperature = temperature;
 			this.maxTemperature = maxTemperature;
-			this.minTemperature = minTemperature;
 			this.targetTemperature = targetTemperature;
 			this.thirst = thirst;
 			this.maxThirst = maxThirst;
-			this.minThirst = minThirst;
 			this.sanity = sanity;
 			this.maxSanity = maxSanity;
-			this.minSanity = minSanity;
 			this.wetness = wetness;
 			this.maxWetness = maxWetness;
-			this.minWetness = minWetness;
 			this.isGhost = isGhost;
 			this.ghostEnergy = ghostEnergy;
 		}
@@ -104,17 +95,13 @@ public class GuiRenderPacket implements IMessageHandler<GuiRenderMessage, IMessa
 			this.uuid = ByteBufUtils.readUTF8String(buf);
 			this.temperature = buf.readFloat();
 			this.maxTemperature = buf.readFloat();
-			this.minTemperature = buf.readFloat();
 			this.targetTemperature = buf.readFloat();
 			this.thirst = buf.readFloat();
 			this.maxThirst = buf.readFloat();
-			this.minThirst = buf.readFloat();
 			this.sanity = buf.readFloat();
 			this.maxSanity = buf.readFloat();
-			this.minSanity = buf.readFloat();
 			this.wetness = buf.readFloat();
 			this.maxWetness = buf.readFloat();
-			this.minWetness = buf.readFloat();
 			this.isGhost = buf.readBoolean();
 			this.ghostEnergy = buf.readFloat();
 		}
@@ -125,17 +112,13 @@ public class GuiRenderPacket implements IMessageHandler<GuiRenderMessage, IMessa
 			ByteBufUtils.writeUTF8String(buf, uuid);
 			buf.writeFloat(temperature);
 			buf.writeFloat(maxTemperature);
-			buf.writeFloat(minTemperature);
 			buf.writeFloat(targetTemperature);
 			buf.writeFloat(thirst);
 			buf.writeFloat(maxThirst);
-			buf.writeFloat(minThirst);
 			buf.writeFloat(sanity);
 			buf.writeFloat(maxSanity);
-			buf.writeFloat(minSanity);
 			buf.writeFloat(wetness);
 			buf.writeFloat(maxWetness);
-			buf.writeFloat(minWetness);
 			buf.writeBoolean(isGhost);
 			buf.writeFloat(ghostEnergy);
 		}

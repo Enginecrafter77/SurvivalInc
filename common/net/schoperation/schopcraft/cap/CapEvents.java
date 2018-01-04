@@ -34,6 +34,7 @@ import net.schoperation.schopcraft.cap.thirst.ThirstProvider;
 import net.schoperation.schopcraft.cap.wetness.IWetness;
 import net.schoperation.schopcraft.cap.wetness.WetnessModifier;
 import net.schoperation.schopcraft.cap.wetness.WetnessProvider;
+import net.schoperation.schopcraft.config.ModConfig;
 import net.schoperation.schopcraft.packet.GuiRenderPacket;
 import net.schoperation.schopcraft.packet.SchopPackets;
 
@@ -43,6 +44,13 @@ import net.schoperation.schopcraft.packet.SchopPackets;
  */
 @Mod.EventBusSubscriber
 public class CapEvents {
+	
+	// Modifiers
+	private final TemperatureModifier tempMod = new TemperatureModifier();
+	private final ThirstModifier thirstMod = new ThirstModifier();
+	private final SanityModifier sanityMod = new SanityModifier();
+	private final WetnessModifier wetnessMod = new WetnessModifier();
+	private final GhostMain ghostMain = new GhostMain();
 	
 	// When a player logs on, give them their stats stored on the server.
 	@SubscribeEvent
@@ -63,7 +71,7 @@ public class CapEvents {
 			IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
 			
 			// Send data to client for rendering.
-			IMessage msgGui = new GuiRenderPacket.GuiRenderMessage(uuid, temperature.getTemperature(), temperature.getMaxTemperature(), temperature.getMinTemperature(), temperature.getTargetTemperature(), thirst.getThirst(), thirst.getMaxThirst(), thirst.getMinThirst(), sanity.getSanity(), sanity.getMaxSanity(), sanity.getMinSanity(), wetness.getWetness(), wetness.getMaxWetness(), wetness.getMinWetness(), ghost.isGhost(), ghost.getEnergy());
+			IMessage msgGui = new GuiRenderPacket.GuiRenderMessage(uuid, temperature.getTemperature(), temperature.getMaxTemperature(), temperature.getTargetTemperature(), thirst.getThirst(), thirst.getMaxThirst(), sanity.getSanity(), sanity.getMaxSanity(), wetness.getWetness(), wetness.getMaxWetness(), ghost.isGhost(), ghost.getEnergy());
 			SchopPackets.net.sendTo(msgGui, (EntityPlayerMP) player);
 		}
 	}
@@ -82,24 +90,55 @@ public class CapEvents {
 			// Instance of player.
 			EntityPlayer player = (EntityPlayer) event.getEntity();
 			
+			// Whether the player's stats should be changed. Not in creative and spectator mode.
+			boolean shouldStatsChange = true;
+			
+			if (player.isCreative() || player.isSpectator()) {
+				
+				shouldStatsChange = false;
+			}
+			
 			// Now fire every method that should be fired here, passing the player as a parameter.
-			WetnessModifier.onPlayerUpdate(player);
-			ThirstModifier.onPlayerUpdate(player);
-			SanityModifier.onPlayerUpdate(player);
-			TemperatureModifier.onPlayerUpdate(player);
-			GhostMain.onPlayerUpdate(player);
+			// If in creative mode (or if the mechanic is disabled in the config), don't fire these at all.
+			if (shouldStatsChange) {
+				
+				if (ModConfig.enableTemperature) {
+					
+					tempMod.onPlayerUpdate(player);
+				}
+				
+				if (ModConfig.enableThirst) {
+					
+					thirstMod.onPlayerUpdate(player);
+				}
+				
+				if (ModConfig.enableSanity) {
+					
+					sanityMod.onPlayerUpdate(player);
+				}
+				
+				if (ModConfig.enableWetness) {
+					
+					wetnessMod.onPlayerUpdate(player);
+				}
+				
+				if (ModConfig.enableGhost) {
+					
+					ghostMain.onPlayerUpdate(player);
+				}
+			}
 			
 			// Fire this if the player is sleeping (not starting to sleep, legit sleeping).
-			if (player.isPlayerFullyAsleep() && player.world.isRemote) {
+			if (player.isPlayerFullyAsleep() && player.world.isRemote && shouldStatsChange && ModConfig.enableSanity) {
 				
-				SanityModifier.onPlayerSleepInBed(player);
+				sanityMod.onPlayerSleepInBed(player);
 			}
 			
 			// Fire this if onPlayerWakeUp is fired (the event). It'll keep counting up until it reaches a certain value.
-			if (wakeUpTimer > 30 && player.world.isRemote) {
+			if (wakeUpTimer > 30 && player.world.isRemote && shouldStatsChange && ModConfig.enableSanity) {
 				
 				// Fire onWakeUp methods and reset wakeUpTimer.
-				SanityModifier.onPlayerWakeUp(player);
+				sanityMod.onPlayerWakeUp(player);
 				wakeUpTimer = -1;
 			}
 			else if (wakeUpTimer > -1 && player.world.isRemote) {
@@ -119,9 +158,9 @@ public class CapEvents {
 				ISanity sanity = player.getCapability(SanityProvider.SANITY_CAP, null);
 				ITemperature temperature = player.getCapability(TemperatureProvider.TEMPERATURE_CAP, null);
 				IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
-				
+
 				// Send data to client for rendering.
-				IMessage msgGui = new GuiRenderPacket.GuiRenderMessage(uuid, temperature.getTemperature(), temperature.getMaxTemperature(), temperature.getMinTemperature(), temperature.getTargetTemperature(), thirst.getThirst(), thirst.getMaxThirst(), thirst.getMinThirst(), sanity.getSanity(), sanity.getMaxSanity(), sanity.getMinSanity(), wetness.getWetness(), wetness.getMaxWetness(), wetness.getMinWetness(), ghost.isGhost(), ghost.getEnergy());
+				IMessage msgGui = new GuiRenderPacket.GuiRenderMessage(uuid, temperature.getTemperature(), temperature.getMaxTemperature(), temperature.getTargetTemperature(), thirst.getThirst(), thirst.getMaxThirst(), sanity.getSanity(), sanity.getMaxSanity(), wetness.getWetness(), wetness.getMaxWetness(), ghost.isGhost(), ghost.getEnergy());
 				SchopPackets.net.sendTo(msgGui, (EntityPlayerMP) player);
 			}
 		}
@@ -143,7 +182,10 @@ public class CapEvents {
 		}
 		
 		// Fire methods.
-		ThirstModifier.onPlayerInteract(player);
+		if (ModConfig.enableThirst && !player.isCreative() && !player.isSpectator()) {
+			
+			thirstMod.onPlayerInteract(player);
+		}
 	}
 	
 	// When a player (kind of) finishes using an item. Technically one tick before it's actually consumed.
@@ -161,8 +203,18 @@ public class CapEvents {
 				ItemStack itemUsed = event.getItem();
 				
 				// Fire methods.
-				SanityModifier.onPlayerConsumeItem(player, itemUsed);
-				TemperatureModifier.onPlayerConsumeItem(player, itemUsed);
+				if (!player.isCreative()) {
+					
+					if (ModConfig.enableTemperature) {
+						
+						tempMod.onPlayerConsumeItem(player, itemUsed);
+					}
+					
+					if (ModConfig.enableSanity) {
+						
+						sanityMod.onPlayerConsumeItem(player, itemUsed);
+					}
+				}
 			}
 		}
 	}
@@ -200,7 +252,10 @@ public class CapEvents {
 		DamageSource damageSource = event.getSource();
 		
 		// Fire methods.
-		SanityModifier.onDropsDropped(entityKilled, drops, lootingLevel, damageSource);
+		if (ModConfig.enableSanity) {
+			
+			sanityMod.onDropsDropped(entityKilled, drops, lootingLevel, damageSource);
+		}
 	}
 	
 	// When a player respawns.
@@ -213,7 +268,7 @@ public class CapEvents {
 		// Going through the end portal back to the overworld counts as respawning. This shouldn't make you a ghost.
 		if (!event.isEndConquered()) {
 			
-			GhostMain.onPlayerRespawn(player);
+			ghostMain.onPlayerRespawn(player);
 		}
 		
 		else {
