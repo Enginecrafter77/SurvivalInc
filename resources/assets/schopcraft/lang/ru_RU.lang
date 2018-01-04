@@ -1,0 +1,41 @@
+# Russian translation by APengu_
+
+# Conveniently in alphabetical order.
+# Items
+item.schopcraft:cold_water_canteen.name=Походный ящик с холодной водой
+item.schopcraft:dirty_water_canteen.name=Походный ящик с грязной водой
+item.schopcraft:empty_canteen.name=Пустой походный ящик 
+item.schopcraft:filtered_water_canteen.name=Походный ящик с фильтрованой водой
+item.schopcraft:fresh_water_canteen.name=Походный ящик со свежей водой
+item.schopcraft:salt_water_canteen.name=Походный ящик с соленой водой
+item.schopcraft:charcoal_filter.name=Древесно-угольный фильтр
+item.schopcraft:feather_fan.name=Вентилятор из перьев
+item.schopcraft:cold_water_hydropouch.name=Гидро-мешок с холодной водой
+item.schopcraft:dirty_water_hydropouch.name=Гидро-мешок с грязной водой
+item.schopcraft:empty_hydropouch.name=Пустой гидро-мешок
+item.schopcraft:filtered_water_hydropouch.name=Гидро-мешок с фильтрованой водой
+item.schopcraft:fresh_water_hydropouch.name=Гидро-мешок со свежей водой
+item.schopcraft:salt_water_hydropouch.name=Гидро-мешок с соленой водой
+item.schopcraft:ice_cream.name=Мороженное
+item.schopcraft:lucid_dream_essence.name=Прозрачная эссенция
+item.schopcraft:tabicon.name=Картинка вкладки
+item.schopcraft:dry_towel.name=Сухое полотенце
+item.schopcraft:partially_wet_towel.name=§9Частично мокрое полотенце
+item.schopcraft:wet_towel.name=§1Мокрое полотенце
+
+# Blocks
+tile.schopcraft:lucid_block.name=Прозрачный блок
+tile.schopcraft:orange_leaves.name=Orange Autumn Leaves
+tile.schopcraft:red_leaves.name=Red Autumn Leaves
+tile.schopcraft:yellow_leaves.name=Yellow Autumn Leaves
+
+# Creative Tabs
+itemGroup.schopcraft:mainTab=SchopCraft
+
+# Damage Sources
+death.attack.schopcraft_dehydration=%1$s не плакал, чтобы выпить воды
+death.attack.schopcraft_hyperthermia=%1$s сварился, прежде чем нашёл мистера
+death.attack.schopcraft_hypothermia=%1$s забыл упаковать одеяло
+
+# Sounds
+schopcraft.subtitle.fan_whoosh=Дует вентилятор

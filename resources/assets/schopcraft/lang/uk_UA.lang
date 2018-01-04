@@ -1,0 +1,41 @@
+# Ukrainian translation by APengu_
+
+# Conveniently in alphabetical order.
+# Items
+item.schopcraft:cold_water_canteen.name=Похідний ящик з холодною водою
+item.schopcraft:dirty_water_canteen.name=Похідний ящик з брудною водою
+item.schopcraft:empty_canteen.name=Порожній похідний ящик
+item.schopcraft:filtered_water_canteen.name=Похідний ящик з фільтрованою водою
+item.schopcraft:fresh_water_canteen.name=Похідний ящик зі свіжою водою
+item.schopcraft:salt_water_canteen.name=Похідний ящик з солоною водою
+item.schopcraft:charcoal_filter.name=Деревно-вугільний фільтр
+item.schopcraft:feather_fan.name=Вентилятор з пір'я
+item.schopcraft:cold_water_hydropouch.name=Гідро-мішок з холодною водою
+item.schopcraft:dirty_water_hydropouch.name=Гідро-мішок з брудною водою
+item.schopcraft:empty_hydropouch.name=Порожній гідро-мішок
+item.schopcraft:filtered_water_hydropouch.name=Гідро-мішок з фільтруванням водою
+item.schopcraft:fresh_water_hydropouch.name=Гідро-мішок зі свіжою водою
+item.schopcraft:salt_water_hydropouch.name=Гідро-мішок з солоною водою
+item.schopcraft:ice_cream.name=Морозиво
+item.schopcraft:lucid_dream_essence.name=Прозора есенція
+item.schopcraft:tabicon.name=Картинка вкладки
+item.schopcraft:dry_towel.name=Сухий рушник
+item.schopcraft:partially_wet_towel.name=§9Частково мокрий рушник
+item.schopcraft:wet_towel.name=§1Мокрий рушник
+
+# Blocks
+tile.schopcraft:lucid_block.name=Прозорий блок
+tile.schopcraft:orange_leaves.name=Orange Autumn Leaves
+tile.schopcraft:red_leaves.name=Red Autumn Leaves
+tile.schopcraft:yellow_leaves.name=Yellow Autumn Leaves
+
+# Creative Tabs
+itemGroup.schopcraft:mainTab=SchopCraft
+
+# Damage Sources
+death.attack.schopcraft_dehydration=%1$s не плакав, щоб випити води
+death.attack.schopcraft_hyperthermia=%1$s зварився, перш ніж знайшов містера
+death.attack.schopcraft_hypothermia=%1$s забув упакувати ковдру
+
+# Sounds
+schopcraft.subtitle.fan_whoosh=Дме вентилятор
