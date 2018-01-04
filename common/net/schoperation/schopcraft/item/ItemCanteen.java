@@ -39,7 +39,7 @@ import net.schoperation.schopcraft.cap.temperature.ITemperature;
 import net.schoperation.schopcraft.cap.temperature.TemperatureProvider;
 import net.schoperation.schopcraft.cap.thirst.IThirst;
 import net.schoperation.schopcraft.cap.thirst.ThirstProvider;
-import net.schoperation.schopcraft.config.ModConfig;
+import net.schoperation.schopcraft.config.SchopConfig;
 import net.schoperation.schopcraft.util.SchopServerEffects;
 import net.schoperation.schopcraft.util.SchopServerParticles;
 import net.schoperation.schopcraft.util.SchopServerSounds;
@@ -63,10 +63,10 @@ public class ItemCanteen extends Item {
 	}
 	
 	// Number of sips. Kept here for easy changing, if needed.
-	private final int canteenSips = 3;
+	private final int canteenSips = SchopConfig.item.canteenSips;
 	
 	// Durability
-	private final int canteenDurability = 100;
+	private final int canteenDurability = SchopConfig.item.canteenDurability;
 	
 	// Drinking from the canteen.
 	@Override
@@ -590,7 +590,7 @@ public class ItemCanteen extends Item {
 		if (nbt != null) {
 			
 			// What is configured?
-			if (ModConfig.showSipsInDurabilityBar) {
+			if (SchopConfig.client.showSipsInDurabilityBar) {
 				
 				// Show sips
 				if (nbt.getInteger("sips") > 0) {
@@ -635,7 +635,7 @@ public class ItemCanteen extends Item {
 		
 		if (nbt != null) {
 			
-			if (ModConfig.showSipsInDurabilityBar) {
+			if (SchopConfig.client.showSipsInDurabilityBar) {
 				
 				percentLeft = Math.round((nbt.getInteger("sips") * 100) / canteenSips);
 				durabilityToShow = 1.0 - ((double) percentLeft / 100);

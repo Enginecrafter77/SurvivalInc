@@ -1,5 +1,7 @@
 package net.schoperation.schopcraft.season;
 
+import net.schoperation.schopcraft.config.SchopConfig;
+
 /*
  * Basic properties for the seasons. Lotta switch statements, because enum stuff
  */
@@ -43,10 +45,10 @@ public enum Season {
 		
 		switch(season) {
 		
-			case WINTER: return 14;
-			case SPRING: return 14;
-			case SUMMER: return 14;
-			case AUTUMN: return 14;
+			case WINTER: return SchopConfig.seasons.winterLength;
+			case SPRING: return SchopConfig.seasons.springLength;
+			case SUMMER: return SchopConfig.seasons.summerLength;
+			case AUTUMN: return SchopConfig.seasons.autumnLength;
 			default: return 14;
 		}
 	}

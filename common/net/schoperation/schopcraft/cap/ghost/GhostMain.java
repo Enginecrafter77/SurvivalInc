@@ -22,7 +22,7 @@ import net.schoperation.schopcraft.cap.thirst.IThirst;
 import net.schoperation.schopcraft.cap.thirst.ThirstProvider;
 import net.schoperation.schopcraft.cap.wetness.IWetness;
 import net.schoperation.schopcraft.cap.wetness.WetnessProvider;
-import net.schoperation.schopcraft.config.ModConfig;
+import net.schoperation.schopcraft.config.SchopConfig;
 import net.schoperation.schopcraft.lib.ModBlocks;
 import net.schoperation.schopcraft.util.SchopServerEffects;
 import net.schoperation.schopcraft.util.SchopServerParticles;
@@ -44,7 +44,7 @@ public class GhostMain {
 		IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
 		
 		// Make them a ghost (if enabled)
-		if (ModConfig.enableGhost) {
+		if (SchopConfig.mechanics.enableGhost) {
 			
 			ghost.setGhost();
 			

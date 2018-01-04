@@ -7,7 +7,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.schoperation.schopcraft.SchopCraft;
-import net.schoperation.schopcraft.config.ModConfig;
+import net.schoperation.schopcraft.config.SchopConfig;
 
 public class GuiRenderBar extends Gui {
 	
@@ -101,7 +101,7 @@ public class GuiRenderBar extends Gui {
 			double roundedTemperature;
 			String textTemperature;
 			
-			if (ModConfig.showCelsius) {
+			if (SchopConfig.client.showCelsius) {
 				
 				float tempInCelsius = (temperature - 32) / 1.8f;
 				roundedTemperature = (double) (Math.round(tempInCelsius * 10)) / 10;
@@ -119,7 +119,7 @@ public class GuiRenderBar extends Gui {
 				
 				// Top rect is bar, bottom rect is outline/icon.
 				// TEMPERATURE
-				if (ModConfig.enableTemperature) {
+				if (SchopConfig.mechanics.enableTemperature) {
 					
 					mc.renderEngine.bindTexture(tempBar);
 					drawTexturedModalRect(screenWidth-defaultBarWidth-2, screenHeight-(screenHeight/2)-20, 19, 14, currentWidthTemperature, defaultTextureHeight);
@@ -128,7 +128,7 @@ public class GuiRenderBar extends Gui {
 				}
 				
 				// THIRST
-				if (ModConfig.enableThirst) {
+				if (SchopConfig.mechanics.enableThirst) {
 					
 					mc.renderEngine.bindTexture(thirstBar);
 					drawTexturedModalRect(screenWidth-defaultBarWidth-2, screenHeight-(screenHeight/2), 19, 14, currentWidthThirst, defaultTextureHeight);
@@ -137,7 +137,7 @@ public class GuiRenderBar extends Gui {
 				}
 				
 				// SANITY
-				if (ModConfig.enableSanity) {
+				if (SchopConfig.mechanics.enableSanity) {
 					
 					mc.renderEngine.bindTexture(sanityBar);
 					drawTexturedModalRect(screenWidth-defaultBarWidth-2, screenHeight-(screenHeight/2)+20, 19, 14, currentWidthSanity, defaultTextureHeight);
@@ -147,7 +147,7 @@ public class GuiRenderBar extends Gui {
 				
 				// WETNESS
 				// Only show wetness if there is wetness. This is in place so wetness isn't confused with thirst.
-				if (wetness > 0 && ModConfig.enableWetness) {
+				if (wetness > 0 && SchopConfig.mechanics.enableWetness) {
 					
 					mc.renderEngine.bindTexture(wetnessBar);
 					drawTexturedModalRect(screenWidth-defaultBarWidth-2, screenHeight-(screenHeight/2)+40, 19, 14, currentWidthWetness, defaultTextureHeight);

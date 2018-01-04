@@ -34,7 +34,7 @@ import net.schoperation.schopcraft.cap.thirst.ThirstProvider;
 import net.schoperation.schopcraft.cap.wetness.IWetness;
 import net.schoperation.schopcraft.cap.wetness.WetnessModifier;
 import net.schoperation.schopcraft.cap.wetness.WetnessProvider;
-import net.schoperation.schopcraft.config.ModConfig;
+import net.schoperation.schopcraft.config.SchopConfig;
 import net.schoperation.schopcraft.packet.GuiRenderPacket;
 import net.schoperation.schopcraft.packet.SchopPackets;
 
@@ -102,40 +102,40 @@ public class CapEvents {
 			// If in creative mode (or if the mechanic is disabled in the config), don't fire these at all.
 			if (shouldStatsChange) {
 				
-				if (ModConfig.enableTemperature) {
+				if (SchopConfig.mechanics.enableTemperature) {
 					
 					tempMod.onPlayerUpdate(player);
 				}
 				
-				if (ModConfig.enableThirst) {
+				if (SchopConfig.mechanics.enableThirst) {
 					
 					thirstMod.onPlayerUpdate(player);
 				}
 				
-				if (ModConfig.enableSanity) {
+				if (SchopConfig.mechanics.enableSanity) {
 					
 					sanityMod.onPlayerUpdate(player);
 				}
 				
-				if (ModConfig.enableWetness) {
+				if (SchopConfig.mechanics.enableWetness) {
 					
 					wetnessMod.onPlayerUpdate(player);
 				}
 				
-				if (ModConfig.enableGhost) {
+				if (SchopConfig.mechanics.enableGhost) {
 					
 					ghostMain.onPlayerUpdate(player);
 				}
 			}
 			
 			// Fire this if the player is sleeping (not starting to sleep, legit sleeping).
-			if (player.isPlayerFullyAsleep() && player.world.isRemote && shouldStatsChange && ModConfig.enableSanity) {
+			if (player.isPlayerFullyAsleep() && player.world.isRemote && shouldStatsChange && SchopConfig.mechanics.enableSanity) {
 				
 				sanityMod.onPlayerSleepInBed(player);
 			}
 			
 			// Fire this if onPlayerWakeUp is fired (the event). It'll keep counting up until it reaches a certain value.
-			if (wakeUpTimer > 30 && player.world.isRemote && shouldStatsChange && ModConfig.enableSanity) {
+			if (wakeUpTimer > 30 && player.world.isRemote && shouldStatsChange && SchopConfig.mechanics.enableSanity) {
 				
 				// Fire onWakeUp methods and reset wakeUpTimer.
 				sanityMod.onPlayerWakeUp(player);
@@ -182,7 +182,7 @@ public class CapEvents {
 		}
 		
 		// Fire methods.
-		if (ModConfig.enableThirst && !player.isCreative() && !player.isSpectator()) {
+		if (SchopConfig.mechanics.enableThirst && !player.isCreative() && !player.isSpectator()) {
 			
 			thirstMod.onPlayerInteract(player);
 		}
@@ -205,12 +205,12 @@ public class CapEvents {
 				// Fire methods.
 				if (!player.isCreative()) {
 					
-					if (ModConfig.enableTemperature) {
+					if (SchopConfig.mechanics.enableTemperature) {
 						
 						tempMod.onPlayerConsumeItem(player, itemUsed);
 					}
 					
-					if (ModConfig.enableSanity) {
+					if (SchopConfig.mechanics.enableSanity) {
 						
 						sanityMod.onPlayerConsumeItem(player, itemUsed);
 					}
@@ -252,7 +252,7 @@ public class CapEvents {
 		DamageSource damageSource = event.getSource();
 		
 		// Fire methods.
-		if (ModConfig.enableSanity) {
+		if (SchopConfig.mechanics.enableSanity) {
 			
 			sanityMod.onDropsDropped(entityKilled, drops, lootingLevel, damageSource);
 		}

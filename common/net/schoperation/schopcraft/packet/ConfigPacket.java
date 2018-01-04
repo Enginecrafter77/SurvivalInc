@@ -5,7 +5,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.schoperation.schopcraft.SchopCraft;
-import net.schoperation.schopcraft.config.ModConfig;
+import net.schoperation.schopcraft.config.SchopConfig;
 import net.schoperation.schopcraft.packet.ConfigPacket.ConfigMessage;
 
 public class ConfigPacket implements IMessageHandler<ConfigMessage, IMessage> {
@@ -22,11 +22,11 @@ public class ConfigPacket implements IMessageHandler<ConfigMessage, IMessage> {
 			boolean enableSanity = message.enableSanity;
 			boolean enableWetness = message.enableWetness;
 			
-			ModConfig.enableGhost = enableGhost;
-			ModConfig.enableTemperature = enableTemperature;
-			ModConfig.enableThirst = enableThirst;
-			ModConfig.enableSanity = enableSanity;
-			ModConfig.enableWetness = enableWetness;
+			SchopConfig.mechanics.enableGhost = enableGhost;
+			SchopConfig.mechanics.enableTemperature = enableTemperature;
+			SchopConfig.mechanics.enableThirst = enableThirst;
+			SchopConfig.mechanics.enableSanity = enableSanity;
+			SchopConfig.mechanics.enableWetness = enableWetness;
 			
 			SchopCraft.logger.info("Synced the client's config values with the server's.");
 		}

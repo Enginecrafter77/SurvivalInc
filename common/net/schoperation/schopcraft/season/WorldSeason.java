@@ -154,6 +154,12 @@ public class WorldSeason {
 						// Head on over to the next season.
 						daysIntoSeason = 0;
 						season = season.nextSeason();
+						
+						// Cycle through the seasons if some are disabled.
+						while (season.getLength(season) == -1) {
+							
+							season = season.nextSeason();
+						}
 					}
 					
 					// Is it the start of spring or autumn? Initiate initial leaf changing.

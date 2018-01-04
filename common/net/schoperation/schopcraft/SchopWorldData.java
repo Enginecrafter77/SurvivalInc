@@ -3,6 +3,7 @@ package net.schoperation.schopcraft;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraft.world.storage.WorldSavedData;
+import net.schoperation.schopcraft.config.SchopConfig;
 import net.schoperation.schopcraft.season.Season;
 
 public class SchopWorldData extends WorldSavedData {
@@ -75,7 +76,7 @@ public class SchopWorldData extends WorldSavedData {
 			
 			if (data.season == 2) {
 				
-				data.daysIntoSeason = 6; // TODO when making length of season configurable, dont forgot to change this
+				data.daysIntoSeason = (SchopConfig.seasons.springLength / 2) - 1;
 			}
 			
 			else {
