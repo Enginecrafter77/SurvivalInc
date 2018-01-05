@@ -4,7 +4,7 @@
   "name": "SchopCraft",
   "description": "SchopCraft is a mod influenced heavily by the EnviroMine mod, the Tough As Nails mod, and the external game Don't Starve. It's intended to make Minecraft harder, cooler, and... something in-between.",
   "version": "0.3.0",
-  "mcversion": "1.12.x",
+  "mcversion": "1.12.2",
   "url": "https://minecraft.curseforge.com/projects/schopcraft",
   "updateUrl": "",
   "authorList": ["Schoperation","See README for full list"],

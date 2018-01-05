@@ -22,6 +22,7 @@ public class SeasonTweaks {
 	// Grass colors.
 	private final int SUMMER_GRASS_COLOR = 13296206;
 	private final int AUTUMN_GRASS_COLOR = 13925888;
+	private final int WINTER_GRASS_COLOR = 6008466;
 	
 	public int getSeasonGrassColor(Season season, Biome biome) {
 		
@@ -31,8 +32,8 @@ public class SeasonTweaks {
 		// Determine what season it is
 		if (season == Season.SUMMER) {
 			
-			// Is the temperature above 0.5? We'll change its grass color then.
-			if (temp >= 0.50f) {
+			// Is the temperature above 0.8? We'll change its grass color then.
+			if (temp >= 0.80f) {
 				
 				return SUMMER_GRASS_COLOR;
 			}
@@ -50,6 +51,21 @@ public class SeasonTweaks {
 					
 				return AUTUMN_GRASS_COLOR;
 			}
+			
+			else {
+				
+				return 0;
+			}
+		}
+		
+		else if (season == Season.WINTER) {
+			
+			// BELOW 0.5?
+			if (temp <= 0.50f) {
+					
+				return WINTER_GRASS_COLOR;
+			}
+			
 			else {
 				
 				return 0;
