@@ -13,7 +13,7 @@ import net.schoperation.schopcraft.SchopCraft;
 import net.schoperation.schopcraft.packet.ConfigPacket;
 import net.schoperation.schopcraft.packet.SchopPackets;
 
-@Config(modid = SchopCraft.MOD_ID, name = "SchopCraft/" + SchopCraft.MOD_NAME)
+@Config(modid = SchopCraft.MOD_ID, name = "SchopCraft/" + SchopCraft.MOD_NAME, category="")
 public class SchopConfig {
 	
 	// The values in the config file. Add on more as needed.
@@ -71,7 +71,7 @@ public class SchopConfig {
 		
 		@Config.LangKey("config.schopcraft:seasons.enableSeasons")
 		@Config.RequiresWorldRestart
-		public boolean enableSeasons = true;
+		public boolean aenableSeasons = true;
 		
 		@Config.LangKey("config.schopcraft:seasons.winterLength")
 		@Config.RequiresWorldRestart

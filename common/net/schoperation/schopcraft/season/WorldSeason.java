@@ -20,6 +20,7 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.schoperation.schopcraft.SchopCraft;
 import net.schoperation.schopcraft.SchopWorldData;
+import net.schoperation.schopcraft.config.SchopConfig;
 import net.schoperation.schopcraft.packet.SchopPackets;
 import net.schoperation.schopcraft.packet.SeasonPacket;
 import net.schoperation.schopcraft.util.DataManager;
@@ -56,71 +57,80 @@ public class WorldSeason {
 		daysIntoSeason = days;
 		
 		// Change biome temperatures immediately.
-		BiomeTempController temporaryController = new BiomeTempController();
-		temporaryController.changeBiomeTemperatures(season, daysIntoSeason);
-		temporaryController = null;
+		if (SchopConfig.seasons.aenableSeasons) {
+			
+			BiomeTempController temporaryController = new BiomeTempController();
+			temporaryController.changeBiomeTemperatures(season, daysIntoSeason);
+			temporaryController = null;
+		}
 	}
 	
 	
 	@SubscribeEvent
 	public void onPlayerLogsIn(PlayerLoggedInEvent event) {
 		
-		EntityPlayer player = event.player;
-		
-		if (player instanceof EntityPlayerMP) {
+		if (SchopConfig.seasons.aenableSeasons) {
 			
-			// Sync server stuff with client.
-			// This is needed so the snow, foliage, and stuff gets rendered correctly.
-			int seasonInt = SchopWorldData.seasonToInt(season);
-			IMessage msg = new SeasonPacket.SeasonMessage(seasonInt, daysIntoSeason);
-			SchopPackets.net.sendTo(msg, (EntityPlayerMP) player); 
-		}
-		
-		// Turn on day-night cycle
-		cycleController.toggleCycle(true);
-		
-		// Alter cycle if needed
-		if (season == Season.SUMMER) {
+			EntityPlayer player = event.player;
 			
-			cycleController.changeLengthOfCycle(15000);
-		}
-		
-		else if (season == Season.WINTER) {
+			if (player instanceof EntityPlayerMP) {
+					
+				// Sync server stuff with client.
+				// This is needed so the snow, foliage, and stuff gets rendered correctly.
+				int seasonInt = SchopWorldData.seasonToInt(season);
+				IMessage msg = new SeasonPacket.SeasonMessage(seasonInt, daysIntoSeason);
+				SchopPackets.net.sendTo(msg, (EntityPlayerMP) player); 
+			}
 			
-			cycleController.changeLengthOfCycle(9000);
-		}
-		
-		else {
+			// Turn on day-night cycle
+			cycleController.toggleCycle(true);
 			
-			cycleController.changeLengthOfCycle(12000);
+			// Alter cycle if needed
+			if (season == Season.SUMMER) {
+				
+				cycleController.changeLengthOfCycle(15000);
+			}
+			
+			else if (season == Season.WINTER) {
+				
+				cycleController.changeLengthOfCycle(9000);
+			}
+			
+			else {
+				
+				cycleController.changeLengthOfCycle(12000);
+			}
 		}
 	}
 	
 	@SubscribeEvent
 	public void onPlayerLogsOut(PlayerLoggedOutEvent event) {
 
-		// Turn off day-night cycle if no more people on
-		MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
-		
-		int playerCount = server.getCurrentPlayerCount();
-		
-		if (playerCount <= 1) {
+		if (SchopConfig.seasons.aenableSeasons) {
 			
-			cycleController.toggleCycle(false);
-		}
-		
-		// Is this singleplayer? If so, reset their temps here.
-		if (server.isSinglePlayer()) {
+			// Turn off day-night cycle if no more people on
+			MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
 			
-			biomeTemp.resetBiomeTemperatures();
-		}
-		
-		// No? Do it via packet.
-		else if (event.player instanceof EntityPlayerMP) {
+			int playerCount = server.getCurrentPlayerCount();
 			
-			int seasonInt = SchopWorldData.seasonToInt(season);
-			IMessage msg = new SeasonPacket.SeasonMessage(seasonInt, -21);
-			SchopPackets.net.sendTo(msg, (EntityPlayerMP) event.player); 
+			if (playerCount <= 1) {
+				
+				cycleController.toggleCycle(false);
+			}
+			
+			// Is this singleplayer? If so, reset their temps here.
+			if (server.isSinglePlayer()) {
+				
+				biomeTemp.resetBiomeTemperatures();
+			}
+			
+			// No? Do it via packet.
+			else if (event.player instanceof EntityPlayerMP) {
+				
+				int seasonInt = SchopWorldData.seasonToInt(season);
+				IMessage msg = new SeasonPacket.SeasonMessage(seasonInt, -21);
+				SchopPackets.net.sendTo(msg, (EntityPlayerMP) event.player); 
+			}
 		}
 	}
 	
@@ -137,7 +147,7 @@ public class WorldSeason {
 			World world = player.world;
 			
 			// Server-side
-			if (!world.isRemote) {
+			if (!world.isRemote && SchopConfig.seasons.aenableSeasons) {
 				
 				// Time
 				long worldTime = world.getWorldTime();
@@ -152,7 +162,7 @@ public class WorldSeason {
 					if (daysIntoSeason > season.getLength(season)) {
 						
 						// Head on over to the next season.
-						daysIntoSeason = 0;
+						daysIntoSeason = 1;
 						season = season.nextSeason();
 						
 						// Cycle through the seasons if some are disabled.
@@ -163,7 +173,7 @@ public class WorldSeason {
 					}
 					
 					// Is it the start of spring or autumn? Initiate initial leaf changing.
-					if (daysIntoSeason == 0) {
+					if (daysIntoSeason == 1) {
 						
 						if (season == Season.SPRING || season == Season.AUTUMN) {
 							
@@ -249,22 +259,25 @@ public class WorldSeason {
 			
 			EntityPlayer player = (EntityPlayer) event.getEntity();
 			
-			// Is it summer? Then let's try to remove some snow and ice.
-			if (season == Season.SUMMER && !player.world.isRemote) {
+			if (SchopConfig.seasons.aenableSeasons) {
 				
-				int chunkCoordX = event.getNewChunkX();
-				int chunkCoordZ = event.getNewChunkZ();
-				melter.meltCompletely(chunkCoordX, chunkCoordZ, player.world);
-			}
-			
-			// How about spring or autumn? Let's try to change some leaves.
-			else if (season == Season.SPRING || season == Season.AUTUMN) {
-				
-				if (!player.world.isRemote) {
+				// Is it summer? Then let's try to remove some snow and ice.
+				if (season == Season.SUMMER && !player.world.isRemote) {
 					
 					int chunkCoordX = event.getNewChunkX();
 					int chunkCoordZ = event.getNewChunkZ();
-					leaves.change(chunkCoordX, chunkCoordZ, player.world, season);
+					melter.meltCompletely(chunkCoordX, chunkCoordZ, player.world);
+				}
+				
+				// How about spring or autumn? Let's try to change some leaves.
+				else if (season == Season.SPRING || season == Season.AUTUMN) {
+					
+					if (!player.world.isRemote) {
+						
+						int chunkCoordX = event.getNewChunkX();
+						int chunkCoordZ = event.getNewChunkZ();
+						leaves.change(chunkCoordX, chunkCoordZ, player.world, season);
+					}
 				}
 			}
 		}
@@ -274,7 +287,18 @@ public class WorldSeason {
 	@SubscribeEvent
 	public void biomeGrass(BiomeEvent.GetGrassColor event) {
 		
-		int color = tweaks.getSeasonGrassColor(season, event.getBiome());
+		int color = 0;
+		
+		if (SchopConfig.seasons.aenableSeasons) {
+			
+			color = tweaks.getSeasonGrassColor(season, event.getBiome());
+		}
+		
+		else {
+			
+			color = 0;
+		}
+		
 		
 		if (color == 0) {
 			
@@ -291,7 +315,7 @@ public class WorldSeason {
 	public void harvestDrops(BlockEvent.HarvestDropsEvent event) {
 		
 		// Is it actually Autumn?
-		if (season == Season.AUTUMN) {
+		if (season == Season.AUTUMN && SchopConfig.seasons.aenableSeasons) {
 			
 			// Is this a legit crop?
 			if (event.getState().getBlock() instanceof BlockCrops) {
