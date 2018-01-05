@@ -17,6 +17,7 @@ import net.schoperation.schopcraft.cap.ghost.GhostProvider;
 import net.schoperation.schopcraft.cap.ghost.IGhost;
 import net.schoperation.schopcraft.cap.wetness.IWetness;
 import net.schoperation.schopcraft.cap.wetness.WetnessProvider;
+import net.schoperation.schopcraft.config.SchopConfig;
 import net.schoperation.schopcraft.lib.ModDamageSources;
 import net.schoperation.schopcraft.util.ProximityDetect;
 import net.schoperation.schopcraft.util.SchopServerEffects;
@@ -437,7 +438,9 @@ public class TemperatureModifier {
 			float tempDifference = temperature.getTargetTemperature() - temperature.getTemperature();
 			
 			// Rate at which the player's temp shall change. This constant might change as well.
-			float rateOfChange = tempDifference * 0.003f;
+			// Changed by config
+			float modifier = (float) SchopConfig.mechanics.temperatureScale;
+			float rateOfChange = tempDifference * 0.003f * modifier;
 			
 			// Change player's temp.
 			temperature.increase(rateOfChange);

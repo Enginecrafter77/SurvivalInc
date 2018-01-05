@@ -15,6 +15,7 @@ import net.minecraft.world.biome.BiomeOcean;
 import net.minecraft.world.biome.BiomeSwamp;
 import net.schoperation.schopcraft.cap.temperature.ITemperature;
 import net.schoperation.schopcraft.cap.temperature.TemperatureProvider;
+import net.schoperation.schopcraft.config.SchopConfig;
 import net.schoperation.schopcraft.lib.ModDamageSources;
 import net.schoperation.schopcraft.util.SchopServerEffects;
 import net.schoperation.schopcraft.util.SchopServerParticles;
@@ -35,6 +36,9 @@ public class ThirstModifier {
 		// Sizzlin' server side stuff (crappy attempt at a tongue twister there).
 		if (!player.world.isRemote) {
 			
+			// Modifier from config
+			float modifier = (float) SchopConfig.mechanics.thirstScale;
+			
 			// Lava fries you well. Better grab a water.
 			if (player.isInLava()) {
 				
@@ -44,7 +48,7 @@ public class ThirstModifier {
 			// The nether is also good at frying.
 			else if (player.dimension == -1) {
 				
-				thirst.decrease(0.006f);
+				thirst.decrease(0.006f * modifier);
 			}
 			
 			// Overheating dehydrates very well.
@@ -57,7 +61,7 @@ public class ThirstModifier {
 			// Natural dehydration. "Slow" is an understatement here.
 			else {
 				
-				thirst.decrease(0.003f);
+				thirst.decrease(0.003f * modifier);
 			}
 			
 			// =========================================================================================================

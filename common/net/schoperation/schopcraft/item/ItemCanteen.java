@@ -62,11 +62,11 @@ public class ItemCanteen extends Item {
 		setHasSubtypes(true);
 	}
 	
-	// Number of sips. Kept here for easy changing, if needed.
-	private final int canteenSips = SchopConfig.item.canteenSips;
+	// Number of sips.
+	private final int canteenSips = 3;
 	
 	// Durability
-	private final int canteenDurability = SchopConfig.item.canteenDurability;
+	private final int canteenDurability = 100;
 	
 	// Drinking from the canteen.
 	@Override

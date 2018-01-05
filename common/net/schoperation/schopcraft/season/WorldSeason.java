@@ -166,7 +166,7 @@ public class WorldSeason {
 						season = season.nextSeason();
 						
 						// Cycle through the seasons if some are disabled.
-						while (season.getLength(season) == -1) {
+						while (season.getLength(season) == 0) {
 							
 							season = season.nextSeason();
 						}
@@ -241,7 +241,7 @@ public class WorldSeason {
 				
 				// We need to melt snow and ice manually in the spring.
 				// Summer has a different melting method.
-				if (season == Season.SPRING) {
+				if (season == Season.SPRING && player.dimension == 0) {
 					
 					melter.melt(world, player, daysIntoSeason);
 				}
@@ -262,17 +262,20 @@ public class WorldSeason {
 			if (SchopConfig.seasons.aenableSeasons) {
 				
 				// Is it summer? Then let's try to remove some snow and ice.
-				if (season == Season.SUMMER && !player.world.isRemote) {
+				if (season == Season.SUMMER) {
 					
-					int chunkCoordX = event.getNewChunkX();
-					int chunkCoordZ = event.getNewChunkZ();
-					melter.meltCompletely(chunkCoordX, chunkCoordZ, player.world);
+					if (!player.world.isRemote && player.dimension == 0) {
+						
+						int chunkCoordX = event.getNewChunkX();
+						int chunkCoordZ = event.getNewChunkZ();
+						melter.meltCompletely(chunkCoordX, chunkCoordZ, player.world);
+					}	
 				}
 				
 				// How about spring or autumn? Let's try to change some leaves.
 				else if (season == Season.SPRING || season == Season.AUTUMN) {
 					
-					if (!player.world.isRemote) {
+					if (!player.world.isRemote && player.dimension == 0) {
 						
 						int chunkCoordX = event.getNewChunkX();
 						int chunkCoordZ = event.getNewChunkZ();

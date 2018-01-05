@@ -34,6 +34,7 @@ import net.schoperation.schopcraft.cap.ghost.GhostProvider;
 import net.schoperation.schopcraft.cap.ghost.IGhost;
 import net.schoperation.schopcraft.cap.wetness.IWetness;
 import net.schoperation.schopcraft.cap.wetness.WetnessProvider;
+import net.schoperation.schopcraft.config.SchopConfig;
 import net.schoperation.schopcraft.lib.ModItems;
 import net.schoperation.schopcraft.packet.PotionEffectPacket;
 import net.schoperation.schopcraft.packet.SanityPacket;
@@ -103,49 +104,52 @@ public class SanityModifier {
 		// Server-side.
 		if (!player.world.isRemote) {
 			
+			// Modifier from config
+			float modifier = (float) SchopConfig.mechanics.sanityScale;
+			
 			// Being awake late at night is only for crazy people and college students.
 			if (!player.world.isDaytime() && playerPosY >= player.world.getSeaLevel()) {
 				
-				sanity.decrease(0.0015f);
+				sanity.decrease(0.0015f * modifier);
 			}
 			
 			// Being in the nether or the end isn't too sane. 
 			if (player.dimension == -1 || player.dimension == 1) {
 				
-				sanity.decrease(0.004f);
+				sanity.decrease(0.004f * modifier);
 			}
 			
 			// Constant drain in caves... because why not!
 			if (playerPosY <= (player.world.getSeaLevel() - 15)) {
 				
-				sanity.decrease(0.0015f);
+				sanity.decrease(0.0015f * modifier);
 			}
 			
 			// Being in the dark in general, is pretty spooky.
 			if (player.world.getLight(playerPos, true) < 2 && player.dimension != -1 && player.dimension != 1) {
 				
-				sanity.decrease(0.08f);
+				sanity.decrease(0.08f * modifier);
 			}
 			
 			else if (player.world.getLight(playerPos, true) < 4 && player.dimension != -1 && player.dimension != 1) {
 				
-				sanity.decrease(0.04f);
+				sanity.decrease(0.04f * modifier);
 			}
 			
 			else if (player.world.getLight(playerPos, true) < 7 && player.dimension != -1 && player.dimension != 1 && (playerPosY <= player.world.getSeaLevel())) {
 				
-				sanity.decrease(0.02f);
+				sanity.decrease(0.02f * modifier);
 			}
 			
 			// Being drenched for a long time won't do you good.
 			if (wetness.getWetness() > 90.0f) {
 				
-				sanity.decrease(0.003f);
+				sanity.decrease(0.003f * modifier);
 			}
 			
 			else if (wetness.getWetness() > 70.0f) {
 				
-				sanity.decrease(0.001f);
+				sanity.decrease(0.001f * modifier);
 			}
 			
 			// Now iterate through each mob that appears on the list of nearby mobs.
@@ -157,22 +161,22 @@ public class SanityModifier {
 				// Now change sanity according to what it is.
 				if (mob instanceof EntityEnderman) {
 					
-					sanity.decrease(0.005f);
+					sanity.decrease(0.005f * modifier);
 				}
 				
 				else if (mob instanceof EntityEvoker || mob instanceof EntityIllusionIllager || mob instanceof EntitySpellcasterIllager || mob instanceof EntityVindicator) {
 					
-					sanity.decrease(0.004f);
+					sanity.decrease(0.004f * modifier);
 				}
 				
 				else if (mob instanceof EntityWither) {
 					
-					sanity.decrease(0.05f);
+					sanity.decrease(0.05f * modifier);
 				}
 				
 				else {
 					
-					sanity.decrease(0.003f);
+					sanity.decrease(0.003f * modifier);
 				}
 			}
 			
@@ -185,17 +189,17 @@ public class SanityModifier {
 				// Now change sanity according to what it is.
 				if (animal instanceof EntityWolf || animal instanceof EntityOcelot || animal instanceof EntityParrot) {
 					
-					sanity.increase(0.005f);
+					sanity.increase(0.005f * modifier);
 				}
 				
 				else if (animal instanceof EntitySheep) {
 					
-					sanity.increase(0.003f);
+					sanity.increase(0.003f * modifier);
 				}
 				
 				else {
 					
-					sanity.increase(0.002f);
+					sanity.increase(0.002f * modifier);
 				}
 			}
 			
@@ -211,19 +215,19 @@ public class SanityModifier {
 				// Now change sanity, unless it's just the player themselves, or a ghost.
 				if (otherPlayer != player && !ghost.isGhost()) {
 					
-					sanity.increase(0.003f);
+					sanity.increase(0.003f * modifier);
 				}
 				
 				else if (otherPlayer != player && ghost.isGhost()) {
 					
-					sanity.decrease(0.05f);
+					sanity.decrease(0.05f * modifier);
 				}
 			}
 			
 			// Villagers are nice as well.
 			for (int numVillagers = 0; numVillagers < nearbyVillagers.size(); numVillagers++) {
 				
-				sanity.increase(0.003f);
+				sanity.increase(0.003f * modifier);
 			}
 			
 			// ===========================================================================

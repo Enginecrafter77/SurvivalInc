@@ -4,6 +4,8 @@ import java.lang.reflect.Field;
 import java.util.Iterator;
 
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.BiomeEnd;
+import net.minecraft.world.biome.BiomeHell;
 import net.minecraft.world.biome.BiomeOcean;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.schoperation.schopcraft.SchopCraft;
@@ -165,6 +167,12 @@ public class BiomeTempController {
 			if (choosenBiome instanceof BiomeOcean && newTemperature < 0.5f) {
 				
 				newTemperature = 0.5f;
+			}
+			
+			// The Nether and the End aren't normal biomes.
+			if (choosenBiome instanceof BiomeHell || choosenBiome instanceof BiomeEnd) {
+				
+				newTemperature = choosenBiome.getDefaultTemperature();
 			}
 			
 			// Apply the differences. First the previous one from the previous half season. Then the new one we just calculated.

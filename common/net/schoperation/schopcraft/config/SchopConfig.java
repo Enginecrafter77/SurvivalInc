@@ -27,9 +27,6 @@ public class SchopConfig {
 	@Config.Name("seasons")
 	public static final Seasons seasons = new Seasons();
 	
-	@Config.Name("item")
-	public static final Item item = new Item();
-	
 	// Actual static classes
 	
 	@Config.LangKey("config.schopcraft:client")
@@ -64,6 +61,22 @@ public class SchopConfig {
 		@Config.LangKey("config.schopcraft:mechanics.enableWetness")
 		@Config.RequiresWorldRestart
 		public boolean enableWetness = true;
+		
+		@Config.LangKey("config.schopcraft:mechanics.temperatureScale")
+		@Config.RangeDouble(min = 0.1, max = 3.0)
+		public double temperatureScale = 1.0;
+		
+		@Config.LangKey("config.schopcraft:mechanics.thirstScale")
+		@Config.RangeDouble(min = 0.1, max = 3.0)
+		public double thirstScale = 1.0;
+		
+		@Config.LangKey("config.schopcraft:mechanics.sanityScale")
+		@Config.RangeDouble(min = 0.1, max = 3.0)
+		public double sanityScale = 1.0;
+		
+		@Config.LangKey("config.schopcraft:mechanics.wetnessScale")
+		@Config.RangeDouble(min = 0.1, max = 3.0)
+		public double wetnessScale = 1.0;
 	}
 	
 	@Config.LangKey("config.schopcraft:seasons")
@@ -90,27 +103,6 @@ public class SchopConfig {
 		public int autumnLength = 14;
 	}
 	
-	@Config.LangKey("config.schopcraft:item")
-	public static class Item {
-		
-		@Config.LangKey("config.schopcraft:item.canteenSips")
-		@Config.RequiresMcRestart
-		public int canteenSips = 3;
-		
-		@Config.LangKey("config.schopcraft:item.canteenDurability")
-		@Config.RequiresMcRestart
-		public int canteenDurability = 100;
-		
-		@Config.LangKey("config.schopcraft:item.hydropouchSips")
-		@Config.RequiresMcRestart
-		public int hydropouchSips = 12;
-		
-		@Config.LangKey("config.schopcraft:item.hydropouchDurability")
-		@Config.RequiresMcRestart
-		public int hydropouchDurability = 300;
-	}
-	
-	
 	// This deals with changed the config values in Forge's GUI in-game.
 	// It also deals with syncing some config values from the server to the client, so everything doesn't get messed up.
 	@Mod.EventBusSubscriber
@@ -135,7 +127,7 @@ public class SchopConfig {
 			if (player instanceof EntityPlayerMP) {
 				
 				// Send server config values to the client. This will not affect the client's config file; it's temporary stuff.
-				IMessage msg = new ConfigPacket.ConfigMessage(SchopConfig.mechanics.enableGhost, SchopConfig.mechanics.enableTemperature, SchopConfig.mechanics.enableThirst, SchopConfig.mechanics.enableSanity, SchopConfig.mechanics.enableWetness);
+				IMessage msg = new ConfigPacket.ConfigMessage(SchopConfig.mechanics.enableGhost, SchopConfig.mechanics.enableTemperature, SchopConfig.mechanics.enableThirst, SchopConfig.mechanics.enableSanity, SchopConfig.mechanics.enableWetness, SchopConfig.mechanics.temperatureScale, SchopConfig.mechanics.thirstScale, SchopConfig.mechanics.sanityScale, SchopConfig.mechanics.wetnessScale, SchopConfig.seasons.aenableSeasons, SchopConfig.seasons.winterLength, SchopConfig.seasons.springLength, SchopConfig.seasons.summerLength, SchopConfig.seasons.autumnLength);
 				SchopPackets.net.sendTo(msg, (EntityPlayerMP) player); 
 			}
 		}

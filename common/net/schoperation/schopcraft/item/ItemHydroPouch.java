@@ -63,10 +63,10 @@ public class ItemHydroPouch extends Item {
 	}
 	
 	// Number of sips.
-	private final int hydroPouchSips = SchopConfig.item.hydropouchSips;
+	private final int hydroPouchSips = 12;
 	
 	// Durability
-	private final int hydroPouchDurability = SchopConfig.item.hydropouchDurability;
+	private final int hydroPouchDurability = 300;
 	
 	// Drinking from the canteen.
 	@Override
