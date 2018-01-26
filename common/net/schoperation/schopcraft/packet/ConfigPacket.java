@@ -68,6 +68,7 @@ public class ConfigPacket implements IMessageHandler<ConfigMessage, IMessage> {
 		private double wetnessScale;
 		
 		private boolean aenableSeasons;
+		private boolean aenableDayLength;
 		private int winterLength;
 		private int springLength;
 		private int summerLength;
@@ -76,7 +77,7 @@ public class ConfigPacket implements IMessageHandler<ConfigMessage, IMessage> {
 		// Necessary constructor.
 		public ConfigMessage() {}
 		
-		public ConfigMessage(boolean enableGhost, boolean enableTemperature, boolean enableThirst, boolean enableSanity, boolean enableWetness, double temperatureScale, double thirstScale, double sanityScale, double wetnessScale, boolean aenableSeasons, int winterLength, int springLength, int summerLength, int autumnLength) {
+		public ConfigMessage(boolean enableGhost, boolean enableTemperature, boolean enableThirst, boolean enableSanity, boolean enableWetness, double temperatureScale, double thirstScale, double sanityScale, double wetnessScale, boolean aenableSeasons, boolean aenableDayLength, int winterLength, int springLength, int summerLength, int autumnLength) {
 			
 			this.enableGhost = enableGhost;
 			this.enableTemperature = enableTemperature;
@@ -89,6 +90,7 @@ public class ConfigPacket implements IMessageHandler<ConfigMessage, IMessage> {
 			this.wetnessScale = wetnessScale;
 			
 			this.aenableSeasons = aenableSeasons;
+			this.aenableDayLength = aenableDayLength;
 			this.winterLength = winterLength;
 			this.springLength = springLength;
 			this.summerLength = summerLength;
@@ -109,6 +111,7 @@ public class ConfigPacket implements IMessageHandler<ConfigMessage, IMessage> {
 			this.wetnessScale = buf.readDouble();
 			
 			this.aenableSeasons = buf.readBoolean();
+			this.aenableDayLength = buf.readBoolean();
 			this.winterLength = buf.readInt();
 			this.springLength = buf.readInt();
 			this.summerLength = buf.readInt();
@@ -129,6 +132,7 @@ public class ConfigPacket implements IMessageHandler<ConfigMessage, IMessage> {
 			buf.writeDouble(wetnessScale);
 			
 			buf.writeBoolean(aenableSeasons);
+			buf.writeBoolean(aenableDayLength);
 			buf.writeInt(winterLength);
 			buf.writeInt(springLength);
 			buf.writeInt(summerLength);

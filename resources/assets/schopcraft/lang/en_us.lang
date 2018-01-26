@@ -45,6 +45,8 @@ config.schopcraft:client.showCelsius=Show in Celsius?
 config.schopcraft:client.showCelsius.tooltip=If true, the temperature will be shown in Celsius. If false, it will be shown in Fahrenheit.
 config.schopcraft:client.showSips=Show Canteen Sips?
 config.schopcraft:client.showSips.tooltip=By default, the durability bar of the canteen (and HydroPouch) will show its durability. Set this to true to have the bar show the number of sips left instead.
+config.schopcraft:client.barPos=Position of Bars?
+config.schopcraft:client.barPos.tooltip=Specify where to place the GUI bars. You can set it to any of the following: \ntop left \ntop right \nmiddle left \nmiddle right \nbottom left \nbottom right \nInclude the space. If you mess up, it'll default to middle right.
 
 schopcraft.mechanics=Mechanics
 schopcraft.mechanics.tooltip=Settings with the main player mechanics (temp, thirst, sanity, wetness, ghost)
@@ -71,6 +73,8 @@ schopcraft.seasons=Seasons
 schopcraft.seasons.tooltip=Settings with the seasons.
 config.schopcraft:seasons.enableSeasons=Seasons?
 config.schopcraft:seasons.enableSeasons.tooltip=Should seasons be enabled?
+config.schopcraft:seasons.enableDayLength=Change Day lengths?
+config.schopcraft:seasons.enableDayLength.tooltip=By default, every summer increases the length of daylight, and winter does the opposite. Set this to false to disable.
 config.schopcraft:seasons.winterLength=Length of Winter
 config.schopcraft:seasons.winterLength.tooltip=Length of Winter in Minecraft days. Set to 0 for it to never occur.
 config.schopcraft:seasons.springLength=Length of Spring

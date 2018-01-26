@@ -230,7 +230,10 @@ public class WorldSeason {
 				}
 				
 				// Affect daytime
-				cycleController.alter(world);
+				if (SchopConfig.seasons.aenableDayLength) {
+					
+					cycleController.alter(world);
+				}
 				
 				// If it's going to rain, we'll need to send the rain data when it starts.
 				if (world.isRaining() && !didRainStart) {

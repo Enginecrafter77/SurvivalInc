@@ -37,6 +37,9 @@ public class SchopConfig {
 	
 		@Config.LangKey("config.schopcraft:client.showSips")
 		public boolean showSipsInDurabilityBar = false;
+		
+		@Config.LangKey("config.schopcraft:client.barPos")
+		public String barPositions = "middle right";
 	}
 	
 	@Config.LangKey("config.schopcraft:mechanics")
@@ -90,6 +93,10 @@ public class SchopConfig {
 		@Config.RequiresWorldRestart
 		public boolean aenableSeasons = true;
 		
+		@Config.LangKey("config.schopcraft:seasons.enableDayLength")
+		@Config.RequiresWorldRestart
+		public boolean aenableDayLength = true;
+		
 		@Config.LangKey("config.schopcraft:seasons.winterLength")
 		@Config.RequiresWorldRestart
 		public int winterLength = 14;
@@ -131,7 +138,7 @@ public class SchopConfig {
 			if (player instanceof EntityPlayerMP) {
 				
 				// Send server config values to the client. This will not affect the client's config file; it's temporary stuff.
-				IMessage msg = new ConfigPacket.ConfigMessage(SchopConfig.mechanics.enableGhost, SchopConfig.mechanics.enableTemperature, SchopConfig.mechanics.enableThirst, SchopConfig.mechanics.enableSanity, SchopConfig.mechanics.enableWetness, SchopConfig.mechanics.temperatureScale, SchopConfig.mechanics.thirstScale, SchopConfig.mechanics.sanityScale, SchopConfig.mechanics.wetnessScale, SchopConfig.seasons.aenableSeasons, SchopConfig.seasons.winterLength, SchopConfig.seasons.springLength, SchopConfig.seasons.summerLength, SchopConfig.seasons.autumnLength);
+				IMessage msg = new ConfigPacket.ConfigMessage(SchopConfig.mechanics.enableGhost, SchopConfig.mechanics.enableTemperature, SchopConfig.mechanics.enableThirst, SchopConfig.mechanics.enableSanity, SchopConfig.mechanics.enableWetness, SchopConfig.mechanics.temperatureScale, SchopConfig.mechanics.thirstScale, SchopConfig.mechanics.sanityScale, SchopConfig.mechanics.wetnessScale, SchopConfig.seasons.aenableSeasons, SchopConfig.seasons.aenableDayLength, SchopConfig.seasons.winterLength, SchopConfig.seasons.springLength, SchopConfig.seasons.summerLength, SchopConfig.seasons.autumnLength);
 				SchopPackets.net.sendTo(msg, (EntityPlayerMP) player); 
 			}
 		}
