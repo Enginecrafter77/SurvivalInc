@@ -4,7 +4,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.schoperation.schopcraft.gui.GuiRenderBar;
+import net.schoperation.schopcraft.gui.RenderHUD;
 import net.schoperation.schopcraft.util.client.ModelRegisterer;
 
 public class ClientProxy extends CommonProxy {
@@ -32,6 +32,6 @@ public class ClientProxy extends CommonProxy {
 		super.postInit(event);
 		
 		// Render stat bars.
-		MinecraftForge.EVENT_BUS.register(new GuiRenderBar());
+		MinecraftForge.EVENT_BUS.register(new RenderHUD());
 	}
 }

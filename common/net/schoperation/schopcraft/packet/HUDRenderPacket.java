@@ -1,21 +1,18 @@
 package net.schoperation.schopcraft.packet;
 
 import io.netty.buffer.ByteBuf;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import net.schoperation.schopcraft.gui.GuiRenderBar;
-import net.schoperation.schopcraft.packet.GuiRenderPacket.GuiRenderMessage;
+import net.schoperation.schopcraft.gui.RenderHUD;
+import net.schoperation.schopcraft.packet.HUDRenderPacket.HUDRenderMessage;
 
-public class GuiRenderPacket implements IMessageHandler<GuiRenderMessage, IMessage> {
+public class HUDRenderPacket implements IMessageHandler<HUDRenderMessage, IMessage> {
 	
 	@Override
-	public IMessage onMessage(GuiRenderMessage message, MessageContext ctx) {
+	public IMessage onMessage(HUDRenderMessage message, MessageContext ctx) {
 		
 		if (ctx.side.isClient()) {
-			
-			String uuid = message.uuid;
 			
 			// Temperature
 			float temperature = message.temperature;
@@ -38,17 +35,15 @@ public class GuiRenderPacket implements IMessageHandler<GuiRenderMessage, IMessa
 			boolean isGhost = message.isGhost;
 			float ghostEnergy = message.ghostEnergy;
 			
-			GuiRenderBar.getServerStats(temperature, maxTemperature, targetTemperature, thirst, maxThirst, sanity, maxSanity, wetness, maxWetness, isGhost, ghostEnergy);
+			RenderHUD.getServerStats(temperature, maxTemperature, targetTemperature, thirst, maxThirst, sanity, maxSanity, wetness, maxWetness, isGhost, ghostEnergy);
 		}
 		
 		return null;
 	}
 	
-	public static class GuiRenderMessage implements IMessage {
+	public static class HUDRenderMessage implements IMessage {
 		
 		// Variables sent to the client for rendering.
-		private String uuid;
-		
 		// Temperature
 		private float temperature;
 		private float maxTemperature;
@@ -71,11 +66,10 @@ public class GuiRenderPacket implements IMessageHandler<GuiRenderMessage, IMessa
 		private float ghostEnergy;
 		
 		// Necessary constructor.
-		public GuiRenderMessage() {}
+		public HUDRenderMessage() {}
 		
-		public GuiRenderMessage(String uuid, float temperature, float maxTemperature, float targetTemperature, float thirst, float maxThirst, float sanity, float maxSanity, float wetness, float maxWetness, boolean isGhost, float ghostEnergy) {
+		public HUDRenderMessage(float temperature, float maxTemperature, float targetTemperature, float thirst, float maxThirst, float sanity, float maxSanity, float wetness, float maxWetness, boolean isGhost, float ghostEnergy) {
 			
-			this.uuid = uuid;
 			this.temperature = temperature;
 			this.maxTemperature = maxTemperature;
 			this.targetTemperature = targetTemperature;
@@ -92,7 +86,6 @@ public class GuiRenderPacket implements IMessageHandler<GuiRenderMessage, IMessa
 		@Override
 		public void fromBytes(ByteBuf buf) {
 			
-			this.uuid = ByteBufUtils.readUTF8String(buf);
 			this.temperature = buf.readFloat();
 			this.maxTemperature = buf.readFloat();
 			this.targetTemperature = buf.readFloat();
@@ -109,7 +102,6 @@ public class GuiRenderPacket implements IMessageHandler<GuiRenderMessage, IMessa
 		@Override
 		public void toBytes(ByteBuf buf) {
 			
-			ByteBufUtils.writeUTF8String(buf, uuid);
 			buf.writeFloat(temperature);
 			buf.writeFloat(maxTemperature);
 			buf.writeFloat(targetTemperature);

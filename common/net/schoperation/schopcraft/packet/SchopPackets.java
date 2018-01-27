@@ -12,7 +12,7 @@ public class SchopPackets {
 	public static void initPackets() {
 		
 		net = NetworkRegistry.INSTANCE.newSimpleChannel(SchopCraft.MOD_ID);
-		registerMessage(GuiRenderPacket.class, GuiRenderPacket.GuiRenderMessage.class);
+		registerMessage(HUDRenderPacket.class, HUDRenderPacket.HUDRenderMessage.class);
 		registerMessage(SanityPacket.class, SanityPacket.SanityMessage.class);
 		registerMessage(SummonInfoPacket.class, SummonInfoPacket.SummonInfoMessage.class);
 		registerMessage(PotionEffectPacket.class, PotionEffectPacket.PotionEffectMessage.class);	

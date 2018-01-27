@@ -1,6 +1,7 @@
 package net.schoperation.schopcraft.gui;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.ResourceLocation;
 import net.schoperation.schopcraft.config.SchopConfig;
 
 public class StatBar {
@@ -11,30 +12,79 @@ public class StatBar {
 	
 	// Type
 	public enum StatType { TEMPERATURE, THIRST, SANITY, WETNESS, GHOST; }
-	public StatType type;
+	private StatType type;
+	
+	// Texture
+	private ResourceLocation texture;
 	
 	// Full width and height
-	public int fullWidth;
-	public int fullHeight;
+	private int fullWidth;
+	private int fullHeight;
 	
 	// Full width of the bar that actually MOVES.
-	public int defaultBarWidth;
+	private int defaultBarWidth;
 	
-	// Starting position of texture (in the file)
-	public int texWidth;
-	public int texHeight;
+	// Starting position of the moving bar in the texture file.
+	private int movingTextureX;
+	private int movingTextureY;
 	
 	// Is it already being rendered?
-	public boolean isRendered;
+	private boolean isAlreadyRendered = false;
 	
-	public StatBar(StatType type, int fullWidth, int fullHeight, int defaultBarWidth, int texWidth, int texHeight) {
+	public StatBar(StatType type, int fullWidth, int fullHeight, int defaultBarWidth, int movingTextureX, int movingTextureY, ResourceLocation texture) {
 		
 		this.type = type;
 		this.fullWidth = fullWidth;
 		this.fullHeight = fullHeight;
 		this.defaultBarWidth = defaultBarWidth;
-		this.texWidth = texWidth;
-		this.texHeight = texHeight;
+		this.movingTextureX = movingTextureX;
+		this.movingTextureY = movingTextureY;
+		this.texture = texture;
+	}
+	
+	public int getFullWidth() {
+		
+		return this.fullWidth;
+	}
+	
+	public int getFullHeight() {
+		
+		return this.fullHeight;
+	}
+	
+	public int getMovingTextureX() {
+		
+		return this.movingTextureX;
+	}
+	
+	public int getMovingTextureY() {
+		
+		return this.movingTextureY;
+	}
+	
+	public int getFullBarWidth() {
+		
+		return this.defaultBarWidth;
+	}
+	
+	public ResourceLocation getTexture() {
+		
+		return this.texture;
+	}
+	
+	public void setAlreadyRendered() {
+		
+		this.isAlreadyRendered = true;
+	}
+	
+	public void unsetAlreadyRendered() {
+		
+		this.isAlreadyRendered = false;
+	}
+	
+	public boolean isAlreadyRendered() {
+		
+		return this.isAlreadyRendered;
 	}
 	
 	// Should this bar even be displayed?
@@ -94,10 +144,10 @@ public class StatBar {
 	}
 	
 	// Determine the width of the bar.
-	public int getWidth(float value, float maxValue) {
+	public int getMovingWidth(float value, float maxValue) {
 
 		// One "unit". The width of the bar PER one thirst, one temperature, one sanity, etc.
-		double singleUnit = (double) fullWidth / maxValue;
+		double singleUnit = (double) defaultBarWidth / maxValue;
 		
 		// Multiplication of singleUnit to get the width
 		int width = (int) (singleUnit * value);

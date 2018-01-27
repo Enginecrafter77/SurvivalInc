@@ -35,7 +35,7 @@ import net.schoperation.schopcraft.cap.wetness.IWetness;
 import net.schoperation.schopcraft.cap.wetness.WetnessModifier;
 import net.schoperation.schopcraft.cap.wetness.WetnessProvider;
 import net.schoperation.schopcraft.config.SchopConfig;
-import net.schoperation.schopcraft.packet.GuiRenderPacket;
+import net.schoperation.schopcraft.packet.HUDRenderPacket;
 import net.schoperation.schopcraft.packet.SchopPackets;
 
 /*
@@ -60,9 +60,6 @@ public class CapEvents {
 		
 		if (player instanceof EntityPlayerMP) {
 			
-			// Cached UUID.
-			String uuid = player.getCachedUniqueIdString();
-			
 			// Capabilities
 			IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
 			IThirst thirst = player.getCapability(ThirstProvider.THIRST_CAP, null);
@@ -71,7 +68,7 @@ public class CapEvents {
 			IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
 			
 			// Send data to client for rendering.
-			IMessage msgGui = new GuiRenderPacket.GuiRenderMessage(uuid, temperature.getTemperature(), temperature.getMaxTemperature(), temperature.getTargetTemperature(), thirst.getThirst(), thirst.getMaxThirst(), sanity.getSanity(), sanity.getMaxSanity(), wetness.getWetness(), wetness.getMaxWetness(), ghost.isGhost(), ghost.getEnergy());
+			IMessage msgGui = new HUDRenderPacket.HUDRenderMessage(temperature.getTemperature(), temperature.getMaxTemperature(), temperature.getTargetTemperature(), thirst.getThirst(), thirst.getMaxThirst(), sanity.getSanity(), sanity.getMaxSanity(), wetness.getWetness(), wetness.getMaxWetness(), ghost.isGhost(), ghost.getEnergy());
 			SchopPackets.net.sendTo(msgGui, (EntityPlayerMP) player);
 		}
 	}
@@ -149,9 +146,6 @@ public class CapEvents {
 			// Send capability data to clients for rendering
 			if (!player.world.isRemote) {
 					
-				// Cached UUID.
-				String uuid = player.getCachedUniqueIdString();
-				
 				// Capabilities.
 				IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
 				IThirst thirst = player.getCapability(ThirstProvider.THIRST_CAP, null);
@@ -160,7 +154,7 @@ public class CapEvents {
 				IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
 
 				// Send data to client for rendering.
-				IMessage msgGui = new GuiRenderPacket.GuiRenderMessage(uuid, temperature.getTemperature(), temperature.getMaxTemperature(), temperature.getTargetTemperature(), thirst.getThirst(), thirst.getMaxThirst(), sanity.getSanity(), sanity.getMaxSanity(), wetness.getWetness(), wetness.getMaxWetness(), ghost.isGhost(), ghost.getEnergy());
+				IMessage msgGui = new HUDRenderPacket.HUDRenderMessage(temperature.getTemperature(), temperature.getMaxTemperature(), temperature.getTargetTemperature(), thirst.getThirst(), thirst.getMaxThirst(), sanity.getSanity(), sanity.getMaxSanity(), wetness.getWetness(), wetness.getMaxWetness(), ghost.isGhost(), ghost.getEnergy());
 				SchopPackets.net.sendTo(msgGui, (EntityPlayerMP) player);
 			}
 		}
