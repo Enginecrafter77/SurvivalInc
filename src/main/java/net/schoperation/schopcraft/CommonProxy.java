@@ -39,11 +39,11 @@ public class CommonProxy {
 		MinecraftForge.EVENT_BUS.register(new Registererer());
 		
 		// Register capabilities.
-		CapabilityManager.INSTANCE.register(IWetness.class, new WetnessStorage(), Wetness.class);
-		CapabilityManager.INSTANCE.register(IThirst.class, new ThirstStorage(), Thirst.class);
-		CapabilityManager.INSTANCE.register(ISanity.class, new SanityStorage(), Sanity.class);
-		CapabilityManager.INSTANCE.register(ITemperature.class, new TemperatureStorage(), Temperature.class);
-		CapabilityManager.INSTANCE.register(IGhost.class, new GhostStorage(), Ghost.class);
+		CapabilityManager.INSTANCE.register(IWetness.class, new WetnessStorage(), Wetness::new);
+		CapabilityManager.INSTANCE.register(IThirst.class, new ThirstStorage(), Thirst::new);
+		CapabilityManager.INSTANCE.register(ISanity.class, new SanityStorage(), Sanity::new);
+		CapabilityManager.INSTANCE.register(ITemperature.class, new TemperatureStorage(), Temperature::new);
+		CapabilityManager.INSTANCE.register(IGhost.class, new GhostStorage(), Ghost::new);
 	}
 	
 	public void init(FMLInitializationEvent event) {

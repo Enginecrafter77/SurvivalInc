@@ -1,7 +1,7 @@
 package net.schoperation.schopcraft.cap.wetness;
 
 public interface IWetness {
-	
+
 	// Basic crap we can do with wetness.
 	public void increase(float amount);
 	public void decrease(float amount);
