@@ -1,4 +1,4 @@
-package net.schoperation.schopcraft.season;
+package net.schoperation.schopcraft.season.modifier;
 
 import java.util.Iterator;
 import java.util.List;
@@ -8,6 +8,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
+import net.schoperation.schopcraft.season.Season;
 
 public class SeasonTweaks {
 	

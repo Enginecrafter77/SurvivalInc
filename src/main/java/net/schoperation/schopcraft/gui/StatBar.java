@@ -11,7 +11,7 @@ public class StatBar {
 	 */
 	
 	// Type
-	public enum StatType { TEMPERATURE, THIRST, SANITY, WETNESS, GHOST; }
+	public enum StatType { TEMPERATURE, THIRST, SANITY, WETNESS, GHOST }
 	private StatType type;
 	
 	// Texture

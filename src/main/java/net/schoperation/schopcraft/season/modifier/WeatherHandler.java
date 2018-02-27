@@ -1,10 +1,11 @@
-package net.schoperation.schopcraft.season;
+package net.schoperation.schopcraft.season.modifier;
 
 import java.util.Random;
 
 import net.minecraft.world.World;
 import net.minecraft.world.storage.WorldInfo;
 import net.schoperation.schopcraft.SchopCraft;
+import net.schoperation.schopcraft.season.Season;
 
 public class WeatherHandler {
 	

@@ -19,11 +19,12 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.schoperation.schopcraft.SchopCraft;
-import net.schoperation.schopcraft.SchopWorldData;
+import net.schoperation.schopcraft.season.modifier.*;
+import net.schoperation.schopcraft.util.SchopWorldData;
 import net.schoperation.schopcraft.config.SchopConfig;
 import net.schoperation.schopcraft.packet.SchopPackets;
 import net.schoperation.schopcraft.packet.SeasonPacket;
-import net.schoperation.schopcraft.util.DataManager;
+import net.schoperation.schopcraft.util.WorldDataMgr;
 
 @Mod.EventBusSubscriber
 public class WorldSeason {
@@ -182,7 +183,7 @@ public class WorldSeason {
 					}
 					
 					// Save world data
-					DataManager.saveData(season, daysIntoSeason);
+					WorldDataMgr.save(season, daysIntoSeason);
 					
 					// Send new season data to client
 					int seasonInt = SchopWorldData.seasonToInt(season);
@@ -266,16 +267,16 @@ public class WorldSeason {
 				
 				// Is it summer? Then let's try to remove some snow and ice.
 				if (season == Season.SUMMER) {
-					
+
 					if (!player.world.isRemote && player.dimension == 0) {
-						
-						int chunkCoordX = event.getNewChunkX();
-						int chunkCoordZ = event.getNewChunkZ();
-						melter.meltCompletely(chunkCoordX, chunkCoordZ, player.world);
-					}	
+
+					int chunkCoordX = event.getNewChunkX();
+					int chunkCoordZ = event.getNewChunkZ();
+					melter.meltCompletely(chunkCoordX, chunkCoordZ, player.world);
 				}
-				
-				// How about spring or autumn? Let's try to change some leaves.
+			}
+
+			// How about spring or autumn? Let's try to change some leaves.
 				else if (season == Season.SPRING || season == Season.AUTUMN) {
 					
 					if (!player.world.isRemote && player.dimension == 0) {
@@ -293,7 +294,7 @@ public class WorldSeason {
 	@SubscribeEvent
 	public void biomeGrass(BiomeEvent.GetGrassColor event) {
 		
-		int color = 0;
+		int color;
 		
 		if (SchopConfig.seasons.aenableSeasons) {
 			
@@ -307,7 +308,8 @@ public class WorldSeason {
 		
 		
 		if (color == 0) {
-			
+
+		    ;
 		}
 		
 		else if (event.getNewColor() != color) {

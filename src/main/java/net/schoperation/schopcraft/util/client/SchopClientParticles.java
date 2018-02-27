@@ -44,7 +44,7 @@ public class SchopClientParticles {
 		
 		for (int count = 0; count < 20; count++) {
 			
-			world.spawnParticle(EnumParticleTypes.PORTAL, true, posX, posY, posZ, 5d, 5d, 5d, new int[0]);
+			world.spawnParticle(EnumParticleTypes.PORTAL, true, posX, posY, posZ, 5d, 5d, 5d, null);
 		}
 	}
 	
@@ -53,7 +53,7 @@ public class SchopClientParticles {
 		
 		for (int count = 0; count < 5; count++) {
 			
-			world.spawnParticle(EnumParticleTypes.EXPLOSION_LARGE, true, posX, posY, posZ, 0.5d, 0.5d, 0.5d, new int[0]);
+			world.spawnParticle(EnumParticleTypes.EXPLOSION_LARGE, true, posX, posY, posZ, 0.5d, 0.5d, 0.5d, null);
 		}
 	}
 	
@@ -62,7 +62,7 @@ public class SchopClientParticles {
 		
 		for (int count = 0; count < 200; count++) {
 			
-			world.spawnParticle(EnumParticleTypes.CLOUD, true, posX, posY, posZ, 0.5d, 0.6d, 0.5d, new int[0]);
+			world.spawnParticle(EnumParticleTypes.CLOUD, true, posX, posY, posZ, 0.5d, 0.6d, 0.5d, null);
 		}
 	}
 	
@@ -71,7 +71,7 @@ public class SchopClientParticles {
 		
 		for (int count = 0; count < 1; count++) {
 			
-			world.spawnParticle(EnumParticleTypes.MOB_APPEARANCE, true, posX, posY, posZ, 0.5d, 0.5d, 0.5d, new int[0]);
+			world.spawnParticle(EnumParticleTypes.MOB_APPEARANCE, true, posX, posY, posZ, 0.5d, 0.5d, 0.5d, null);
 		}
 	}
 	
@@ -80,7 +80,7 @@ public class SchopClientParticles {
 		
 		for (int count = 0; count < 5; count++) {
 			
-			world.spawnParticle(EnumParticleTypes.SMOKE_LARGE, true, posX, posY, posZ, 0.5d, 0.5d, 0.5d, new int[0]);
+			world.spawnParticle(EnumParticleTypes.SMOKE_LARGE, true, posX, posY, posZ, 0.5d, 0.5d, 0.5d, null);
 		}
 	}
 }

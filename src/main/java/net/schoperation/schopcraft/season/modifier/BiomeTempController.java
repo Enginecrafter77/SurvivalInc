@@ -1,4 +1,4 @@
-package net.schoperation.schopcraft.season;
+package net.schoperation.schopcraft.season.modifier;
 
 import java.lang.reflect.Field;
 import java.util.Iterator;
@@ -9,6 +9,7 @@ import net.minecraft.world.biome.BiomeHell;
 import net.minecraft.world.biome.BiomeOcean;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.schoperation.schopcraft.SchopCraft;
+import net.schoperation.schopcraft.season.Season;
 
 public class BiomeTempController {
 	
@@ -25,20 +26,20 @@ public class BiomeTempController {
 		
 		// Is temperatures already filled up? Then don't bother doing this crap again.
 		if (temperatures != null) {
-			
+
 			SchopCraft.logger.info("Original temperatures already stored. Not doing it again.");
 		}
 		
 		else {
 			
 			// Number of biomes
-			int biomeNumber = ForgeRegistries.BIOMES.getValues().size();
+			int biomeNumber = ForgeRegistries.BIOMES.getValuesCollection().size();
 			
 			// Allocate enough space for array
 			temperatures = new float[biomeNumber];
 			
 			// Iterator
-			Iterator<Biome> biomeList = ForgeRegistries.BIOMES.getValues().iterator();
+			Iterator<Biome> biomeList = ForgeRegistries.BIOMES.getValuesCollection().iterator();
 			int counter = 0;
 			
 			// Iterate kek
@@ -58,10 +59,10 @@ public class BiomeTempController {
 	}
 	
 	// Want some original temp for a specific biome? Use this thingy-a-method here!
-	public float getOriginalTemperature(Biome biome) {
+	private float getOriginalTemperature(Biome biome) {
 		
 		// Iterator
-		Iterator<Biome> biomeList = ForgeRegistries.BIOMES.getValues().iterator();
+		Iterator<Biome> biomeList = ForgeRegistries.BIOMES.getValuesCollection().iterator();
 		int counter = 0;
 		
 		// Iterate kek
@@ -90,7 +91,7 @@ public class BiomeTempController {
 	public void changeBiomeTemperatures(Season season, int daysIntoSeason) {
 		
 		// Get all of the biomes and iterate through them
-		Iterator<Biome> biomeList = ForgeRegistries.BIOMES.getValues().iterator();
+		Iterator<Biome> biomeList = ForgeRegistries.BIOMES.getValuesCollection().iterator();
 		
 		// Iterate kek
 		while (biomeList.hasNext()) {
@@ -139,7 +140,7 @@ public class BiomeTempController {
 			float diffPerDay = actualDiff / halfSeason;
 			
 			// Now, we must edit daysIntoSeason so we can correctly calculate the difference to add onto the temperature.
-			int halfDays = 0;
+			int halfDays;
 			if (daysIntoSeason > halfSeason) {
 				
 				halfDays = daysIntoSeason - halfSeason;
@@ -176,36 +177,7 @@ public class BiomeTempController {
 			}
 			
 			// Apply the differences. First the previous one from the previous half season. Then the new one we just calculated.
-			// The fields appear to be different when compiled. So that's why there's two different ways, as I'll continue using the dev workspace.
-				
-			try {
-				Field f = Biome.class.getDeclaredField("temperature");
-				f.setAccessible(true);
-				f.set(choosenBiome, newTemperature);
-			} catch (NoSuchFieldException e) {
-				
-				// Okay, so we're not in a dev environment. Try to other one.
-				try {
-					Field f = Biome.class.getDeclaredField("field_76750_F");
-					f.setAccessible(true);
-					f.set(choosenBiome, newTemperature);
-				} catch (NoSuchFieldException ex) {
-					SchopCraft.logger.error("Did not find funky field. Contact Schoperation if you get this error. It means he has to work harder. Damn it.");
-				} catch (SecurityException ex) {
-					ex.printStackTrace();
-				} catch (IllegalArgumentException ex) {
-					ex.printStackTrace();
-				} catch (IllegalAccessException ex) {
-					ex.printStackTrace();
-				}
-				
-			} catch (SecurityException e) {
-				e.printStackTrace();
-			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			}
+			changeTemp(choosenBiome, newTemperature);
 		}
 	}
 	
@@ -213,53 +185,59 @@ public class BiomeTempController {
 	public void resetBiomeTemperatures() {
 		
 		// Iterator
-		Iterator<Biome> biomeList = ForgeRegistries.BIOMES.getValues().iterator();
+		Iterator<Biome> biomeList = ForgeRegistries.BIOMES.getValuesCollection().iterator();
 		int counter = 0;
 		
 		// Iterate kek
 		while (biomeList.hasNext()) {
 			
 			// The biome
-			Biome choosenBiome = biomeList.next();
+			Biome biome = biomeList.next();
 			
 			// Grab the original temperature
 			float origBiomeTemp = temperatures[counter];
 			
 			// Now change the temperature back to the original
-			try {
-				Field f = Biome.class.getDeclaredField("temperature");
-				f.setAccessible(true);
-				f.set(choosenBiome, origBiomeTemp);
-			} catch (NoSuchFieldException e) {
-				
-				try {
-					Field f = Biome.class.getDeclaredField("field_76750_F");
-					f.setAccessible(true);
-					f.set(choosenBiome, origBiomeTemp);
-				} catch (NoSuchFieldException ex) {
-					SchopCraft.logger.error("Did not find funky field. Contact Schoperation if you get this error. It means he has to work harder. Damn it.");
-				} catch (SecurityException ex) {
-					ex.printStackTrace();
-				} catch (IllegalArgumentException ex) {
-					ex.printStackTrace();
-				} catch (IllegalAccessException ex) {
-					ex.printStackTrace();
-				}
-				
-				
-			} catch (SecurityException e) {
-				e.printStackTrace();
-			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			}
-			
+			changeTemp(biome, origBiomeTemp);
+
 			// Increment counter.
 			counter++;
 		}
 		
 		// Log it
 		SchopCraft.logger.info("Restored " + (counter + 1) + " biome temperatures to their originals.");
+	}
+
+	// This is the actual reflection crap used to change the temperature of a biome.
+	private void changeTemp(Biome biome, float temperature) {
+
+		// The fields appear to be different when compiled. So that's why there's two different ways, as I'll continue using the dev workspace.
+		try {
+			Field f = Biome.class.getDeclaredField("temperature");
+			f.setAccessible(true);
+			f.set(biome, temperature);
+		} catch (NoSuchFieldException e) {
+
+			try {
+				Field f = Biome.class.getDeclaredField("field_76750_F");
+				f.setAccessible(true);
+				f.set(biome, temperature);
+			} catch (NoSuchFieldException ex) {
+				SchopCraft.logger.error("Did not find funky field. Contact Schoperation if you get this error. It means he has to work harder. Damn it.");
+			} catch (SecurityException ex) {
+				ex.printStackTrace();
+			} catch (IllegalArgumentException ex) {
+				ex.printStackTrace();
+			} catch (IllegalAccessException ex) {
+				ex.printStackTrace();
+			}
+
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}
 	}
 }

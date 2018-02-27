@@ -4,17 +4,16 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.schoperation.schopcraft.SchopCraft;
-import net.schoperation.schopcraft.SchopWorldData;
 import net.schoperation.schopcraft.season.Season;
 import net.schoperation.schopcraft.season.WorldSeason;
 
-public class DataManager {
+public class WorldDataMgr {
 	
 	/*
 	 * Manage your world data today!
 	 */
 	
-	public static void loadWorldDataFromDisk() {
+	public static void loadFromDisk() {
 		
 		// Instance of the server.
 		MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
@@ -33,7 +32,7 @@ public class DataManager {
 		WorldSeason.getSeasonData(data.getSeasonFromData(), data.daysIntoSeason);
 	}
 	
-	public static void saveData(Season seasonNew, int daysIntoSeasonNew) {
+	public static void save(Season seasonNew, int daysIntoSeasonNew) {
 		
 		// Instance of the server.
 		// Yes we have to load it again so we can overwrite it in this function yay yay yay

@@ -487,13 +487,6 @@ public class ItemCanteen extends Item {
 				stack.setItemDamage(0);
 			}
 			
-			// Since durability is newer for canteens, if the canteen doesn't have durability tag, add it. This code will probably be here for a while.
-			// TODO Remove this in the far future (on legit release).
-			if (!nbt.hasKey("durability")) {
-				
-				nbt.setInteger("durability", canteenDurability);
-			}
-			
 			// If durability is 0, destroy the canteen.
 			if (nbt.getInteger("durability") <= 0) {
 				

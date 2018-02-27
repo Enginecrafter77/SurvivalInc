@@ -40,7 +40,7 @@ public enum Season {
 	}
 	
 	// Methods for setting the seasons apart.
-	// Length of the season in Minecraft days TODO: make this configurable
+	// Length of the season in Minecraft days
 	public int getLength(Season season) {
 		
 		switch(season) {

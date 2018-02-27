@@ -1,4 +1,4 @@
-package net.schoperation.schopcraft.season;
+package net.schoperation.schopcraft.season.modifier;
 
 import java.util.Random;
 
@@ -249,7 +249,7 @@ public class SnowMelter {
 		
 		if (biome.getDefaultTemperature() <= 0.15f) {
 			
-			// NOPE
+			;
 		}
 		
 		else {

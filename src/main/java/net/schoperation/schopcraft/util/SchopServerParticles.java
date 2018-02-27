@@ -85,7 +85,7 @@ public class SchopServerParticles {
 	// Spawn some cool snow particles to imitate a person's breath, when they're in a cold biome.
 	private static void spawnColdBreathParticles(WorldServer serverWorld, double posX, double posY, double posZ) {
 		
-		serverWorld.spawnParticle(EnumParticleTypes.CLOUD, posX, posY, posZ, 1, 0, 0.1, 0, 0.1, new int[0]);
+		serverWorld.spawnParticle(EnumParticleTypes.CLOUD, posX, posY, posZ, 1, 0, 0.1, 0, 0.1, null);
 	}
 	
 	// Spawn some weird ghost particles to make a ghost visible (or what those ghost hunting shows call it: manifest themselves)

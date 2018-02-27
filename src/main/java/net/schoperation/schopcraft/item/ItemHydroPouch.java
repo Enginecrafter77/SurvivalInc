@@ -491,13 +491,6 @@ public class ItemHydroPouch extends Item {
 				stack.setItemDamage(0);
 			}
 			
-			// Since durability is newer for canteens, if the canteen doesn't have durability tag, add it. This code will probably be here for a while.
-			// TODO Remove this in the far future (release?)
-			if (!nbt.hasKey("durability")) {
-				
-				nbt.setInteger("durability", hydroPouchDurability);
-			}
-			
 			// If durability is 0, destroy the canteen.
 			if (nbt.getInteger("durability") <= 0) {
 				

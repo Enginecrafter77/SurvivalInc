@@ -1,4 +1,4 @@
-package net.schoperation.schopcraft.season;
+package net.schoperation.schopcraft.season.modifier;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.GameRules;
@@ -81,7 +81,7 @@ public class CycleController {
 		// No change? Do nothing
 		if (targetTicks == 0) {
 			
-			// haha
+			;
 		}
 		
 		// Longer day, shorter night

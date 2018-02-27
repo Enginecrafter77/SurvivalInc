@@ -5,9 +5,9 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.schoperation.schopcraft.SchopCraft;
-import net.schoperation.schopcraft.SchopWorldData;
+import net.schoperation.schopcraft.util.SchopWorldData;
 import net.schoperation.schopcraft.packet.SeasonPacket.SeasonMessage;
-import net.schoperation.schopcraft.season.BiomeTempController;
+import net.schoperation.schopcraft.season.modifier.BiomeTempController;
 import net.schoperation.schopcraft.season.Season;
 
 public class SeasonPacket implements IMessageHandler<SeasonMessage, IMessage> {

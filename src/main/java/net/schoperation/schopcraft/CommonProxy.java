@@ -24,11 +24,11 @@ import net.schoperation.schopcraft.cap.wetness.IWetness;
 import net.schoperation.schopcraft.cap.wetness.Wetness;
 import net.schoperation.schopcraft.cap.wetness.WetnessStorage;
 import net.schoperation.schopcraft.packet.SchopPackets;
-import net.schoperation.schopcraft.season.BiomeTempController;
+import net.schoperation.schopcraft.season.modifier.BiomeTempController;
 import net.schoperation.schopcraft.season.WorldSeason;
 import net.schoperation.schopcraft.tweak.ServerCommands;
 import net.schoperation.schopcraft.tweak.TweakEvents;
-import net.schoperation.schopcraft.util.DataManager;
+import net.schoperation.schopcraft.util.WorldDataMgr;
 import net.schoperation.schopcraft.util.Registererer;
 
 public class CommonProxy {
@@ -73,6 +73,6 @@ public class CommonProxy {
 		biomeTemp = null;
 				
 		// Load world data from file.
-		DataManager.loadWorldDataFromDisk();
+		WorldDataMgr.loadFromDisk();
 	}
 }

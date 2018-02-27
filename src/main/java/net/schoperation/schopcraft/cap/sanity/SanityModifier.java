@@ -532,7 +532,7 @@ public class SanityModifier {
 	public void onDropsDropped(Entity entityKilled, List<EntityItem> drops, int lootingLevel, DamageSource damageSource) {
 		
 		// Was this mob killed by a player? (and server-side).
-		if (damageSource.getDamageType() == "player" && !entityKilled.world.isRemote) {
+		if (damageSource.getDamageType().equals("player") && !entityKilled.world.isRemote) {
 			
 			// Instance of player
 			EntityPlayer player = (EntityPlayer) damageSource.getTrueSource();

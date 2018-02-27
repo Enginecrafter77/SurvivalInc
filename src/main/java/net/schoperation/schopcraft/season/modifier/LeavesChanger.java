@@ -1,4 +1,4 @@
-package net.schoperation.schopcraft.season;
+package net.schoperation.schopcraft.season.modifier;
 
 import net.minecraft.block.BlockLeaves;
 import net.minecraft.block.BlockNewLeaf;
@@ -13,6 +13,7 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeJungle;
 import net.minecraft.world.chunk.Chunk;
 import net.schoperation.schopcraft.lib.ModBlocks;
+import net.schoperation.schopcraft.season.Season;
 
 public class LeavesChanger {
 	
@@ -151,7 +152,7 @@ public class LeavesChanger {
 		// Does this biome allow for changing leaves?
 		if (biome instanceof BiomeJungle) {
 			
-			// NOPE
+			;
 		}
 		
 		else {
