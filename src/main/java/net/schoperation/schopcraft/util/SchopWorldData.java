@@ -77,7 +77,7 @@ public class SchopWorldData extends WorldSavedData {
 			
 			if (data.season == 2) {
 				
-				data.daysIntoSeason = (SchopConfig.seasons.springLength / 2) - 1;
+				data.daysIntoSeason = (SchopConfig.SEASONS.springLength / 2) - 1;
 			}
 			
 			else {

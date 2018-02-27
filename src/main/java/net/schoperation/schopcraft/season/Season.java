@@ -45,10 +45,10 @@ public enum Season {
 		
 		switch(season) {
 		
-			case WINTER: return SchopConfig.seasons.winterLength;
-			case SPRING: return SchopConfig.seasons.springLength;
-			case SUMMER: return SchopConfig.seasons.summerLength;
-			case AUTUMN: return SchopConfig.seasons.autumnLength;
+			case WINTER: return SchopConfig.SEASONS.winterLength;
+			case SPRING: return SchopConfig.SEASONS.springLength;
+			case SUMMER: return SchopConfig.SEASONS.summerLength;
+			case AUTUMN: return SchopConfig.SEASONS.autumnLength;
 			default: return 14;
 		}
 	}

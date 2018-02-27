@@ -27,9 +27,11 @@ public class StatBar {
 	// Starting position of the moving bar in the texture file.
 	private int movingTextureX;
 	private int movingTextureY;
-	
-	// Is it already being rendered?
-	private boolean isAlreadyRendered = false;
+
+	// Values it holds (actual and max)
+    private float value = 0f;
+    private float maxValue = 100f;
+    private boolean isGhost = false;
 	
 	public StatBar(StatType type, int fullWidth, int fullHeight, int defaultBarWidth, int movingTextureX, int movingTextureY, ResourceLocation texture) {
 		
@@ -41,6 +43,21 @@ public class StatBar {
 		this.movingTextureY = movingTextureY;
 		this.texture = texture;
 	}
+
+	public void setValue(float value) {
+
+	    this.value = value;
+    }
+
+    public void setMaxValue(float value) {
+
+	    this.maxValue = value;
+    }
+
+    public void setGhost(boolean bool) {
+
+	    this.isGhost = bool;
+    }
 	
 	public int getFullWidth() {
 		
@@ -72,23 +89,8 @@ public class StatBar {
 		return this.texture;
 	}
 	
-	public void setAlreadyRendered() {
-		
-		this.isAlreadyRendered = true;
-	}
-	
-	public void unsetAlreadyRendered() {
-		
-		this.isAlreadyRendered = false;
-	}
-	
-	public boolean isAlreadyRendered() {
-		
-		return this.isAlreadyRendered;
-	}
-	
 	// Should this bar even be displayed?
-	public boolean shouldBeDisplayed(boolean isGhost, float value) {
+	public boolean shouldBeDisplayed() {
 		
 		// Minecraft instance. Figure out if f3 debug mode is on.
 		Minecraft mc = Minecraft.getMinecraft();
@@ -98,22 +100,22 @@ public class StatBar {
 		// Don't display most crap if debug mode is enabled.
 		if (!isDebugEnabled && !isGhost) {
 			
-			if (type == StatType.TEMPERATURE && SchopConfig.mechanics.enableTemperature) {
+			if (type == StatType.TEMPERATURE && SchopConfig.MECHANICS.enableTemperature) {
 			
 				return true;
 			}
 			
-			else if (type == StatType.THIRST && SchopConfig.mechanics.enableThirst) {
+			else if (type == StatType.THIRST && SchopConfig.MECHANICS.enableThirst) {
 				
 				return true;
 			}
 			
-			else if (type == StatType.SANITY && SchopConfig.mechanics.enableSanity) {
+			else if (type == StatType.SANITY && SchopConfig.MECHANICS.enableSanity) {
 				
 				return true;
 			}
 			
-			else if (type == StatType.WETNESS && value > 0 && SchopConfig.mechanics.enableWetness) {
+			else if (type == StatType.WETNESS && value > 0 && SchopConfig.MECHANICS.enableWetness) {
 				
 				return true;
 			}
@@ -124,17 +126,9 @@ public class StatBar {
 			}
 		}
 		
-		else if (isGhost) {
+		else if (isGhost && type == StatType.GHOST) {
 			
-			if (type == StatType.GHOST && SchopConfig.mechanics.enableGhost) {
-			
-				return true;
-			}
-			
-			else {
-				
-				return false;
-			}
+			return true;
 		}
 		
 		else {
@@ -144,7 +138,7 @@ public class StatBar {
 	}
 	
 	// Determine the width of the bar.
-	public int getMovingWidth(float value, float maxValue) {
+	public int getMovingWidth() {
 
 		// One "unit". The width of the bar PER one thirst, one temperature, one sanity, etc.
 		double singleUnit = (double) defaultBarWidth / maxValue;
@@ -156,7 +150,7 @@ public class StatBar {
 	}
 	
 	// Determine text to be displayed.
-	public String getTextToDisplay(float value) {
+	public String getTextToDisplay() {
 		
 		// Round the actual value
 		double roundedValue = (double) (Math.round(value * 10)) / 10;
@@ -167,7 +161,7 @@ public class StatBar {
 		// Is this temperature? Then we might have to convert.
 		if (type == StatType.TEMPERATURE) {
 			
-			if (SchopConfig.client.showCelsius) {
+			if (SchopConfig.CLIENT.showCelsius) {
 				
 				float tempInCelsius = (value - 32) / 1.8f;
 				roundedValue = (double) (Math.round(tempInCelsius * 10)) / 10;

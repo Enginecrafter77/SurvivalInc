@@ -37,7 +37,7 @@ public class ThirstModifier {
 		if (!player.world.isRemote) {
 			
 			// Modifier from config
-			float modifier = (float) SchopConfig.mechanics.thirstScale;
+			float modifier = (float) SchopConfig.MECHANICS.thirstScale;
 			
 			// Lava fries you well. Better grab a water.
 			if (player.isInLava()) {

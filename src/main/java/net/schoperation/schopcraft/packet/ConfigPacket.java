@@ -32,21 +32,21 @@ public class ConfigPacket implements IMessageHandler<ConfigMessage, IMessage> {
 			int summerLength = message.summerLength;
 			int autumnLength = message.autumnLength;
 			
-			SchopConfig.mechanics.enableGhost = enableGhost;
-			SchopConfig.mechanics.enableTemperature = enableTemperature;
-			SchopConfig.mechanics.enableThirst = enableThirst;
-			SchopConfig.mechanics.enableSanity = enableSanity;
-			SchopConfig.mechanics.enableWetness = enableWetness;
-			SchopConfig.mechanics.temperatureScale = temperatureScale;
-			SchopConfig.mechanics.thirstScale = thirstScale;
-			SchopConfig.mechanics.sanityScale = sanityScale;
-			SchopConfig.mechanics.wetnessScale = wetnessScale;
+			SchopConfig.MECHANICS.enableGhost = enableGhost;
+			SchopConfig.MECHANICS.enableTemperature = enableTemperature;
+			SchopConfig.MECHANICS.enableThirst = enableThirst;
+			SchopConfig.MECHANICS.enableSanity = enableSanity;
+			SchopConfig.MECHANICS.enableWetness = enableWetness;
+			SchopConfig.MECHANICS.temperatureScale = temperatureScale;
+			SchopConfig.MECHANICS.thirstScale = thirstScale;
+			SchopConfig.MECHANICS.sanityScale = sanityScale;
+			SchopConfig.MECHANICS.wetnessScale = wetnessScale;
 			
-			SchopConfig.seasons.aenableSeasons = aenableSeasons;
-			SchopConfig.seasons.winterLength = winterLength;
-			SchopConfig.seasons.springLength = springLength;
-			SchopConfig.seasons.summerLength = summerLength;
-			SchopConfig.seasons.autumnLength = autumnLength;
+			SchopConfig.SEASONS.aenableSeasons = aenableSeasons;
+			SchopConfig.SEASONS.winterLength = winterLength;
+			SchopConfig.SEASONS.springLength = springLength;
+			SchopConfig.SEASONS.summerLength = summerLength;
+			SchopConfig.SEASONS.autumnLength = autumnLength;
 			
 			SchopCraft.logger.info("Synced the client's config values with the server's.");
 		}

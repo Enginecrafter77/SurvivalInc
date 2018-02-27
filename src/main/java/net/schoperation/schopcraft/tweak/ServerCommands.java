@@ -66,7 +66,7 @@ public class ServerCommands {
 			BlockPos pos = player.getPosition();
 			
 			// Set their spawnpoint to those coordinates.
-			if (!player.isDead && SchopConfig.mechanics.enableGhost) {
+			if (!player.isDead && SchopConfig.MECHANICS.enableGhost) {
 				
 				player.setSpawnPoint(pos, true);
 			}

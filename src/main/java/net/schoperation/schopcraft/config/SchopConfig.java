@@ -19,101 +19,14 @@ public class SchopConfig {
 	// The values in the config file. Add on more as needed.
 	// Sub-categories
 	@Config.Name("client")
-	public static final Client client = new Client();
+	public static final Client CLIENT = new Client();
 	
 	@Config.Name("mechanics")
-	public static final Mechanics mechanics = new Mechanics();
+	public static final Mechanics MECHANICS = new Mechanics();
 	
 	@Config.Name("seasons")
-	public static final Seasons seasons = new Seasons();
-	
-	// Actual static classes
-	
-	@Config.LangKey("config.schopcraft:client")
-	public static class Client {
-		
-		@Config.LangKey("config.schopcraft:client.showCelsius")
-		public boolean showCelsius = false;
-	
-		@Config.LangKey("config.schopcraft:client.showSips")
-		public boolean showSipsInDurabilityBar = false;
-		
-		@Config.LangKey("config.schopcraft:client.barPos")
-		public String barPositions = "middle right";
-	}
-	
-	@Config.LangKey("config.schopcraft:mechanics")
-	public static class Mechanics {
-		
-		@Config.LangKey("config.schopcraft:mechanics.enableGhost")
-		@Config.RequiresWorldRestart
-		public boolean enableGhost = true;
-		
-		@Config.LangKey("config.schopcraft:mechanics.enableTemperature")
-		@Config.RequiresWorldRestart
-		public boolean enableTemperature = true;
-		
-		@Config.LangKey("config.schopcraft:mechanics.enableThirst")
-		@Config.RequiresWorldRestart
-		public boolean enableThirst = true;
-		
-		@Config.LangKey("config.schopcraft:mechanics.enableSanity")
-		@Config.RequiresWorldRestart
-		public boolean enableSanity = true;
-		
-		@Config.LangKey("config.schopcraft:mechanics.enableWetness")
-		@Config.RequiresWorldRestart
-		public boolean enableWetness = true;
-		
-		@Config.LangKey("config.schopcraft:mechanics.temperatureScale")
-		@Config.RequiresWorldRestart
-		@Config.RangeDouble(min = 0.1, max = 3.0)
-		public double temperatureScale = 1.0;
-		
-		@Config.LangKey("config.schopcraft:mechanics.thirstScale")
-		@Config.RequiresWorldRestart
-		@Config.RangeDouble(min = 0.1, max = 3.0)
-		public double thirstScale = 1.0;
-		
-		@Config.LangKey("config.schopcraft:mechanics.sanityScale")
-		@Config.RequiresWorldRestart
-		@Config.RangeDouble(min = 0.1, max = 3.0)
-		public double sanityScale = 1.0;
-		
-		@Config.LangKey("config.schopcraft:mechanics.wetnessScale")
-		@Config.RequiresWorldRestart
-		@Config.RangeDouble(min = 0.1, max = 3.0)
-		public double wetnessScale = 1.0;
-	}
-	
-	@Config.LangKey("config.schopcraft:seasons")
-	public static class Seasons {
-		
-		@Config.LangKey("config.schopcraft:seasons.enableSeasons")
-		@Config.RequiresWorldRestart
-		public boolean aenableSeasons = true;
-		
-		@Config.LangKey("config.schopcraft:seasons.enableDayLength")
-		@Config.RequiresWorldRestart
-		public boolean aenableDayLength = true;
-		
-		@Config.LangKey("config.schopcraft:seasons.winterLength")
-		@Config.RequiresWorldRestart
-		public int winterLength = 14;
-		
-		@Config.LangKey("config.schopcraft:seasons.springLength")
-		@Config.RequiresWorldRestart
-		public int springLength = 14;
-		
-		@Config.LangKey("config.schopcraft:seasons.summerLength")
-		@Config.RequiresWorldRestart
-		public int summerLength = 14;
-		
-		@Config.LangKey("config.schopcraft:seasons.autumnLength")
-		@Config.RequiresWorldRestart
-		public int autumnLength = 14;
-	}
-	
+	public static final Seasons SEASONS = new Seasons();
+
 	// This deals with changed the config values in Forge's GUI in-game.
 	// It also deals with syncing some config values from the server to the client, so everything doesn't get messed up.
 	@Mod.EventBusSubscriber
@@ -138,7 +51,7 @@ public class SchopConfig {
 			if (player instanceof EntityPlayerMP) {
 				
 				// Send server config values to the client. This will not affect the client's config file; it's temporary stuff.
-				IMessage msg = new ConfigPacket.ConfigMessage(SchopConfig.mechanics.enableGhost, SchopConfig.mechanics.enableTemperature, SchopConfig.mechanics.enableThirst, SchopConfig.mechanics.enableSanity, SchopConfig.mechanics.enableWetness, SchopConfig.mechanics.temperatureScale, SchopConfig.mechanics.thirstScale, SchopConfig.mechanics.sanityScale, SchopConfig.mechanics.wetnessScale, SchopConfig.seasons.aenableSeasons, SchopConfig.seasons.aenableDayLength, SchopConfig.seasons.winterLength, SchopConfig.seasons.springLength, SchopConfig.seasons.summerLength, SchopConfig.seasons.autumnLength);
+				IMessage msg = new ConfigPacket.ConfigMessage(SchopConfig.MECHANICS.enableGhost, SchopConfig.MECHANICS.enableTemperature, SchopConfig.MECHANICS.enableThirst, SchopConfig.MECHANICS.enableSanity, SchopConfig.MECHANICS.enableWetness, SchopConfig.MECHANICS.temperatureScale, SchopConfig.MECHANICS.thirstScale, SchopConfig.MECHANICS.sanityScale, SchopConfig.MECHANICS.wetnessScale, SchopConfig.SEASONS.aenableSeasons, SchopConfig.SEASONS.aenableDayLength, SchopConfig.SEASONS.winterLength, SchopConfig.SEASONS.springLength, SchopConfig.SEASONS.summerLength, SchopConfig.SEASONS.autumnLength);
 				SchopPackets.net.sendTo(msg, (EntityPlayerMP) player); 
 			}
 		}

@@ -58,7 +58,7 @@ public class WorldSeason {
 		daysIntoSeason = days;
 		
 		// Change biome temperatures immediately.
-		if (SchopConfig.seasons.aenableSeasons) {
+		if (SchopConfig.SEASONS.aenableSeasons) {
 			
 			BiomeTempController temporaryController = new BiomeTempController();
 			temporaryController.changeBiomeTemperatures(season, daysIntoSeason);
@@ -70,7 +70,7 @@ public class WorldSeason {
 	@SubscribeEvent
 	public void onPlayerLogsIn(PlayerLoggedInEvent event) {
 		
-		if (SchopConfig.seasons.aenableSeasons) {
+		if (SchopConfig.SEASONS.aenableSeasons) {
 			
 			EntityPlayer player = event.player;
 			
@@ -107,7 +107,7 @@ public class WorldSeason {
 	@SubscribeEvent
 	public void onPlayerLogsOut(PlayerLoggedOutEvent event) {
 
-		if (SchopConfig.seasons.aenableSeasons) {
+		if (SchopConfig.SEASONS.aenableSeasons) {
 			
 			// Turn off day-night cycle if no more people on
 			MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
@@ -148,7 +148,7 @@ public class WorldSeason {
 			World world = player.world;
 			
 			// Server-side
-			if (!world.isRemote && SchopConfig.seasons.aenableSeasons) {
+			if (!world.isRemote && SchopConfig.SEASONS.aenableSeasons) {
 				
 				// Time
 				long worldTime = world.getWorldTime();
@@ -231,7 +231,7 @@ public class WorldSeason {
 				}
 				
 				// Affect daytime
-				if (SchopConfig.seasons.aenableDayLength) {
+				if (SchopConfig.SEASONS.aenableDayLength) {
 					
 					cycleController.alter(world);
 				}
@@ -263,7 +263,7 @@ public class WorldSeason {
 			
 			EntityPlayer player = (EntityPlayer) event.getEntity();
 			
-			if (SchopConfig.seasons.aenableSeasons) {
+			if (SchopConfig.SEASONS.aenableSeasons) {
 				
 				// Is it summer? Then let's try to remove some snow and ice.
 				if (season == Season.SUMMER) {
@@ -296,7 +296,7 @@ public class WorldSeason {
 		
 		int color;
 		
-		if (SchopConfig.seasons.aenableSeasons) {
+		if (SchopConfig.SEASONS.aenableSeasons) {
 			
 			color = tweaks.getSeasonGrassColor(season, event.getBiome());
 		}
@@ -323,7 +323,7 @@ public class WorldSeason {
 	public void harvestDrops(BlockEvent.HarvestDropsEvent event) {
 		
 		// Is it actually Autumn?
-		if (season == Season.AUTUMN && SchopConfig.seasons.aenableSeasons) {
+		if (season == Season.AUTUMN && SchopConfig.SEASONS.aenableSeasons) {
 			
 			// Is this a legit crop?
 			if (event.getState().getBlock() instanceof BlockCrops) {

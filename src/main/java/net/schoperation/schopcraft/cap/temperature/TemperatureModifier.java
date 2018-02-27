@@ -439,7 +439,7 @@ public class TemperatureModifier {
 			
 			// Rate at which the player's temp shall change. This constant might change as well.
 			// Changed by config
-			float modifier = (float) SchopConfig.mechanics.temperatureScale;
+			float modifier = (float) SchopConfig.MECHANICS.temperatureScale;
 			float rateOfChange = tempDifference * 0.003f * modifier;
 			
 			// Change player's temp.

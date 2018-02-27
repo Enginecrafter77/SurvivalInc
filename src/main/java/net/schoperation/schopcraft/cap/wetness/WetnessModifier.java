@@ -35,7 +35,7 @@ public class WetnessModifier {
 		if (!player.world.isRemote) {
 			
 			// Modifier from config
-			float modifier = (float) SchopConfig.mechanics.wetnessScale;
+			float modifier = (float) SchopConfig.MECHANICS.wetnessScale;
 			
 			// Check if the player is in lava.
 			if (player.isInLava()) {

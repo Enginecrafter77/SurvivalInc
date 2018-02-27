@@ -17,7 +17,6 @@ public class HUDRenderPacket implements IMessageHandler<HUDRenderMessage, IMessa
 			// Temperature
 			float temperature = message.temperature;
 			float maxTemperature = message.maxTemperature;
-			float targetTemperature = message.targetTemperature;
 			
 			// Thirst
 			float thirst = message.thirst;
@@ -35,7 +34,7 @@ public class HUDRenderPacket implements IMessageHandler<HUDRenderMessage, IMessa
 			boolean isGhost = message.isGhost;
 			float ghostEnergy = message.ghostEnergy;
 			
-			RenderHUD.getServerStats(temperature, maxTemperature, targetTemperature, thirst, maxThirst, sanity, maxSanity, wetness, maxWetness, isGhost, ghostEnergy);
+			RenderHUD.retrieveStats(temperature, maxTemperature, thirst, maxThirst, sanity, maxSanity, wetness, maxWetness, isGhost, ghostEnergy);
 		}
 		
 		return null;
@@ -47,7 +46,6 @@ public class HUDRenderPacket implements IMessageHandler<HUDRenderMessage, IMessa
 		// Temperature
 		private float temperature;
 		private float maxTemperature;
-		private float targetTemperature;
 		
 		// Thirst
 		private float thirst;
@@ -68,11 +66,10 @@ public class HUDRenderPacket implements IMessageHandler<HUDRenderMessage, IMessa
 		// Necessary constructor.
 		public HUDRenderMessage() {}
 		
-		public HUDRenderMessage(float temperature, float maxTemperature, float targetTemperature, float thirst, float maxThirst, float sanity, float maxSanity, float wetness, float maxWetness, boolean isGhost, float ghostEnergy) {
+		public HUDRenderMessage(float temperature, float maxTemperature, float thirst, float maxThirst, float sanity, float maxSanity, float wetness, float maxWetness, boolean isGhost, float ghostEnergy) {
 			
 			this.temperature = temperature;
 			this.maxTemperature = maxTemperature;
-			this.targetTemperature = targetTemperature;
 			this.thirst = thirst;
 			this.maxThirst = maxThirst;
 			this.sanity = sanity;
@@ -88,7 +85,6 @@ public class HUDRenderPacket implements IMessageHandler<HUDRenderMessage, IMessa
 			
 			this.temperature = buf.readFloat();
 			this.maxTemperature = buf.readFloat();
-			this.targetTemperature = buf.readFloat();
 			this.thirst = buf.readFloat();
 			this.maxThirst = buf.readFloat();
 			this.sanity = buf.readFloat();
@@ -104,7 +100,6 @@ public class HUDRenderPacket implements IMessageHandler<HUDRenderMessage, IMessa
 			
 			buf.writeFloat(temperature);
 			buf.writeFloat(maxTemperature);
-			buf.writeFloat(targetTemperature);
 			buf.writeFloat(thirst);
 			buf.writeFloat(maxThirst);
 			buf.writeFloat(sanity);

@@ -44,7 +44,7 @@ public class GhostMain {
 		IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
 		
 		// Make them a ghost (if enabled)
-		if (SchopConfig.mechanics.enableGhost) {
+		if (SchopConfig.MECHANICS.enableGhost) {
 			
 			ghost.setGhost();
 			

@@ -1,7 +1,5 @@
 package net.schoperation.schopcraft.cap;
 
-import java.util.List;
-
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -38,6 +36,8 @@ import net.schoperation.schopcraft.config.SchopConfig;
 import net.schoperation.schopcraft.packet.HUDRenderPacket;
 import net.schoperation.schopcraft.packet.SchopPackets;
 
+import java.util.List;
+
 /*
  * This is the event handler regarding capabilities and changes to individual stats.
  * Most of the actual code is stored in the modifier classes of each stat, and fired here.
@@ -68,7 +68,7 @@ public class CapEvents {
 			IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
 			
 			// Send data to client for rendering.
-			IMessage msgGui = new HUDRenderPacket.HUDRenderMessage(temperature.getTemperature(), temperature.getMaxTemperature(), temperature.getTargetTemperature(), thirst.getThirst(), thirst.getMaxThirst(), sanity.getSanity(), sanity.getMaxSanity(), wetness.getWetness(), wetness.getMaxWetness(), ghost.isGhost(), ghost.getEnergy());
+			IMessage msgGui = new HUDRenderPacket.HUDRenderMessage(temperature.getTemperature(), temperature.getMaxTemperature(), thirst.getThirst(), thirst.getMaxThirst(), sanity.getSanity(), sanity.getMaxSanity(), wetness.getWetness(), wetness.getMaxWetness(), ghost.isGhost(), ghost.getEnergy());
 			SchopPackets.net.sendTo(msgGui, (EntityPlayerMP) player);
 		}
 	}
@@ -99,40 +99,40 @@ public class CapEvents {
 			// If in creative mode (or if the mechanic is disabled in the config), don't fire these at all.
 			if (shouldStatsChange) {
 				
-				if (SchopConfig.mechanics.enableTemperature) {
+				if (SchopConfig.MECHANICS.enableTemperature) {
 					
 					tempMod.onPlayerUpdate(player);
 				}
 				
-				if (SchopConfig.mechanics.enableThirst) {
+				if (SchopConfig.MECHANICS.enableThirst) {
 					
 					thirstMod.onPlayerUpdate(player);
 				}
 				
-				if (SchopConfig.mechanics.enableSanity) {
+				if (SchopConfig.MECHANICS.enableSanity) {
 					
 					sanityMod.onPlayerUpdate(player);
 				}
 				
-				if (SchopConfig.mechanics.enableWetness) {
+				if (SchopConfig.MECHANICS.enableWetness) {
 					
 					wetnessMod.onPlayerUpdate(player);
 				}
 				
-				if (SchopConfig.mechanics.enableGhost) {
+				if (SchopConfig.MECHANICS.enableGhost) {
 					
 					ghostMain.onPlayerUpdate(player);
 				}
 			}
 			
 			// Fire this if the player is sleeping (not starting to sleep, legit sleeping).
-			if (player.isPlayerFullyAsleep() && player.world.isRemote && shouldStatsChange && SchopConfig.mechanics.enableSanity) {
+			if (player.isPlayerFullyAsleep() && player.world.isRemote && shouldStatsChange && SchopConfig.MECHANICS.enableSanity) {
 				
 				sanityMod.onPlayerSleepInBed(player);
 			}
 			
 			// Fire this if onPlayerWakeUp is fired (the event). It'll keep counting up until it reaches a certain value.
-			if (wakeUpTimer > 30 && player.world.isRemote && shouldStatsChange && SchopConfig.mechanics.enableSanity) {
+			if (wakeUpTimer > 30 && player.world.isRemote && shouldStatsChange && SchopConfig.MECHANICS.enableSanity) {
 				
 				// Fire onWakeUp methods and reset wakeUpTimer.
 				sanityMod.onPlayerWakeUp(player);
@@ -154,7 +154,7 @@ public class CapEvents {
 				IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
 
 				// Send data to client for rendering.
-				IMessage msgGui = new HUDRenderPacket.HUDRenderMessage(temperature.getTemperature(), temperature.getMaxTemperature(), temperature.getTargetTemperature(), thirst.getThirst(), thirst.getMaxThirst(), sanity.getSanity(), sanity.getMaxSanity(), wetness.getWetness(), wetness.getMaxWetness(), ghost.isGhost(), ghost.getEnergy());
+				IMessage msgGui = new HUDRenderPacket.HUDRenderMessage(temperature.getTemperature(), temperature.getMaxTemperature(), thirst.getThirst(), thirst.getMaxThirst(), sanity.getSanity(), sanity.getMaxSanity(), wetness.getWetness(), wetness.getMaxWetness(), ghost.isGhost(), ghost.getEnergy());
 				SchopPackets.net.sendTo(msgGui, (EntityPlayerMP) player);
 			}
 		}
@@ -176,7 +176,7 @@ public class CapEvents {
 		}
 		
 		// Fire methods.
-		if (SchopConfig.mechanics.enableThirst && !player.isCreative() && !player.isSpectator()) {
+		if (SchopConfig.MECHANICS.enableThirst && !player.isCreative() && !player.isSpectator()) {
 			
 			thirstMod.onPlayerInteract(player);
 		}
@@ -199,12 +199,12 @@ public class CapEvents {
 				// Fire methods.
 				if (!player.isCreative()) {
 					
-					if (SchopConfig.mechanics.enableTemperature) {
+					if (SchopConfig.MECHANICS.enableTemperature) {
 						
 						tempMod.onPlayerConsumeItem(player, itemUsed);
 					}
 					
-					if (SchopConfig.mechanics.enableSanity) {
+					if (SchopConfig.MECHANICS.enableSanity) {
 						
 						sanityMod.onPlayerConsumeItem(player, itemUsed);
 					}
@@ -246,7 +246,7 @@ public class CapEvents {
 		DamageSource damageSource = event.getSource();
 		
 		// Fire methods.
-		if (SchopConfig.mechanics.enableSanity) {
+		if (SchopConfig.MECHANICS.enableSanity) {
 			
 			sanityMod.onDropsDropped(entityKilled, drops, lootingLevel, damageSource);
 		}

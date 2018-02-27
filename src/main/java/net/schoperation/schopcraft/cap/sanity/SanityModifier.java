@@ -105,7 +105,7 @@ public class SanityModifier {
 		if (!player.world.isRemote) {
 			
 			// Modifier from config
-			float modifier = (float) SchopConfig.mechanics.sanityScale;
+			float modifier = (float) SchopConfig.MECHANICS.sanityScale;
 			
 			// Being awake late at night is only for crazy people and college students.
 			if (!player.world.isDaytime() && playerPosY >= player.world.getSeaLevel()) {

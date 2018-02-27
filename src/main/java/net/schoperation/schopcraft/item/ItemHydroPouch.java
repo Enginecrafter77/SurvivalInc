@@ -586,7 +586,7 @@ public class ItemHydroPouch extends Item {
 		if (nbt != null) {
 			
 			// What is configured?
-			if (SchopConfig.client.showSipsInDurabilityBar) {
+			if (SchopConfig.CLIENT.showSipsInDurabilityBar) {
 				
 				// Show sips
 				if (nbt.getInteger("sips") > 0) {
@@ -631,7 +631,7 @@ public class ItemHydroPouch extends Item {
 		
 		if (nbt != null) {
 			
-			if (SchopConfig.client.showSipsInDurabilityBar) {
+			if (SchopConfig.CLIENT.showSipsInDurabilityBar) {
 				
 				percentLeft = Math.round((nbt.getInteger("sips") * 100) / hydroPouchSips);
 				durabilityToShow = 1.0 - ((double) percentLeft / 100);

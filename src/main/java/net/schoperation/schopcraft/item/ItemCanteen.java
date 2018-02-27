@@ -583,7 +583,7 @@ public class ItemCanteen extends Item {
 		if (nbt != null) {
 			
 			// What is configured?
-			if (SchopConfig.client.showSipsInDurabilityBar) {
+			if (SchopConfig.CLIENT.showSipsInDurabilityBar) {
 				
 				// Show sips
 				if (nbt.getInteger("sips") > 0) {
@@ -628,7 +628,7 @@ public class ItemCanteen extends Item {
 		
 		if (nbt != null) {
 			
-			if (SchopConfig.client.showSipsInDurabilityBar) {
+			if (SchopConfig.CLIENT.showSipsInDurabilityBar) {
 				
 				percentLeft = Math.round((nbt.getInteger("sips") * 100) / canteenSips);
 				durabilityToShow = 1.0 - ((double) percentLeft / 100);
