@@ -1,6 +1,6 @@
 package schoperation.schopcraft.season;
 
-import net.schoperation.schopcraft.config.SchopConfig;
+import schoperation.schopcraft.config.SchopConfig;
 
 /*
  * Basic properties for the seasons. Lotta switch statements, because enum stuff

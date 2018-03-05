@@ -4,8 +4,8 @@ import io.netty.buffer.ByteBuf;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import net.schoperation.schopcraft.gui.RenderHUD;
-import net.schoperation.schopcraft.packet.HUDRenderPacket.HUDRenderMessage;
+import schoperation.schopcraft.gui.RenderHUD;
+import schoperation.schopcraft.packet.HUDRenderPacket.HUDRenderMessage;
 
 public class HUDRenderPacket implements IMessageHandler<HUDRenderMessage, IMessage> {
 	

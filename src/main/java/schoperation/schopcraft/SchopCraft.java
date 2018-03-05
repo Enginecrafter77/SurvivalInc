@@ -33,7 +33,7 @@ public class SchopCraft {
 	public static final Logger logger = LogManager.getLogger(MOD_NAME);
 	
 	// Create proxies to load stuff correctly.
-	@SidedProxy(clientSide = "net.schoperation.schopcraft.ClientProxy", serverSide = "net.schoperation.schopcraft.CommonProxy")
+	@SidedProxy(clientSide = "schoperation.schopcraft.ClientProxy", serverSide = "schoperation.schopcraft.CommonProxy")
 	public static CommonProxy proxy;
 	
 	// Basic event handlers. All of the work is done in the proxies.

@@ -5,8 +5,8 @@ import net.minecraft.world.biome.BiomeEnd;
 import net.minecraft.world.biome.BiomeHell;
 import net.minecraft.world.biome.BiomeOcean;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.schoperation.schopcraft.SchopCraft;
-import net.schoperation.schopcraft.season.Season;
+import schoperation.schopcraft.SchopCraft;
+import schoperation.schopcraft.season.Season;
 
 import java.lang.reflect.Field;
 import java.util.Iterator;

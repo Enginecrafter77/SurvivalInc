@@ -11,11 +11,11 @@ import net.minecraft.stats.StatList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
-import net.schoperation.schopcraft.SchopCraft;
-import net.schoperation.schopcraft.cap.sanity.ISanity;
-import net.schoperation.schopcraft.cap.sanity.SanityProvider;
-import net.schoperation.schopcraft.cap.temperature.ITemperature;
-import net.schoperation.schopcraft.cap.temperature.TemperatureProvider;
+import schoperation.schopcraft.SchopCraft;
+import schoperation.schopcraft.cap.sanity.ISanity;
+import schoperation.schopcraft.cap.sanity.SanityProvider;
+import schoperation.schopcraft.cap.temperature.ITemperature;
+import schoperation.schopcraft.cap.temperature.TemperatureProvider;
 
 public class ItemIceCream extends ItemFood {
 	

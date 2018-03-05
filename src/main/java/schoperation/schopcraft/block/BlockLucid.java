@@ -11,7 +11,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.schoperation.schopcraft.SchopCraft;
+import schoperation.schopcraft.SchopCraft;
 
 public class BlockLucid extends BlockFalling {
 	

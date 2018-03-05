@@ -7,9 +7,9 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
-import net.schoperation.schopcraft.SchopCraft;
-import net.schoperation.schopcraft.cap.temperature.ITemperature;
-import net.schoperation.schopcraft.cap.temperature.TemperatureProvider;
+import schoperation.schopcraft.SchopCraft;
+import schoperation.schopcraft.cap.temperature.ITemperature;
+import schoperation.schopcraft.cap.temperature.TemperatureProvider;
 import schoperation.schopcraft.util.SchopServerSounds;
 
 public class ItemFeatherFan extends Item {

@@ -16,14 +16,13 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.schoperation.schopcraft.SchopCraft;
-import net.schoperation.schopcraft.config.SchopConfig;
-import net.schoperation.schopcraft.packet.SchopPackets;
-import net.schoperation.schopcraft.packet.SeasonPacket;
-import net.schoperation.schopcraft.season.modifier.*;
-import net.schoperation.schopcraft.util.SchopWorldData;
-import net.schoperation.schopcraft.util.WorldDataMgr;
+import schoperation.schopcraft.SchopCraft;
+import schoperation.schopcraft.config.SchopConfig;
+import schoperation.schopcraft.packet.SchopPackets;
+import schoperation.schopcraft.packet.SeasonPacket;
 import schoperation.schopcraft.season.modifier.*;
+import schoperation.schopcraft.util.SchopWorldData;
+import schoperation.schopcraft.util.WorldDataMgr;
 
 import java.util.List;
 

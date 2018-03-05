@@ -12,8 +12,8 @@ import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeJungle;
 import net.minecraft.world.chunk.Chunk;
-import net.schoperation.schopcraft.lib.ModBlocks;
-import net.schoperation.schopcraft.season.Season;
+import schoperation.schopcraft.lib.ModBlocks;
+import schoperation.schopcraft.season.Season;
 
 public class LeavesChanger {
 	

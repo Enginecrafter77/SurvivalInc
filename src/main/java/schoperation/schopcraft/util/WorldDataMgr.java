@@ -3,7 +3,7 @@ package schoperation.schopcraft.util;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.schoperation.schopcraft.SchopCraft;
+import schoperation.schopcraft.SchopCraft;
 import schoperation.schopcraft.season.Season;
 import schoperation.schopcraft.season.WorldSeason;
 

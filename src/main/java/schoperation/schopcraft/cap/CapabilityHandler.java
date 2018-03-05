@@ -5,7 +5,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.schoperation.schopcraft.SchopCraft;
+import schoperation.schopcraft.SchopCraft;
 import schoperation.schopcraft.cap.ghost.GhostProvider;
 import schoperation.schopcraft.cap.sanity.SanityProvider;
 import schoperation.schopcraft.cap.temperature.TemperatureProvider;

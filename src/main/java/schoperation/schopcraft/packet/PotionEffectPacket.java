@@ -5,8 +5,8 @@ import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import net.schoperation.schopcraft.packet.PotionEffectPacket.PotionEffectMessage;
-import net.schoperation.schopcraft.util.SchopServerEffects;
+import schoperation.schopcraft.packet.PotionEffectPacket.PotionEffectMessage;
+import schoperation.schopcraft.util.SchopServerEffects;
 
 /*
  * Used to add potion effects to the player on the server, if the method that wants to add an effect is on the client. 

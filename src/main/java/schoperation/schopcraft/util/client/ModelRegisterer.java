@@ -9,9 +9,9 @@ import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.schoperation.schopcraft.SchopCraft;
-import net.schoperation.schopcraft.lib.ModBlocks;
-import net.schoperation.schopcraft.lib.ModItems;
+import schoperation.schopcraft.SchopCraft;
+import schoperation.schopcraft.lib.ModBlocks;
+import schoperation.schopcraft.lib.ModItems;
 
 @Mod.EventBusSubscriber
 public class ModelRegisterer {

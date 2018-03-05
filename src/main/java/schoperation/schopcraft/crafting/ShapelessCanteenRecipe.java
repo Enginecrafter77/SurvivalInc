@@ -15,8 +15,8 @@ import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.common.crafting.IRecipeFactory;
 import net.minecraftforge.common.crafting.JsonContext;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
-import net.schoperation.schopcraft.item.ItemCanteen;
-import net.schoperation.schopcraft.item.ItemHydroPouch;
+import schoperation.schopcraft.item.ItemCanteen;
+import schoperation.schopcraft.item.ItemHydroPouch;
 
 import javax.annotation.Nonnull;
 

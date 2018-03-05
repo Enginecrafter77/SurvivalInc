@@ -5,7 +5,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
-import net.schoperation.schopcraft.season.Season;
+import schoperation.schopcraft.season.Season;
 
 import java.util.Iterator;
 import java.util.List;

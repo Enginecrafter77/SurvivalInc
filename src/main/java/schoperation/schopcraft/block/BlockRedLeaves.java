@@ -5,8 +5,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
-import net.schoperation.schopcraft.SchopCraft;
-import net.schoperation.schopcraft.lib.ModBlocks;
+import schoperation.schopcraft.SchopCraft;
+import schoperation.schopcraft.lib.ModBlocks;
 
 import java.util.ArrayList;
 import java.util.List;

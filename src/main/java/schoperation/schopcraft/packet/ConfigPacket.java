@@ -4,9 +4,9 @@ import io.netty.buffer.ByteBuf;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import net.schoperation.schopcraft.SchopCraft;
-import net.schoperation.schopcraft.config.SchopConfig;
-import net.schoperation.schopcraft.packet.ConfigPacket.ConfigMessage;
+import schoperation.schopcraft.SchopCraft;
+import schoperation.schopcraft.config.SchopConfig;
+import schoperation.schopcraft.packet.ConfigPacket.ConfigMessage;
 
 public class ConfigPacket implements IMessageHandler<ConfigMessage, IMessage> {
 	

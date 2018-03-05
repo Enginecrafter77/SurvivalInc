@@ -9,7 +9,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.schoperation.schopcraft.SchopCraft;
+import schoperation.schopcraft.SchopCraft;
 import schoperation.schopcraft.packet.ConfigPacket;
 import schoperation.schopcraft.packet.SchopPackets;
 

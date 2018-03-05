@@ -3,9 +3,9 @@ package schoperation.schopcraft.tweak;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.biome.Biome;
-import net.schoperation.schopcraft.cap.ghost.GhostProvider;
-import net.schoperation.schopcraft.cap.ghost.IGhost;
-import net.schoperation.schopcraft.util.SchopServerParticles;
+import schoperation.schopcraft.cap.ghost.GhostProvider;
+import schoperation.schopcraft.cap.ghost.IGhost;
+import schoperation.schopcraft.util.SchopServerParticles;
 
 /*
  * Used to spawn cool breath particles if in a cold biome.

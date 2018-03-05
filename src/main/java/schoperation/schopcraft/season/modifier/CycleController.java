@@ -4,7 +4,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.schoperation.schopcraft.SchopCraft;
+import schoperation.schopcraft.SchopCraft;
 
 public class CycleController {
 	

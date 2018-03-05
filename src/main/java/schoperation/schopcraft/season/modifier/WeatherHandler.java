@@ -2,8 +2,8 @@ package schoperation.schopcraft.season.modifier;
 
 import net.minecraft.world.World;
 import net.minecraft.world.storage.WorldInfo;
-import net.schoperation.schopcraft.SchopCraft;
-import net.schoperation.schopcraft.season.Season;
+import schoperation.schopcraft.SchopCraft;
+import schoperation.schopcraft.season.Season;
 
 import java.util.Random;
 

@@ -6,7 +6,7 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.schoperation.schopcraft.SchopCraft;
+import schoperation.schopcraft.SchopCraft;
 import schoperation.schopcraft.config.SchopConfig;
 
 public class RenderHUD extends Gui {
@@ -29,15 +29,19 @@ public class RenderHUD extends Gui {
 
 	    TEMPERATURE_BAR.setValue(newTemperature);
 	    TEMPERATURE_BAR.setMaxValue(newMaxTemperature);
+	    TEMPERATURE_BAR.setGhost(newIsGhost);
 
 	    THIRST_BAR.setValue(newThirst);
 	    THIRST_BAR.setMaxValue(newMaxThirst);
+	    THIRST_BAR.setGhost(newIsGhost);
 
 	    SANITY_BAR.setValue(newSanity);
 	    SANITY_BAR.setMaxValue(newMaxSanity);
+	    SANITY_BAR.setGhost(newIsGhost);
 
 	    WETNESS_BAR.setValue(newWetness);
 	    WETNESS_BAR.setMaxValue(newMaxWetness);
+	    WETNESS_BAR.setGhost(newIsGhost);
 
 	    GHOST_BAR.setValue(newGhostEnergy);
 	    GHOST_BAR.setMaxValue(100f);

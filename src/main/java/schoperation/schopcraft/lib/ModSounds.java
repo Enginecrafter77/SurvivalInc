@@ -2,7 +2,7 @@ package schoperation.schopcraft.lib;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
-import net.schoperation.schopcraft.SchopCraft;
+import schoperation.schopcraft.SchopCraft;
 
 public class ModSounds {
 	

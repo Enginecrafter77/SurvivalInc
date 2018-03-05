@@ -5,8 +5,8 @@ import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import net.schoperation.schopcraft.cap.sanity.SanityModifier;
-import net.schoperation.schopcraft.packet.SanityPacket.SanityMessage;
+import schoperation.schopcraft.cap.sanity.SanityModifier;
+import schoperation.schopcraft.packet.SanityPacket.SanityMessage;
 
 public class SanityPacket implements IMessageHandler<SanityMessage, IMessage> {
 	

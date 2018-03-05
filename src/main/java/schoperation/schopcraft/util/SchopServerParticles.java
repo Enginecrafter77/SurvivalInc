@@ -5,8 +5,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.schoperation.schopcraft.cap.wetness.IWetness;
-import net.schoperation.schopcraft.cap.wetness.WetnessProvider;
+import schoperation.schopcraft.cap.wetness.IWetness;
+import schoperation.schopcraft.cap.wetness.WetnessProvider;
 
 public class SchopServerParticles {
 	

@@ -2,7 +2,7 @@ package schoperation.schopcraft.item;
 
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
-import net.schoperation.schopcraft.SchopCraft;
+import schoperation.schopcraft.SchopCraft;
 
 public class ItemCharcoalFilter extends Item {
 	

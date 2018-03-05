@@ -1,5 +1,5 @@
 {
 	"recipes": {
-		"canteen_shapeless": "net.schoperation.schopcraft.crafting.ShapelessCanteenRecipe$Factory"
+		"canteen_shapeless": "schoperation.schopcraft.crafting.ShapelessCanteenRecipe$Factory"
 	}
 }

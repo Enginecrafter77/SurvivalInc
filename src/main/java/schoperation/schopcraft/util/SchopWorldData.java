@@ -3,7 +3,7 @@ package schoperation.schopcraft.util;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraft.world.storage.WorldSavedData;
-import net.schoperation.schopcraft.SchopCraft;
+import schoperation.schopcraft.SchopCraft;
 import schoperation.schopcraft.config.SchopConfig;
 import schoperation.schopcraft.season.Season;
 

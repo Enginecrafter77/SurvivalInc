@@ -4,11 +4,11 @@ import io.netty.buffer.ByteBuf;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import net.schoperation.schopcraft.SchopCraft;
-import net.schoperation.schopcraft.packet.SeasonPacket.SeasonMessage;
-import net.schoperation.schopcraft.util.SchopWorldData;
+import schoperation.schopcraft.SchopCraft;
+import schoperation.schopcraft.packet.SeasonPacket.SeasonMessage;
 import schoperation.schopcraft.season.Season;
 import schoperation.schopcraft.season.modifier.BiomeTempController;
+import schoperation.schopcraft.util.SchopWorldData;
 
 public class SeasonPacket implements IMessageHandler<SeasonMessage, IMessage> {
 	

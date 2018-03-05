@@ -14,8 +14,8 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.schoperation.schopcraft.SchopCraft;
-import net.schoperation.schopcraft.lib.ModBlocks;
+import schoperation.schopcraft.SchopCraft;
+import schoperation.schopcraft.lib.ModBlocks;
 
 import java.util.ArrayList;
 import java.util.List;
