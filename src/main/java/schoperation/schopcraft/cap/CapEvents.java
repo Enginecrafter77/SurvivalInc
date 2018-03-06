@@ -74,10 +74,7 @@ public class CapEvents {
 	}
 	
 	// When an entity is updated. So, all the time.
-	// This also deals with packets to the client. The modifiers themselves can send packets to the server if they need to.
-	// Below is a wakeUpTimer variable used to delay the execution of SanityModifier.onPlayerWakeUp(EntityPlayer player).
-	private int wakeUpTimer = -1;
-	
+	// This also deals with packets to the client.
 	@SubscribeEvent
 	public void onPlayerUpdate(LivingUpdateEvent event) {
 		
@@ -86,77 +83,64 @@ public class CapEvents {
 			
 			// Instance of player.
 			EntityPlayer player = (EntityPlayer) event.getEntity();
-			
-			// Whether the player's stats should be changed. Not in creative and spectator mode.
-			boolean shouldStatsChange = true;
-			
-			if (player.isCreative() || player.isSpectator()) {
-				
-				shouldStatsChange = false;
-			}
-			
-			// Now fire every method that should be fired here, passing the player as a parameter.
-			// If in creative mode (or if the mechanic is disabled in the config), don't fire these at all.
-			if (shouldStatsChange) {
-				
-				if (SchopConfig.MECHANICS.enableTemperature) {
-					
-					tempMod.onPlayerUpdate(player);
-				}
-				
-				if (SchopConfig.MECHANICS.enableThirst) {
-					
-					thirstMod.onPlayerUpdate(player);
-				}
-				
-				if (SchopConfig.MECHANICS.enableSanity) {
-					
-					sanityMod.onPlayerUpdate(player);
-				}
-				
-				if (SchopConfig.MECHANICS.enableWetness) {
-					
-					wetnessMod.onPlayerUpdate(player);
-				}
-				
-				if (SchopConfig.MECHANICS.enableGhost) {
-					
-					ghostMain.onPlayerUpdate(player);
-				}
-			}
-			
-			// Fire this if the player is sleeping (not starting to sleep, legit sleeping).
-			if (player.isPlayerFullyAsleep() && player.world.isRemote && shouldStatsChange && SchopConfig.MECHANICS.enableSanity) {
-				
-				sanityMod.onPlayerSleepInBed(player);
-			}
-			
-			// Fire this if onPlayerWakeUp is fired (the event). It'll keep counting up until it reaches a certain value.
-			if (wakeUpTimer > 30 && player.world.isRemote && shouldStatsChange && SchopConfig.MECHANICS.enableSanity) {
-				
-				// Fire onWakeUp methods and reset wakeUpTimer.
-				sanityMod.onPlayerWakeUp(player);
-				wakeUpTimer = -1;
-			}
-			else if (wakeUpTimer > -1 && player.world.isRemote) {
-				
-				wakeUpTimer++;
-			}
-			
-			// Send capability data to clients for rendering
-			if (!player.world.isRemote) {
-					
-				// Capabilities.
-				IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
-				IThirst thirst = player.getCapability(ThirstProvider.THIRST_CAP, null);
-				ISanity sanity = player.getCapability(SanityProvider.SANITY_CAP, null);
-				ITemperature temperature = player.getCapability(TemperatureProvider.TEMPERATURE_CAP, null);
-				IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
 
-				// Send data to client for rendering.
-				IMessage msgGui = new HUDRenderPacket.HUDRenderMessage(temperature.getTemperature(), temperature.getMaxTemperature(), thirst.getThirst(), thirst.getMaxThirst(), sanity.getSanity(), sanity.getMaxSanity(), wetness.getWetness(), wetness.getMaxWetness(), ghost.isGhost(), ghost.getEnergy());
-				SchopPackets.net.sendTo(msgGui, (EntityPlayerMP) player);
-			}
+			// Server-side
+            if (!player.world.isRemote) {
+
+                // Whether the player's stats should be changed. Not in creative and spectator mode.
+                boolean shouldStatsChange = true;
+
+                if (player.isCreative() || player.isSpectator()) {
+
+                    shouldStatsChange = false;
+                }
+
+                // Now fire every method that should be fired here, passing the player as a parameter.
+                // If in creative mode (or if the mechanic is disabled in the config), don't fire these at all.
+                if (shouldStatsChange) {
+
+                    if (SchopConfig.MECHANICS.enableTemperature) {
+
+                        tempMod.onPlayerUpdate(player);
+                    }
+
+                    if (SchopConfig.MECHANICS.enableThirst) {
+
+                        thirstMod.onPlayerUpdate(player);
+                    }
+
+                    if (SchopConfig.MECHANICS.enableSanity) {
+
+                        sanityMod.onPlayerUpdate(player);
+
+                        // Fire this if the player is sleeping
+                        if (player.isPlayerSleeping()) {
+
+                            sanityMod.onPlayerSleepInBed(player);
+                        }
+                    }
+
+                    if (SchopConfig.MECHANICS.enableWetness) {
+
+                        wetnessMod.onPlayerUpdate(player);
+                    }
+
+                    if (SchopConfig.MECHANICS.enableGhost) {
+
+                        ghostMain.onPlayerUpdate(player);
+                    }
+                }
+
+                // Send capability data to clients for rendering
+                IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
+                IThirst thirst = player.getCapability(ThirstProvider.THIRST_CAP, null);
+                ISanity sanity = player.getCapability(SanityProvider.SANITY_CAP, null);
+                ITemperature temperature = player.getCapability(TemperatureProvider.TEMPERATURE_CAP, null);
+                IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
+
+                IMessage msgGui = new HUDRenderPacket.HUDRenderMessage(temperature.getTemperature(), temperature.getMaxTemperature(), thirst.getThirst(), thirst.getMaxThirst(), sanity.getSanity(), sanity.getMaxSanity(), wetness.getWetness(), wetness.getMaxWetness(), ghost.isGhost(), ghost.getEnergy());
+                SchopPackets.net.sendTo(msgGui, (EntityPlayerMP) player);
+            }
 		}
 	}
 	
@@ -166,20 +150,24 @@ public class CapEvents {
 		
 		// Instance of player.
 		EntityPlayer player = event.getEntityPlayer();
-		
-		// Cancel interacting with blocks if the player is a ghost. This must be done here.
-		IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
-		
-		if (ghost.isGhost() && event.isCancelable()) {
-			
-			event.setCanceled(true);
-		}
-		
-		// Fire methods.
-		if (SchopConfig.MECHANICS.enableThirst && !player.isCreative() && !player.isSpectator()) {
-			
-			thirstMod.onPlayerInteract(player);
-		}
+
+		// Server-side
+		if (!player.world.isRemote) {
+
+            // Cancel interacting with blocks if the player is a ghost. This must be done here.
+            IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
+
+            if (ghost.isGhost() && event.isCancelable()) {
+
+                event.setCanceled(true);
+            }
+
+            // Fire methods.
+            if (SchopConfig.MECHANICS.enableThirst && !player.isCreative() && !player.isSpectator()) {
+
+                thirstMod.onPlayerInteract(player);
+            }
+        }
 	}
 	
 	// When a player (kind of) finishes using an item. Technically one tick before it's actually consumed.
@@ -190,7 +178,8 @@ public class CapEvents {
 			 
 			// Instance of player.
 			EntityPlayer player = (EntityPlayer) event.getEntity();
-			
+
+			// Server-side
 			if (!player.world.isRemote && event.getDuration() == 1) {
 				
 				// Instance of item.
@@ -219,37 +208,39 @@ public class CapEvents {
 		
 		// Instance of player.
 		EntityPlayer player = event.getEntityPlayer();
-		
-		// Start wakeUpTimer.
-		if (wakeUpTimer == -1 && player.world.isRemote) {
-			
-			wakeUpTimer = 0;
-		}
-		
-		// The methods related to onPlayerWakeUp are fired in onPlayerUpdate.	
+
+		if (!player.world.isRemote) {
+
+            // Fire methods
+            sanityMod.onPlayerWakeUp(player);
+        }
 	}
 	
 	// When an entity's drops are dropped (so usually when one dies).
 	@SubscribeEvent
 	public void onDropsDropped(LivingDropsEvent event) {
-		
+
 		// The entity that was killed.
 		Entity entityKilled = event.getEntity();
-		
-		// A list of their drops.
-		List<EntityItem> drops = event.getDrops();
-		
-		// The looting level of the weapon.
-		int lootingLevel = event.getLootingLevel();
-		
-		// Damage source.
-		DamageSource damageSource = event.getSource();
-		
-		// Fire methods.
-		if (SchopConfig.MECHANICS.enableSanity) {
-			
-			sanityMod.onDropsDropped(entityKilled, drops, lootingLevel, damageSource);
-		}
+
+		// Server-side
+        if (!entityKilled.world.isRemote) {
+
+            // A list of their drops.
+            List<EntityItem> drops = event.getDrops();
+
+            // The looting level of the weapon.
+            int lootingLevel = event.getLootingLevel();
+
+            // Damage source.
+            DamageSource damageSource = event.getSource();
+
+            // Fire methods.
+            if (SchopConfig.MECHANICS.enableSanity) {
+
+                sanityMod.onDropsDropped(entityKilled, drops, lootingLevel, damageSource);
+            }
+        }
 	}
 	
 	// When a player respawns.
@@ -258,24 +249,28 @@ public class CapEvents {
 		
 		// Instance of player.
 		EntityPlayer player = event.player;
-		
-		// Going through the end portal back to the overworld counts as respawning. This shouldn't make you a ghost.
-		if (!event.isEndConquered()) {
-			
-			ghostMain.onPlayerRespawn(player);
-		}
-		
-		else {
-			
-			// Set no gravity.
-			player.setNoGravity(true);
-			
-			// Move player away from portal.
-			player.setLocationAndAngles(player.posX+3, player.posY+1, player.posZ+3, 0.0f, 0.0f);
-			
-			// Set gravity back.
-			player.setNoGravity(false);
-		}
+
+		// Server-side
+        if (!player.world.isRemote) {
+
+            // Going through the end portal back to the overworld counts as respawning. This shouldn't make you a ghost.
+            if (!event.isEndConquered()) {
+
+                ghostMain.onPlayerRespawn(player);
+            }
+
+            else {
+
+                // Set no gravity.
+                player.setNoGravity(true);
+
+                // Move player away from portal.
+                player.setLocationAndAngles(player.posX+3, player.posY+1, player.posZ+3, 0.0f, 0.0f);
+
+                // Set gravity back.
+                player.setNoGravity(false);
+            }
+        }
 	}
 	
 	// When a player attempts to pick up items.

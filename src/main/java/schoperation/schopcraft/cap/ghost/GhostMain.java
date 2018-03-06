@@ -72,8 +72,8 @@ public class GhostMain {
 		// Cached UUID.
 		String uuid = player.getCachedUniqueIdString();
 		
-		// While on the server-side and while the player is a ghost.
-		if (!player.world.isRemote && ghost.isGhost()) {
+		// While the player is a ghost.
+		if (ghost.isGhost()) {
 			
 			// Constantly set the other values to default. Ghosts don't worry about that crap.
 			wetness.set(0.0f);
