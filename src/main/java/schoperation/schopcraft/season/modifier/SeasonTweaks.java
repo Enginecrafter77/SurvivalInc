@@ -2,8 +2,6 @@ package schoperation.schopcraft.season.modifier;
 
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import schoperation.schopcraft.season.Season;
 
@@ -76,34 +74,6 @@ public class SeasonTweaks {
 		else {
 			
 			return 0;
-		}
-	}
-	
-	/*
-	 * Make stuff grow slower in winter, and faster in summer.
-	 * This will technically affect fire spread and redstone ore updates, but
-	 * it'll also affect almost all plant growth: crops, vines, trees, etc. So I'll stick with the gamerule for now.
-	 */
-	
-	public void affectPlantGrowth(World world, Season season) {
-		
-		// Gamerules
-		GameRules gamerules = world.getGameRules();
-		
-		// Now... what's the season?
-		if (season == Season.WINTER) {
-			
-			gamerules.setOrCreateGameRule("randomTickSpeed", "1");
-		}
-		
-		else if (season == Season.SUMMER) {
-			
-			gamerules.setOrCreateGameRule("randomTickSpeed", "4");
-		}
-		
-		else {
-			
-			gamerules.setOrCreateGameRule("randomTickSpeed", "3");
 		}
 	}
 	
