@@ -5,6 +5,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
@@ -12,6 +13,7 @@ import net.minecraftforge.event.terraingen.BiomeEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
@@ -193,9 +195,6 @@ public class WorldSeason {
 					// Change temperatures
 					biomeTemp.changeBiomeTemperatures(season, daysIntoSeason);
 					
-					// Change plant growth speed
-					tweaks.affectPlantGrowth(world, season);
-					
 					// Determine the weather. The season is the main factor.
 					float randWeather = (float) Math.random();
 					
@@ -323,7 +322,7 @@ public class WorldSeason {
 	public void harvestDrops(BlockEvent.HarvestDropsEvent event) {
 		
 		// Is it actually Autumn?
-		if (season == Season.AUTUMN && SchopConfig.SEASONS.aenableSeasons) {
+		if (!event.getWorld().isRemote && season == Season.AUTUMN && SchopConfig.SEASONS.aenableSeasons) {
 			
 			// Is this a legit crop?
 			if (event.getState().getBlock() instanceof BlockCrops) {
@@ -335,7 +334,7 @@ public class WorldSeason {
 				List<ItemStack> drops = event.getDrops();
 				
 				// Now, we should only award bonus drops if it's fully grown.
-				if (crop.isMaxAge(event.getState()) && !event.getWorld().isRemote) {
+				if (crop.isMaxAge(event.getState())) {
 				
 					// Let's go
 					drops = tweaks.addBonusHarvest(drops);
@@ -343,4 +342,29 @@ public class WorldSeason {
 			}
 		}
 	}
+
+	// Make nothing grow in winter, and more grow in summer
+    @SubscribeEvent
+    public void affectGrowth(BlockEvent.CropGrowEvent.Pre event) {
+
+	    // Server-side
+        if (!event.getWorld().isRemote) {
+
+            // Winter?
+            if (season == Season.WINTER && SchopConfig.SEASONS.aenableSeasons) {
+
+                event.setResult(Event.Result.DENY);
+            }
+
+            // Summer?
+            else if (season == Season.SUMMER && SchopConfig.SEASONS.aenableSeasons) {
+
+                event.setResult(Event.Result.ALLOW);
+            }
+
+            // Backwards-compat code TODO remove next release
+            GameRules gamerules = event.getWorld().getGameRules();
+            gamerules.setOrCreateGameRule("randomTickSpeed", "3");
+        }
+    }
 }
