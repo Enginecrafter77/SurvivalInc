@@ -8,33 +8,37 @@ import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 
 // Provides wetness mechanic to the player.
 public class WetnessProvider implements ICapabilitySerializable<NBTBase> {
-	
+
 	@CapabilityInject(IWetness.class)
 	public static final Capability<IWetness> WETNESS_CAP = null;
-	
-	private IWetness instance =  WETNESS_CAP.getDefaultInstance();
-	
+
+	private IWetness instance = WETNESS_CAP.getDefaultInstance();
+
 	@Override
-	public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
-		
+	public boolean hasCapability(Capability<?> capability, EnumFacing facing)
+	{
+
 		return capability == WETNESS_CAP;
 	}
-	
+
 	@Override
-	public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
-		
+	public <T> T getCapability(Capability<T> capability, EnumFacing facing)
+	{
+
 		return capability == WETNESS_CAP ? WETNESS_CAP.<T> cast(this.instance) : null;
 	}
-	
+
 	@Override
-	public NBTBase serializeNBT() {
-		
+	public NBTBase serializeNBT()
+	{
+
 		return WETNESS_CAP.getStorage().writeNBT(WETNESS_CAP, this.instance, null);
 	}
-	
+
 	@Override
-	public void deserializeNBT(NBTBase nbt) {
-		
+	public void deserializeNBT(NBTBase nbt)
+	{
+
 		WETNESS_CAP.getStorage().readNBT(WETNESS_CAP, this.instance, null, nbt);
 	}
 

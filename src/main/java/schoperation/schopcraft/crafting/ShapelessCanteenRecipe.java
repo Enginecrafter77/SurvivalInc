@@ -26,72 +26,82 @@ import javax.annotation.Nonnull;
 
 public class ShapelessCanteenRecipe extends ShapelessOreRecipe {
 
-	public ShapelessCanteenRecipe(ResourceLocation group, NonNullList<Ingredient> input, ItemStack result) {
-		
+	public ShapelessCanteenRecipe(ResourceLocation group, NonNullList<Ingredient> input, ItemStack result)
+	{
+
 		super(group, input, result);
 	}
-	
+
 	@Override
-	public ItemStack getCraftingResult(@Nonnull InventoryCrafting inv) {
-		
+	public ItemStack getCraftingResult(@Nonnull InventoryCrafting inv)
+	{
+
 		// Original crafting result.
 		ItemStack output = super.getCraftingResult(inv);
-		
-		if (!output.isEmpty()) {
-			
-			for (int i = 0; i < inv.getSizeInventory(); i++) {
-				
+
+		if (!output.isEmpty())
+		{
+
+			for (int i = 0; i < inv.getSizeInventory(); i++)
+			{
+
 				// Currently selected ingredient.
 				ItemStack ingredient = inv.getStackInSlot(i);
-				
+
 				// Is this something?
-				if (!ingredient.isEmpty()) {
-					
+				if (!ingredient.isEmpty())
+				{
+
 					// Is this a canteen or HydroPouch?
-					if (ingredient.getItem() instanceof ItemCanteen || ingredient.getItem() instanceof ItemHydroPouch) {
-						
+					if (ingredient.getItem() instanceof ItemCanteen || ingredient.getItem() instanceof ItemHydroPouch)
+					{
+
 						// Clone item durability and the number of sips.
 						NBTTagCompound nbt = ingredient.getTagCompound();
-						
+
 						final int sips = nbt.getInteger("sips");
 						final int durability = nbt.getInteger("durability");
-						
+
 						NBTTagCompound newNBT = new NBTTagCompound();
 						newNBT.setInteger("sips", sips);
 						newNBT.setInteger("durability", durability);
 						output.setTagCompound(newNBT);
-						
+
 						break;
 					}
 				}
 			}
 		}
-		
+
 		return output;
 	}
-	
-	// This is used to create the new recipe type. This is mainly Forge/Mojang code, as it's good enough.
+
+	// This is used to create the new recipe type. This is mainly Forge/Mojang
+	// code, as it's good enough.
 	public static class Factory implements IRecipeFactory {
 
 		@Override
-		public IRecipe parse(JsonContext context, JsonObject json) {
-			
+		public IRecipe parse(JsonContext context, JsonObject json)
+		{
+
 			String group = JsonUtils.getString(json, "group", "");
 
-	        NonNullList<Ingredient> ings = NonNullList.create();
-	        for (JsonElement ele : JsonUtils.getJsonArray(json, "ingredients")) {
-	        	
-	            ings.add(CraftingHelper.getIngredient(ele, context));
-	        }
+			NonNullList<Ingredient> ings = NonNullList.create();
+			for (JsonElement ele : JsonUtils.getJsonArray(json, "ingredients"))
+			{
 
-	        if (ings.isEmpty()) {
-	        	
-	            throw new JsonParseException("No ingredients for shapeless recipe");
-	        }
+				ings.add(CraftingHelper.getIngredient(ele, context));
+			}
 
-	        ItemStack stack = CraftingHelper.getItemStack(JsonUtils.getJsonObject(json, "result"), context);
-	        
-	        return new ShapelessCanteenRecipe(group.isEmpty() ? null : new ResourceLocation(group), ings, stack);
+			if (ings.isEmpty())
+			{
+
+				throw new JsonParseException("No ingredients for shapeless recipe");
+			}
+
+			ItemStack stack = CraftingHelper.getItemStack(JsonUtils.getJsonObject(json, "result"), context);
+
+			return new ShapelessCanteenRecipe(group.isEmpty() ? null : new ResourceLocation(group), ings, stack);
 		}
 	}
 }

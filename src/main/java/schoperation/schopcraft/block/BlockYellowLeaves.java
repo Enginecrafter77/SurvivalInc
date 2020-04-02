@@ -12,22 +12,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BlockYellowLeaves extends BlockColoredLeaves {
-	
+
 	/*
 	 * Yellow birch leaves for Autumn. Bit messed up. But otherwise fine.
 	 */
-	
-	public BlockYellowLeaves() {
-		
+
+	public BlockYellowLeaves()
+	{
+
 		super();
-		
+
 		// Registry and Unlocalized names.
 		setRegistryName(new ResourceLocation(SchopCraft.MOD_ID, "yellow_leaves"));
 		setUnlocalizedName(SchopCraft.RESOURCE_PREFIX + "yellow_leaves");
 	}
-	
+
 	@Override
-	public List<ItemStack> onSheared(ItemStack item, IBlockAccess world, BlockPos pos, int fortune) {
+	public List<ItemStack> onSheared(ItemStack item, IBlockAccess world, BlockPos pos, int fortune)
+	{
 
 		List<ItemStack> list = new ArrayList();
 		list.add(new ItemStack(ModBlocks.YELLOW_LEAVES));
@@ -35,7 +37,8 @@ public class BlockYellowLeaves extends BlockColoredLeaves {
 	}
 
 	@Override
-	public EnumType getWoodType(int meta) {
+	public EnumType getWoodType(int meta)
+	{
 
 		return EnumType.BIRCH;
 	}

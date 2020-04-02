@@ -8,66 +8,72 @@ import schoperation.schopcraft.gui.RenderHUD;
 import schoperation.schopcraft.packet.HUDRenderPacket.HUDRenderMessage;
 
 public class HUDRenderPacket implements IMessageHandler<HUDRenderMessage, IMessage> {
-	
+
 	@Override
-	public IMessage onMessage(HUDRenderMessage message, MessageContext ctx) {
-		
-		if (ctx.side.isClient()) {
-			
+	public IMessage onMessage(HUDRenderMessage message, MessageContext ctx)
+	{
+
+		if (ctx.side.isClient())
+		{
+
 			// Temperature
 			float temperature = message.temperature;
 			float maxTemperature = message.maxTemperature;
-			
+
 			// Thirst
 			float thirst = message.thirst;
 			float maxThirst = message.maxThirst;
-			
+
 			// Sanity
 			float sanity = message.sanity;
 			float maxSanity = message.maxSanity;
-			
+
 			// Wetness
 			float wetness = message.wetness;
 			float maxWetness = message.maxWetness;
-			
+
 			// Ghost Stats
 			boolean isGhost = message.isGhost;
 			float ghostEnergy = message.ghostEnergy;
-			
-			RenderHUD.retrieveStats(temperature, maxTemperature, thirst, maxThirst, sanity, maxSanity, wetness, maxWetness, isGhost, ghostEnergy);
+
+			RenderHUD.retrieveStats(temperature, maxTemperature, thirst, maxThirst, sanity, maxSanity, wetness,
+					maxWetness, isGhost, ghostEnergy);
 		}
-		
+
 		return null;
 	}
-	
+
 	public static class HUDRenderMessage implements IMessage {
-		
+
 		// Variables sent to the client for rendering.
 		// Temperature
 		private float temperature;
 		private float maxTemperature;
-		
+
 		// Thirst
 		private float thirst;
 		private float maxThirst;
-		
+
 		// Sanity
 		private float sanity;
 		private float maxSanity;
-		
+
 		// Wetness
 		private float wetness;
 		private float maxWetness;
-		
+
 		// Ghost Stats
 		private boolean isGhost;
 		private float ghostEnergy;
-		
+
 		// Necessary constructor.
-		public HUDRenderMessage() {}
-		
-		public HUDRenderMessage(float temperature, float maxTemperature, float thirst, float maxThirst, float sanity, float maxSanity, float wetness, float maxWetness, boolean isGhost, float ghostEnergy) {
-			
+		public HUDRenderMessage()
+		{}
+
+		public HUDRenderMessage(float temperature, float maxTemperature, float thirst, float maxThirst, float sanity,
+				float maxSanity, float wetness, float maxWetness, boolean isGhost, float ghostEnergy)
+		{
+
 			this.temperature = temperature;
 			this.maxTemperature = maxTemperature;
 			this.thirst = thirst;
@@ -79,10 +85,11 @@ public class HUDRenderPacket implements IMessageHandler<HUDRenderMessage, IMessa
 			this.isGhost = isGhost;
 			this.ghostEnergy = ghostEnergy;
 		}
-		
+
 		@Override
-		public void fromBytes(ByteBuf buf) {
-			
+		public void fromBytes(ByteBuf buf)
+		{
+
 			this.temperature = buf.readFloat();
 			this.maxTemperature = buf.readFloat();
 			this.thirst = buf.readFloat();
@@ -94,10 +101,11 @@ public class HUDRenderPacket implements IMessageHandler<HUDRenderMessage, IMessa
 			this.isGhost = buf.readBoolean();
 			this.ghostEnergy = buf.readFloat();
 		}
-		
+
 		@Override
-		public void toBytes(ByteBuf buf) {
-			
+		public void toBytes(ByteBuf buf)
+		{
+
 			buf.writeFloat(temperature);
 			buf.writeFloat(maxTemperature);
 			buf.writeFloat(thirst);

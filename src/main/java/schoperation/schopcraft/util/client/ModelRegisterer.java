@@ -15,51 +15,66 @@ import schoperation.schopcraft.lib.ModItems;
 
 @Mod.EventBusSubscriber
 public class ModelRegisterer {
-	
+
 	/*
-	 * Where models are registered. Client-only, as the server has no eyes... yet...
+	 * Where models are registered. Client-only, as the server has no eyes...
+	 * yet...
 	 * 
 	 */
-	
+
 	// Register models.
 	@SubscribeEvent
-	public void registerModels(ModelRegistryEvent event) {
-		
+	public void registerModels(ModelRegistryEvent event)
+	{
+
 		// Register item models.
-		for (Item item : ModItems.ITEMS) {
-			
-			// If there are subitems (items with metadata), create a list of them and register those models separately.
-			if (item.getHasSubtypes()) {
-				
+		for (Item item : ModItems.ITEMS)
+		{
+
+			// If there are subitems (items with metadata), create a list of
+			// them and register those models separately.
+			if (item.getHasSubtypes())
+			{
+
 				NonNullList<ItemStack> subItems = NonNullList.create();
 				item.getSubItems(SchopCraft.mainTab, subItems);
-				
-				for (ItemStack stack : subItems) {
-					
+
+				for (ItemStack stack : subItems)
+				{
+
 					// The main item will have the normal model.
-					if (item.getMetadata(stack) == 0) {
-						
-						ModelLoader.setCustomModelResourceLocation(item, stack.getMetadata(), new ModelResourceLocation(item.getRegistryName(), "inventory"));
+					if (item.getMetadata(stack) == 0)
+					{
+
+						ModelLoader.setCustomModelResourceLocation(item, stack.getMetadata(),
+								new ModelResourceLocation(item.getRegistryName(), "inventory"));
 					}
-					
-					// Otherwise give it its own model, where the model json is called registryname_metadata.json
-					else {
-						
-						ModelLoader.setCustomModelResourceLocation(item, stack.getMetadata(), new ModelResourceLocation(item.getRegistryName() + "_" + Integer.toString(stack.getMetadata()), "inventory"));
+
+					// Otherwise give it its own model, where the model json is
+					// called registryname_metadata.json
+					else
+					{
+
+						ModelLoader.setCustomModelResourceLocation(item, stack.getMetadata(), new ModelResourceLocation(
+								item.getRegistryName() + "_" + Integer.toString(stack.getMetadata()), "inventory"));
 					}
 				}
 			}
-			
-			else {
-				
-				ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(item.getRegistryName(), "inventory"));
+
+			else
+			{
+
+				ModelLoader.setCustomModelResourceLocation(item, 0,
+						new ModelResourceLocation(item.getRegistryName(), "inventory"));
 			}
 		}
-		
+
 		// Register block models.
-		for (Block block : ModBlocks.BLOCKS) {
-			
-			ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(block), 0, new ModelResourceLocation(block.getRegistryName(), "inventory"));
+		for (Block block : ModBlocks.BLOCKS)
+		{
+
+			ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(block), 0,
+					new ModelResourceLocation(block.getRegistryName(), "inventory"));
 		}
 	}
 }

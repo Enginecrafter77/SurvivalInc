@@ -5,17 +5,18 @@ import net.minecraft.util.ResourceLocation;
 import schoperation.schopcraft.SchopCraft;
 
 public class ItemCharcoalFilter extends Item {
-	
+
 	/*
-	 * Filter da water. That's it. Just used in crafting filtered water bottles. 
+	 * Filter da water. That's it. Just used in crafting filtered water bottles.
 	 */
-	
-	public ItemCharcoalFilter() {
-		
+
+	public ItemCharcoalFilter()
+	{
+
 		// Set registry and unlocalized name.
 		setRegistryName(new ResourceLocation(SchopCraft.MOD_ID, "charcoal_filter"));
 		setUnlocalizedName(SchopCraft.RESOURCE_PREFIX + "charcoal_filter");
-		
+
 		// Basic properties.
 		setMaxStackSize(16);
 		setCreativeTab(SchopCraft.mainTab);

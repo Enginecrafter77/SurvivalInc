@@ -4,13 +4,14 @@ import net.minecraft.item.Item;
 import schoperation.schopcraft.item.*;
 
 public class ModItems {
-	
+
 	/*
-	 *  A list of all items in the game, used to quickly register and render everything. kek
+	 * A list of all items in the game, used to quickly register and render
+	 * everything. kek
 	 */
-	
+
 	// This list is here for easy referencing. In Alphabetical order.
-	
+
 	public static final Item CANTEEN = new ItemCanteen();
 	public static final Item CHARCOAL_FILTER = new ItemCharcoalFilter();
 	public static final Item FEATHER_FAN = new ItemFeatherFan();
@@ -19,18 +20,11 @@ public class ModItems {
 	public static final Item LUCID_DREAM_ESSENCE = new ItemLucidDreamEssence();
 	public static final Item TAB_ICON = new ItemTabIcon();
 	public static final Item TOWEL = new ItemTowel();
-	
+
 	// This list is used to actually register the items.
 	public static final Item[] ITEMS = {
-				
-				TAB_ICON,
-				CANTEEN,
-				CHARCOAL_FILTER,
-				LUCID_DREAM_ESSENCE,
-				ICE_CREAM,
-				FEATHER_FAN,
-				HYDROPOUCH,
-				TOWEL
-				
+
+			TAB_ICON, CANTEEN, CHARCOAL_FILTER, LUCID_DREAM_ESSENCE, ICE_CREAM, FEATHER_FAN, HYDROPOUCH, TOWEL
+
 	};
 }

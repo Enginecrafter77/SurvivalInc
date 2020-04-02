@@ -16,18 +16,20 @@ public class BlockOrangeLeaves extends BlockColoredLeaves {
 	/*
 	 * Orange dark oak leaves for Autumn. Bit messed up. But otherwise fine.
 	 */
-	
-	public BlockOrangeLeaves() {
-		
+
+	public BlockOrangeLeaves()
+	{
+
 		super();
-		
+
 		// Registry and Unlocalized names.
 		setRegistryName(new ResourceLocation(SchopCraft.MOD_ID, "orange_leaves"));
 		setUnlocalizedName(SchopCraft.RESOURCE_PREFIX + "orange_leaves");
 	}
-	
+
 	@Override
-	public List<ItemStack> onSheared(ItemStack item, IBlockAccess world, BlockPos pos, int fortune) {
+	public List<ItemStack> onSheared(ItemStack item, IBlockAccess world, BlockPos pos, int fortune)
+	{
 
 		List<ItemStack> list = new ArrayList();
 		list.add(new ItemStack(ModBlocks.ORANGE_LEAVES));
@@ -35,7 +37,8 @@ public class BlockOrangeLeaves extends BlockColoredLeaves {
 	}
 
 	@Override
-	public EnumType getWoodType(int meta) {
+	public EnumType getWoodType(int meta)
+	{
 
 		return EnumType.DARK_OAK;
 	}

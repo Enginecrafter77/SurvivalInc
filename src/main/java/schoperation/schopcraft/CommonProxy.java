@@ -32,12 +32,13 @@ import schoperation.schopcraft.util.Registererer;
 import schoperation.schopcraft.util.WorldDataMgr;
 
 public class CommonProxy {
-	
-	public void preInit(FMLPreInitializationEvent event) {
-		
+
+	public void preInit(FMLPreInitializationEvent event)
+	{
+
 		// Register all new items and blocks.
 		MinecraftForge.EVENT_BUS.register(new Registererer());
-		
+
 		// Register capabilities.
 		CapabilityManager.INSTANCE.register(IWetness.class, new WetnessStorage(), Wetness::new);
 		CapabilityManager.INSTANCE.register(IThirst.class, new ThirstStorage(), Thirst::new);
@@ -45,33 +46,36 @@ public class CommonProxy {
 		CapabilityManager.INSTANCE.register(ITemperature.class, new TemperatureStorage(), Temperature::new);
 		CapabilityManager.INSTANCE.register(IGhost.class, new GhostStorage(), Ghost::new);
 	}
-	
-	public void init(FMLInitializationEvent event) {
-		
+
+	public void init(FMLInitializationEvent event)
+	{
+
 		// Register event handlers.
 		MinecraftForge.EVENT_BUS.register(new CapabilityHandler());
 		MinecraftForge.EVENT_BUS.register(new CapEvents());
 		MinecraftForge.EVENT_BUS.register(new TweakEvents());
 		MinecraftForge.EVENT_BUS.register(new WorldSeason());
-		
+
 		// Register network packets.
 		SchopPackets.initPackets();
 	}
-	
-	public void postInit(FMLPostInitializationEvent event) {
-		
+
+	public void postInit(FMLPostInitializationEvent event)
+	{
+
 	}
-	
-	public void serverStarted(FMLServerStartedEvent event) {
-		
+
+	public void serverStarted(FMLServerStartedEvent event)
+	{
+
 		// Fire some simple commands on the server before players log on.
 		ServerCommands.fireCommandsOnStartup();
-		
+
 		// Grab initial biome temperatures.
 		BiomeTempController biomeTemp = new BiomeTempController();
 		biomeTemp.storeOriginalTemperatures();
 		biomeTemp = null;
-				
+
 		// Load world data from file.
 		WorldDataMgr.loadFromDisk();
 	}
