@@ -12,7 +12,6 @@ public class HUDRenderPacket implements IMessageHandler<HUDRenderMessage, IMessa
 	@Override
 	public IMessage onMessage(HUDRenderMessage message, MessageContext ctx)
 	{
-
 		if (ctx.side.isClient())
 		{
 
@@ -73,7 +72,6 @@ public class HUDRenderPacket implements IMessageHandler<HUDRenderMessage, IMessa
 		public HUDRenderMessage(float temperature, float maxTemperature, float thirst, float maxThirst, float sanity,
 				float maxSanity, float wetness, float maxWetness, boolean isGhost, float ghostEnergy)
 		{
-
 			this.temperature = temperature;
 			this.maxTemperature = maxTemperature;
 			this.thirst = thirst;
@@ -89,7 +87,6 @@ public class HUDRenderPacket implements IMessageHandler<HUDRenderMessage, IMessa
 		@Override
 		public void fromBytes(ByteBuf buf)
 		{
-
 			this.temperature = buf.readFloat();
 			this.maxTemperature = buf.readFloat();
 			this.thirst = buf.readFloat();
@@ -105,7 +102,6 @@ public class HUDRenderPacket implements IMessageHandler<HUDRenderMessage, IMessa
 		@Override
 		public void toBytes(ByteBuf buf)
 		{
-
 			buf.writeFloat(temperature);
 			buf.writeFloat(maxTemperature);
 			buf.writeFloat(thirst);

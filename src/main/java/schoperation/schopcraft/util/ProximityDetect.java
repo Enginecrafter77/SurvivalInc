@@ -5,6 +5,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+//TODO rewrite, reimplement, nuke, whatever!
 public class ProximityDetect {
 
 	/*

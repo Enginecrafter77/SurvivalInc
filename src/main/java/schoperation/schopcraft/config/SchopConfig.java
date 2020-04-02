@@ -9,9 +9,9 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import schoperation.schopcraft.CommonProxy;
 import schoperation.schopcraft.SchopCraft;
 import schoperation.schopcraft.packet.ConfigPacket;
-import schoperation.schopcraft.packet.SchopPackets;
 
 @Config(modid = SchopCraft.MOD_ID, name = "SchopCraft/" + SchopCraft.MOD_NAME, category = "")
 public class SchopConfig {
@@ -65,7 +65,7 @@ public class SchopConfig {
 						SchopConfig.SEASONS.aenableSeasons, SchopConfig.SEASONS.aenableDayLength,
 						SchopConfig.SEASONS.winterLength, SchopConfig.SEASONS.springLength,
 						SchopConfig.SEASONS.summerLength, SchopConfig.SEASONS.autumnLength);
-				SchopPackets.net.sendTo(msg, (EntityPlayerMP) player);
+				CommonProxy.net.sendTo(msg, (EntityPlayerMP) player);
 			}
 		}
 	}

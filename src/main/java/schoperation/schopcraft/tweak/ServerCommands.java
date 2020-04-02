@@ -3,7 +3,6 @@ package schoperation.schopcraft.tweak;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -20,7 +19,6 @@ public class ServerCommands {
 	// !world.isRemote check here.
 	public static void fireCommandsOnStartup()
 	{
-
 		// Instance of the server.
 		MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
 
@@ -29,44 +27,20 @@ public class ServerCommands {
 
 		// GameRules
 		GameRules gamerules = world.getGameRules();
-
-		/*
-		 * This enables ReducedDebugInfo automatically on server startup. This
-		 * disables coordinates on the F3 debug screen. The coordinate system
-		 * definitely helps with finding our way around. Now we'll need to
-		 * depend on landmarks, maps, and compasses for once. This can be
-		 * cheated pretty easily, but hey, we all make choices, including those
-		 * that avoid pushing ourselves to greater limits.
-		 */
-		gamerules.setOrCreateGameRule("reducedDebugInfo", "true");
-
-		/*
-		 * If keepInventory is on, turn it off. Dying should suck more.
-		 */
+		
+		// If keepInventory is on, turn it off. Dying should suck more.
 		gamerules.setOrCreateGameRule("keepInventory", "false");
-
-		/*
-		 * This is for seasons. Make sure the time stays there until a player
-		 * joins.
-		 */
+		
+		// This is for seasons. Make sure the time stays there until a player joins.
 		gamerules.setOrCreateGameRule("doDaylightCycle", "false");
-
-		/*
-		 * This sets the difficulty to hard. May as well.
-		 */
-		server.setDifficultyForAllWorlds(EnumDifficulty.HARD);
-
-		/*
-		 * This sets the WORLD spawnpoint to 0,0. So having coordinates disabled
-		 * isn't TOO bad.
-		 */
+		
+		// This sets the WORLD spawn point to 0,0. So having coordinates disabled isn't TOO bad.
 		world.setSpawnPoint(BlockPos.ORIGIN);
 	}
 
 	// This method is called constantly (per tick) in TweakEvents class.
 	public static void fireCommandsEveryTick(EntityPlayer player)
 	{
-
 		// Server-side.
 		if (!player.world.isRemote)
 		{

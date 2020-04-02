@@ -19,7 +19,6 @@ public class SummonInfoPacket implements IMessageHandler<SummonInfoMessage, IMes
 	@Override
 	public IMessage onMessage(SummonInfoMessage message, MessageContext ctx)
 	{
-
 		if (ctx.side.isServer())
 		{
 

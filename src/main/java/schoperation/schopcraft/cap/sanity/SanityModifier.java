@@ -12,19 +12,17 @@ import net.minecraft.init.Items;
 import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import schoperation.schopcraft.CommonProxy;
 import schoperation.schopcraft.cap.ghost.GhostProvider;
 import schoperation.schopcraft.cap.ghost.IGhost;
 import schoperation.schopcraft.cap.wetness.IWetness;
 import schoperation.schopcraft.cap.wetness.WetnessProvider;
 import schoperation.schopcraft.config.SchopConfig;
 import schoperation.schopcraft.lib.ModItems;
-import schoperation.schopcraft.packet.SchopPackets;
 import schoperation.schopcraft.packet.SummonInfoPacket;
 import schoperation.schopcraft.util.SchopServerEffects;
 
@@ -60,10 +58,10 @@ public class SanityModifier {
 		// Lists of entities near the player.
 		AxisAlignedBB boundingBox = player.getEntityBoundingBox().grow(7, 2, 7);
 		AxisAlignedBB boundingBoxPlayers = player.getEntityBoundingBox().grow(4, 2, 4);
-		List nearbyMobs = player.world.getEntitiesWithinAABB(EntityMob.class, boundingBox);
-		List nearbyAnimals = player.world.getEntitiesWithinAABB(EntityAnimal.class, boundingBox);
-		List nearbyPlayers = player.world.getEntitiesWithinAABB(EntityPlayer.class, boundingBoxPlayers);
-		List nearbyVillagers = player.world.getEntitiesWithinAABB(EntityVillager.class, boundingBoxPlayers);
+		List<EntityMob> nearbyMobs = player.world.getEntitiesWithinAABB(EntityMob.class, boundingBox);
+		List<EntityAnimal> nearbyAnimals = player.world.getEntitiesWithinAABB(EntityAnimal.class, boundingBox);
+		List<EntityPlayer> nearbyPlayers = player.world.getEntitiesWithinAABB(EntityPlayer.class, boundingBoxPlayers);
+		List<EntityVillager> nearbyVillagers = player.world.getEntitiesWithinAABB(EntityVillager.class, boundingBoxPlayers);
 
 		// Modifier from config
 		float modifier = (float) SchopConfig.MECHANICS.sanityScale;
@@ -275,7 +273,7 @@ public class SanityModifier {
 						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(player.getCachedUniqueIdString(),
 								"EndermanSound", "EndermanParticles", playerPosX + randOffset, playerPosY + 1,
 								playerPosZ + randOffset);
-						SchopPackets.net.sendTo(msgStuff, (EntityPlayerMP) player);
+						CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) player);
 					}
 
 					// Zombie sound
@@ -285,7 +283,7 @@ public class SanityModifier {
 						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(player.getCachedUniqueIdString(),
 								"ZombieSound", "null", playerPosX + randOffset, playerPosY + randOffset,
 								playerPosZ + randOffset);
-						SchopPackets.net.sendTo(msgStuff, (EntityPlayerMP) player);
+						CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) player);
 					}
 
 					// Ghast sound
@@ -295,7 +293,7 @@ public class SanityModifier {
 						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(player.getCachedUniqueIdString(),
 								"GhastSound", "null", playerPosX + randOffset, playerPosY + randOffset,
 								playerPosZ + randOffset);
-						SchopPackets.net.sendTo(msgStuff, (EntityPlayerMP) player);
+						CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) player);
 					}
 
 					// Explosion sound + particles
@@ -305,7 +303,7 @@ public class SanityModifier {
 						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(player.getCachedUniqueIdString(),
 								"ExplosionSound", "ExplosionParticles", playerPosX + randOffset,
 								playerPosY + randOffset, playerPosZ + randOffset);
-						SchopPackets.net.sendTo(msgStuff, (EntityPlayerMP) player);
+						CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) player);
 					}
 
 					// Stone sound
@@ -315,7 +313,7 @@ public class SanityModifier {
 						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(player.getCachedUniqueIdString(),
 								"StoneBreakSound", "null", playerPosX + randOffset, playerPosY + randOffset,
 								playerPosZ + randOffset);
-						SchopPackets.net.sendTo(msgStuff, (EntityPlayerMP) player);
+						CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) player);
 					}
 
 					// Mist in the air... tf???????
@@ -325,7 +323,7 @@ public class SanityModifier {
 						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(player.getCachedUniqueIdString(),
 								"null", "CreepyMistParticles", playerPosX + randOffset, playerPosY + 1,
 								playerPosZ + randOffset);
-						SchopPackets.net.sendTo(msgStuff, (EntityPlayerMP) player);
+						CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) player);
 					}
 
 					// A guardian appearing in your face. This one still scares
@@ -335,7 +333,7 @@ public class SanityModifier {
 
 						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(player.getCachedUniqueIdString(),
 								"null", "GuardianParticles", playerPosX, playerPosY, playerPosZ);
-						SchopPackets.net.sendTo(msgStuff, (EntityPlayerMP) player);
+						CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) player);
 					}
 
 					// Fire sounds + smoke particles
@@ -345,7 +343,7 @@ public class SanityModifier {
 						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(player.getCachedUniqueIdString(),
 								"FireSound", "SmokeParticles", playerPosX + randOffset, playerPosY + randOffset,
 								playerPosZ + randOffset);
-						SchopPackets.net.sendTo(msgStuff, (EntityPlayerMP) player);
+						CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) player);
 					}
 
 					// A�villager sound... are they lost?
@@ -355,7 +353,7 @@ public class SanityModifier {
 						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(player.getCachedUniqueIdString(),
 								"VillagerSound", "null", playerPosX + randOffset, playerPosY + randOffset,
 								playerPosZ + randOffset);
-						SchopPackets.net.sendTo(msgStuff, (EntityPlayerMP) player);
+						CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) player);
 					}
 
 					// Lava sound
@@ -365,7 +363,7 @@ public class SanityModifier {
 						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(player.getCachedUniqueIdString(),
 								"LavaSound", "null", playerPosX + randOffset, playerPosY + randOffset,
 								playerPosZ + randOffset);
-						SchopPackets.net.sendTo(msgStuff, (EntityPlayerMP) player);
+						CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) player);
 					}
 				}
 			}
@@ -396,7 +394,7 @@ public class SanityModifier {
 
 					IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(player.getCachedUniqueIdString(),
 							"InsanityAmbienceSoundLoud", "null", playerPosX, playerPosY, playerPosZ);
-					SchopPackets.net.sendTo(msgStuff, (EntityPlayerMP) player);
+					CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) player);
 				}
 			}
 			else if (sanity.getSanity() <= (sanity.getMaxSanity() * 0.50))
@@ -410,7 +408,7 @@ public class SanityModifier {
 
 					IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(player.getCachedUniqueIdString(),
 							"InsanityAmbienceSound", "null", playerPosX, playerPosY, playerPosZ);
-					SchopPackets.net.sendTo(msgStuff, (EntityPlayerMP) player);
+					CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) player);
 				}
 			}
 
@@ -504,81 +502,81 @@ public class SanityModifier {
 		int amount = item.getCount();
 
 		// If raw or bad food, drain sanity.
-		if (item.areItemStacksEqual(item, new ItemStack(Items.CHICKEN, amount)))
+		if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.CHICKEN, amount)))
 		{
 			sanity.decrease(5.0f);
 		}
-		else if (item.areItemStacksEqual(item, new ItemStack(Items.BEEF, amount)))
+		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.BEEF, amount)))
 		{
 			sanity.decrease(5.0f);
 		}
-		else if (item.areItemStacksEqual(item, new ItemStack(Items.RABBIT, amount)))
+		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.RABBIT, amount)))
 		{
 			sanity.decrease(5.0f);
 		}
-		else if (item.areItemStacksEqual(item, new ItemStack(Items.MUTTON, amount)))
+		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.MUTTON, amount)))
 		{
 			sanity.decrease(5.0f);
 		}
-		else if (item.areItemStacksEqual(item, new ItemStack(Items.PORKCHOP, amount)))
+		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.PORKCHOP, amount)))
 		{
 			sanity.decrease(5.0f);
 		}
-		else if (item.areItemStacksEqual(item, new ItemStack(Items.FISH, amount)))
+		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.FISH, amount)))
 		{
 			sanity.decrease(5.0f);
 		}
-		else if (item.areItemStacksEqual(item, new ItemStack(Items.ROTTEN_FLESH, amount)))
+		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.ROTTEN_FLESH, amount)))
 		{
 			sanity.decrease(10.0f);
 		}
-		else if (item.areItemStacksEqual(item, new ItemStack(Items.SPIDER_EYE, amount)))
+		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.SPIDER_EYE, amount)))
 		{
 			sanity.decrease(15.0f);
 		}
 
 		// If cooked or good food, increase sanity.
-		if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_CHICKEN, amount)))
+		if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.COOKED_CHICKEN, amount)))
 		{
 			sanity.increase(2.0f);
 		}
-		else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_BEEF, amount)))
+		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.COOKED_BEEF, amount)))
 		{
 			sanity.increase(2.0f);
 		}
-		else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_RABBIT, amount)))
+		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.COOKED_RABBIT, amount)))
 		{
 			sanity.increase(2.0f);
 		}
-		else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_MUTTON, amount)))
+		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.COOKED_MUTTON, amount)))
 		{
 			sanity.increase(2.0f);
 		}
-		else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_PORKCHOP, amount)))
+		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.COOKED_PORKCHOP, amount)))
 		{
 			sanity.increase(2.0f);
 		}
-		else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_FISH, amount)))
+		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.COOKED_FISH, amount)))
 		{
 			sanity.increase(2.0f);
 		}
-		else if (item.areItemStacksEqual(item, new ItemStack(Items.PUMPKIN_PIE, amount)))
+		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.PUMPKIN_PIE, amount)))
 		{
 			sanity.increase(15.0f);
 		}
-		else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKIE, amount)))
+		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.COOKIE, amount)))
 		{
 			sanity.increase(2.0f);
 		}
-		else if (item.areItemStacksEqual(item, new ItemStack(Items.RABBIT_STEW, amount)))
+		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.RABBIT_STEW, amount)))
 		{
 			sanity.increase(15.0f);
 		}
-		else if (item.areItemStacksEqual(item, new ItemStack(Items.MUSHROOM_STEW, amount)))
+		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.MUSHROOM_STEW, amount)))
 		{
 			sanity.increase(10.0f);
 		}
-		else if (item.areItemStacksEqual(item, new ItemStack(Items.BEETROOT_SOUP, amount)))
+		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.BEETROOT_SOUP, amount)))
 		{
 			sanity.increase(10.0f);
 		}
@@ -644,19 +642,13 @@ public class SanityModifier {
 				// Now, was the player insane (or insane enough)?
 				if (sanity.getSanity() <= (sanity.getMaxSanity() * 0.50))
 				{
-
-					// Drop some essence. 50% chance for an extra essence (by
-					// default).
-					int sizeOfList = drops.size();
-					drops.add(new EntityItem(player.world, entityKilled.posX, entityKilled.posY, entityKilled.posZ,
-							new ItemStack(ModItems.LUCID_DREAM_ESSENCE, 1)));
-
+					drops.add(new EntityItem(player.world, entityKilled.posX, entityKilled.posY, entityKilled.posZ, new ItemStack(ModItems.LUCID_DREAM_ESSENCE.get(), 1)));
+					
 					double randChanceForAdditional = Math.random();
 					if (randChanceForAdditional < 0.50)
 					{
 
-						drops.add(new EntityItem(player.world, entityKilled.posX, entityKilled.posY, entityKilled.posZ,
-								new ItemStack(ModItems.LUCID_DREAM_ESSENCE, 1)));
+						drops.add(new EntityItem(player.world, entityKilled.posX, entityKilled.posY, entityKilled.posZ, new ItemStack(ModItems.LUCID_DREAM_ESSENCE.get(), 1)));
 					}
 
 					// A higher looting level on the weapon will give a chance
@@ -668,8 +660,7 @@ public class SanityModifier {
 						if (anotherOne < 0.75)
 						{
 
-							drops.add(new EntityItem(player.world, entityKilled.posX, entityKilled.posY,
-									entityKilled.posZ, new ItemStack(ModItems.LUCID_DREAM_ESSENCE, 1)));
+							drops.add(new EntityItem(player.world, entityKilled.posX, entityKilled.posY, entityKilled.posZ, new ItemStack(ModItems.LUCID_DREAM_ESSENCE.get(), 1)));
 						}
 					}
 				}

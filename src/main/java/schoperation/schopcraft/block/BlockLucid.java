@@ -15,51 +15,39 @@ import schoperation.schopcraft.SchopCraft;
 
 public class BlockLucid extends BlockFalling {
 
-	/*
-	 * Is it real?
-	 */
-
 	public BlockLucid()
 	{
-
-		super(Material.GLASS);
-
-		// Registry and Unlocalized names.
-		setRegistryName(new ResourceLocation(SchopCraft.MOD_ID, "lucid_block"));
-		setUnlocalizedName(SchopCraft.RESOURCE_PREFIX + "lucid_block");
-
-		// Basic properties.
-		setCreativeTab(SchopCraft.mainTab);
-		setHardness(0.0f);
-		setResistance(1.0f);
-		setSoundType(SoundType.SLIME);
+		super(Material.AIR);
+		
+		this.setRegistryName(new ResourceLocation(SchopCraft.MOD_ID, "lucid_block"));
+		this.setUnlocalizedName(SchopCraft.RESOURCE_PREFIX + "lucid_block");
+		this.setCreativeTab(SchopCraft.mainTab);
+		this.setHardness(0.0f);
+		this.setResistance(1.0f);
+		this.setSoundType(SoundType.SLIME);
 	}
 
 	@Override
 	public boolean isPassable(IBlockAccess worldIn, BlockPos pos)
 	{
-
 		return true;
 	}
 
 	@Override
 	public boolean isNormalCube(IBlockState state, IBlockAccess world, BlockPos pos)
 	{
-
 		return false;
 	}
 
 	@Override
 	public boolean isOpaqueCube(IBlockState state)
 	{
-
 		return false;
 	}
 
 	@Override
 	public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos)
 	{
-
 		return NULL_AABB;
 	}
 
@@ -67,7 +55,6 @@ public class BlockLucid extends BlockFalling {
 	@SideOnly(Side.CLIENT)
 	public BlockRenderLayer getBlockLayer()
 	{
-
 		return BlockRenderLayer.TRANSLUCENT;
 	}
 }

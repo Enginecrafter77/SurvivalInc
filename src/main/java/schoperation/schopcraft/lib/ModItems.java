@@ -1,30 +1,30 @@
 package schoperation.schopcraft.lib;
 
+import java.util.function.Supplier;
+
 import net.minecraft.item.Item;
 import schoperation.schopcraft.item.*;
 
-public class ModItems {
+public enum ModItems implements Supplier<Item> {
+	
+	CANTEEN(new ItemCanteen()),
+	CHARCOAL_FILTER(new ItemCharcoalFilter()),
+	FEATHER_FAN(new ItemFeatherFan()),
+	HYDROPOUCH(new ItemHydroPouch()),
+	ICE_CREAM(new ItemIceCream(4, 0.4f, false)),
+	LUCID_DREAM_ESSENCE(new ItemLucidDreamEssence()),
+	TOWEL(new ItemTowel());
+	
+	public final Item target;
 
-	/*
-	 * A list of all items in the game, used to quickly register and render
-	 * everything. kek
-	 */
-
-	// This list is here for easy referencing. In Alphabetical order.
-
-	public static final Item CANTEEN = new ItemCanteen();
-	public static final Item CHARCOAL_FILTER = new ItemCharcoalFilter();
-	public static final Item FEATHER_FAN = new ItemFeatherFan();
-	public static final Item HYDROPOUCH = new ItemHydroPouch();
-	public static final Item ICE_CREAM = new ItemIceCream(4, 0.4f, false);
-	public static final Item LUCID_DREAM_ESSENCE = new ItemLucidDreamEssence();
-	public static final Item TAB_ICON = new ItemTabIcon();
-	public static final Item TOWEL = new ItemTowel();
-
-	// This list is used to actually register the items.
-	public static final Item[] ITEMS = {
-
-			TAB_ICON, CANTEEN, CHARCOAL_FILTER, LUCID_DREAM_ESSENCE, ICE_CREAM, FEATHER_FAN, HYDROPOUCH, TOWEL
-
-	};
+	private ModItems(Item instance)
+	{
+		this.target = instance;
+	}
+	
+	@Override
+	public Item get()
+	{
+		return this.target;
+	}
 }

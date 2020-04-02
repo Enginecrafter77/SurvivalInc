@@ -18,9 +18,9 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import schoperation.schopcraft.CommonProxy;
 import schoperation.schopcraft.SchopCraft;
 import schoperation.schopcraft.config.SchopConfig;
-import schoperation.schopcraft.packet.SchopPackets;
 import schoperation.schopcraft.packet.SeasonPacket;
 import schoperation.schopcraft.season.modifier.*;
 import schoperation.schopcraft.util.SchopWorldData;
@@ -87,7 +87,7 @@ public class WorldSeason {
 				// correctly.
 				int seasonInt = SchopWorldData.seasonToInt(season);
 				IMessage msg = new SeasonPacket.SeasonMessage(seasonInt, daysIntoSeason);
-				SchopPackets.net.sendTo(msg, (EntityPlayerMP) player);
+				CommonProxy.net.sendTo(msg, (EntityPlayerMP) player);
 			}
 
 			// Turn on day-night cycle
@@ -145,7 +145,7 @@ public class WorldSeason {
 
 				int seasonInt = SchopWorldData.seasonToInt(season);
 				IMessage msg = new SeasonPacket.SeasonMessage(seasonInt, -21);
-				SchopPackets.net.sendTo(msg, (EntityPlayerMP) event.player);
+				CommonProxy.net.sendTo(msg, (EntityPlayerMP) event.player);
 			}
 		}
 	}
@@ -213,7 +213,7 @@ public class WorldSeason {
 					// Send new season data to client
 					int seasonInt = SchopWorldData.seasonToInt(season);
 					IMessage msg = new SeasonPacket.SeasonMessage(seasonInt, daysIntoSeason);
-					SchopPackets.net.sendTo(msg, (EntityPlayerMP) player);
+					CommonProxy.net.sendTo(msg, (EntityPlayerMP) player);
 
 					// Change temperatures
 					biomeTemp.changeBiomeTemperatures(season, daysIntoSeason);

@@ -175,7 +175,7 @@ public class GhostMain {
 			int resurrectionProgress = 0;
 
 			// Look for a lucid block at their feet.
-			if (player.world.getBlockState(pos).getBlock() == ModBlocks.LUCID_BLOCK)
+			if(player.world.getBlockState(pos).getBlock() == ModBlocks.LUCID_BLOCK.get())
 			{
 
 				resurrectionProgress++;
@@ -239,7 +239,7 @@ public class GhostMain {
 			// Now for that golden apple.
 			// EntityItems around the player
 			AxisAlignedBB boundingBox = player.getEntityBoundingBox().grow(1, 1, 1);
-			List nearbyItems = player.world.getEntitiesWithinAABB(EntityItem.class, boundingBox);
+			List<EntityItem> nearbyItems = player.world.getEntitiesWithinAABB(EntityItem.class, boundingBox);
 
 			// Now iterate through the items and see if one of them is a golden
 			// apple.
@@ -252,7 +252,7 @@ public class GhostMain {
 				// ItemStack
 				ItemStack stack = (ItemStack) entityItem.getItem();
 
-				if (stack.areItemsEqual(stack, new ItemStack(Items.GOLDEN_APPLE)))
+				if(ItemStack.areItemsEqual(stack, new ItemStack(Items.GOLDEN_APPLE)))
 				{
 
 					resurrectionProgress++;
@@ -361,7 +361,7 @@ public class GhostMain {
 		// Destroy the golden apple.
 		// EntityItems around the player
 		AxisAlignedBB boundingBox = player.getEntityBoundingBox().grow(1, 1, 1);
-		List nearbyItems = player.world.getEntitiesWithinAABB(EntityItem.class, boundingBox);
+		List<EntityItem> nearbyItems = player.world.getEntitiesWithinAABB(EntityItem.class, boundingBox);
 
 		// Now iterate through the items and see if one of them is a golden
 		// apple.
@@ -374,7 +374,7 @@ public class GhostMain {
 			// ItemStack
 			ItemStack stack = (ItemStack) entityItem.getItem();
 
-			if (stack.areItemsEqual(stack, new ItemStack(Items.GOLDEN_APPLE)))
+			if (ItemStack.areItemsEqual(stack, new ItemStack(Items.GOLDEN_APPLE)))
 			{
 
 				entityItem.setDead();

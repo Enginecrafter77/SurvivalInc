@@ -17,6 +17,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import schoperation.schopcraft.CommonProxy;
 import schoperation.schopcraft.cap.ghost.GhostMain;
 import schoperation.schopcraft.cap.ghost.GhostProvider;
 import schoperation.schopcraft.cap.ghost.IGhost;
@@ -34,8 +35,6 @@ import schoperation.schopcraft.cap.wetness.WetnessModifier;
 import schoperation.schopcraft.cap.wetness.WetnessProvider;
 import schoperation.schopcraft.config.SchopConfig;
 import schoperation.schopcraft.packet.HUDRenderPacket;
-import schoperation.schopcraft.packet.SchopPackets;
-
 import java.util.List;
 
 /*
@@ -74,7 +73,7 @@ public class CapEvents {
 					temperature.getMaxTemperature(), thirst.getThirst(), thirst.getMaxThirst(), sanity.getSanity(),
 					sanity.getMaxSanity(), wetness.getWetness(), wetness.getMaxWetness(), ghost.isGhost(),
 					ghost.getEnergy());
-			SchopPackets.net.sendTo(msgGui, (EntityPlayerMP) player);
+			CommonProxy.net.sendTo(msgGui, (EntityPlayerMP) player);
 		}
 	}
 
@@ -161,7 +160,7 @@ public class CapEvents {
 						temperature.getMaxTemperature(), thirst.getThirst(), thirst.getMaxThirst(), sanity.getSanity(),
 						sanity.getMaxSanity(), wetness.getWetness(), wetness.getMaxWetness(), ghost.isGhost(),
 						ghost.getEnergy());
-				SchopPackets.net.sendTo(msgGui, (EntityPlayerMP) player);
+				CommonProxy.net.sendTo(msgGui, (EntityPlayerMP) player);
 			}
 		}
 	}

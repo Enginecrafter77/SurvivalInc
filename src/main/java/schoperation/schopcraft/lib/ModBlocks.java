@@ -1,28 +1,29 @@
 package schoperation.schopcraft.lib;
 
+import java.util.function.Supplier;
+
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockPlanks;
+import schoperation.schopcraft.block.BlockColoredLeaves;
 import schoperation.schopcraft.block.BlockLucid;
-import schoperation.schopcraft.block.BlockOrangeLeaves;
-import schoperation.schopcraft.block.BlockRedLeaves;
-import schoperation.schopcraft.block.BlockYellowLeaves;
 
-public class ModBlocks {
+public enum ModBlocks implements Supplier<Block> {
+	
+	LUCID_BLOCK(new BlockLucid()),
+	RED_LEAVES(new BlockColoredLeaves(BlockPlanks.EnumType.OAK)),
+	YELLOW_LEAVES(new BlockColoredLeaves(BlockPlanks.EnumType.BIRCH)),
+	ORANGE_LEAVES(new BlockColoredLeaves(BlockPlanks.EnumType.DARK_OAK));
+	
+	public final Block targetblock;
+	
+	private ModBlocks(Block instance)
+	{
+		this.targetblock = instance;
+	}
 
-	/*
-	 * A list of all blocks in the game, used to quickly register and render
-	 * everything. kek
-	 */
-
-	// List for easy referencing.
-
-	public static final Block LUCID_BLOCK = new BlockLucid();
-	public static final Block RED_LEAVES = new BlockRedLeaves();
-	public static final Block YELLOW_LEAVES = new BlockYellowLeaves();
-	public static final Block ORANGE_LEAVES = new BlockOrangeLeaves();
-
-	public static final Block[] BLOCKS = {
-
-			LUCID_BLOCK, RED_LEAVES, YELLOW_LEAVES, ORANGE_LEAVES
-
-	};
+	@Override
+	public Block get()
+	{
+		return this.targetblock;
+	}
 }

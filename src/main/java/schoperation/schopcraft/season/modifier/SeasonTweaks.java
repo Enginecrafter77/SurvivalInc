@@ -114,19 +114,19 @@ public class SeasonTweaks {
 
 			ItemStack selected = iterator.next();
 
-			if (selected.areItemStacksEqual(selected, stack1))
+			if (ItemStack.areItemStacksEqual(selected, stack1))
 			{
 
 				stack1Count++;
 			}
 
-			else if (selected.areItemStacksEqual(selected, stack2))
+			else if (ItemStack.areItemStacksEqual(selected, stack2))
 			{
 
 				stack2Count++;
 			}
 
-			else if (!selected.areItemStacksEqual(selected, stack1) && stack1.areItemStacksEqual(stack1, dummy))
+			else if (!ItemStack.areItemStacksEqual(selected, stack1) && ItemStack.areItemStacksEqual(stack1, dummy))
 			{
 
 				stack1 = selected;
@@ -141,10 +141,10 @@ public class SeasonTweaks {
 			}
 		}
 
-		// Alright. We got how many of each itemstack in the list.
+		// Alright. We got how many of each item stack in the list.
 		// Let add those amounts. So, we're doubling the harvests.
 
-		if (!stack1.areItemStacksEqual(stack1, dummy))
+		if (!ItemStack.areItemStacksEqual(stack1, dummy))
 		{
 
 			for (int i = 0; i < stack1Count; i++)
@@ -154,7 +154,7 @@ public class SeasonTweaks {
 			}
 		}
 
-		if (!stack2.areItemStacksEqual(stack2, dummy))
+		if (!ItemStack.areItemStacksEqual(stack2, dummy))
 		{
 
 			for (int i = 0; i < stack2Count; i++)

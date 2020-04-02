@@ -375,7 +375,7 @@ public class TemperatureModifier {
 		// Ghosts do the opposite.
 		// Bounding box and list of nearby players.
 		AxisAlignedBB boundingBoxPlayers = player.getEntityBoundingBox().grow(1, 1, 1);
-		List nearbyPlayers = player.world.getEntitiesWithinAABB(EntityPlayer.class, boundingBoxPlayers);
+		List<EntityPlayer> nearbyPlayers = player.world.getEntitiesWithinAABB(EntityPlayer.class, boundingBoxPlayers);
 
 		// Now iterate through the list.
 		for (int numPlayers = 0; numPlayers < nearbyPlayers.size(); numPlayers++)
@@ -736,47 +736,48 @@ public class TemperatureModifier {
 		int amount = item.getCount();
 
 		// If cooked food, increase temperature.
-		if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_CHICKEN, amount)))
+		//TODO reimplement using list maps, i.e. mapping list of items that add the key value
+		if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.COOKED_CHICKEN, amount)))
 		{
 			temperature.increase(5.0f);
 		}
-		else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_BEEF, amount)))
+		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.COOKED_BEEF, amount)))
 		{
 			temperature.increase(5.0f);
 		}
-		else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_RABBIT, amount)))
+		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.COOKED_RABBIT, amount)))
 		{
 			temperature.increase(5.0f);
 		}
-		else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_MUTTON, amount)))
+		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.COOKED_MUTTON, amount)))
 		{
 			temperature.increase(5.0f);
 		}
-		else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_PORKCHOP, amount)))
+		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.COOKED_PORKCHOP, amount)))
 		{
 			temperature.increase(5.0f);
 		}
-		else if (item.areItemStacksEqual(item, new ItemStack(Items.COOKED_FISH, amount)))
+		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.COOKED_FISH, amount)))
 		{
 			temperature.increase(2.0f);
 		}
-		else if (item.areItemStacksEqual(item, new ItemStack(Items.BAKED_POTATO, amount)))
+		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.BAKED_POTATO, amount)))
 		{
 			temperature.increase(5.0f);
 		}
-		else if (item.areItemStacksEqual(item, new ItemStack(Items.PUMPKIN_PIE, amount)))
+		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.PUMPKIN_PIE, amount)))
 		{
 			temperature.increase(3.0f);
 		}
-		else if (item.areItemStacksEqual(item, new ItemStack(Items.RABBIT_STEW, amount)))
+		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.RABBIT_STEW, amount)))
 		{
 			temperature.increase(10.0f);
 		}
-		else if (item.areItemStacksEqual(item, new ItemStack(Items.MUSHROOM_STEW, amount)))
+		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.MUSHROOM_STEW, amount)))
 		{
 			temperature.increase(10.0f);
 		}
-		else if (item.areItemStacksEqual(item, new ItemStack(Items.BEETROOT_SOUP, amount)))
+		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.BEETROOT_SOUP, amount)))
 		{
 			temperature.increase(10.0f);
 		}

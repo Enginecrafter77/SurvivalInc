@@ -40,39 +40,33 @@ public class SchopCraft {
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event)
 	{
-
 		proxy.preInit(event);
 	}
 
 	@EventHandler
 	public void init(FMLInitializationEvent event)
 	{
-
 		proxy.init(event);
 	}
 
 	@EventHandler
 	public void postInit(FMLPostInitializationEvent event)
 	{
-
 		proxy.postInit(event);
 	}
 
 	@EventHandler
 	public void serverStarted(FMLServerStartedEvent event)
 	{
-
 		proxy.serverStarted(event);
 	}
 
 	// Create tab for creative mode.
 	public static CreativeTabs mainTab = new CreativeTabs(SchopCraft.RESOURCE_PREFIX + "mainTab") {
-
 		@Override
 		public ItemStack getTabIconItem()
 		{
-
-			return new ItemStack(ModItems.TAB_ICON);
+			return new ItemStack(ModItems.CANTEEN.get());
 		}
 	};
 }

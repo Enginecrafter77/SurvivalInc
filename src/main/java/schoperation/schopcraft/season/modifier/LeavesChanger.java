@@ -221,7 +221,6 @@ public class LeavesChanger {
 	// Actually does the logic in replacing a single block.
 	private boolean tryToChangeSingleBlock(World world, BlockPos pos, Season season)
 	{
-
 		// Blockstate
 		IBlockState state = world.getBlockState(pos);
 
@@ -244,7 +243,7 @@ public class LeavesChanger {
 					{
 
 						world.setBlockState(pos,
-								ModBlocks.YELLOW_LEAVES.getDefaultState().withProperty(BlockLeaves.DECAYABLE, true)
+								ModBlocks.YELLOW_LEAVES.get().getDefaultState().withProperty(BlockLeaves.DECAYABLE, true)
 										.withProperty(BlockLeaves.CHECK_DECAY, false));
 						return true;
 					}
@@ -255,7 +254,7 @@ public class LeavesChanger {
 					{
 
 						world.setBlockState(pos,
-								ModBlocks.RED_LEAVES.getDefaultState().withProperty(BlockLeaves.DECAYABLE, true)
+								ModBlocks.RED_LEAVES.get().getDefaultState().withProperty(BlockLeaves.DECAYABLE, true)
 										.withProperty(BlockLeaves.CHECK_DECAY, false));
 						return true;
 					}
@@ -305,7 +304,7 @@ public class LeavesChanger {
 					{
 
 						world.setBlockState(pos,
-								ModBlocks.ORANGE_LEAVES.getDefaultState().withProperty(BlockLeaves.DECAYABLE, true)
+								ModBlocks.ORANGE_LEAVES.get().getDefaultState().withProperty(BlockLeaves.DECAYABLE, true)
 										.withProperty(BlockLeaves.CHECK_DECAY, false));
 						return true;
 					}
@@ -336,7 +335,7 @@ public class LeavesChanger {
 		}
 
 		// No? How about one of the modded leaves? Red?
-		else if (state.getBlock() == ModBlocks.RED_LEAVES && state.getValue(BlockLeaves.DECAYABLE).booleanValue())
+		else if(state.getBlock() == ModBlocks.RED_LEAVES.get() && state.getValue(BlockLeaves.DECAYABLE).booleanValue())
 		{
 
 			// Okay, red leaves. Is it Spring?
@@ -358,7 +357,7 @@ public class LeavesChanger {
 		}
 
 		// Yellow?
-		else if (state.getBlock() == ModBlocks.YELLOW_LEAVES && state.getValue(BlockLeaves.DECAYABLE).booleanValue())
+		else if (state.getBlock() == ModBlocks.YELLOW_LEAVES.get() && state.getValue(BlockLeaves.DECAYABLE).booleanValue())
 		{
 
 			// Okay, yellow leaves. Is it Spring?
@@ -382,7 +381,7 @@ public class LeavesChanger {
 		}
 
 		// Orange?
-		else if (state.getBlock() == ModBlocks.ORANGE_LEAVES && state.getValue(BlockLeaves.DECAYABLE).booleanValue())
+		else if (state.getBlock() == ModBlocks.ORANGE_LEAVES.get() && state.getValue(BlockLeaves.DECAYABLE).booleanValue())
 		{
 
 			// Okay, orange leaves. Is it Spring?

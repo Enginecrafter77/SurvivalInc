@@ -17,12 +17,10 @@ public class ColdBreath {
 
 	public static void incrementTimer(EntityPlayer player)
 	{
-
 		breathTimer++;
-
+		
 		if (breathTimer > 100)
 		{
-
 			spawnParticles(player);
 			breathTimer = 0;
 		}
@@ -31,29 +29,25 @@ public class ColdBreath {
 	// Spawn the actual particles
 	private static void spawnParticles(EntityPlayer player)
 	{
-
 		// Server-side
 		if (!player.world.isRemote)
 		{
-
 			// Capability
 			IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
-
+			
 			// Player position
 			BlockPos pos = player.getPosition();
-
+			
 			// Biome
 			Biome biome = player.world.getBiome(player.getPosition());
-
+			
 			// Biome temperature
 			float biomeTemp = biome.getTemperature(player.getPosition());
-
+			
 			// Cold breath particles when the player is in a cold biome.
 			if (biomeTemp < 0.2 && !ghost.isGhost())
 			{
-
-				SchopServerParticles.summonParticle(player.getCachedUniqueIdString(), "ColdBreathParticles",
-						pos.getX() + player.getLookVec().x, pos.getY() + 1.5, pos.getZ() + player.getLookVec().z);
+				SchopServerParticles.summonParticle(player.getCachedUniqueIdString(), "ColdBreathParticles", pos.getX() + player.getLookVec().x, pos.getY() + 1.5, pos.getZ() + player.getLookVec().z);
 			}
 		}
 	}

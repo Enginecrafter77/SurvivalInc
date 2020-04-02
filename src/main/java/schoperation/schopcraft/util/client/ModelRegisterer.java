@@ -28,9 +28,9 @@ public class ModelRegisterer {
 	{
 
 		// Register item models.
-		for (Item item : ModItems.ITEMS)
+		for (ModItems mi : ModItems.values())
 		{
-
+			Item item = mi.get();
 			// If there are subitems (items with metadata), create a list of
 			// them and register those models separately.
 			if (item.getHasSubtypes())
@@ -70,11 +70,10 @@ public class ModelRegisterer {
 		}
 
 		// Register block models.
-		for (Block block : ModBlocks.BLOCKS)
+		for(ModBlocks mb : ModBlocks.values())
 		{
-
-			ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(block), 0,
-					new ModelResourceLocation(block.getRegistryName(), "inventory"));
+			Block block = mb.get();
+			ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(block), 0, new ModelResourceLocation(block.getRegistryName(), "inventory"));
 		}
 	}
 }
