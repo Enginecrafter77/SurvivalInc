@@ -20,7 +20,6 @@ public class SchopServerSounds {
 	// Main method to play sounds.
 	public static void playSound(String uuid, String soundMethod, double posX, double posY, double posZ)
 	{
-
 		// Basic variables.
 		MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
 		int playerCount = server.getCurrentPlayerCount();
@@ -29,7 +28,6 @@ public class SchopServerSounds {
 		// Iterate through each player on the server.
 		for (int num = 0; num < playerCount; num++)
 		{
-
 			// Instance of the player.
 			EntityPlayerMP player = server.getPlayerList().getPlayerByUsername(playerList[num]);
 

@@ -1,6 +1,7 @@
 package schoperation.schopcraft;
 
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -10,9 +11,13 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import schoperation.schopcraft.cap.vital.VitalStatType;
 import schoperation.schopcraft.lib.ModItems;
+import schoperation.schopcraft.season.Season;
 
 @Mod(modid = SchopCraft.MOD_ID, name = SchopCraft.MOD_NAME, version = SchopCraft.VERSION, acceptedMinecraftVersions = SchopCraft.MCVERSION, dependencies = SchopCraft.DEPENDENCIES)
 public class SchopCraft {
@@ -41,6 +46,12 @@ public class SchopCraft {
 	public void preInit(FMLPreInitializationEvent event)
 	{
 		proxy.preInit(event);
+		
+		Season.initSeasons();
+		
+		VitalStatType.HYDRATION.addSituationalModifier((EntityPlayer player) -> player.isInLava(), -0.5F);
+		VitalStatType.HYDRATION.addSituationalModifier((EntityPlayer player) -> player.dimension == -1, -0.006F);
+		VitalStatType.HYDRATION.addSituationalModifier((EntityPlayer player) -> player.world.rand.nextBoolean(), -0.003F);
 	}
 
 	@EventHandler

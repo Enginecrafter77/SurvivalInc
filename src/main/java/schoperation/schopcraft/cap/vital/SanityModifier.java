@@ -1,4 +1,4 @@
-package schoperation.schopcraft.cap.sanity;
+package schoperation.schopcraft.cap.vital;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -42,9 +42,8 @@ public class SanityModifier {
 
 	public void onPlayerUpdate(Entity player)
 	{
-
 		// Capabilities
-		ISanity sanity = player.getCapability(SanityProvider.SANITY_CAP, null);
+		VitalStat stats = player.getCapability(VitalStatProvider.VITAL_CAP, null);
 		IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
 
 		// Block position of player.
@@ -70,52 +69,46 @@ public class SanityModifier {
 		// students.
 		if (!player.world.isDaytime() && playerPosY >= player.world.getSeaLevel())
 		{
-
-			sanity.decrease(0.0015f * modifier);
+			stats.modifyStat(VitalStatType.SANITY, -0.0015f * modifier);
 		}
 
 		// Being in the nether or the end isn't too sane.
 		if (player.dimension == -1 || player.dimension == 1)
 		{
 
-			sanity.decrease(0.004f * modifier);
+			stats.modifyStat(VitalStatType.SANITY, -0.004f * modifier);
 		}
 
 		// Constant drain in caves... because why not!
 		if (playerPosY <= (player.world.getSeaLevel() - 15))
 		{
-
-			sanity.decrease(0.0015f * modifier);
+			stats.modifyStat(VitalStatType.SANITY, -0.0015f * modifier);
 		}
 
 		// Being in the dark in general, is pretty spooky.
 		if (player.world.getLight(playerPos, true) < 2 && player.dimension != -1 && player.dimension != 1)
 		{
-
-			sanity.decrease(0.08f * modifier);
+			stats.modifyStat(VitalStatType.SANITY, -0.08f * modifier);
 		}
 
 		else if (player.world.getLight(playerPos, true) < 4 && player.dimension != -1 && player.dimension != 1)
 		{
-
-			sanity.decrease(0.04f * modifier);
+			stats.modifyStat(VitalStatType.SANITY, -0.04f * modifier);
 		}
 
-		else if (player.world.getLight(playerPos, true) < 7 && player.dimension != -1 && player.dimension != 1
-				&& (playerPosY <= player.world.getSeaLevel()))
+		else if (player.world.getLight(playerPos, true) < 7 && player.dimension != -1 && player.dimension != 1 && (playerPosY <= player.world.getSeaLevel()))
 		{
-
-			sanity.decrease(0.02f * modifier);
+			stats.modifyStat(VitalStatType.SANITY, -0.02f * modifier);
 		}
 
 		// Being drenched for a long time won't do you good.
 		if(wetness.getWetness() > 90.0f)
 		{
-			sanity.decrease(0.003f * modifier);
+			stats.modifyStat(VitalStatType.SANITY, -0.003f * modifier);
 		}
 		else if(wetness.getWetness() > 70.0f)
 		{
-			sanity.decrease(0.001f * modifier);
+			stats.modifyStat(VitalStatType.SANITY, -0.001f * modifier);
 		}
 
 		// Now iterate through each mob that appears on the list of nearby mobs.
@@ -127,19 +120,19 @@ public class SanityModifier {
 			// Now change sanity according to what it is.
 			if(mob instanceof EntityEnderman)
 			{
-				sanity.decrease(0.005f * modifier);
+				stats.modifyStat(VitalStatType.SANITY, -0.005f * modifier);
 			}
 			else if(mob instanceof EntityEvoker || mob instanceof EntityIllusionIllager || mob instanceof EntitySpellcasterIllager || mob instanceof EntityVindicator)
 			{
-				sanity.decrease(0.004f * modifier);
+				stats.modifyStat(VitalStatType.SANITY, -0.004f * modifier);
 			}
 			else if(mob instanceof EntityWither)
 			{
-				sanity.decrease(0.05f * modifier);
+				stats.modifyStat(VitalStatType.SANITY, -0.05f * modifier);
 			}
 			else
 			{
-				sanity.decrease(0.003f * modifier);
+				stats.modifyStat(VitalStatType.SANITY, -0.003f * modifier);
 			}
 		}
 
@@ -152,15 +145,15 @@ public class SanityModifier {
 			// Now change sanity according to what it is.
 			if(animal instanceof EntityWolf || animal instanceof EntityOcelot || animal instanceof EntityParrot)
 			{
-				sanity.increase(0.005f * modifier);
+				stats.modifyStat(VitalStatType.SANITY, 0.005f * modifier);
 			}
 			else if(animal instanceof EntitySheep)
 			{
-				sanity.increase(0.003f * modifier);
+				stats.modifyStat(VitalStatType.SANITY, 0.003f * modifier);
 			}
 			else
 			{
-				sanity.increase(0.002f * modifier);
+				stats.modifyStat(VitalStatType.SANITY, 0.002f * modifier);
 			}
 		}
 
@@ -178,19 +171,18 @@ public class SanityModifier {
 			// ghost.
 			if(otherPlayer != player && !ghost.status())
 			{
-				sanity.increase(0.003f * modifier);
+				stats.modifyStat(VitalStatType.SANITY, 0.003f * modifier);
 			}
 			else if(otherPlayer != player && ghost.status())
 			{
-				sanity.decrease(0.05f * modifier);
+				stats.modifyStat(VitalStatType.SANITY, -0.05f * modifier);
 			}
 		}
 
 		// Villagers are nice as well.
 		for (int numVillagers = 0; numVillagers < nearbyVillagers.size(); numVillagers++)
 		{
-
-			sanity.increase(0.003f * modifier);
+			stats.modifyStat(VitalStatType.SANITY, 0.003f * modifier);
 		}
 
 		// ===========================================================================
@@ -219,11 +211,11 @@ public class SanityModifier {
 
 			// There'll only be hallucinations for players with less than 70% of
 			// their sanity.
-			if (sanity.getSanity() <= (sanity.getMaxSanity() * 0.70))
+			if(stats.getStat(VitalStatType.SANITY) <= (VitalStatType.SANITY.max * 0.7))
 			{
 
 				// Determine if a hallucination should appear.
-				double chanceOfHallucination = (double) (sanity.getSanity() / 100) + 0.30;
+				double chanceOfHallucination = (double) (stats.getStat(VitalStatType.SANITY) / 100) + 0.3;
 				double randomLucidNumber = Math.random();
 				boolean shouldSpawnHallucination = chanceOfHallucination < randomLucidNumber;
 
@@ -355,14 +347,14 @@ public class SanityModifier {
 			// Also, They may come and attack you.
 
 			// Make the screen of the insane player wobble.
-			if (sanity.getSanity() <= (sanity.getMaxSanity() * 0.35))
+			if(stats.getStat(VitalStatType.SANITY) <= (VitalStatType.SANITY.max * 0.35))
 			{
 
 				SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "nausea", 100, 5, false, false);
 			}
 
 			// Add some weird insanity ambiance.
-			if (sanity.getSanity() <= (sanity.getMaxSanity() * 0.20))
+			if(stats.getStat(VitalStatType.SANITY) <= (VitalStatType.SANITY.max * 0.20))
 			{
 
 				// Random chance so it doesn't overlap with itself.
@@ -376,7 +368,7 @@ public class SanityModifier {
 					CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) player);
 				}
 			}
-			else if (sanity.getSanity() <= (sanity.getMaxSanity() * 0.50))
+			else if(stats.getStat(VitalStatType.SANITY) <= (VitalStatType.SANITY.max * 0.50))
 			{
 
 				// Random chance so it doesn't overlap with itself.
@@ -397,7 +389,7 @@ public class SanityModifier {
 			// to gather near black holes void of sanity.
 			// If the player's sanity is really low, spawn a bunch of "Them" and
 			// make "Them" attack the player.
-			if ((sanity.getSanity() <= (sanity.getMaxSanity() * 0.15)) && spawnThemTimer >= 15)
+			if ((stats.getStat(VitalStatType.SANITY) <= (VitalStatType.SANITY.max * 0.15)) && spawnThemTimer >= 15)
 			{
 
 				// Random numbers... gotta love random numbers.
@@ -431,9 +423,7 @@ public class SanityModifier {
 				// Summon Them
 				player.world.spawnEntity(them);
 			}
-
-			// Otherwise just rarely summon them.
-			else if (sanity.getSanity() <= (sanity.getMaxSanity() * 0.50))
+			else if(stats.getStat(VitalStatType.SANITY) <= (VitalStatType.SANITY.max * 0.50))
 			{
 
 				// Random numbers... YEE
@@ -473,9 +463,8 @@ public class SanityModifier {
 	// accordingly. Just vanilla items for now.
 	public void onPlayerConsumeItem(EntityPlayer player, ItemStack item)
 	{
-
 		// Capability
-		ISanity sanity = player.getCapability(SanityProvider.SANITY_CAP, null);
+		VitalStat stats = player.getCapability(VitalStatProvider.VITAL_CAP, null);
 
 		// Number of items
 		int amount = item.getCount();
@@ -483,81 +472,81 @@ public class SanityModifier {
 		// If raw or bad food, drain sanity.
 		if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.CHICKEN, amount)))
 		{
-			sanity.decrease(5.0f);
+			stats.modifyStat(VitalStatType.SANITY, -5.0f);
 		}
 		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.BEEF, amount)))
 		{
-			sanity.decrease(5.0f);
+			stats.modifyStat(VitalStatType.SANITY, -5.0f);
 		}
 		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.RABBIT, amount)))
 		{
-			sanity.decrease(5.0f);
+			stats.modifyStat(VitalStatType.SANITY, -5.0f);
 		}
 		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.MUTTON, amount)))
 		{
-			sanity.decrease(5.0f);
+			stats.modifyStat(VitalStatType.SANITY, -5.0f);
 		}
 		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.PORKCHOP, amount)))
 		{
-			sanity.decrease(5.0f);
+			stats.modifyStat(VitalStatType.SANITY, -5.0f);
 		}
 		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.FISH, amount)))
 		{
-			sanity.decrease(5.0f);
+			stats.modifyStat(VitalStatType.SANITY, -5.0f);
 		}
 		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.ROTTEN_FLESH, amount)))
 		{
-			sanity.decrease(10.0f);
+			stats.modifyStat(VitalStatType.SANITY, -10.0f);
 		}
 		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.SPIDER_EYE, amount)))
 		{
-			sanity.decrease(15.0f);
+			stats.modifyStat(VitalStatType.SANITY, -15.0f);
 		}
 
 		// If cooked or good food, increase sanity.
 		if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.COOKED_CHICKEN, amount)))
 		{
-			sanity.increase(2.0f);
+			stats.modifyStat(VitalStatType.SANITY, 2.0f);
 		}
 		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.COOKED_BEEF, amount)))
 		{
-			sanity.increase(2.0f);
+			stats.modifyStat(VitalStatType.SANITY, 2.0f);
 		}
 		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.COOKED_RABBIT, amount)))
 		{
-			sanity.increase(2.0f);
+			stats.modifyStat(VitalStatType.SANITY, 2.0f);
 		}
 		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.COOKED_MUTTON, amount)))
 		{
-			sanity.increase(2.0f);
+			stats.modifyStat(VitalStatType.SANITY, 2.0f);
 		}
 		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.COOKED_PORKCHOP, amount)))
 		{
-			sanity.increase(2.0f);
+			stats.modifyStat(VitalStatType.SANITY, 2.0f);
 		}
 		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.COOKED_FISH, amount)))
 		{
-			sanity.increase(2.0f);
+			stats.modifyStat(VitalStatType.SANITY, 2.0f);
 		}
 		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.PUMPKIN_PIE, amount)))
 		{
-			sanity.increase(15.0f);
+			stats.modifyStat(VitalStatType.SANITY, 15.0f);
 		}
 		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.COOKIE, amount)))
 		{
-			sanity.increase(2.0f);
+			stats.modifyStat(VitalStatType.SANITY, 2.0f);
 		}
 		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.RABBIT_STEW, amount)))
 		{
-			sanity.increase(15.0f);
+			stats.modifyStat(VitalStatType.SANITY, 15.0f);
 		}
 		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.MUSHROOM_STEW, amount)))
 		{
-			sanity.increase(10.0f);
+			stats.modifyStat(VitalStatType.SANITY, 10.0f);
 		}
 		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.BEETROOT_SOUP, amount)))
 		{
-			sanity.increase(10.0f);
+			stats.modifyStat(VitalStatType.SANITY, 10.0f);
 		}
 	}
 
@@ -566,41 +555,28 @@ public class SanityModifier {
 	// This method alone doesn't run for too long on singleplayer.
 	public void onPlayerSleepInBed(EntityPlayer player)
 	{
-
-		// Capability
-		ISanity sanity = player.getCapability(SanityProvider.SANITY_CAP, null);
-
-		sanity.increase(0.004f);
-
+		VitalStat stats = player.getCapability(VitalStatProvider.VITAL_CAP, null);
+		stats.modifyStat(VitalStatType.SANITY, 0.004f);
 		// Induce some hunger.
 		SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "hunger", 20, 4, false, false);
 	}
 
-	// At this point, the player has awoke from their sleep. This "sleep"
-	// could've been 1 second or 1 day.
-	// Figure out if it is daytime (the sleep is successful). If so, grant extra
-	// sanity and drain extra hunger.
+	// At this point, the player has awoke from their sleep. This "sleep" could've been 1 second or 1 day.
+	// Figure out if it is daytime (the sleep is successful). If so, grant extra sanity and drain extra hunger.
 	public void onPlayerWakeUp(EntityPlayer player)
 	{
-
-		// Capability
-		ISanity sanity = player.getCapability(SanityProvider.SANITY_CAP, null);
-
-		// Is it daytime? If not, the player just clicked "Leave Bed" or
-		// something related to try to cheat the system (and might've
-		// succeeded).
-		if (player.world.getWorldTime() % 24000 >= 0)
+		VitalStat stats = player.getCapability(VitalStatProvider.VITAL_CAP, null);
+		
+		// Is it daytime? If not, the player just clicked "Leave Bed" or something related to try to cheat the system (and might've succeeded).
+		if(player.world.getWorldTime() % 24000 >= 0)
 		{
-
-			sanity.increase(33f);
-
+			stats.modifyStat(VitalStatType.SANITY, 33F);
 			// Make player hungry for breakfast (or something...).
 			player.getFoodStats().setFoodLevel(player.getFoodStats().getFoodLevel() - 8);
 		}
 	}
 
-	// As we know, They will spawn near insane players. They should drop lucid
-	// dream essence when killed.
+	// As we know, They will spawn near insane players. They should drop lucid dream essence when killed.
 	public void onDropsDropped(Entity entityKilled, List<EntityItem> drops, int lootingLevel, DamageSource damageSource)
 	{
 
@@ -612,14 +588,14 @@ public class SanityModifier {
 			EntityPlayer player = (EntityPlayer) damageSource.getTrueSource();
 
 			// Capability
-			ISanity sanity = player.getCapability(SanityProvider.SANITY_CAP, null);
+			VitalStat stats = player.getCapability(VitalStatProvider.VITAL_CAP, null);
 
 			// Was the victim an enderman? or Them?
 			if (entityKilled instanceof EntityEnderman)
 			{
 
 				// Now, was the player insane (or insane enough)?
-				if (sanity.getSanity() <= (sanity.getMaxSanity() * 0.50))
+				if(stats.getStat(VitalStatType.SANITY) <= (VitalStatType.SANITY.max * 0.50))
 				{
 					drops.add(new EntityItem(player.world, entityKilled.posX, entityKilled.posY, entityKilled.posZ, new ItemStack(ModItems.LUCID_DREAM_ESSENCE.get(), 1)));
 					
@@ -645,7 +621,7 @@ public class SanityModifier {
 				}
 
 				// The player regains sanity for killing one of their fears.
-				sanity.increase(15.0f);
+				stats.modifyStat(VitalStatType.SANITY, 15F);
 			}
 		}
 	}

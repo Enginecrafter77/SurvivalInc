@@ -12,10 +12,9 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
 import schoperation.schopcraft.SchopCraft;
-import schoperation.schopcraft.cap.sanity.ISanity;
-import schoperation.schopcraft.cap.sanity.SanityProvider;
-import schoperation.schopcraft.cap.temperature.ITemperature;
-import schoperation.schopcraft.cap.temperature.TemperatureProvider;
+import schoperation.schopcraft.cap.vital.VitalStat;
+import schoperation.schopcraft.cap.vital.VitalStatProvider;
+import schoperation.schopcraft.cap.vital.VitalStatType;
 
 public class ItemIceCream extends ItemFood {
 
@@ -26,7 +25,6 @@ public class ItemIceCream extends ItemFood {
 
 	public ItemIceCream(int amount, float saturation, boolean isWolfFood)
 	{
-
 		// Get and apply stuff.
 		super(amount, saturation, isWolfFood);
 
@@ -59,20 +57,18 @@ public class ItemIceCream extends ItemFood {
 
 				CriteriaTriggers.CONSUME_ITEM.trigger((EntityPlayerMP) entityplayer, stack);
 			}
-
+			
 			// Server-side stuff for adjusting temp.
-			if (!world.isRemote)
+			if(!world.isRemote)
 			{
-
 				// Capabilities
-				ITemperature temperature = entityLiving.getCapability(TemperatureProvider.TEMPERATURE_CAP, null);
-				ISanity sanity = entityLiving.getCapability(SanityProvider.SANITY_CAP, null);
+				VitalStat stats = entityLiving.getCapability(VitalStatProvider.VITAL_CAP, null);
 
 				// Lower temperature
-				temperature.decrease(20.0f);
+				//temperature.decrease(20.0f);
 
 				// Increase sanity
-				sanity.increase(20.0f);
+				stats.modifyStat(VitalStatType.SANITY, 20.0f);
 			}
 		}
 

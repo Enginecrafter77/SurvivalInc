@@ -8,8 +8,6 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 import schoperation.schopcraft.SchopCraft;
-import schoperation.schopcraft.cap.temperature.ITemperature;
-import schoperation.schopcraft.cap.temperature.TemperatureProvider;
 import schoperation.schopcraft.util.SchopServerSounds;
 
 public class ItemFeatherFan extends Item {
@@ -34,20 +32,16 @@ public class ItemFeatherFan extends Item {
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
 	{
-
 		// Server-side.
 		if (!world.isRemote)
 		{
-
-			// Capability
-			ITemperature temperature = player.getCapability(TemperatureProvider.TEMPERATURE_CAP, null);
+			//VitalStat stats = player.getCapability(VitalStatProvider.VITAL_CAP, null);
 
 			// Being in water or lava won't allow use of the fan.
 			if (!player.isInWater() && !player.isInLava())
 			{
-
 				// Cool down player.
-				temperature.decrease(20.0f);
+				//temperature.decrease(20.0f);
 
 				// If on fire, put out the fire.
 				if (player.isBurning())

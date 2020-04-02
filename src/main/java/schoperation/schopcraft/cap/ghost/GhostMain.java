@@ -11,12 +11,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.GameType;
-import schoperation.schopcraft.cap.sanity.ISanity;
-import schoperation.schopcraft.cap.sanity.SanityProvider;
-import schoperation.schopcraft.cap.temperature.ITemperature;
-import schoperation.schopcraft.cap.temperature.TemperatureProvider;
-import schoperation.schopcraft.cap.thirst.IThirst;
-import schoperation.schopcraft.cap.thirst.ThirstProvider;
+import schoperation.schopcraft.cap.vital.VitalStat;
+import schoperation.schopcraft.cap.vital.VitalStatProvider;
+import schoperation.schopcraft.cap.vital.VitalStatType;
 import schoperation.schopcraft.cap.wetness.IWetness;
 import schoperation.schopcraft.cap.wetness.WetnessProvider;
 import schoperation.schopcraft.config.SchopConfig;
@@ -61,9 +58,7 @@ public class GhostMain {
 	{
 		// Capabilities.
 		IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
-		IThirst thirst = player.getCapability(ThirstProvider.THIRST_CAP, null);
-		ISanity sanity = player.getCapability(SanityProvider.SANITY_CAP, null);
-		ITemperature temperature = player.getCapability(TemperatureProvider.TEMPERATURE_CAP, null);
+		VitalStat stat = player.getCapability(VitalStatProvider.VITAL_CAP, null);
 		IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
 		
 		// Block position of player.
@@ -76,29 +71,28 @@ public class GhostMain {
 		if (ghost.status())
 		{
 
-			// Constantly set the other values to default. Ghosts don't worry
-			// about that crap.
+			// Constantly set the other values to default. Ghosts don't worry about that crap.
 			wetness.set(0.0f);
-			thirst.set(100.0f);
-			sanity.set(100.0f);
-			temperature.set(68.0f);
-
+			stat.setStat(VitalStatType.HYDRATION, 100F);
+			stat.setStat(VitalStatType.SANITY, 100F);
+			//stat.setStat(VitalStatType.HEAT, 100F);
+			
 			// Give ghosts invisibility and invincibility.
 			SchopServerEffects.affectPlayer(uuid, "invisibility", 20, 0, false, false);
 			SchopServerEffects.affectPlayer(uuid, "resistance", 20, 4, false, false);
-
+			
 			// ==========================================
-			// ENERGY (Measured in Ghastly Plasmic Units)
+			// ENERGY (Measured in Ghastly Plasmatic Units)
 			// ==========================================
-
+			
 			// Increases at night!
-			if (!player.world.isDaytime())
+			if(!player.world.isDaytime())
 			{
 				ghost.addEnergy(0.05f);
 			}
-
+			
 			// Decreases while sprinting!
-			if (player.isSprinting())
+			if(player.isSprinting())
 			{
 				ghost.addEnergy(-0.2f);
 			}
@@ -321,12 +315,9 @@ public class GhostMain {
 	// Finish resurrection!
 	private void finishResurrection(EntityPlayer player, BlockPos pos)
 	{
-
 		// Capabilities
 		IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
-		IThirst thirst = player.getCapability(ThirstProvider.THIRST_CAP, null);
-		ISanity sanity = player.getCapability(SanityProvider.SANITY_CAP, null);
-		ITemperature temperature = player.getCapability(TemperatureProvider.TEMPERATURE_CAP, null);
+		VitalStat stat = player.getCapability(VitalStatProvider.VITAL_CAP, null);
 		IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
 
 		// Summon lightning on the player.
@@ -340,14 +331,13 @@ public class GhostMain {
 		ghost.setEnergy(0.0f);
 
 		// Reset stats
-		temperature.set(50.0f);
-		thirst.set(75.0f);
-		sanity.set(60.0f);
+		//stat.setStat(VitalStatType.HEAT, 50F);
+		stat.setStat(VitalStatType.HYDRATION, 75F);
+		stat.setStat(VitalStatType.SANITY, 60F);
 		wetness.set(0.0f);
 
 		// The lucid block is used up. Delete it.
-		// TODO: Once finite torches are added, the torches should blow out as
-		// well.
+		// TODO: Once finite torches are added, the torches should blow out as well.
 		player.world.setBlockToAir(pos);
 
 		// Destroy the golden apple.
@@ -357,18 +347,16 @@ public class GhostMain {
 
 		// Now iterate through the items and see if one of them is a golden
 		// apple.
-		for (int num = 0; num < nearbyItems.size(); num++)
+		for(int num = 0; num < nearbyItems.size(); num++)
 		{
-
 			// The chosen EntityItem
 			EntityItem entityItem = (EntityItem) nearbyItems.get(num);
 
 			// ItemStack
 			ItemStack stack = (ItemStack) entityItem.getItem();
 
-			if (ItemStack.areItemsEqual(stack, new ItemStack(Items.GOLDEN_APPLE)))
+			if(ItemStack.areItemsEqual(stack, new ItemStack(Items.GOLDEN_APPLE)))
 			{
-
 				entityItem.setDead();
 			}
 		}

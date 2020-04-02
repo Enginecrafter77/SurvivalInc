@@ -21,15 +21,11 @@ import schoperation.schopcraft.CommonProxy;
 import schoperation.schopcraft.cap.ghost.GhostMain;
 import schoperation.schopcraft.cap.ghost.GhostProvider;
 import schoperation.schopcraft.cap.ghost.IGhost;
-import schoperation.schopcraft.cap.sanity.ISanity;
-import schoperation.schopcraft.cap.sanity.SanityModifier;
-import schoperation.schopcraft.cap.sanity.SanityProvider;
-import schoperation.schopcraft.cap.temperature.ITemperature;
-import schoperation.schopcraft.cap.temperature.TemperatureModifier;
-import schoperation.schopcraft.cap.temperature.TemperatureProvider;
-import schoperation.schopcraft.cap.thirst.IThirst;
-import schoperation.schopcraft.cap.thirst.ThirstModifier;
-import schoperation.schopcraft.cap.thirst.ThirstProvider;
+import schoperation.schopcraft.cap.vital.SanityModifier;
+import schoperation.schopcraft.cap.vital.ThirstModifier;
+import schoperation.schopcraft.cap.vital.VitalStat;
+import schoperation.schopcraft.cap.vital.VitalStatProvider;
+import schoperation.schopcraft.cap.vital.VitalStatType;
 import schoperation.schopcraft.cap.wetness.IWetness;
 import schoperation.schopcraft.cap.wetness.WetnessModifier;
 import schoperation.schopcraft.cap.wetness.WetnessProvider;
@@ -45,7 +41,7 @@ import java.util.List;
 public class CapEvents {
 
 	// Modifiers
-	private final TemperatureModifier tempMod = new TemperatureModifier();
+	//private final TemperatureModifier tempMod = new TemperatureModifier();
 	private final ThirstModifier thirstMod = new ThirstModifier();
 	private final SanityModifier sanityMod = new SanityModifier();
 	private final WetnessModifier wetnessMod = new WetnessModifier();
@@ -55,24 +51,17 @@ public class CapEvents {
 	@SubscribeEvent
 	public void onPlayerLogsIn(PlayerLoggedInEvent event)
 	{
-
 		EntityPlayer player = event.player;
-
-		if (player instanceof EntityPlayerMP)
+		
+		if(player instanceof EntityPlayerMP)
 		{
-
 			// Capabilities
 			IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
-			IThirst thirst = player.getCapability(ThirstProvider.THIRST_CAP, null);
-			ISanity sanity = player.getCapability(SanityProvider.SANITY_CAP, null);
-			ITemperature temperature = player.getCapability(TemperatureProvider.TEMPERATURE_CAP, null);
+			VitalStat stat = player.getCapability(VitalStatProvider.VITAL_CAP, null);
 			IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
-
+			
 			// Send data to client for rendering.
-			IMessage msgGui = new HUDRenderPacket.HUDRenderMessage(temperature.getTemperature(),
-					temperature.getMaxTemperature(), thirst.getThirst(), thirst.getMaxThirst(), sanity.getSanity(),
-					sanity.getMaxSanity(), wetness.getWetness(), wetness.getMaxWetness(), ghost.status(),
-					ghost.getEnergy());
+			IMessage msgGui = new HUDRenderPacket.HUDRenderMessage(0, 0, stat.getStat(VitalStatType.HYDRATION), VitalStatType.HYDRATION.max, stat.getStat(VitalStatType.SANITY), VitalStatType.SANITY.max, wetness.getWetness(), wetness.getMaxWetness(), ghost.status(), ghost.getEnergy());
 			CommonProxy.net.sendTo(msgGui, (EntityPlayerMP) player);
 		}
 	}
@@ -89,6 +78,9 @@ public class CapEvents {
 
 			// Instance of player.
 			EntityPlayer player = (EntityPlayer) event.getEntity();
+			IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
+			VitalStat stat = player.getCapability(VitalStatProvider.VITAL_CAP, null);
+			IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
 
 			// Server-side
 			if (!player.world.isRemote)
@@ -113,14 +105,12 @@ public class CapEvents {
 
 					if (SchopConfig.MECHANICS.enableTemperature)
 					{
-
-						tempMod.onPlayerUpdate(player);
+						//tempMod.onPlayerUpdate(player);
 					}
 
 					if (SchopConfig.MECHANICS.enableThirst)
 					{
-
-						thirstMod.onPlayerUpdate(player);
+						stat.updateStats(player);
 					}
 
 					if (SchopConfig.MECHANICS.enableSanity)
@@ -149,17 +139,7 @@ public class CapEvents {
 					}
 				}
 
-				// Send capability data to clients for rendering
-				IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
-				IThirst thirst = player.getCapability(ThirstProvider.THIRST_CAP, null);
-				ISanity sanity = player.getCapability(SanityProvider.SANITY_CAP, null);
-				ITemperature temperature = player.getCapability(TemperatureProvider.TEMPERATURE_CAP, null);
-				IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
-
-				IMessage msgGui = new HUDRenderPacket.HUDRenderMessage(temperature.getTemperature(),
-						temperature.getMaxTemperature(), thirst.getThirst(), thirst.getMaxThirst(), sanity.getSanity(),
-						sanity.getMaxSanity(), wetness.getWetness(), wetness.getMaxWetness(), ghost.status(),
-						ghost.getEnergy());
+				IMessage msgGui = new HUDRenderPacket.HUDRenderMessage(0, 0, stat.getStat(VitalStatType.HYDRATION), VitalStatType.HYDRATION.max, stat.getStat(VitalStatType.SANITY), VitalStatType.SANITY.max, wetness.getWetness(), wetness.getMaxWetness(), ghost.status(), ghost.getEnergy());
 				CommonProxy.net.sendTo(msgGui, (EntityPlayerMP) player);
 			}
 		}
@@ -169,28 +149,23 @@ public class CapEvents {
 	@SubscribeEvent
 	public void onPlayerInteract(PlayerInteractEvent event)
 	{
-
 		// Instance of player.
 		EntityPlayer player = event.getEntityPlayer();
 
 		// Server-side
-		if (!player.world.isRemote)
+		if(!player.world.isRemote)
 		{
-
-			// Cancel interacting with blocks if the player is a ghost. This
-			// must be done here.
+			// Cancel interacting with blocks if the player is a ghost. This must be done here.
 			IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
 
 			if(ghost.status() && event.isCancelable())
 			{
-
 				event.setCanceled(true);
 			}
 
 			// Fire methods.
-			if (SchopConfig.MECHANICS.enableThirst && !player.isCreative() && !player.isSpectator())
+			if(SchopConfig.MECHANICS.enableThirst && !player.isCreative() && !player.isSpectator())
 			{
-
 				thirstMod.onPlayerInteract(player);
 			}
 		}
@@ -204,14 +179,12 @@ public class CapEvents {
 
 		if (event.getEntity() instanceof EntityPlayer)
 		{
-
 			// Instance of player.
 			EntityPlayer player = (EntityPlayer) event.getEntity();
 
 			// Server-side
 			if (!player.world.isRemote && event.getDuration() == 1)
 			{
-
 				// Instance of item.
 				ItemStack itemUsed = event.getItem();
 
@@ -221,8 +194,7 @@ public class CapEvents {
 
 					if (SchopConfig.MECHANICS.enableTemperature)
 					{
-
-						tempMod.onPlayerConsumeItem(player, itemUsed);
+						//tempMod.onPlayerConsumeItem(player, itemUsed);
 					}
 
 					if (SchopConfig.MECHANICS.enableSanity)

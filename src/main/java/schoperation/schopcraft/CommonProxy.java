@@ -14,15 +14,9 @@ import schoperation.schopcraft.cap.CapabilityHandler;
 import schoperation.schopcraft.cap.ghost.Ghost;
 import schoperation.schopcraft.cap.ghost.GhostStorage;
 import schoperation.schopcraft.cap.ghost.IGhost;
-import schoperation.schopcraft.cap.sanity.ISanity;
-import schoperation.schopcraft.cap.sanity.Sanity;
-import schoperation.schopcraft.cap.sanity.SanityStorage;
-import schoperation.schopcraft.cap.temperature.ITemperature;
-import schoperation.schopcraft.cap.temperature.Temperature;
-import schoperation.schopcraft.cap.temperature.TemperatureStorage;
-import schoperation.schopcraft.cap.thirst.IThirst;
-import schoperation.schopcraft.cap.thirst.Thirst;
-import schoperation.schopcraft.cap.thirst.ThirstStorage;
+import schoperation.schopcraft.cap.vital.VitalStat;
+import schoperation.schopcraft.cap.vital.VitalStatCarrier;
+import schoperation.schopcraft.cap.vital.VitalStatStorage;
 import schoperation.schopcraft.cap.wetness.IWetness;
 import schoperation.schopcraft.cap.wetness.Wetness;
 import schoperation.schopcraft.cap.wetness.WetnessStorage;
@@ -30,7 +24,6 @@ import schoperation.schopcraft.packet.ConfigPacket;
 import schoperation.schopcraft.packet.HUDRenderPacket;
 import schoperation.schopcraft.packet.SeasonPacket;
 import schoperation.schopcraft.packet.SummonInfoPacket;
-import schoperation.schopcraft.season.Season;
 import schoperation.schopcraft.season.WorldSeason;
 import schoperation.schopcraft.season.modifier.BiomeTempController;
 import schoperation.schopcraft.tweak.ServerCommands;
@@ -49,11 +42,8 @@ public class CommonProxy {
 
 		// Register capabilities.
 		CapabilityManager.INSTANCE.register(IWetness.class, new WetnessStorage(), Wetness::new);
-		CapabilityManager.INSTANCE.register(IThirst.class, new ThirstStorage(), Thirst::new);
-		CapabilityManager.INSTANCE.register(ISanity.class, new SanityStorage(), Sanity::new);
-		CapabilityManager.INSTANCE.register(ITemperature.class, new TemperatureStorage(), Temperature::new);
+		CapabilityManager.INSTANCE.register(VitalStat.class, new VitalStatStorage(), VitalStatCarrier::new);
 		CapabilityManager.INSTANCE.register(IGhost.class, new GhostStorage(), Ghost::new);
-		Season.initSeasons();
 	}
 
 	public void init(FMLInitializationEvent event)

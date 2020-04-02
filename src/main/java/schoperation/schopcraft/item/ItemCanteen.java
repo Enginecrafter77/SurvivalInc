@@ -21,12 +21,9 @@ import net.minecraft.world.biome.*;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import schoperation.schopcraft.SchopCraft;
-import schoperation.schopcraft.cap.sanity.ISanity;
-import schoperation.schopcraft.cap.sanity.SanityProvider;
-import schoperation.schopcraft.cap.temperature.ITemperature;
-import schoperation.schopcraft.cap.temperature.TemperatureProvider;
-import schoperation.schopcraft.cap.thirst.IThirst;
-import schoperation.schopcraft.cap.thirst.ThirstProvider;
+import schoperation.schopcraft.cap.vital.VitalStat;
+import schoperation.schopcraft.cap.vital.VitalStatProvider;
+import schoperation.schopcraft.cap.vital.VitalStatType;
 import schoperation.schopcraft.config.SchopConfig;
 import schoperation.schopcraft.util.SchopServerEffects;
 import schoperation.schopcraft.util.SchopServerParticles;
@@ -76,59 +73,46 @@ public class ItemCanteen extends Item {
 			int canteenType = stack.getMetadata();
 
 			// Capabilities
-			IThirst thirst = player.getCapability(ThirstProvider.THIRST_CAP, null);
-			ITemperature temperature = player.getCapability(TemperatureProvider.TEMPERATURE_CAP, null);
-			ISanity sanity = player.getCapability(SanityProvider.SANITY_CAP, null);
+			VitalStat stats = entityLiving.getCapability(VitalStatProvider.VITAL_CAP, null);
 
 			// Determine type of water, and quench thirst accordingly.
 			// Fresh water
-			if (canteenType == 1)
+			if(canteenType == 1)
 			{
-
-				thirst.increase(20f);
-				temperature.decrease(10f);
-				sanity.increase(10f);
+				stats.modifyStat(VitalStatType.HYDRATION, 20F);
+				stats.modifyStat(VitalStatType.SANITY, 10F);
+				//temperature.decrease(10f);
 			}
-
 			// Dirty water
-			else if (canteenType == 2)
+			else if(canteenType == 2)
 			{
-
-				thirst.increase(10f);
-				sanity.decrease(5f);
+				stats.modifyStat(VitalStatType.HYDRATION, 10F);
+				stats.modifyStat(VitalStatType.SANITY, -5F);
 				SchopServerEffects.affectPlayer(uuid, "poison", 50, 2, false, false);
 			}
-
 			// Salt water
-			else if (canteenType == 3)
+			else if(canteenType == 3)
 			{
-
-				thirst.decrease(20f);
-				sanity.decrease(15f);
+				stats.modifyStat(VitalStatType.HYDRATION, -20F);
+				stats.modifyStat(VitalStatType.SANITY, -15F);
 			}
-
 			// Filtered water
-			else if (canteenType == 4)
+			else if(canteenType == 4)
 			{
-
-				thirst.increase(15f);
-				sanity.increase(5f);
-				double randChanceOfPoison = Math.random();
-				if (randChanceOfPoison < 0.25)
+				stats.modifyStat(VitalStatType.HYDRATION, 15F);
+				stats.modifyStat(VitalStatType.SANITY, 5F);
+				if(Math.random() < 0.25)
 				{
 					SchopServerEffects.affectPlayer(uuid, "poison", 50, 0, false, false);
 				}
 			}
-
 			// Cold water
-			else if (canteenType == 5)
+			else if(canteenType == 5)
 			{
-
-				thirst.increase(15f);
-				temperature.decrease(15f);
-				sanity.increase(5f);
-				double randChanceOfPoison = Math.random();
-				if (randChanceOfPoison < 0.15)
+				stats.modifyStat(VitalStatType.HYDRATION, 15F);
+				stats.modifyStat(VitalStatType.SANITY, 5F);
+				//temperature.decrease(15f);
+				if(Math.random() < 0.15)
 				{
 					SchopServerEffects.affectPlayer(uuid, "poison", 50, 0, false, false);
 				}
