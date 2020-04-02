@@ -59,12 +59,8 @@ public class RenderHUD extends Gui {
 	@SubscribeEvent
 	public void renderOverlay(RenderGameOverlayEvent event)
 	{
-
 		if (event.getType() == RenderGameOverlayEvent.ElementType.TEXT)
 		{
-
-			// Instance of Minecraft. All of this crap is client-side (well of
-			// course)
 			Minecraft mc = Minecraft.getMinecraft();
 
 			// Get current screen resolution.
@@ -84,11 +80,10 @@ public class RenderHUD extends Gui {
 			int fullBarWidth;
 			int movingWidth;
 			String text;
-
+			
 			// The loop that renders the main stat bars.
-			for (StatBar bar : MAIN_BARS)
+			for(StatBar bar : MAIN_BARS)
 			{
-
 				// RIGHTMOST position of this bar. This is so we can account for
 				// the bar widths correctly.
 				x = getX(screenWidth, i);

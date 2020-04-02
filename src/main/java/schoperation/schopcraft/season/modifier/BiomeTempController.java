@@ -118,7 +118,7 @@ public class BiomeTempController {
 			float origTemp = getOriginalTemperature(choosenBiome);
 
 			// Half of the season.
-			int halfSeason = season.getLength(season) / 2;
+			int halfSeason = season.length / 2;
 
 			// The temperature changes everyday, so it's more gradual.
 			// Every half of each season has a specified temperature change that
@@ -126,7 +126,7 @@ public class BiomeTempController {
 			// of said half.
 			// We can get the total temperature change through the Season class
 			// methods.
-			float tempDiff = season.getTemperatureDifference(daysIntoSeason);
+			float tempDiff = season.getTemperatureOffset(daysIntoSeason);
 
 			// Depending on how far we are into the season, we'll only take a
 			// portion of the temp difference and add it to the original biome
@@ -144,14 +144,14 @@ public class BiomeTempController {
 			if (daysIntoSeason > halfSeason)
 			{
 
-				prevTempDiff = season.getTemperatureDifference(0);
+				prevTempDiff = season.getTemperatureOffset(0);
 			}
 
 			else
 			{
 
-				Season prevSeason = season.prevSeason(season);
-				prevTempDiff = prevSeason.getTemperatureDifference(halfSeason + 1);
+				Season prevSeason = season.getFollowing(-1);
+				prevTempDiff = prevSeason.getTemperatureOffset(halfSeason + 1);
 			}
 
 			// Now apply the CURRENT temp difference to the original temp.

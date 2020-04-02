@@ -388,13 +388,13 @@ public class TemperatureModifier {
 			IGhost ghost = otherPlayer.getCapability(GhostProvider.GHOST_CAP, null);
 
 			// Now change temperature accordingly.
-			if (otherPlayer != player && !ghost.isGhost())
+			if (otherPlayer != player && !ghost.status())
 			{
 
 				temperature.increaseTarget(5.0f);
 			}
 
-			else if (otherPlayer != player && ghost.isGhost())
+			else if (otherPlayer != player && ghost.status())
 			{
 
 				temperature.decreaseTarget(20.0f);

@@ -180,29 +180,25 @@ public class WorldSeason {
 					daysIntoSeason++;
 
 					// Is it the next season?
-					if (daysIntoSeason > season.getLength(season))
+					if (daysIntoSeason > season.length)
 					{
 
 						// Head on over to the next season.
 						daysIntoSeason = 1;
-						season = season.nextSeason();
-
-						// Cycle through the seasons if some are disabled.
-						while (season.getLength(season) == 0)
+						
+						do
 						{
-
-							season = season.nextSeason();
+							season = season.getFollowing(1);
 						}
+						while(season.length == 0);
 					}
 
 					// Is it the start of spring or autumn? Initiate initial
 					// leaf changing.
 					if (daysIntoSeason == 1)
 					{
-
 						if (season == Season.SPRING || season == Season.AUTUMN)
 						{
-
 							leaves.changeInitial(season, world, player);
 						}
 					}
@@ -221,7 +217,7 @@ public class WorldSeason {
 					// Determine the weather. The season is the main factor.
 					float randWeather = (float) Math.random();
 
-					if (randWeather < season.getPrecipitationChance())
+					if (randWeather < season.rainfallchance)
 					{
 
 						weatherHandler.makeItRain(world, season);

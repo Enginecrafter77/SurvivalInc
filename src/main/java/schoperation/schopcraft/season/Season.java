@@ -1,183 +1,105 @@
 package schoperation.schopcraft.season;
 
-import schoperation.schopcraft.config.SchopConfig;
+import java.util.ArrayList;
+import java.util.List;
 
-/*
- * Basic properties for the seasons. Lotta switch statements, because enum stuff
- */
+import schoperation.schopcraft.config.SchopConfig;
 
 public enum Season {
 
-	WINTER, SPRING, SUMMER, AUTUMN;
-
-	// Goto next season
-	public Season nextSeason()
-	{
-
-		switch (Season.this)
-		{
-
-		case WINTER:
-			return SPRING;
-		case SPRING:
-			return SUMMER;
-		case SUMMER:
-			return AUTUMN;
-		case AUTUMN:
-			return WINTER;
-		default:
-			return SPRING;
-		}
-	}
-
-	// Get previous season
-	public Season prevSeason(Season season)
-	{
-
-		switch (season)
-		{
-
-		case WINTER:
-			return AUTUMN;
-		case SPRING:
-			return WINTER;
-		case SUMMER:
-			return SPRING;
-		case AUTUMN:
-			return SUMMER;
-		default:
-			return SPRING;
-		}
-	}
-
-	// Methods for setting the seasons apart.
-	// Length of the season in Minecraft days
-	public int getLength(Season season)
-	{
-
-		switch (season)
-		{
-
-		case WINTER:
-			return SchopConfig.SEASONS.winterLength;
-		case SPRING:
-			return SchopConfig.SEASONS.springLength;
-		case SUMMER:
-			return SchopConfig.SEASONS.summerLength;
-		case AUTUMN:
-			return SchopConfig.SEASONS.autumnLength;
-		default:
-			return 14;
-		}
-	}
-
-	/*
-	 * Temperature difference of the season, relation to the original
-	 * temperature of the biome. With the changing seasons come the changing of
-	 * the biome temperatures. Mid-spring and early-autumn are the points where
-	 * the temperatures are normal (vanilla values). The temperatures discretely
-	 * increase from mid-winter to mid-summer, and decrease for the other half
-	 * of the time. Since I've made the effective temperature limited to between
-	 * -0.2 and 1.5:
-	 * 
-	 * -From mid-spring to mid-summer, the biome temperature will gradually
-	 * increase by 0.5. -From mid-summer to mid-autumn, it will decrease
-	 * gradually by 0.8. -From mid-autumn to mid-winter, it will decrease
-	 * gradually by 0.7. -From mid-winter to mid-spring, it will increase
-	 * gradually by 1.0.
-	 * 
-	 * (unevenly)
-	 * 
-	 * The longer the length of a season, the more gradual the change is. It
-	 * also has to check if we are in the middle of a season, because in the
-	 * summer and winter, it changes direction. Remember, this is called at the
-	 * beginning and middle of each season.
+	WINTER(SchopConfig.SEASONS.winterLength, 0.6f),
+	SPRING(SchopConfig.SEASONS.springLength, 0.7f),
+	SUMMER(SchopConfig.SEASONS.summerLength, 0.3f),
+	AUTUMN(SchopConfig.SEASONS.autumnLength, 0.4f);
+	
+	/** The length of the season in minecraft days */
+	public final int length;
+	
+	/** The chance of rainfall occurring in this season */
+	public final float rainfallchance;
+	
+	/**
+	 * The season is divided into n parts, where
+	 * n is the number of element in this list.
+	 * The temperature of the environment is
+	 * calculated by {@link #getTemperatureOffset(int)}
 	 */
-	public float getTemperatureDifference(int daysElapsed)
+	public final List<Float> thermodelta;
+	
+	private Season(int length, float rainfallchance)
 	{
-
-		switch (Season.this)
-		{
-
-		case WINTER:
-
-			// If we're at the second half of the season
-			if (daysElapsed > (getLength(WINTER) / 2))
-			{
-
-				return -0.6f;
-			}
-
-			else
-			{
-
-				return -1.0f;
-			}
-
-		case SPRING:
-
-			if (daysElapsed > (getLength(SPRING) / 2))
-			{
-
-				return 0.2f;
-			}
-
-			else
-			{
-
-				return 0.0f;
-			}
-
-		case SUMMER:
-
-			if (daysElapsed > (getLength(SUMMER) / 2))
-			{
-
-				return 0.0f;
-			}
-
-			else
-			{
-
-				return 0.5f;
-			}
-
-		case AUTUMN:
-
-			if (daysElapsed > (getLength(AUTUMN) / 2))
-			{
-
-				return -0.6f;
-			}
-
-			else
-			{
-
-				return -0.3f;
-			}
-
-		default:
-			return 0.0f;
-		}
+		// We will usually only need 2 changes
+		this.thermodelta = new ArrayList<Float>(2);
+		this.rainfallchance = rainfallchance;
+		this.length = length;
 	}
-
-	// Chance of getting precipitation on a particular day during a season.
-	public float getPrecipitationChance()
+	
+	private int getIndex()
 	{
-
-		switch (Season.this)
+		Season[] orderedlist = Season.values();
+		for(int index = 0; index < orderedlist.length; index++)
 		{
-
-		case WINTER:
-			return 0.60f;
-		case SPRING:
-			return 0.70f;
-		case SUMMER:
-			return 0.30f;
-		case AUTUMN:
-			return 0.40f;
-		default:
-			return 0.50f;
+			if(orderedlist[index] == this)
+				return index;
 		}
+		throw new Error("Element " + this.name() + " has no index. This error should NEVER happen.");
+	}
+	
+	private static Season valueOf(int index)
+	{
+		return Season.values()[index];
+	}
+	
+	/**
+	 * Returns the n-th season following the current season.
+	 * Negative numbers are also allowed, meaning that the
+	 * traversal should go backwards.
+	 * Passing 1 essentially requests the next season, whereas
+	 * passing -1 requests the previous season.
+	 * @param count The n variable, i.e. the number of seasons to traverse
+	 * @return The season being the n-th in order of the following season list
+	 */
+	public Season getFollowing(int count)
+	{
+		return Season.valueOf((this.getIndex() + count) % Season.values().length);
+	}
+	
+	/**
+	 * Initializes the {@link #thermodelta} values of all seasons
+	 */
+	public static void initSeasons()
+	{
+		WINTER.thermodelta.add(-0.6F);
+		WINTER.thermodelta.add(-1F);
+		SPRING.thermodelta.add(0.2F);
+		SPRING.thermodelta.add(0F);
+		SUMMER.thermodelta.add(0F);
+		SUMMER.thermodelta.add(0.5F);
+		AUTUMN.thermodelta.add(-0.6F);
+		AUTUMN.thermodelta.add(-0.3F);
+	}
+	
+	/**
+	 * Calculates the temperature difference based on
+	 * the initialized {@link #thermodelta} values.
+	 * The values must be first initialized. This generally
+	 * involves running {@link #initSeasons()} method. Failing
+	 * to do so before invoking this method results in arithmetic
+	 * exception caused by zero division.
+	 * The offset is calculated by the following equation:
+	 * <code>
+	 * 	offset = days / (season_length / thermodelta_count)
+	 * </code>
+	 * @param days The number of minecraft days elapsed since the  of the season
+	 * @return The current temperature offset
+	 */
+	public float getTemperatureOffset(int days)
+	{
+		// The length of 1 season logical part
+		int seasonpart = this.length / this.thermodelta.size();
+		// The part we are currently in.
+		int part = days / seasonpart;
+		// Return the temperature delta of the current season part
+		return this.thermodelta.get(part);
 	}
 }

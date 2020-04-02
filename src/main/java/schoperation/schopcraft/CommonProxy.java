@@ -30,6 +30,7 @@ import schoperation.schopcraft.packet.ConfigPacket;
 import schoperation.schopcraft.packet.HUDRenderPacket;
 import schoperation.schopcraft.packet.SeasonPacket;
 import schoperation.schopcraft.packet.SummonInfoPacket;
+import schoperation.schopcraft.season.Season;
 import schoperation.schopcraft.season.WorldSeason;
 import schoperation.schopcraft.season.modifier.BiomeTempController;
 import schoperation.schopcraft.tweak.ServerCommands;
@@ -52,6 +53,7 @@ public class CommonProxy {
 		CapabilityManager.INSTANCE.register(ISanity.class, new SanityStorage(), Sanity::new);
 		CapabilityManager.INSTANCE.register(ITemperature.class, new TemperatureStorage(), Temperature::new);
 		CapabilityManager.INSTANCE.register(IGhost.class, new GhostStorage(), Ghost::new);
+		Season.initSeasons();
 	}
 
 	public void init(FMLInitializationEvent event)

@@ -15,33 +15,20 @@ import net.minecraft.world.chunk.Chunk;
 import schoperation.schopcraft.lib.ModBlocks;
 import schoperation.schopcraft.season.Season;
 
+/**
+ * Changes leaves in Autumn and Spring.
+ * 
+ * Oaks will have red leaves and birches will have yellow leaves.
+ * 
+ * The colors revert back to normal in the spring.
+ */
 public class LeavesChanger {
-
-	/*
-	 * Changes leaves in Autumn and Spring.
-	 * 
-	 * Oaks will have red leaves and birches will have yellow leaves.
-	 * 
-	 * The colors revert back to normal in the spring.
-	 */
 
 	// Goto next chunk
 	private Chunk nextChunk(World world, int currentX, int currentZ)
 	{
-
 		Chunk chunk = world.getChunkFromChunkCoords(currentX, currentZ);
-
-		if (chunk.isLoaded())
-		{
-
-			return chunk;
-		}
-
-		else
-		{
-
-			return null;
-		}
+		return chunk.isLoaded() ? chunk : null;
 	}
 
 	// When Autumn or Spring first starts, we're going to go through all chunks
@@ -51,7 +38,6 @@ public class LeavesChanger {
 	// This only happens once in each season.
 	public void changeInitial(Season season, World world, EntityPlayer player)
 	{
-
 		// Is X negative or positive?
 		int changeX = 1;
 		int posX = player.getPosition().getX();

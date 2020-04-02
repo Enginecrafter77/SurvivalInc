@@ -71,7 +71,7 @@ public class CapEvents {
 			// Send data to client for rendering.
 			IMessage msgGui = new HUDRenderPacket.HUDRenderMessage(temperature.getTemperature(),
 					temperature.getMaxTemperature(), thirst.getThirst(), thirst.getMaxThirst(), sanity.getSanity(),
-					sanity.getMaxSanity(), wetness.getWetness(), wetness.getMaxWetness(), ghost.isGhost(),
+					sanity.getMaxSanity(), wetness.getWetness(), wetness.getMaxWetness(), ghost.status(),
 					ghost.getEnergy());
 			CommonProxy.net.sendTo(msgGui, (EntityPlayerMP) player);
 		}
@@ -158,7 +158,7 @@ public class CapEvents {
 
 				IMessage msgGui = new HUDRenderPacket.HUDRenderMessage(temperature.getTemperature(),
 						temperature.getMaxTemperature(), thirst.getThirst(), thirst.getMaxThirst(), sanity.getSanity(),
-						sanity.getMaxSanity(), wetness.getWetness(), wetness.getMaxWetness(), ghost.isGhost(),
+						sanity.getMaxSanity(), wetness.getWetness(), wetness.getMaxWetness(), ghost.status(),
 						ghost.getEnergy());
 				CommonProxy.net.sendTo(msgGui, (EntityPlayerMP) player);
 			}
@@ -181,7 +181,7 @@ public class CapEvents {
 			// must be done here.
 			IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
 
-			if (ghost.isGhost() && event.isCancelable())
+			if(ghost.status() && event.isCancelable())
 			{
 
 				event.setCanceled(true);
@@ -234,8 +234,7 @@ public class CapEvents {
 			}
 		}
 	}
-
-	// When a player wakes up from bed.
+	
 	@SubscribeEvent
 	public void onPlayerWakeUp(PlayerWakeUpEvent event)
 	{
@@ -250,12 +249,10 @@ public class CapEvents {
 			sanityMod.onPlayerWakeUp(player);
 		}
 	}
-
-	// When an entity's drops are dropped (so usually when one dies).
+	
 	@SubscribeEvent
 	public void onDropsDropped(LivingDropsEvent event)
 	{
-
 		// The entity that was killed.
 		Entity entityKilled = event.getEntity();
 
@@ -280,30 +277,26 @@ public class CapEvents {
 			}
 		}
 	}
-
-	// When a player respawns.
+	
 	@SubscribeEvent
 	public void onPlayerRespawn(PlayerRespawnEvent event)
 	{
-
 		// Instance of player.
 		EntityPlayer player = event.player;
 
-		// Server-side
-		if (!player.world.isRemote)
+		/* 
+		 * Check if we are operating on server side.
+		 * Also, going through the end portal back to
+		 * the overworld counts as respawning. This
+		 * shouldn't make you a ghost.
+		 */
+		if(!(player.world.isRemote || event.isEndConquered()))
 		{
-
-			// Going through the end portal back to the overworld counts as
-			// respawning. This shouldn't make you a ghost.
-			if (!event.isEndConquered())
+			ghostMain.onPlayerRespawn(player);
+			
+			// This should be handled by vanilla codes. No need to get our hands dirty.
+			/*else
 			{
-
-				ghostMain.onPlayerRespawn(player);
-			}
-
-			else
-			{
-
 				// Set no gravity.
 				player.setNoGravity(true);
 
@@ -312,11 +305,10 @@ public class CapEvents {
 
 				// Set gravity back.
 				player.setNoGravity(false);
-			}
+			}*/
 		}
 	}
-
-	// When a player attempts to pick up items.
+	
 	@SubscribeEvent
 	public void onItemPickup(EntityItemPickupEvent event)
 	{
@@ -326,7 +318,7 @@ public class CapEvents {
 		EntityPlayer player = event.getEntityPlayer();
 		IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
 
-		if (ghost.isGhost())
+		if(ghost.status())
 		{
 
 			event.setCanceled(true);

@@ -116,34 +116,24 @@ public class StatBar {
 		// Don't display most crap if debug mode is enabled.
 		if (!isDebugEnabled && !isGhost)
 		{
-
-			if (type == StatType.TEMPERATURE && SchopConfig.MECHANICS.enableTemperature)
+			if(type == StatType.TEMPERATURE && SchopConfig.MECHANICS.enableTemperature)
 			{
-
 				return true;
 			}
-
 			else if (type == StatType.THIRST && SchopConfig.MECHANICS.enableThirst)
 			{
-
 				return true;
 			}
-
 			else if (type == StatType.SANITY && SchopConfig.MECHANICS.enableSanity)
 			{
-
 				return true;
 			}
-
 			else if (type == StatType.WETNESS && value > 0 && SchopConfig.MECHANICS.enableWetness)
 			{
-
 				return true;
 			}
-
 			else
 			{
-
 				return false;
 			}
 		}

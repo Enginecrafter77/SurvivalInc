@@ -45,7 +45,7 @@ public class ColdBreath {
 			float biomeTemp = biome.getTemperature(player.getPosition());
 			
 			// Cold breath particles when the player is in a cold biome.
-			if (biomeTemp < 0.2 && !ghost.isGhost())
+			if (biomeTemp < 0.2 && !ghost.status())
 			{
 				SchopServerParticles.summonParticle(player.getCachedUniqueIdString(), "ColdBreathParticles", pos.getX() + player.getLookVec().x, pos.getY() + 1.5, pos.getZ() + player.getLookVec().z);
 			}

@@ -109,48 +109,36 @@ public class SanityModifier {
 		}
 
 		// Being drenched for a long time won't do you good.
-		if (wetness.getWetness() > 90.0f)
+		if(wetness.getWetness() > 90.0f)
 		{
-
 			sanity.decrease(0.003f * modifier);
 		}
-
-		else if (wetness.getWetness() > 70.0f)
+		else if(wetness.getWetness() > 70.0f)
 		{
-
 			sanity.decrease(0.001f * modifier);
 		}
 
 		// Now iterate through each mob that appears on the list of nearby mobs.
 		for (int numMobs = 0; numMobs < nearbyMobs.size(); numMobs++)
 		{
-
 			// Chosen mob
 			EntityMob mob = (EntityMob) nearbyMobs.get(numMobs);
 
 			// Now change sanity according to what it is.
-			if (mob instanceof EntityEnderman)
+			if(mob instanceof EntityEnderman)
 			{
-
 				sanity.decrease(0.005f * modifier);
 			}
-
-			else if (mob instanceof EntityEvoker || mob instanceof EntityIllusionIllager
-					|| mob instanceof EntitySpellcasterIllager || mob instanceof EntityVindicator)
+			else if(mob instanceof EntityEvoker || mob instanceof EntityIllusionIllager || mob instanceof EntitySpellcasterIllager || mob instanceof EntityVindicator)
 			{
-
 				sanity.decrease(0.004f * modifier);
 			}
-
-			else if (mob instanceof EntityWither)
+			else if(mob instanceof EntityWither)
 			{
-
 				sanity.decrease(0.05f * modifier);
 			}
-
 			else
 			{
-
 				sanity.decrease(0.003f * modifier);
 			}
 		}
@@ -158,26 +146,20 @@ public class SanityModifier {
 		// Do the same for animals.
 		for (int numAnimals = 0; numAnimals < nearbyAnimals.size(); numAnimals++)
 		{
-
 			// Chosen animal
-			EntityAnimal animal = (EntityAnimal) nearbyAnimals.get(numAnimals);
+			EntityAnimal animal = (EntityAnimal)nearbyAnimals.get(numAnimals);
 
 			// Now change sanity according to what it is.
-			if (animal instanceof EntityWolf || animal instanceof EntityOcelot || animal instanceof EntityParrot)
+			if(animal instanceof EntityWolf || animal instanceof EntityOcelot || animal instanceof EntityParrot)
 			{
-
 				sanity.increase(0.005f * modifier);
 			}
-
-			else if (animal instanceof EntitySheep)
+			else if(animal instanceof EntitySheep)
 			{
-
 				sanity.increase(0.003f * modifier);
 			}
-
 			else
 			{
-
 				sanity.increase(0.002f * modifier);
 			}
 		}
@@ -194,15 +176,12 @@ public class SanityModifier {
 
 			// Now change sanity, unless it's just the player themselves, or a
 			// ghost.
-			if (otherPlayer != player && !ghost.isGhost())
+			if(otherPlayer != player && !ghost.status())
 			{
-
 				sanity.increase(0.003f * modifier);
 			}
-
-			else if (otherPlayer != player && ghost.isGhost())
+			else if(otherPlayer != player && ghost.status())
 			{
-
 				sanity.decrease(0.05f * modifier);
 			}
 		}

@@ -1,90 +1,58 @@
 package schoperation.schopcraft.cap.ghost;
 
 public class Ghost implements IGhost {
-
-	// Create ghost variables.
 	private boolean isGhost = false;
 	private float ghostEnergy = 0.00f;
 	private float maxGhostEnergy = 100.00f;
 	private float minGhostEnergy = 0.00f;
-
-	// Methods for messing with ghost status or getting it.
-	public void setGhost()
+	
+	@Override
+	public void create()
 	{
-
 		this.isGhost = true;
 	}
-
-	public void setAlive()
+	
+	@Override
+	public void resurrect()
 	{
-
 		this.isGhost = false;
 	}
-
-	public boolean isGhost()
+	
+	@Override
+	public boolean status()
 	{
-
 		return this.isGhost;
 	}
 
 	// Methods for messing with ghost energy or getting it.
-	public void increaseEnergy(float amount)
+	@Override
+	public void addEnergy(float amount)
 	{
-
 		this.ghostEnergy += amount;
-
-		if (this.ghostEnergy > this.maxGhostEnergy)
-		{
-
-			this.ghostEnergy = this.maxGhostEnergy;
-		}
-
-		else if (this.ghostEnergy < this.minGhostEnergy)
-		{
-
-			this.ghostEnergy = this.minGhostEnergy;
-		}
-	}
-
-	public void decreaseEnergy(float amount)
-	{
-
-		this.ghostEnergy -= amount;
-
-		if (this.ghostEnergy < this.minGhostEnergy)
-		{
-
-			this.ghostEnergy = this.minGhostEnergy;
-		}
-
-		else if (this.ghostEnergy > this.maxGhostEnergy)
-		{
-
-			this.ghostEnergy = this.maxGhostEnergy;
-		}
+		this.checkEnergy();
 	}
 
 	public void setEnergy(float amount)
 	{
-
 		this.ghostEnergy = amount;
-
-		if (this.ghostEnergy > this.maxGhostEnergy)
+		this.checkEnergy();
+	}
+	
+	protected void checkEnergy()
+	{
+		if(this.ghostEnergy > this.maxGhostEnergy)
 		{
-
 			this.ghostEnergy = this.maxGhostEnergy;
 		}
-
-		else if (this.ghostEnergy < this.minGhostEnergy)
+		
+		if(this.ghostEnergy < this.minGhostEnergy)
 		{
-
 			this.ghostEnergy = this.minGhostEnergy;
 		}
 	}
 
 	public float getEnergy()
 	{
-
 		return this.ghostEnergy;
 	}
 }

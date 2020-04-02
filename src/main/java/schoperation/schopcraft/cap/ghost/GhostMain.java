@@ -28,13 +28,12 @@ import schoperation.schopcraft.util.SchopServerSounds;
 import java.util.Iterator;
 import java.util.List;
 
-/*
+/**
  * On death, instead of respawning out of thin air, you'll become a ghost. You're quite limited on what you can do. You can't hold items, can't open GUIs, can't craft, etc.
  * However, you can't die (again). The other stats (temperature, thirst, etc.) stay constant, so don't worry about those. 
  * Instead, there's an energy bar that appears above the health + hunger bar. It's pretty much "ghost stamina", like the stuff they say in those ghost hunting shows ("Man, I'm feeling this energy!" "Use my energy!" "HOLY SH*T!!!!")
  * You can use that energy to move around quicker, or resurrect yourself. 
  */
-
 public class GhostMain {
 
 	// Mark the player as a ghost upon death.
@@ -45,11 +44,10 @@ public class GhostMain {
 		IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
 
 		// Make them a ghost (if enabled)
-		if (SchopConfig.MECHANICS.enableGhost)
+		if(SchopConfig.MECHANICS.enableGhost)
 		{
-
-			ghost.setGhost();
-
+			ghost.create();
+			
 			// Put them in adventure mode.
 			player.setGameType(GameType.ADVENTURE);
 		}
@@ -61,14 +59,13 @@ public class GhostMain {
 	// The main method.
 	public void onPlayerUpdate(EntityPlayer player)
 	{
-
 		// Capabilities.
 		IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
 		IThirst thirst = player.getCapability(ThirstProvider.THIRST_CAP, null);
 		ISanity sanity = player.getCapability(SanityProvider.SANITY_CAP, null);
 		ITemperature temperature = player.getCapability(TemperatureProvider.TEMPERATURE_CAP, null);
 		IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
-
+		
 		// Block position of player.
 		BlockPos pos = player.getPosition();
 
@@ -76,7 +73,7 @@ public class GhostMain {
 		String uuid = player.getCachedUniqueIdString();
 
 		// While the player is a ghost.
-		if (ghost.isGhost())
+		if (ghost.status())
 		{
 
 			// Constantly set the other values to default. Ghosts don't worry
@@ -97,34 +94,29 @@ public class GhostMain {
 			// Increases at night!
 			if (!player.world.isDaytime())
 			{
-
-				ghost.increaseEnergy(0.05f);
+				ghost.addEnergy(0.05f);
 			}
 
 			// Decreases while sprinting!
 			if (player.isSprinting())
 			{
-
-				ghost.decreaseEnergy(0.2f);
+				ghost.addEnergy(-0.2f);
 			}
-
+			
 			// Disable sprinting below 15, and re-enable it above 30.
-			if (ghost.getEnergy() < 15.0f)
+			if(ghost.getEnergy() < 15.0f)
 			{
-
 				player.getFoodStats().setFoodLevel(6);
 			}
 
-			else if (ghost.getEnergy() > 30.0f)
+			else if(ghost.getEnergy() > 30.0f)
 			{
-
 				player.getFoodStats().setFoodLevel(20);
 			}
 
 			// Manifest yourself with particles. Cheap, but cool.
-			if (ghost.getEnergy() >= 90.0f)
+			if(ghost.getEnergy() >= 90.0f)
 			{
-
 				SchopServerParticles.summonParticle(uuid, "GhostParticles", player.posX, player.posY, player.posZ);
 			}
 
@@ -342,7 +334,7 @@ public class GhostMain {
 		player.world.addWeatherEffect(lightning);
 
 		// Basic stuff
-		ghost.setAlive();
+		ghost.resurrect();
 		player.setGameType(GameType.SURVIVAL);
 		player.getFoodStats().setFoodLevel(10);
 		ghost.setEnergy(0.0f);
