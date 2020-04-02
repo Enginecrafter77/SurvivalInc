@@ -50,12 +50,12 @@ public class SchopCraft {
 		
 		Season.initSeasons();
 		
-		VitalStatType.HYDRATION.addSituationalModifier((EntityPlayer player) -> player.isInLava(), -0.5F);
-		VitalStatType.HYDRATION.addSituationalModifier((EntityPlayer player) -> player.dimension == -1, -0.006F);
-		VitalStatType.HYDRATION.addSituationalModifier((EntityPlayer player) -> player.world.rand.nextBoolean(), -0.003F);
+		VitalStatType.HYDRATION.addConditionalModifier((EntityPlayer player) -> player.isInLava(), -0.5F);
+		VitalStatType.HYDRATION.addConditionalModifier((EntityPlayer player) -> player.dimension == -1, -0.006F);
+		VitalStatType.HYDRATION.addConditionalModifier((EntityPlayer player) -> player.world.rand.nextBoolean(), -0.003F);
 		
-		VitalStatType.SANITY.addSituationalModifier((EntityPlayer player) -> !player.world.isDaytime() && !player.isPlayerSleeping(), -0.0015F);
-		VitalStatType.SANITY.addSituationalModifier(SanityModifier.isOutsideOverworld, -0.004F);
+		VitalStatType.SANITY.addConditionalModifier((EntityPlayer player) -> !player.world.isDaytime() && !player.isPlayerSleeping(), -0.0015F);
+		VitalStatType.SANITY.addConditionalModifier(SanityModifier.isOutsideOverworld, -0.004F);
 		VitalStatType.SANITY.situational_modifiers.add(SanityModifier::whenInDark);
 		VitalStatType.SANITY.situational_modifiers.add(SanityModifier::whenWet);
 	}

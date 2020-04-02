@@ -3,6 +3,7 @@ package schoperation.schopcraft.cap.vital;
 import java.util.HashMap;
 import net.minecraft.entity.player.EntityPlayer;
 
+//TODO DISTANT make map keys a common interface (VitalStatType would implement it, providing some basic values)
 public class VitalStatCarrier extends HashMap<VitalStatType, Float> implements VitalStat {
 	private static final long serialVersionUID = 7384655024432036857L;
 	
@@ -14,8 +15,10 @@ public class VitalStatCarrier extends HashMap<VitalStatType, Float> implements V
 	
 	@Override
 	public void modifyStat(VitalStatType stat, float amount)
-	{		
+	{
 		float value = this.getStat(stat) + amount;
+		if(value > stat.max) value = stat.max;
+		if(value < stat.min) value = stat.min;
 		this.setStat(stat, value);
 	}
 
@@ -35,7 +38,7 @@ public class VitalStatCarrier extends HashMap<VitalStatType, Float> implements V
 	public void updateStats(EntityPlayer player)
 	{
 		for(VitalStatType stat : VitalStatType.values())
-			this.modifyStat(stat, stat.perTickDifference(player));
+			this.modifyStat(stat, stat.calculateChange(player));
 	}
 
 	@Override

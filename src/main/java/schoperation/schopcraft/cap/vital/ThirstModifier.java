@@ -51,20 +51,17 @@ public class ThirstModifier {
 					
 					if(biome instanceof BiomeOcean || biome instanceof BiomeBeach)
 					{
-						stat.modifyStat(VitalStatType.HYDRATION, -0.5f);
+						stat.modifyStat(VitalStatType.HYDRATION, 0.5f);
 					}
 					else if(biome instanceof BiomeSwamp)
 					{
-						stat.modifyStat(VitalStatType.HYDRATION, -0.25f);
+						stat.modifyStat(VitalStatType.HYDRATION, 0.25f);
 						player.addPotionEffect(new PotionEffect(MobEffects.POISON, 12, 3, false, false));
 					}
 					else
 					{
-						stat.modifyStat(VitalStatType.HYDRATION, -0.4f);
-						
-						// Random chance to damage player
-						double randomNum = Math.random();
-						if(randomNum <= 0.50)
+						stat.modifyStat(VitalStatType.HYDRATION, 0.4f); 
+						if(Math.random() <= 0.50)
 							player.addPotionEffect(new PotionEffect(MobEffects.POISON, 12, 1, false, false));
 					}
 					
