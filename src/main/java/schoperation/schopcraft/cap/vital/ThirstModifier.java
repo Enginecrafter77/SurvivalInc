@@ -17,10 +17,6 @@ import net.minecraft.world.biome.BiomeOcean;
 import net.minecraft.world.biome.BiomeSwamp;
 import java.util.Iterator;
 
-/*
- * Where thirst is modified.
- */
-
 public class ThirstModifier {
 
 	public void onPlayerInteract(EntityPlayer player)

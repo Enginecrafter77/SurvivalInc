@@ -13,7 +13,7 @@ import schoperation.schopcraft.CommonProxy;
 import schoperation.schopcraft.SchopCraft;
 import schoperation.schopcraft.packet.ConfigPacket;
 
-@Config(modid = SchopCraft.MOD_ID, name = "SchopCraft/" + SchopCraft.MOD_NAME, category = "")
+@Config(modid = SchopCraft.MOD_ID, name = SchopCraft.MOD_ID, category = "")
 public class SchopConfig {
 
 	// The values in the config file. Add on more as needed.
@@ -36,11 +36,9 @@ public class SchopConfig {
 		@SubscribeEvent
 		public static void onConfigChanged(final ConfigChangedEvent.OnConfigChangedEvent event)
 		{
-
 			// Make sure it's the right mod.
 			if (event.getModID().equals(SchopCraft.MOD_ID))
 			{
-
 				ConfigManager.sync(SchopCraft.MOD_ID, Config.Type.INSTANCE);
 			}
 		}
@@ -48,13 +46,11 @@ public class SchopConfig {
 		@SubscribeEvent
 		public static void onLogin(PlayerLoggedInEvent event)
 		{
-
 			// Player instance
 			EntityPlayer player = event.player;
 
 			if (player instanceof EntityPlayerMP)
 			{
-
 				// Send server config values to the client. This will not affect
 				// the client's config file; it's temporary stuff.
 				IMessage msg = new ConfigPacket.ConfigMessage(SchopConfig.MECHANICS.enableGhost,

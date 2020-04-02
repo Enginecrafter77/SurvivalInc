@@ -2,10 +2,8 @@ package schoperation.schopcraft.cap.vital;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.boss.EntityWither;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.monster.*;
-import net.minecraft.entity.passive.*;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
@@ -13,12 +11,8 @@ import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import schoperation.schopcraft.CommonProxy;
-import schoperation.schopcraft.cap.ghost.GhostProvider;
-import schoperation.schopcraft.cap.ghost.IGhost;
 import schoperation.schopcraft.cap.wetness.IWetness;
 import schoperation.schopcraft.cap.wetness.WetnessProvider;
 import schoperation.schopcraft.config.SchopConfig;
@@ -27,6 +21,7 @@ import schoperation.schopcraft.packet.SummonInfoPacket;
 import schoperation.schopcraft.util.SchopServerEffects;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 /*
  * Where sanity is modified.
@@ -39,152 +34,39 @@ public class SanityModifier {
 	// The other is for spawning "Them".
 	private int lucidTimer = 0;
 	private int spawnThemTimer = 0;
-
-	public void onPlayerUpdate(Entity player)
+	
+	public static final Predicate<EntityPlayer> isOutsideOverworld = (EntityPlayer player) -> Math.abs(player.dimension) == 1;
+	
+	public static float whenInDark(EntityPlayer player)
+	{
+		// If we are not in overworld, skip this function
+		if(isOutsideOverworld.test(player)) return 0F;
+		int lightlevel = player.world.getLight(player.getPosition());
+		// If there is enough light, steve/alex is happy
+		if(lightlevel >= SchopConfig.MECHANICS.comfortLightLevel) return 0F;
+		float darknesslevel = (float)(SchopConfig.MECHANICS.comfortLightLevel - lightlevel) / (float)SchopConfig.MECHANICS.comfortLightLevel;
+		return (float)SchopConfig.MECHANICS.darkSpookFactorBase * -darknesslevel;
+	}
+	
+	public static float whenWet(EntityPlayer player)
+	{
+		float boundary = (float)SchopConfig.MECHANICS.minAnnoyingWetness;
+		IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
+		float annoyance = (wetness.getMaxWetness() - wetness.getWetness()) / 10000;
+		annoyance = (boundary / -10000) - annoyance;
+		return wetness.getWetness() < boundary ? 0F : annoyance;
+	}
+	
+	public void onPlayerUpdate(Entity dummy)
 	{
 		// Capabilities
-		VitalStat stats = player.getCapability(VitalStatProvider.VITAL_CAP, null);
-		IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
-
-		// Block position of player.
-		BlockPos playerPos = player.getPosition();
+		VitalStat stats = dummy.getCapability(VitalStatProvider.VITAL_CAP, null);
 
 		// ACTUAL position of player.
-		double playerPosX = player.posX;
-		double playerPosY = player.posY;
-		double playerPosZ = player.posZ;
-
-		// Lists of entities near the player.
-		AxisAlignedBB boundingBox = player.getEntityBoundingBox().grow(7, 2, 7);
-		AxisAlignedBB boundingBoxPlayers = player.getEntityBoundingBox().grow(4, 2, 4);
-		List<EntityMob> nearbyMobs = player.world.getEntitiesWithinAABB(EntityMob.class, boundingBox);
-		List<EntityAnimal> nearbyAnimals = player.world.getEntitiesWithinAABB(EntityAnimal.class, boundingBox);
-		List<EntityPlayer> nearbyPlayers = player.world.getEntitiesWithinAABB(EntityPlayer.class, boundingBoxPlayers);
-		List<EntityVillager> nearbyVillagers = player.world.getEntitiesWithinAABB(EntityVillager.class, boundingBoxPlayers);
-
-		// Modifier from config
-		float modifier = (float) SchopConfig.MECHANICS.sanityScale;
-
-		// Being awake late at night is only for crazy people and college
-		// students.
-		if (!player.world.isDaytime() && playerPosY >= player.world.getSeaLevel())
-		{
-			stats.modifyStat(VitalStatType.SANITY, -0.0015f * modifier);
-		}
-
-		// Being in the nether or the end isn't too sane.
-		if (player.dimension == -1 || player.dimension == 1)
-		{
-
-			stats.modifyStat(VitalStatType.SANITY, -0.004f * modifier);
-		}
-
-		// Constant drain in caves... because why not!
-		if (playerPosY <= (player.world.getSeaLevel() - 15))
-		{
-			stats.modifyStat(VitalStatType.SANITY, -0.0015f * modifier);
-		}
-
-		// Being in the dark in general, is pretty spooky.
-		if (player.world.getLight(playerPos, true) < 2 && player.dimension != -1 && player.dimension != 1)
-		{
-			stats.modifyStat(VitalStatType.SANITY, -0.08f * modifier);
-		}
-
-		else if (player.world.getLight(playerPos, true) < 4 && player.dimension != -1 && player.dimension != 1)
-		{
-			stats.modifyStat(VitalStatType.SANITY, -0.04f * modifier);
-		}
-
-		else if (player.world.getLight(playerPos, true) < 7 && player.dimension != -1 && player.dimension != 1 && (playerPosY <= player.world.getSeaLevel()))
-		{
-			stats.modifyStat(VitalStatType.SANITY, -0.02f * modifier);
-		}
-
-		// Being drenched for a long time won't do you good.
-		if(wetness.getWetness() > 90.0f)
-		{
-			stats.modifyStat(VitalStatType.SANITY, -0.003f * modifier);
-		}
-		else if(wetness.getWetness() > 70.0f)
-		{
-			stats.modifyStat(VitalStatType.SANITY, -0.001f * modifier);
-		}
-
-		// Now iterate through each mob that appears on the list of nearby mobs.
-		for (int numMobs = 0; numMobs < nearbyMobs.size(); numMobs++)
-		{
-			// Chosen mob
-			EntityMob mob = (EntityMob) nearbyMobs.get(numMobs);
-
-			// Now change sanity according to what it is.
-			if(mob instanceof EntityEnderman)
-			{
-				stats.modifyStat(VitalStatType.SANITY, -0.005f * modifier);
-			}
-			else if(mob instanceof EntityEvoker || mob instanceof EntityIllusionIllager || mob instanceof EntitySpellcasterIllager || mob instanceof EntityVindicator)
-			{
-				stats.modifyStat(VitalStatType.SANITY, -0.004f * modifier);
-			}
-			else if(mob instanceof EntityWither)
-			{
-				stats.modifyStat(VitalStatType.SANITY, -0.05f * modifier);
-			}
-			else
-			{
-				stats.modifyStat(VitalStatType.SANITY, -0.003f * modifier);
-			}
-		}
-
-		// Do the same for animals.
-		for (int numAnimals = 0; numAnimals < nearbyAnimals.size(); numAnimals++)
-		{
-			// Chosen animal
-			EntityAnimal animal = (EntityAnimal)nearbyAnimals.get(numAnimals);
-
-			// Now change sanity according to what it is.
-			if(animal instanceof EntityWolf || animal instanceof EntityOcelot || animal instanceof EntityParrot)
-			{
-				stats.modifyStat(VitalStatType.SANITY, 0.005f * modifier);
-			}
-			else if(animal instanceof EntitySheep)
-			{
-				stats.modifyStat(VitalStatType.SANITY, 0.003f * modifier);
-			}
-			else
-			{
-				stats.modifyStat(VitalStatType.SANITY, 0.002f * modifier);
-			}
-		}
-
-		// And for players.
-		for (int numPlayers = 0; numPlayers < nearbyPlayers.size(); numPlayers++)
-		{
-
-			// Chosen player
-			EntityPlayerMP otherPlayer = (EntityPlayerMP) nearbyPlayers.get(numPlayers);
-
-			// Ghost capability of other player.
-			IGhost ghost = otherPlayer.getCapability(GhostProvider.GHOST_CAP, null);
-
-			// Now change sanity, unless it's just the player themselves, or a
-			// ghost.
-			if(otherPlayer != player && !ghost.status())
-			{
-				stats.modifyStat(VitalStatType.SANITY, 0.003f * modifier);
-			}
-			else if(otherPlayer != player && ghost.status())
-			{
-				stats.modifyStat(VitalStatType.SANITY, -0.05f * modifier);
-			}
-		}
-
-		// Villagers are nice as well.
-		for (int numVillagers = 0; numVillagers < nearbyVillagers.size(); numVillagers++)
-		{
-			stats.modifyStat(VitalStatType.SANITY, 0.003f * modifier);
-		}
-
+		double playerPosX = dummy.posX;
+		double playerPosY = dummy.posY;
+		double playerPosZ = dummy.posZ;
+		
 		// ===========================================================================
 		// The Side Effects of Insanity
 		// ===========================================================================
@@ -241,60 +123,60 @@ public class SanityModifier {
 					if (pickAHallucination >= 0 && pickAHallucination < 0.10)
 					{
 
-						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(player.getCachedUniqueIdString(),
+						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(dummy.getCachedUniqueIdString(),
 								"EndermanSound", "EndermanParticles", playerPosX + randOffset, playerPosY + 1,
 								playerPosZ + randOffset);
-						CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) player);
+						CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) dummy);
 					}
 
 					// Zombie sound
 					else if (pickAHallucination >= 0.10 && pickAHallucination < 0.20)
 					{
 
-						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(player.getCachedUniqueIdString(),
+						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(dummy.getCachedUniqueIdString(),
 								"ZombieSound", "null", playerPosX + randOffset, playerPosY + randOffset,
 								playerPosZ + randOffset);
-						CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) player);
+						CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) dummy);
 					}
 
 					// Ghast sound
 					else if (pickAHallucination >= 0.20 && pickAHallucination < 0.30)
 					{
 
-						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(player.getCachedUniqueIdString(),
+						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(dummy.getCachedUniqueIdString(),
 								"GhastSound", "null", playerPosX + randOffset, playerPosY + randOffset,
 								playerPosZ + randOffset);
-						CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) player);
+						CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) dummy);
 					}
 
 					// Explosion sound + particles
 					else if (pickAHallucination >= 0.30 && pickAHallucination < 0.40)
 					{
 
-						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(player.getCachedUniqueIdString(),
+						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(dummy.getCachedUniqueIdString(),
 								"ExplosionSound", "ExplosionParticles", playerPosX + randOffset,
 								playerPosY + randOffset, playerPosZ + randOffset);
-						CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) player);
+						CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) dummy);
 					}
 
 					// Stone sound
 					else if (pickAHallucination >= 0.40 && pickAHallucination < 0.50)
 					{
 
-						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(player.getCachedUniqueIdString(),
+						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(dummy.getCachedUniqueIdString(),
 								"StoneBreakSound", "null", playerPosX + randOffset, playerPosY + randOffset,
 								playerPosZ + randOffset);
-						CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) player);
+						CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) dummy);
 					}
 
 					// Mist in the air... tf???????
 					else if (pickAHallucination >= 0.50 && pickAHallucination < 0.60)
 					{
 
-						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(player.getCachedUniqueIdString(),
+						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(dummy.getCachedUniqueIdString(),
 								"null", "CreepyMistParticles", playerPosX + randOffset, playerPosY + 1,
 								playerPosZ + randOffset);
-						CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) player);
+						CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) dummy);
 					}
 
 					// A guardian appearing in your face. This one still scares
@@ -302,39 +184,39 @@ public class SanityModifier {
 					else if (pickAHallucination >= 0.60 && pickAHallucination < 0.70)
 					{
 
-						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(player.getCachedUniqueIdString(),
+						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(dummy.getCachedUniqueIdString(),
 								"null", "GuardianParticles", playerPosX, playerPosY, playerPosZ);
-						CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) player);
+						CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) dummy);
 					}
 
 					// Fire sounds + smoke particles
 					else if (pickAHallucination >= 0.70 && pickAHallucination < 0.80)
 					{
 
-						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(player.getCachedUniqueIdString(),
+						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(dummy.getCachedUniqueIdString(),
 								"FireSound", "SmokeParticles", playerPosX + randOffset, playerPosY + randOffset,
 								playerPosZ + randOffset);
-						CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) player);
+						CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) dummy);
 					}
 
 					// A�villager sound... are they lost?
 					else if (pickAHallucination >= 0.80 && pickAHallucination < 0.90)
 					{
 
-						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(player.getCachedUniqueIdString(),
+						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(dummy.getCachedUniqueIdString(),
 								"VillagerSound", "null", playerPosX + randOffset, playerPosY + randOffset,
 								playerPosZ + randOffset);
-						CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) player);
+						CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) dummy);
 					}
 
 					// Lava sound
 					else if (pickAHallucination >= 0.90 && pickAHallucination <= 1.00)
 					{
 
-						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(player.getCachedUniqueIdString(),
+						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(dummy.getCachedUniqueIdString(),
 								"LavaSound", "null", playerPosX + randOffset, playerPosY + randOffset,
 								playerPosZ + randOffset);
-						CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) player);
+						CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) dummy);
 					}
 				}
 			}
@@ -350,7 +232,7 @@ public class SanityModifier {
 			if(stats.getStat(VitalStatType.SANITY) <= (VitalStatType.SANITY.max * 0.35))
 			{
 
-				SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "nausea", 100, 5, false, false);
+				SchopServerEffects.affectPlayer(dummy.getCachedUniqueIdString(), "nausea", 100, 5, false, false);
 			}
 
 			// Add some weird insanity ambiance.
@@ -363,9 +245,9 @@ public class SanityModifier {
 				if (randInsanityAmbience < 0.20)
 				{
 
-					IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(player.getCachedUniqueIdString(),
+					IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(dummy.getCachedUniqueIdString(),
 							"InsanityAmbienceSoundLoud", "null", playerPosX, playerPosY, playerPosZ);
-					CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) player);
+					CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) dummy);
 				}
 			}
 			else if(stats.getStat(VitalStatType.SANITY) <= (VitalStatType.SANITY.max * 0.50))
@@ -377,9 +259,9 @@ public class SanityModifier {
 				if (randInsanityAmbience < 0.20)
 				{
 
-					IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(player.getCachedUniqueIdString(),
+					IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(dummy.getCachedUniqueIdString(),
 							"InsanityAmbienceSound", "null", playerPosX, playerPosY, playerPosZ);
-					CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) player);
+					CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) dummy);
 				}
 			}
 
@@ -405,7 +287,7 @@ public class SanityModifier {
 				}
 
 				// Instance of Them
-				EntityEnderman them = new EntityEnderman(player.world);
+				EntityEnderman them = new EntityEnderman(dummy.world);
 
 				// Position Them
 				them.setLocationAndAngles(playerPosX + randOffsetToSummonThem, playerPosY + 2,
@@ -415,13 +297,13 @@ public class SanityModifier {
 				them.addPotionEffect(new PotionEffect(MobEffects.INVISIBILITY, 212121, 1, false, false));
 
 				// Aggroe Them
-				them.setAttackTarget((EntityLivingBase) player);
+				them.setAttackTarget((EntityLivingBase) dummy);
 
 				// Add to the "entity limit"... Them
 				them.preventEntitySpawning = true;
 
 				// Summon Them
-				player.world.spawnEntity(them);
+				dummy.world.spawnEntity(them);
 			}
 			else if(stats.getStat(VitalStatType.SANITY) <= (VitalStatType.SANITY.max * 0.50))
 			{
@@ -440,7 +322,7 @@ public class SanityModifier {
 				{
 
 					// Instance of Them
-					EntityEnderman them = new EntityEnderman(player.world);
+					EntityEnderman them = new EntityEnderman(dummy.world);
 
 					// Affect Them
 					them.addPotionEffect(new PotionEffect(MobEffects.INVISIBILITY, 212121, 1, false, false));
@@ -453,7 +335,7 @@ public class SanityModifier {
 					them.preventEntitySpawning = true;
 
 					// Summon Them
-					player.world.spawnEntity(them);
+					dummy.world.spawnEntity(them);
 				}
 			}
 		}

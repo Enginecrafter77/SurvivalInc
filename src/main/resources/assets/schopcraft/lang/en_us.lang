@@ -68,6 +68,10 @@ config.schopcraft:mechanics.sanityScale=Sanity Rate
 config.schopcraft:mechanics.sanityScale.tooltip=The rate at which a player goes sane and insane.
 config.schopcraft:mechanics.wetnessScale=Drench Rate
 config.schopcraft:mechanics.wetnessScale.tooltip=The rate at which a player gets drenched and dries off.
+config.schopcraft:mechanics.minAnnoyingWetness=Wetness Annoyance
+config.schopcraft:mechanics.minAnnoyingWetness.tooltip=The minimal level of wetness that starts to be annoying to the character, thus losing sanity.
+config.schopcraft:mechanics.darkSpookFactorBase=Dark Spookiness Base
+config.schopcraft:mechanics.darkSpookFactorBase.tooltip=The rate at which light level of 0 takes your sanity per tick.
 
 schopcraft.seasons=Seasons
 schopcraft.seasons.tooltip=Settings with the seasons.
