@@ -1,4 +1,4 @@
-package schoperation.schopcraft.cap.vital;
+package schoperation.schopcraft.cap.stat;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -60,7 +60,7 @@ public class SanityModifier {
 	public void onPlayerUpdate(Entity dummy)
 	{
 		// Capabilities
-		VitalStat stats = dummy.getCapability(VitalStatProvider.VITAL_CAP, null);
+		StatTracker stats = dummy.getCapability(StatRegister.CAPABILITY, null);
 
 		// ACTUAL position of player.
 		double playerPosX = dummy.posX;
@@ -93,11 +93,11 @@ public class SanityModifier {
 
 			// There'll only be hallucinations for players with less than 70% of
 			// their sanity.
-			if(stats.getStat(VitalStatType.SANITY) <= (VitalStatType.SANITY.max * 0.7))
+			if(stats.getStat(DefaultStats.SANITY) <= (DefaultStats.SANITY.max * 0.7))
 			{
 
 				// Determine if a hallucination should appear.
-				double chanceOfHallucination = (double) (stats.getStat(VitalStatType.SANITY) / 100) + 0.3;
+				double chanceOfHallucination = (double) (stats.getStat(DefaultStats.SANITY) / 100) + 0.3;
 				double randomLucidNumber = Math.random();
 				boolean shouldSpawnHallucination = chanceOfHallucination < randomLucidNumber;
 
@@ -229,14 +229,14 @@ public class SanityModifier {
 			// Also, They may come and attack you.
 
 			// Make the screen of the insane player wobble.
-			if(stats.getStat(VitalStatType.SANITY) <= (VitalStatType.SANITY.max * 0.35))
+			if(stats.getStat(DefaultStats.SANITY) <= (DefaultStats.SANITY.max * 0.35))
 			{
 
 				SchopServerEffects.affectPlayer(dummy.getCachedUniqueIdString(), "nausea", 100, 5, false, false);
 			}
 
 			// Add some weird insanity ambiance.
-			if(stats.getStat(VitalStatType.SANITY) <= (VitalStatType.SANITY.max * 0.20))
+			if(stats.getStat(DefaultStats.SANITY) <= (DefaultStats.SANITY.max * 0.20))
 			{
 
 				// Random chance so it doesn't overlap with itself.
@@ -250,7 +250,7 @@ public class SanityModifier {
 					CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) dummy);
 				}
 			}
-			else if(stats.getStat(VitalStatType.SANITY) <= (VitalStatType.SANITY.max * 0.50))
+			else if(stats.getStat(DefaultStats.SANITY) <= (DefaultStats.SANITY.max * 0.50))
 			{
 
 				// Random chance so it doesn't overlap with itself.
@@ -271,7 +271,7 @@ public class SanityModifier {
 			// to gather near black holes void of sanity.
 			// If the player's sanity is really low, spawn a bunch of "Them" and
 			// make "Them" attack the player.
-			if ((stats.getStat(VitalStatType.SANITY) <= (VitalStatType.SANITY.max * 0.15)) && spawnThemTimer >= 15)
+			if ((stats.getStat(DefaultStats.SANITY) <= (DefaultStats.SANITY.max * 0.15)) && spawnThemTimer >= 15)
 			{
 
 				// Random numbers... gotta love random numbers.
@@ -305,7 +305,7 @@ public class SanityModifier {
 				// Summon Them
 				dummy.world.spawnEntity(them);
 			}
-			else if(stats.getStat(VitalStatType.SANITY) <= (VitalStatType.SANITY.max * 0.50))
+			else if(stats.getStat(DefaultStats.SANITY) <= (DefaultStats.SANITY.max * 0.50))
 			{
 
 				// Random numbers... YEE
@@ -346,7 +346,7 @@ public class SanityModifier {
 	public void onPlayerConsumeItem(EntityPlayer player, ItemStack item)
 	{
 		// Capability
-		VitalStat stats = player.getCapability(VitalStatProvider.VITAL_CAP, null);
+		StatTracker stats = player.getCapability(StatRegister.CAPABILITY, null);
 
 		// Number of items
 		int amount = item.getCount();
@@ -354,81 +354,81 @@ public class SanityModifier {
 		// If raw or bad food, drain sanity.
 		if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.CHICKEN, amount)))
 		{
-			stats.modifyStat(VitalStatType.SANITY, -5.0f);
+			stats.modifyStat(DefaultStats.SANITY, -5.0f);
 		}
 		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.BEEF, amount)))
 		{
-			stats.modifyStat(VitalStatType.SANITY, -5.0f);
+			stats.modifyStat(DefaultStats.SANITY, -5.0f);
 		}
 		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.RABBIT, amount)))
 		{
-			stats.modifyStat(VitalStatType.SANITY, -5.0f);
+			stats.modifyStat(DefaultStats.SANITY, -5.0f);
 		}
 		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.MUTTON, amount)))
 		{
-			stats.modifyStat(VitalStatType.SANITY, -5.0f);
+			stats.modifyStat(DefaultStats.SANITY, -5.0f);
 		}
 		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.PORKCHOP, amount)))
 		{
-			stats.modifyStat(VitalStatType.SANITY, -5.0f);
+			stats.modifyStat(DefaultStats.SANITY, -5.0f);
 		}
 		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.FISH, amount)))
 		{
-			stats.modifyStat(VitalStatType.SANITY, -5.0f);
+			stats.modifyStat(DefaultStats.SANITY, -5.0f);
 		}
 		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.ROTTEN_FLESH, amount)))
 		{
-			stats.modifyStat(VitalStatType.SANITY, -10.0f);
+			stats.modifyStat(DefaultStats.SANITY, -10.0f);
 		}
 		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.SPIDER_EYE, amount)))
 		{
-			stats.modifyStat(VitalStatType.SANITY, -15.0f);
+			stats.modifyStat(DefaultStats.SANITY, -15.0f);
 		}
 
 		// If cooked or good food, increase sanity.
 		if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.COOKED_CHICKEN, amount)))
 		{
-			stats.modifyStat(VitalStatType.SANITY, 2.0f);
+			stats.modifyStat(DefaultStats.SANITY, 2.0f);
 		}
 		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.COOKED_BEEF, amount)))
 		{
-			stats.modifyStat(VitalStatType.SANITY, 2.0f);
+			stats.modifyStat(DefaultStats.SANITY, 2.0f);
 		}
 		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.COOKED_RABBIT, amount)))
 		{
-			stats.modifyStat(VitalStatType.SANITY, 2.0f);
+			stats.modifyStat(DefaultStats.SANITY, 2.0f);
 		}
 		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.COOKED_MUTTON, amount)))
 		{
-			stats.modifyStat(VitalStatType.SANITY, 2.0f);
+			stats.modifyStat(DefaultStats.SANITY, 2.0f);
 		}
 		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.COOKED_PORKCHOP, amount)))
 		{
-			stats.modifyStat(VitalStatType.SANITY, 2.0f);
+			stats.modifyStat(DefaultStats.SANITY, 2.0f);
 		}
 		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.COOKED_FISH, amount)))
 		{
-			stats.modifyStat(VitalStatType.SANITY, 2.0f);
+			stats.modifyStat(DefaultStats.SANITY, 2.0f);
 		}
 		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.PUMPKIN_PIE, amount)))
 		{
-			stats.modifyStat(VitalStatType.SANITY, 15.0f);
+			stats.modifyStat(DefaultStats.SANITY, 15.0f);
 		}
 		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.COOKIE, amount)))
 		{
-			stats.modifyStat(VitalStatType.SANITY, 2.0f);
+			stats.modifyStat(DefaultStats.SANITY, 2.0f);
 		}
 		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.RABBIT_STEW, amount)))
 		{
-			stats.modifyStat(VitalStatType.SANITY, 15.0f);
+			stats.modifyStat(DefaultStats.SANITY, 15.0f);
 		}
 		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.MUSHROOM_STEW, amount)))
 		{
-			stats.modifyStat(VitalStatType.SANITY, 10.0f);
+			stats.modifyStat(DefaultStats.SANITY, 10.0f);
 		}
 		else if (ItemStack.areItemStacksEqual(item, new ItemStack(Items.BEETROOT_SOUP, amount)))
 		{
-			stats.modifyStat(VitalStatType.SANITY, 10.0f);
+			stats.modifyStat(DefaultStats.SANITY, 10.0f);
 		}
 	}
 
@@ -437,8 +437,8 @@ public class SanityModifier {
 	// This method alone doesn't run for too long on singleplayer.
 	public void onPlayerSleepInBed(EntityPlayer player)
 	{
-		VitalStat stats = player.getCapability(VitalStatProvider.VITAL_CAP, null);
-		stats.modifyStat(VitalStatType.SANITY, 0.004f);
+		StatTracker stats = player.getCapability(StatRegister.CAPABILITY, null);
+		stats.modifyStat(DefaultStats.SANITY, 0.004f);
 		// Induce some hunger.
 		SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "hunger", 20, 4, false, false);
 	}
@@ -447,12 +447,12 @@ public class SanityModifier {
 	// Figure out if it is daytime (the sleep is successful). If so, grant extra sanity and drain extra hunger.
 	public void onPlayerWakeUp(EntityPlayer player)
 	{
-		VitalStat stats = player.getCapability(VitalStatProvider.VITAL_CAP, null);
+		StatTracker stats = player.getCapability(StatRegister.CAPABILITY, null);
 		
 		// Is it daytime? If not, the player just clicked "Leave Bed" or something related to try to cheat the system (and might've succeeded).
 		if(player.world.getWorldTime() % 24000 >= 0)
 		{
-			stats.modifyStat(VitalStatType.SANITY, 33F);
+			stats.modifyStat(DefaultStats.SANITY, 33F);
 			// Make player hungry for breakfast (or something...).
 			player.getFoodStats().setFoodLevel(player.getFoodStats().getFoodLevel() - 8);
 		}
@@ -461,23 +461,20 @@ public class SanityModifier {
 	// As we know, They will spawn near insane players. They should drop lucid dream essence when killed.
 	public void onDropsDropped(Entity entityKilled, List<EntityItem> drops, int lootingLevel, DamageSource damageSource)
 	{
-
 		// Was this mob killed by a player? (and server-side).
 		if (damageSource.getDamageType().equals("player") && !entityKilled.world.isRemote)
 		{
-
 			// Instance of player
 			EntityPlayer player = (EntityPlayer) damageSource.getTrueSource();
 
 			// Capability
-			VitalStat stats = player.getCapability(VitalStatProvider.VITAL_CAP, null);
+			StatTracker stats = player.getCapability(StatRegister.CAPABILITY, null);
 
 			// Was the victim an enderman? or Them?
-			if (entityKilled instanceof EntityEnderman)
+			if(entityKilled instanceof EntityEnderman)
 			{
-
 				// Now, was the player insane (or insane enough)?
-				if(stats.getStat(VitalStatType.SANITY) <= (VitalStatType.SANITY.max * 0.50))
+				if(stats.getStat(DefaultStats.SANITY) <= (DefaultStats.SANITY.max * 0.50))
 				{
 					drops.add(new EntityItem(player.world, entityKilled.posX, entityKilled.posY, entityKilled.posZ, new ItemStack(ModItems.LUCID_DREAM_ESSENCE.get(), 1)));
 					
@@ -503,7 +500,7 @@ public class SanityModifier {
 				}
 
 				// The player regains sanity for killing one of their fears.
-				stats.modifyStat(VitalStatType.SANITY, 15F);
+				stats.modifyStat(DefaultStats.SANITY, 15F);
 			}
 		}
 	}

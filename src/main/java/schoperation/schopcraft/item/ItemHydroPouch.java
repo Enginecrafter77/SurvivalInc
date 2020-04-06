@@ -21,9 +21,9 @@ import net.minecraft.world.biome.*;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import schoperation.schopcraft.SchopCraft;
-import schoperation.schopcraft.cap.vital.VitalStat;
-import schoperation.schopcraft.cap.vital.VitalStatProvider;
-import schoperation.schopcraft.cap.vital.VitalStatType;
+import schoperation.schopcraft.cap.stat.StatTracker;
+import schoperation.schopcraft.cap.stat.StatRegister;
+import schoperation.schopcraft.cap.stat.DefaultStats;
 import schoperation.schopcraft.config.SchopConfig;
 import schoperation.schopcraft.util.SchopServerEffects;
 import schoperation.schopcraft.util.SchopServerParticles;
@@ -72,34 +72,34 @@ public class ItemHydroPouch extends Item {
 			int canteenType = stack.getMetadata();
 
 			// Capabilities
-			VitalStat stats = entityLiving.getCapability(VitalStatProvider.VITAL_CAP, null);
+			StatTracker stats = entityLiving.getCapability(StatRegister.CAPABILITY, null);
 
 			// Determine type of water, and quench thirst accordingly.
 			// Fresh water
 			if (canteenType == 1)
 			{
-				stats.modifyStat(VitalStatType.HYDRATION, 20F);
-				stats.modifyStat(VitalStatType.SANITY, 10F);
+				stats.modifyStat(DefaultStats.HYDRATION, 20F);
+				stats.modifyStat(DefaultStats.SANITY, 10F);
 				//temperature.decrease(10f);
 			}
 			// Dirty water
 			else if (canteenType == 2)
 			{
-				stats.modifyStat(VitalStatType.HYDRATION, 10F);
-				stats.modifyStat(VitalStatType.SANITY, -5F);
+				stats.modifyStat(DefaultStats.HYDRATION, 10F);
+				stats.modifyStat(DefaultStats.SANITY, -5F);
 				SchopServerEffects.affectPlayer(uuid, "poison", 50, 2, false, false);
 			}
 			// Salt water
 			else if (canteenType == 3)
 			{
-				stats.modifyStat(VitalStatType.HYDRATION, -20F);
-				stats.modifyStat(VitalStatType.SANITY, -10F);
+				stats.modifyStat(DefaultStats.HYDRATION, -20F);
+				stats.modifyStat(DefaultStats.SANITY, -10F);
 			}
 			// Filtered water
 			else if(canteenType == 4)
 			{
-				stats.modifyStat(VitalStatType.HYDRATION, 15F);
-				stats.modifyStat(VitalStatType.SANITY, 5F);
+				stats.modifyStat(DefaultStats.HYDRATION, 15F);
+				stats.modifyStat(DefaultStats.SANITY, 5F);
 				if(Math.random() < 0.25)
 				{
 					SchopServerEffects.affectPlayer(uuid, "poison", 50, 0, false, false);
@@ -108,8 +108,8 @@ public class ItemHydroPouch extends Item {
 			// Cold water
 			else if (canteenType == 5)
 			{
-				stats.modifyStat(VitalStatType.HYDRATION, 15F);
-				stats.modifyStat(VitalStatType.SANITY, 5F);
+				stats.modifyStat(DefaultStats.HYDRATION, 15F);
+				stats.modifyStat(DefaultStats.SANITY, 5F);
 				//temperature.decrease(15f);
 				if(Math.random() < 0.25)
 				{

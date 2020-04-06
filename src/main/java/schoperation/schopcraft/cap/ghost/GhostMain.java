@@ -11,9 +11,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.GameType;
-import schoperation.schopcraft.cap.vital.VitalStat;
-import schoperation.schopcraft.cap.vital.VitalStatProvider;
-import schoperation.schopcraft.cap.vital.VitalStatType;
+import schoperation.schopcraft.cap.stat.StatTracker;
+import schoperation.schopcraft.cap.stat.StatRegister;
+import schoperation.schopcraft.cap.stat.DefaultStats;
 import schoperation.schopcraft.cap.wetness.IWetness;
 import schoperation.schopcraft.cap.wetness.WetnessProvider;
 import schoperation.schopcraft.config.SchopConfig;
@@ -58,7 +58,7 @@ public class GhostMain {
 	{
 		// Capabilities.
 		IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
-		VitalStat stat = player.getCapability(VitalStatProvider.VITAL_CAP, null);
+		StatTracker stat = player.getCapability(StatRegister.CAPABILITY, null);
 		IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
 		
 		// Block position of player.
@@ -73,8 +73,8 @@ public class GhostMain {
 
 			// Constantly set the other values to default. Ghosts don't worry about that crap.
 			wetness.set(0.0f);
-			stat.setStat(VitalStatType.HYDRATION, 100F);
-			stat.setStat(VitalStatType.SANITY, 100F);
+			stat.setStat(DefaultStats.HYDRATION, 100F);
+			stat.setStat(DefaultStats.SANITY, 100F);
 			//stat.setStat(VitalStatType.HEAT, 100F);
 			
 			// Give ghosts invisibility and invincibility.
@@ -317,7 +317,7 @@ public class GhostMain {
 	{
 		// Capabilities
 		IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
-		VitalStat stat = player.getCapability(VitalStatProvider.VITAL_CAP, null);
+		StatTracker stat = player.getCapability(StatRegister.CAPABILITY, null);
 		IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
 
 		// Summon lightning on the player.
@@ -332,8 +332,8 @@ public class GhostMain {
 
 		// Reset stats
 		//stat.setStat(VitalStatType.HEAT, 50F);
-		stat.setStat(VitalStatType.HYDRATION, 75F);
-		stat.setStat(VitalStatType.SANITY, 60F);
+		stat.setStat(DefaultStats.HYDRATION, 75F);
+		stat.setStat(DefaultStats.SANITY, 60F);
 		wetness.set(0.0f);
 
 		// The lucid block is used up. Delete it.

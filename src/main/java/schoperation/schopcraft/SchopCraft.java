@@ -15,8 +15,10 @@ import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import schoperation.schopcraft.cap.vital.SanityModifier;
-import schoperation.schopcraft.cap.vital.VitalStatType;
+import schoperation.schopcraft.cap.stat.SanityModifier;
+import schoperation.schopcraft.cap.stat.StatRegistry;
+import schoperation.schopcraft.config.SchopConfig;
+import schoperation.schopcraft.cap.stat.DefaultStats;
 import schoperation.schopcraft.lib.ModItems;
 import schoperation.schopcraft.season.Season;
 
@@ -50,14 +52,22 @@ public class SchopCraft {
 		
 		Season.initSeasons();
 		
-		VitalStatType.HYDRATION.addConditionalModifier((EntityPlayer player) -> player.isInLava(), -0.5F);
-		VitalStatType.HYDRATION.addConditionalModifier((EntityPlayer player) -> player.dimension == -1, -0.006F);
-		VitalStatType.HYDRATION.addConditionalModifier((EntityPlayer player) -> player.world.rand.nextBoolean(), -0.003F);
+		if(SchopConfig.MECHANICS.enableThirst)
+		{
+			StatRegistry.providers.add(DefaultStats.HYDRATION);
+			DefaultStats.HYDRATION.addConditionalModifier((EntityPlayer player) -> player.isInLava(), -0.5F);
+			DefaultStats.HYDRATION.addConditionalModifier((EntityPlayer player) -> player.dimension == -1, -0.006F);
+			DefaultStats.HYDRATION.addConditionalModifier((EntityPlayer player) -> player.world.rand.nextBoolean(), -0.003F);
+		}
 		
-		VitalStatType.SANITY.addConditionalModifier((EntityPlayer player) -> !player.world.isDaytime() && !player.isPlayerSleeping(), -0.0015F);
-		VitalStatType.SANITY.addConditionalModifier(SanityModifier.isOutsideOverworld, -0.004F);
-		VitalStatType.SANITY.situational_modifiers.add(SanityModifier::whenInDark);
-		VitalStatType.SANITY.situational_modifiers.add(SanityModifier::whenWet);
+		if(SchopConfig.MECHANICS.enableSanity)
+		{
+			StatRegistry.providers.add(DefaultStats.SANITY);
+			DefaultStats.SANITY.addConditionalModifier((EntityPlayer player) -> !player.world.isDaytime() && !player.isPlayerSleeping(), -0.0015F);
+			DefaultStats.SANITY.addConditionalModifier(SanityModifier.isOutsideOverworld, -0.004F);
+			DefaultStats.SANITY.situational_modifiers.add(SanityModifier::whenInDark);
+			DefaultStats.SANITY.situational_modifiers.add(SanityModifier::whenWet);
+		}
 	}
 
 	@EventHandler

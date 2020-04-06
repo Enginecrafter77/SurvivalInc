@@ -14,9 +14,9 @@ import schoperation.schopcraft.cap.CapabilityHandler;
 import schoperation.schopcraft.cap.ghost.Ghost;
 import schoperation.schopcraft.cap.ghost.GhostStorage;
 import schoperation.schopcraft.cap.ghost.IGhost;
-import schoperation.schopcraft.cap.vital.VitalStat;
-import schoperation.schopcraft.cap.vital.VitalStatCarrier;
-import schoperation.schopcraft.cap.vital.VitalStatStorage;
+import schoperation.schopcraft.cap.stat.StatRegistry;
+import schoperation.schopcraft.cap.stat.StatRegister;
+import schoperation.schopcraft.cap.stat.StatTracker;
 import schoperation.schopcraft.cap.wetness.IWetness;
 import schoperation.schopcraft.cap.wetness.Wetness;
 import schoperation.schopcraft.cap.wetness.WetnessStorage;
@@ -42,17 +42,18 @@ public class CommonProxy {
 
 		// Register capabilities.
 		CapabilityManager.INSTANCE.register(IWetness.class, new WetnessStorage(), Wetness::new);
-		CapabilityManager.INSTANCE.register(VitalStat.class, new VitalStatStorage(), VitalStatCarrier::new);
+		CapabilityManager.INSTANCE.register(StatTracker.class, new StatRegister.Storage(), StatRegistry::new);
 		CapabilityManager.INSTANCE.register(IGhost.class, new GhostStorage(), Ghost::new);
 	}
 
 	public void init(FMLInitializationEvent event)
 	{
 		// Register event handlers.
-		MinecraftForge.EVENT_BUS.register(new CapabilityHandler());
 		MinecraftForge.EVENT_BUS.register(new CapEvents());
 		MinecraftForge.EVENT_BUS.register(new TweakEvents());
 		MinecraftForge.EVENT_BUS.register(new WorldSeason());
+		MinecraftForge.EVENT_BUS.register(StatRegister.class);
+		MinecraftForge.EVENT_BUS.register(CapabilityHandler.class);
 		
 		net = NetworkRegistry.INSTANCE.newSimpleChannel(SchopCraft.MOD_ID);
 		net.registerMessage(HUDRenderPacket.class, HUDRenderPacket.HUDRenderMessage.class, 0, Side.CLIENT);

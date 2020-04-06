@@ -1,4 +1,4 @@
-package schoperation.schopcraft.cap.vital;
+package schoperation.schopcraft.cap.stat;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
@@ -22,7 +22,7 @@ public class ThirstModifier {
 	public void onPlayerInteract(EntityPlayer player)
 	{
 		// Capability
-		VitalStat stat = player.getCapability(VitalStatProvider.VITAL_CAP, null);
+		StatTracker stat = player.getCapability(StatRegister.CAPABILITY, null);
 		
 		// Ray trace result for drinking with bare hands. pretty ineffective.
 		double vecX = player.getLookVec().x < 0 ? -0.5 : 0.5;
@@ -51,16 +51,16 @@ public class ThirstModifier {
 					
 					if(biome instanceof BiomeOcean || biome instanceof BiomeBeach)
 					{
-						stat.modifyStat(VitalStatType.HYDRATION, 0.5f);
+						stat.modifyStat(DefaultStats.HYDRATION, 0.5f);
 					}
 					else if(biome instanceof BiomeSwamp)
 					{
-						stat.modifyStat(VitalStatType.HYDRATION, 0.25f);
+						stat.modifyStat(DefaultStats.HYDRATION, 0.25f);
 						player.addPotionEffect(new PotionEffect(MobEffects.POISON, 12, 3, false, false));
 					}
 					else
 					{
-						stat.modifyStat(VitalStatType.HYDRATION, 0.4f); 
+						stat.modifyStat(DefaultStats.HYDRATION, 0.4f); 
 						if(Math.random() <= 0.50)
 							player.addPotionEffect(new PotionEffect(MobEffects.POISON, 12, 1, false, false));
 					}

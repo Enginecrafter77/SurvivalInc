@@ -12,9 +12,9 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
 import schoperation.schopcraft.SchopCraft;
-import schoperation.schopcraft.cap.vital.VitalStat;
-import schoperation.schopcraft.cap.vital.VitalStatProvider;
-import schoperation.schopcraft.cap.vital.VitalStatType;
+import schoperation.schopcraft.cap.stat.StatTracker;
+import schoperation.schopcraft.cap.stat.StatRegister;
+import schoperation.schopcraft.cap.stat.DefaultStats;
 
 public class ItemIceCream extends ItemFood {
 
@@ -62,13 +62,13 @@ public class ItemIceCream extends ItemFood {
 			if(!world.isRemote)
 			{
 				// Capabilities
-				VitalStat stats = entityLiving.getCapability(VitalStatProvider.VITAL_CAP, null);
+				StatTracker stats = entityLiving.getCapability(StatRegister.CAPABILITY, null);
 
 				// Lower temperature
 				//temperature.decrease(20.0f);
 
 				// Increase sanity
-				stats.modifyStat(VitalStatType.SANITY, 20.0f);
+				stats.modifyStat(DefaultStats.SANITY, 20.0f);
 			}
 		}
 
