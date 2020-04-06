@@ -1,9 +1,11 @@
 package schoperation.schopcraft.cap.stat;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.monster.*;
+import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
@@ -11,6 +13,9 @@ import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3i;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import schoperation.schopcraft.CommonProxy;
 import schoperation.schopcraft.cap.wetness.IWetness;
@@ -57,6 +62,25 @@ public class SanityModifier {
 		return wetness.getWetness() < boundary ? 0F : annoyance;
 	}
 	
+	public static float whenNearEntities(EntityPlayer player)
+	{
+		BlockPos origin = player.getPosition();
+		Vec3i offset = new Vec3i(3, 3, 3);
+		
+		AxisAlignedBB box = new AxisAlignedBB(origin.subtract(offset), origin.add(offset));
+		List<EntityCreature> entities = player.world.getEntitiesWithinAABB(EntityCreature.class, box);
+		
+		float mod = 0;
+		for(EntityCreature creature : entities)
+		{
+			if(creature instanceof EntityMob)
+				mod -= 0.003F;
+			else if(creature instanceof EntityAnimal)
+				mod += 0.004F;
+		}
+		return mod;
+	}
+	
 	public void onPlayerUpdate(Entity dummy)
 	{
 		// Capabilities
@@ -93,7 +117,7 @@ public class SanityModifier {
 
 			// There'll only be hallucinations for players with less than 70% of
 			// their sanity.
-			if(stats.getStat(DefaultStats.SANITY) <= (DefaultStats.SANITY.max * 0.7))
+			if(stats.getStat(DefaultStats.SANITY) <= (DefaultStats.SANITY.getMaximum() * 0.7))
 			{
 
 				// Determine if a hallucination should appear.
@@ -229,14 +253,14 @@ public class SanityModifier {
 			// Also, They may come and attack you.
 
 			// Make the screen of the insane player wobble.
-			if(stats.getStat(DefaultStats.SANITY) <= (DefaultStats.SANITY.max * 0.35))
+			if(stats.getStat(DefaultStats.SANITY) <= (DefaultStats.SANITY.getMaximum() * 0.35))
 			{
 
 				SchopServerEffects.affectPlayer(dummy.getCachedUniqueIdString(), "nausea", 100, 5, false, false);
 			}
 
 			// Add some weird insanity ambiance.
-			if(stats.getStat(DefaultStats.SANITY) <= (DefaultStats.SANITY.max * 0.20))
+			if(stats.getStat(DefaultStats.SANITY) <= (DefaultStats.SANITY.getMaximum() * 0.20))
 			{
 
 				// Random chance so it doesn't overlap with itself.
@@ -250,7 +274,7 @@ public class SanityModifier {
 					CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) dummy);
 				}
 			}
-			else if(stats.getStat(DefaultStats.SANITY) <= (DefaultStats.SANITY.max * 0.50))
+			else if(stats.getStat(DefaultStats.SANITY) <= (DefaultStats.SANITY.getMaximum() * 0.50))
 			{
 
 				// Random chance so it doesn't overlap with itself.
@@ -271,7 +295,7 @@ public class SanityModifier {
 			// to gather near black holes void of sanity.
 			// If the player's sanity is really low, spawn a bunch of "Them" and
 			// make "Them" attack the player.
-			if ((stats.getStat(DefaultStats.SANITY) <= (DefaultStats.SANITY.max * 0.15)) && spawnThemTimer >= 15)
+			if ((stats.getStat(DefaultStats.SANITY) <= (DefaultStats.SANITY.getMaximum() * 0.15)) && spawnThemTimer >= 15)
 			{
 
 				// Random numbers... gotta love random numbers.
@@ -305,7 +329,7 @@ public class SanityModifier {
 				// Summon Them
 				dummy.world.spawnEntity(them);
 			}
-			else if(stats.getStat(DefaultStats.SANITY) <= (DefaultStats.SANITY.max * 0.50))
+			else if(stats.getStat(DefaultStats.SANITY) <= (DefaultStats.SANITY.getMaximum() * 0.50))
 			{
 
 				// Random numbers... YEE
@@ -474,7 +498,7 @@ public class SanityModifier {
 			if(entityKilled instanceof EntityEnderman)
 			{
 				// Now, was the player insane (or insane enough)?
-				if(stats.getStat(DefaultStats.SANITY) <= (DefaultStats.SANITY.max * 0.50))
+				if(stats.getStat(DefaultStats.SANITY) <= (DefaultStats.SANITY.getMaximum() * 0.50))
 				{
 					drops.add(new EntityItem(player.world, entityKilled.posX, entityKilled.posY, entityKilled.posZ, new ItemStack(ModItems.LUCID_DREAM_ESSENCE.get(), 1)));
 					

@@ -1,24 +1,41 @@
 package schoperation.schopcraft.util;
 
+import java.util.LinkedList;
+import java.util.List;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 
 //TODO rewrite, reimplement, nuke, whatever!
 public class ProximityDetect {
-
-	/*
-	 * This is called whenever the mod wants to detect a block near the player.
-	 * narf These methods should only be called on the server unless you like
-	 * crashes.
-	 */
-
-	/*
-	 * ========================================================= SAME Y-LEVEL AS
-	 * PLAYER ==========================================================
-	 */
-
+	public static double getDistanceToBlocks(Entity entity, Block block, int horizontalrange, int verticalrange)
+	{
+		Vec3i offset = new Vec3i(horizontalrange, verticalrange, horizontalrange);
+		BlockPos origin = entity.getPosition();
+		
+		Iterable<BlockPos> blocks = BlockPos.getAllInBox(origin.subtract(offset), origin.add(offset));
+		List<BlockPos> targets = new LinkedList<BlockPos>();
+		
+		for(BlockPos position : blocks)
+		{
+			if(entity.world.getBlockState(position).getBlock().equals(block))
+			{
+				targets.add(position);
+			}
+		}
+		
+		double distance = Double.MAX_VALUE;
+		for(BlockPos target : targets)
+		{
+			double value = origin.distanceSq(target);
+			if(value < distance) distance = value;
+		}
+		
+		return Math.sqrt(distance);
+	}
+	
 	// Returns true if the block is right next to the player,
 	// horizontally/diagonally.
 	public static boolean isBlockNextToPlayer(int posX, int posY, int posZ, Block block, Entity player)

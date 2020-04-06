@@ -9,11 +9,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import schoperation.schopcraft.config.SchopConfig;
 
 public enum DefaultStats implements StatProvider {
+	HEAT(SchopConfig.MECHANICS.temperatureScale, 0, 120, 75),
 	HYDRATION(SchopConfig.MECHANICS.thirstScale, 0, 100),
 	SANITY(SchopConfig.MECHANICS.sanityScale, 0, 100);
-	
-	// Temporarily disabled
-	//HEAT(SchopConfig.MECHANICS.temperatureScale, 0, 100);
 	
 	public final float scale;
 	
@@ -21,30 +19,30 @@ public enum DefaultStats implements StatProvider {
 	
 	//TODO implement this
 	//public final Map<Float, PotionEffect[]> debuffs;
-	public float max, min;
+	private float max, min, def;
 	
-	private DefaultStats(double scale, float min, float max)
+	private DefaultStats(double scale, float min, float max, float def)
 	{
 		this.situational_modifiers = new HashSet<Function<EntityPlayer, Float>>();
 		//this.debuffs = new HashMap<Float, PotionEffect[]>();
 		this.scale = (float)scale;
 		this.min = min;
 		this.max = max;
+		this.def = def;
 	}
 	
-	private DefaultStats(double scale, float min, float max, float staticdrain)
+	private DefaultStats(double scale, float min, float max)
 	{
-		this(scale, min, max);
-		this.situational_modifiers.add((EntityPlayer player) -> staticdrain);
+		this(scale, min, max, max * 0.75F);
 	}
 	
 	@Override
-	public float calculateChangeFor(EntityPlayer target)
+	public float updateValue(EntityPlayer target, float current)
 	{
 		float mod = 0;
 		for(Function<EntityPlayer, Float> entry : this.situational_modifiers)
 			mod += entry.apply(target);
-		return this.scale * mod;
+		return current + (this.scale * mod);
 	}
 	
 	@Override
@@ -63,6 +61,12 @@ public enum DefaultStats implements StatProvider {
 	public float getMinimum()
 	{
 		return this.min;
+	}
+	
+	@Override
+	public float getDefault()
+	{
+		return this.def;
 	}
 	
 	public void addConditionalModifier(Predicate<EntityPlayer> check, float value)

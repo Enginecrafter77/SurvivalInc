@@ -7,14 +7,14 @@ import java.util.List;
 
 import net.minecraft.entity.player.EntityPlayer;
 
-public class StatRegistry extends HashMap<StatProvider, Float> implements StatTracker {
+public class StatManager extends HashMap<StatProvider, Float> implements StatTracker {
 	private static final long serialVersionUID = -878624371786181967L;
 	
 	public static List<StatProvider> providers = new LinkedList<StatProvider>();
 	
-	public StatRegistry()
+	public StatManager()
 	{
-		for(StatProvider provider : StatRegistry.providers)
+		for(StatProvider provider : StatManager.providers)
 			this.registerProvider(provider);
 	}
 	
@@ -23,7 +23,7 @@ public class StatRegistry extends HashMap<StatProvider, Float> implements StatTr
 	{
 		if(this.getProvider(provider.getStatID()) != null)
 			throw new IllegalStateException("Provider " + provider.getClass().getCanonicalName() + " already registered!");
-		this.setStat(provider, 0F);
+		this.setStat(provider, provider.getDefault());
 	}
 	
 	@Override
@@ -70,7 +70,7 @@ public class StatRegistry extends HashMap<StatProvider, Float> implements StatTr
 	public void update(EntityPlayer player)
 	{
 		for(DefaultStats stat : DefaultStats.values())
-			this.modifyStat(stat, stat.calculateChangeFor(player));
+			this.setStat(stat, stat.updateValue(player, this.getStat(stat)));
 	}
 
 	@Override

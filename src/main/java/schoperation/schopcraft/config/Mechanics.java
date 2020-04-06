@@ -46,17 +46,18 @@ public class Mechanics {
 	public double wetnessScale = 1.0;
 	
 	@Config.LangKey("config.schopcraft:mechanics.minAnnoyingWetness")
-	@Config.RequiresWorldRestart
 	@Config.RangeDouble(min = 0, max = 100)
 	public double minAnnoyingWetness = 50;
 	
 	@Config.LangKey("config.schopcraft:mechanics.darkSpookFactorBase")
-	@Config.RequiresWorldRestart
 	@Config.RangeDouble(min = 0.0001, max = 0.1)
 	public double darkSpookFactorBase = 0.05;
 	
 	@Config.LangKey("config.schopcraft:mechanics.comfortLightLevel")
-	@Config.RequiresWorldRestart
 	@Config.RangeInt(min = 0, max = 15)
-	public int comfortLightLevel = 8;
+	public int comfortLightLevel = 7;
+	
+	@Config.LangKey("config.schopcraft:mechanics.heatExchangeFactor")
+	@Config.RangeDouble(min = 0, max = 100)
+	public double heatExchangeFactor = 0.005;
 }

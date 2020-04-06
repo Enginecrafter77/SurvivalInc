@@ -16,9 +16,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import schoperation.schopcraft.cap.stat.SanityModifier;
-import schoperation.schopcraft.cap.stat.StatRegistry;
+import schoperation.schopcraft.cap.stat.StatManager;
 import schoperation.schopcraft.config.SchopConfig;
 import schoperation.schopcraft.cap.stat.DefaultStats;
+import schoperation.schopcraft.cap.stat.HeatModifier;
 import schoperation.schopcraft.lib.ModItems;
 import schoperation.schopcraft.season.Season;
 
@@ -52,21 +53,30 @@ public class SchopCraft {
 		
 		Season.initSeasons();
 		
+		DefaultStats.HYDRATION.addConditionalModifier((EntityPlayer player) -> player.isInLava(), -0.5F);
+		DefaultStats.HYDRATION.addConditionalModifier((EntityPlayer player) -> player.dimension == -1, -0.006F);
+		DefaultStats.HYDRATION.addConditionalModifier((EntityPlayer player) -> player.world.rand.nextBoolean(), -0.003F);
+		
+		DefaultStats.SANITY.addConditionalModifier((EntityPlayer player) -> !player.world.isDaytime() && !player.isPlayerSleeping(), -0.0015F);
+		DefaultStats.SANITY.addConditionalModifier(SanityModifier.isOutsideOverworld, -0.004F);
+		DefaultStats.SANITY.situational_modifiers.add(SanityModifier::whenInDark);
+		DefaultStats.SANITY.situational_modifiers.add(SanityModifier::whenWet);
+		DefaultStats.SANITY.situational_modifiers.add(SanityModifier::whenNearEntities);
+		
+		DefaultStats.HEAT.situational_modifiers.add(HeatModifier::whenNearHotBlock);
+		DefaultStats.HEAT.situational_modifiers.add(HeatModifier::equalizeWithEnvironment);
+		DefaultStats.HEAT.situational_modifiers.add(HeatModifier::applyWetnessCooldown);
+		
 		if(SchopConfig.MECHANICS.enableThirst)
-		{
-			StatRegistry.providers.add(DefaultStats.HYDRATION);
-			DefaultStats.HYDRATION.addConditionalModifier((EntityPlayer player) -> player.isInLava(), -0.5F);
-			DefaultStats.HYDRATION.addConditionalModifier((EntityPlayer player) -> player.dimension == -1, -0.006F);
-			DefaultStats.HYDRATION.addConditionalModifier((EntityPlayer player) -> player.world.rand.nextBoolean(), -0.003F);
-		}
+			StatManager.providers.add(DefaultStats.HYDRATION);
 		
 		if(SchopConfig.MECHANICS.enableSanity)
+			StatManager.providers.add(DefaultStats.SANITY);
+		
+		if(SchopConfig.MECHANICS.enableTemperature)
 		{
-			StatRegistry.providers.add(DefaultStats.SANITY);
-			DefaultStats.SANITY.addConditionalModifier((EntityPlayer player) -> !player.world.isDaytime() && !player.isPlayerSleeping(), -0.0015F);
-			DefaultStats.SANITY.addConditionalModifier(SanityModifier.isOutsideOverworld, -0.004F);
-			DefaultStats.SANITY.situational_modifiers.add(SanityModifier::whenInDark);
-			DefaultStats.SANITY.situational_modifiers.add(SanityModifier::whenWet);
+			StatManager.providers.add(DefaultStats.HEAT);
+			HeatModifier.initHeatMap();
 		}
 	}
 

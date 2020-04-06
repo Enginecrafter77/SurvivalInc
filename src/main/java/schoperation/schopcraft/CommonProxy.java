@@ -14,7 +14,7 @@ import schoperation.schopcraft.cap.CapabilityHandler;
 import schoperation.schopcraft.cap.ghost.Ghost;
 import schoperation.schopcraft.cap.ghost.GhostStorage;
 import schoperation.schopcraft.cap.ghost.IGhost;
-import schoperation.schopcraft.cap.stat.StatRegistry;
+import schoperation.schopcraft.cap.stat.StatManager;
 import schoperation.schopcraft.cap.stat.StatRegister;
 import schoperation.schopcraft.cap.stat.StatTracker;
 import schoperation.schopcraft.cap.wetness.IWetness;
@@ -42,7 +42,7 @@ public class CommonProxy {
 
 		// Register capabilities.
 		CapabilityManager.INSTANCE.register(IWetness.class, new WetnessStorage(), Wetness::new);
-		CapabilityManager.INSTANCE.register(StatTracker.class, new StatRegister.Storage(), StatRegistry::new);
+		CapabilityManager.INSTANCE.register(StatTracker.class, new StatRegister.Storage(), StatManager::new);
 		CapabilityManager.INSTANCE.register(IGhost.class, new GhostStorage(), Ghost::new);
 	}
 

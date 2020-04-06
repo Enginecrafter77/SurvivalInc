@@ -61,7 +61,7 @@ public class CapEvents {
 			IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
 			
 			// Send data to client for rendering.
-			IMessage msgGui = new HUDRenderPacket.HUDRenderMessage(0, 0, stat.getStat(DefaultStats.HYDRATION), DefaultStats.HYDRATION.max, stat.getStat(DefaultStats.SANITY), DefaultStats.SANITY.max, wetness.getWetness(), wetness.getMaxWetness(), ghost.status(), ghost.getEnergy());
+			IMessage msgGui = new HUDRenderPacket.HUDRenderMessage(stat.getStat(DefaultStats.HEAT), DefaultStats.HEAT.getMaximum(), stat.getStat(DefaultStats.HYDRATION), DefaultStats.HYDRATION.getMaximum(), stat.getStat(DefaultStats.SANITY), DefaultStats.SANITY.getMaximum(), wetness.getWetness(), wetness.getMaxWetness(), ghost.status(), ghost.getEnergy());
 			CommonProxy.net.sendTo(msgGui, (EntityPlayerMP) player);
 		}
 	}
@@ -139,7 +139,7 @@ public class CapEvents {
 					}
 				}
 
-				IMessage msgGui = new HUDRenderPacket.HUDRenderMessage(0, 0, stat.getStat(DefaultStats.HYDRATION), DefaultStats.HYDRATION.max, stat.getStat(DefaultStats.SANITY), DefaultStats.SANITY.max, wetness.getWetness(), wetness.getMaxWetness(), ghost.status(), ghost.getEnergy());
+				IMessage msgGui = new HUDRenderPacket.HUDRenderMessage(stat.getStat(DefaultStats.HEAT), DefaultStats.HEAT.getMaximum(), stat.getStat(DefaultStats.HYDRATION), DefaultStats.HYDRATION.getMaximum(), stat.getStat(DefaultStats.SANITY), DefaultStats.SANITY.getMaximum(), wetness.getWetness(), wetness.getMaxWetness(), ghost.status(), ghost.getEnergy());
 				CommonProxy.net.sendTo(msgGui, (EntityPlayerMP) player);
 			}
 		}

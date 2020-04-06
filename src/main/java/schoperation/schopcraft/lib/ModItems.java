@@ -13,6 +13,7 @@ public enum ModItems implements Supplier<Item> {
 	HYDROPOUCH(new ItemHydroPouch()),
 	ICE_CREAM(new ItemIceCream(4, 0.4f, false)),
 	LUCID_DREAM_ESSENCE(new ItemLucidDreamEssence()),
+	RESETTER(new ItemResetter()),
 	TOWEL(new ItemTowel());
 	
 	public final Item target;
