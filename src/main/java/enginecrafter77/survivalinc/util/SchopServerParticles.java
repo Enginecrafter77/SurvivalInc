@@ -1,7 +1,8 @@
 package enginecrafter77.survivalinc.util;
 
-import enginecrafter77.survivalinc.cap.wetness.IWetness;
-import enginecrafter77.survivalinc.cap.wetness.WetnessProvider;
+import enginecrafter77.survivalinc.stats.StatRegister;
+import enginecrafter77.survivalinc.stats.StatTracker;
+import enginecrafter77.survivalinc.stats.impl.DefaultStats;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.EnumParticleTypes;
@@ -17,6 +18,7 @@ public class SchopServerParticles {
 	 */
 
 	// Main method to summon particles.
+	//TODO fix, very uneffective! Use render events instead
 	public static void summonParticle(String uuid, String particleMethod, double posX, double posY, double posZ)
 	{
 
@@ -36,7 +38,7 @@ public class SchopServerParticles {
 			WorldServer serverWorld = server.getWorld(player.dimension);
 
 			// Any capabilities the player has (if needed here).
-			IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
+			StatTracker stats = player.getCapability(StatRegister.CAPABILITY, null);
 
 			// Is this the correct player?
 			if (player.getCachedUniqueIdString().equals(uuid) && !player.world.isRemote)
@@ -47,7 +49,7 @@ public class SchopServerParticles {
 				// that process of making particles appear
 				if (particleMethod.equals("WetnessParticles"))
 				{
-					spawnWetnessParticles(serverWorld, posX, posY, posZ, wetness.getWetness());
+					spawnWetnessParticles(serverWorld, posX, posY, posZ, stats.getStat(DefaultStats.WETNESS));
 				}
 				else if (particleMethod.equals("DrinkWaterParticles"))
 				{

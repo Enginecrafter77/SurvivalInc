@@ -5,9 +5,6 @@ import enginecrafter77.survivalinc.cap.CapabilityHandler;
 import enginecrafter77.survivalinc.cap.ghost.Ghost;
 import enginecrafter77.survivalinc.cap.ghost.GhostStorage;
 import enginecrafter77.survivalinc.cap.ghost.IGhost;
-import enginecrafter77.survivalinc.cap.wetness.IWetness;
-import enginecrafter77.survivalinc.cap.wetness.Wetness;
-import enginecrafter77.survivalinc.cap.wetness.WetnessStorage;
 import enginecrafter77.survivalinc.net.ConfigPacket;
 import enginecrafter77.survivalinc.net.HUDRenderPacket;
 import enginecrafter77.survivalinc.net.SeasonPacket;
@@ -41,7 +38,6 @@ public class CommonProxy {
 		MinecraftForge.EVENT_BUS.register(new Registererer());
 
 		// Register capabilities.
-		CapabilityManager.INSTANCE.register(IWetness.class, new WetnessStorage(), Wetness::new);
 		CapabilityManager.INSTANCE.register(StatTracker.class, new StatRegister.Storage(), StatManager::new);
 		CapabilityManager.INSTANCE.register(IGhost.class, new GhostStorage(), Ghost::new);
 	}

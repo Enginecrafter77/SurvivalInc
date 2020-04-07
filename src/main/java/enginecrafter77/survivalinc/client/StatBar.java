@@ -16,7 +16,7 @@ public class StatBar {
 		TEMPERATURE, THIRST, SANITY, WETNESS, GHOST
 	}
 
-	private StatType type;
+	public final StatType type;
 
 	// Texture
 	private ResourceLocation texture;

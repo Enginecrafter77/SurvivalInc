@@ -21,6 +21,7 @@ import enginecrafter77.survivalinc.stats.StatManager;
 import enginecrafter77.survivalinc.stats.impl.DefaultStats;
 import enginecrafter77.survivalinc.stats.impl.HeatModifier;
 import enginecrafter77.survivalinc.stats.impl.SanityModifier;
+import enginecrafter77.survivalinc.stats.impl.WetnessModifier;
 import enginecrafter77.survivalinc.util.OperationType;
 
 @Mod(modid = SurvivalInc.MOD_ID, name = SurvivalInc.MOD_NAME, version = SurvivalInc.VERSION, acceptedMinecraftVersions = SurvivalInc.MCVERSION, dependencies = SurvivalInc.DEPENDENCIES)
@@ -63,11 +64,22 @@ public class SurvivalInc {
 		DefaultStats.SANITY.modifiers.addModifier(SanityModifier::whenWet, OperationType.OFFSET);
 		DefaultStats.SANITY.modifiers.addModifier(SanityModifier::whenNearEntities, OperationType.OFFSET);
 		
+		WetnessModifier.initHumidityMap();
+		DefaultStats.WETNESS.modifiers.addConditionalModifier((EntityPlayer player) -> player.dimension == -1, -0.08F, OperationType.OFFSET);
+		DefaultStats.WETNESS.modifiers.addConditionalModifier((EntityPlayer player) -> player.isInLava(), -5F, OperationType.OFFSET);
+		DefaultStats.WETNESS.modifiers.addConditionalModifier((EntityPlayer player) -> player.world.isRainingAt(player.getPosition().up()), 0.01F, OperationType.OFFSET);
+		DefaultStats.WETNESS.modifiers.addModifier(WetnessModifier::scanSurroundings, OperationType.OFFSET);
+		DefaultStats.WETNESS.modifiers.addModifier(WetnessModifier::naturalDrying, OperationType.OFFSET);
+		DefaultStats.WETNESS.modifiers.addModifier(WetnessModifier::whenInWater, OperationType.OFFSET);
+		
 		if(SchopConfig.MECHANICS.enableThirst)
 			StatManager.providers.add(DefaultStats.HYDRATION);
 		
 		if(SchopConfig.MECHANICS.enableSanity)
 			StatManager.providers.add(DefaultStats.SANITY);
+		
+		if(SchopConfig.MECHANICS.enableWetness)
+			StatManager.providers.add(DefaultStats.WETNESS);
 		
 		if(SchopConfig.MECHANICS.enableTemperature)
 			StatManager.providers.add(HeatModifier.instance);

@@ -14,14 +14,13 @@ import net.minecraft.world.GameType;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import enginecrafter77.survivalinc.ModBlocks;
-import enginecrafter77.survivalinc.cap.wetness.IWetness;
-import enginecrafter77.survivalinc.cap.wetness.WetnessProvider;
 import enginecrafter77.survivalinc.config.SchopConfig;
+import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatRegister;
 import enginecrafter77.survivalinc.stats.StatTracker;
-import enginecrafter77.survivalinc.stats.impl.DefaultStats;
 import enginecrafter77.survivalinc.util.SchopServerEffects;
 import enginecrafter77.survivalinc.util.SchopServerParticles;
 import enginecrafter77.survivalinc.util.SchopServerSounds;
@@ -58,7 +57,6 @@ public class GhostMain {
 	public void onPlayerUpdate(EntityPlayer player)
 	{
 		// Capabilities.
-		IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
 		StatTracker stat = player.getCapability(StatRegister.CAPABILITY, null);
 		IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
 		
@@ -71,12 +69,8 @@ public class GhostMain {
 		// While the player is a ghost.
 		if (ghost.status())
 		{
-
-			// Constantly set the other values to default. Ghosts don't worry about that crap.
-			wetness.set(0.0f);
-			stat.setStat(DefaultStats.HYDRATION, 100F);
-			stat.setStat(DefaultStats.SANITY, 100F);
-			//stat.setStat(VitalStatType.HEAT, 100F);
+			for(Map.Entry<StatProvider, Float> provider : stat)
+				stat.setStat(provider.getKey(), provider.getKey().getDefault());
 			
 			// Give ghosts invisibility and invincibility.
 			SchopServerEffects.affectPlayer(uuid, "invisibility", 20, 0, false, false);
@@ -316,8 +310,6 @@ public class GhostMain {
 	// Finish resurrection!
 	private void finishResurrection(EntityPlayer player, BlockPos pos)
 	{
-		// Capabilities
-		IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
 		StatTracker stat = player.getCapability(StatRegister.CAPABILITY, null);
 		IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
 
@@ -332,11 +324,9 @@ public class GhostMain {
 		ghost.setEnergy(0.0f);
 
 		// Reset stats
-		//stat.setStat(VitalStatType.HEAT, 50F);
-		stat.setStat(DefaultStats.HYDRATION, 75F);
-		stat.setStat(DefaultStats.SANITY, 60F);
-		wetness.set(0.0f);
-
+		for(Map.Entry<StatProvider, Float> provider : stat)
+			stat.setStat(provider.getKey(), provider.getKey().getDefault());
+		
 		// The lucid block is used up. Delete it.
 		// TODO: Once finite torches are added, the torches should blow out as well.
 		player.world.setBlockToAir(pos);

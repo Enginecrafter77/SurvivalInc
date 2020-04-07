@@ -24,9 +24,6 @@ import enginecrafter77.survivalinc.CommonProxy;
 import enginecrafter77.survivalinc.cap.ghost.GhostMain;
 import enginecrafter77.survivalinc.cap.ghost.GhostProvider;
 import enginecrafter77.survivalinc.cap.ghost.IGhost;
-import enginecrafter77.survivalinc.cap.wetness.IWetness;
-import enginecrafter77.survivalinc.cap.wetness.WetnessModifier;
-import enginecrafter77.survivalinc.cap.wetness.WetnessProvider;
 import enginecrafter77.survivalinc.config.SchopConfig;
 import enginecrafter77.survivalinc.net.HUDRenderPacket;
 import enginecrafter77.survivalinc.stats.StatRegister;
@@ -35,6 +32,7 @@ import enginecrafter77.survivalinc.stats.impl.DefaultStats;
 import enginecrafter77.survivalinc.stats.impl.HeatModifier;
 import enginecrafter77.survivalinc.stats.impl.SanityModifier;
 import enginecrafter77.survivalinc.stats.impl.ThirstModifier;
+import enginecrafter77.survivalinc.stats.impl.WetnessModifier;
 
 /*
  * This is the event handler regarding capabilities and changes to individual stats.
@@ -47,13 +45,12 @@ public class CapEvents {
 	//private final TemperatureModifier tempMod = new TemperatureModifier();
 	private final ThirstModifier thirstMod = new ThirstModifier();
 	private final SanityModifier sanityMod = new SanityModifier();
-	private final WetnessModifier wetnessMod = new WetnessModifier();
 	private final GhostMain ghostMain = new GhostMain();
 
-	public static void sendUpdate(EntityPlayer player, StatTracker stats, IWetness wetness, IGhost ghost)
+	public static void sendUpdate(EntityPlayer player, StatTracker stats, IGhost ghost)
 	{
 		// Send data to client for rendering.
-		IMessage msgGui = new HUDRenderPacket.HUDRenderMessage(stats.getStat(HeatModifier.instance), HeatModifier.instance.getMaximum(), stats.getStat(DefaultStats.HYDRATION), DefaultStats.HYDRATION.getMaximum(), stats.getStat(DefaultStats.SANITY), DefaultStats.SANITY.getMaximum(), wetness.getWetness(), wetness.getMaxWetness(), ghost.status(), ghost.getEnergy());
+		IMessage msgGui = new HUDRenderPacket.HUDRenderMessage(stats.getStat(HeatModifier.instance), HeatModifier.instance.getMaximum(), stats.getStat(DefaultStats.HYDRATION), DefaultStats.HYDRATION.getMaximum(), stats.getStat(DefaultStats.SANITY), DefaultStats.SANITY.getMaximum(), stats.getStat(DefaultStats.WETNESS), DefaultStats.WETNESS.getMaximum(), ghost.status(), ghost.getEnergy());
 		CommonProxy.net.sendTo(msgGui, (EntityPlayerMP) player);
 	}
 	
@@ -66,10 +63,9 @@ public class CapEvents {
 		if(player instanceof EntityPlayerMP)
 		{
 			// Capabilities
-			IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
 			StatTracker stat = player.getCapability(StatRegister.CAPABILITY, null);
 			IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
-			CapEvents.sendUpdate(player, stat, wetness, ghost);
+			CapEvents.sendUpdate(player, stat, ghost);
 		}
 	}
 
@@ -78,74 +74,46 @@ public class CapEvents {
 	@SubscribeEvent
 	public void onPlayerUpdate(LivingUpdateEvent event)
 	{
-
 		// Only continue if it's a player.
 		if (event.getEntity() instanceof EntityPlayer)
 		{
-
 			// Instance of player.
-			EntityPlayer player = (EntityPlayer) event.getEntity();
-			IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
+			EntityPlayer player = (EntityPlayer)event.getEntity();
 			StatTracker stat = player.getCapability(StatRegister.CAPABILITY, null);
 			IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
-
+			
 			// Server-side
-			if (!player.world.isRemote)
+			if(!player.world.isRemote)
 			{
-
-				// Whether the player's stats should be changed. Not in creative
-				// and spectator mode.
-				boolean shouldStatsChange = true;
-
-				if (player.isCreative() || player.isSpectator())
+				if(!player.isCreative() && !player.isSpectator())
 				{
-
-					shouldStatsChange = false;
-				}
-
-				// Now fire every method that should be fired here, passing the
-				// player as a parameter.
-				// If in creative mode (or if the mechanic is disabled in the
-				// config), don't fire these at all.
-				if (shouldStatsChange)
-				{
-
-					if (SchopConfig.MECHANICS.enableTemperature)
-					{
-						//tempMod.onPlayerUpdate(player);
-					}
-
-					if (SchopConfig.MECHANICS.enableThirst)
+					if(SchopConfig.MECHANICS.enableThirst)
 					{
 						stat.update(player);
 					}
 
-					if (SchopConfig.MECHANICS.enableSanity)
+					if(SchopConfig.MECHANICS.enableSanity)
 					{
-
 						sanityMod.onPlayerUpdate(player);
 
 						// Fire this if the player is sleeping
-						if (player.isPlayerSleeping())
+						if(player.isPlayerSleeping())
 						{
-
 							sanityMod.onPlayerSleepInBed(player);
 						}
 					}
 
-					if (SchopConfig.MECHANICS.enableWetness)
+					if(SchopConfig.MECHANICS.enableWetness)
 					{
-
-						wetnessMod.onPlayerUpdate(player);
+						WetnessModifier.onPlayerUpdate(player);
 					}
 
-					if (SchopConfig.MECHANICS.enableGhost)
+					if(SchopConfig.MECHANICS.enableGhost)
 					{
-
 						ghostMain.onPlayerUpdate(player);
 					}
 				}
-				CapEvents.sendUpdate(player, stat, wetness, ghost);
+				CapEvents.sendUpdate(player, stat, ghost);
 			}
 		}
 	}

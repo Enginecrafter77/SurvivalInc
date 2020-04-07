@@ -12,16 +12,11 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class RenderHUD extends Gui {
 
 	// The stat bars themselves.
-	private static final StatBar TEMPERATURE_BAR = new StatBar(StatBar.StatType.TEMPERATURE, 100, 11, 80, 19, 14,
-			new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/tempbar.png"));
-	private static final StatBar THIRST_BAR = new StatBar(StatBar.StatType.THIRST, 100, 11, 80, 19, 14,
-			new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/thirstbar.png"));
-	private static final StatBar SANITY_BAR = new StatBar(StatBar.StatType.SANITY, 100, 11, 80, 19, 14,
-			new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/sanitybar.png"));
-	private static final StatBar WETNESS_BAR = new StatBar(StatBar.StatType.WETNESS, 100, 11, 80, 19, 14,
-			new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/wetnessbar.png"));
-	private static final StatBar GHOST_BAR = new StatBar(StatBar.StatType.GHOST, 200, 9, 187, 12, 10,
-			new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/ghostenergybar.png"));
+	private static final StatBar TEMPERATURE_BAR = new StatBar(StatBar.StatType.TEMPERATURE, 100, 11, 80, 19, 14, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/tempbar.png"));
+	private static final StatBar THIRST_BAR = new StatBar(StatBar.StatType.THIRST, 100, 11, 80, 19, 14, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/thirstbar.png"));
+	private static final StatBar SANITY_BAR = new StatBar(StatBar.StatType.SANITY, 100, 11, 80, 19, 14, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/sanitybar.png"));
+	private static final StatBar WETNESS_BAR = new StatBar(StatBar.StatType.WETNESS, 100, 11, 80, 19, 14, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/wetnessbar.png"));
+	private static final StatBar GHOST_BAR = new StatBar(StatBar.StatType.GHOST, 200, 9, 187, 12, 10, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/ghostenergybar.png"));
 
 	// List of the main bars for easy iteration
 	private static final StatBar[] MAIN_BARS = { TEMPERATURE_BAR, THIRST_BAR, SANITY_BAR, WETNESS_BAR };

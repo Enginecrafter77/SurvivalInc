@@ -24,8 +24,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 
 import enginecrafter77.survivalinc.SurvivalInc;
-import enginecrafter77.survivalinc.cap.wetness.IWetness;
-import enginecrafter77.survivalinc.cap.wetness.WetnessProvider;
+import enginecrafter77.survivalinc.stats.StatRegister;
+import enginecrafter77.survivalinc.stats.StatTracker;
+import enginecrafter77.survivalinc.stats.impl.DefaultStats;
 import enginecrafter77.survivalinc.util.ProximityDetect;
 import enginecrafter77.survivalinc.util.SchopServerParticles;
 import enginecrafter77.survivalinc.util.SchopServerSounds;
@@ -64,7 +65,7 @@ public class ItemTowel extends Item {
 			NBTTagCompound nbt = stack.getTagCompound();
 
 			// Capability
-			IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
+			StatTracker stat = player.getCapability(StatRegister.CAPABILITY, null);
 
 			// If they're not sneaking, dry the player off.
 			if (!player.isSneaking())
@@ -76,10 +77,9 @@ public class ItemTowel extends Item {
 				for (int c = 0; c < 100; c++)
 				{
 
-					if (nbt.getFloat("wetness") < 100.0f && wetness.getWetness() > 0.0f)
+					if (nbt.getFloat("wetness") < 100.0f && stat.getStat(DefaultStats.WETNESS) > 0.0f)
 					{
-
-						wetness.decrease(1f);
+						stat.modifyStat(DefaultStats.WETNESS, -1F);
 						nbt.setFloat("wetness", nbt.getFloat("wetness") + 1f);
 						stack.setTagCompound(nbt);
 					}
@@ -109,10 +109,9 @@ public class ItemTowel extends Item {
 				for (int c = 0; c < 100; c++)
 				{
 
-					if (nbt.getFloat("wetness") > 0.0f && wetness.getWetness() < 100.0f)
+					if (nbt.getFloat("wetness") > 0.0f && stat.getStat(DefaultStats.WETNESS) < 100.0f)
 					{
-
-						wetness.increase(1f);
+						stat.modifyStat(DefaultStats.WETNESS, 1F);
 						nbt.setFloat("wetness", nbt.getFloat("wetness") - 1f);
 						stack.setTagCompound(nbt);
 					}

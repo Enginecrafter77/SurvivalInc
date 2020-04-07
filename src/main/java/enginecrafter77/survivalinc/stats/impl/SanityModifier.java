@@ -23,8 +23,6 @@ import java.util.function.Predicate;
 
 import enginecrafter77.survivalinc.CommonProxy;
 import enginecrafter77.survivalinc.ModItems;
-import enginecrafter77.survivalinc.cap.wetness.IWetness;
-import enginecrafter77.survivalinc.cap.wetness.WetnessProvider;
 import enginecrafter77.survivalinc.config.SchopConfig;
 import enginecrafter77.survivalinc.net.SummonInfoPacket;
 import enginecrafter77.survivalinc.stats.StatRegister;
@@ -59,10 +57,11 @@ public class SanityModifier {
 	public static float whenWet(EntityPlayer player)
 	{
 		float boundary = (float)SchopConfig.MECHANICS.minAnnoyingWetness;
-		IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
-		float annoyance = (wetness.getMaxWetness() - wetness.getWetness()) / 10000;
+		StatTracker stats = player.getCapability(StatRegister.CAPABILITY, null);
+		float wetness = stats.getStat(DefaultStats.WETNESS);
+		float annoyance = (wetness - DefaultStats.WETNESS.getMaximum()) / 10000;
 		annoyance = (boundary / -10000) - annoyance;
-		return wetness.getWetness() < boundary ? 0F : annoyance;
+		return wetness < boundary ? 0F : annoyance;
 	}
 	
 	public static float whenNearEntities(EntityPlayer player)

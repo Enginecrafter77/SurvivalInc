@@ -3,11 +3,11 @@ package enginecrafter77.survivalinc.stats.impl;
 import java.util.HashMap;
 import java.util.Map;
 
-import enginecrafter77.survivalinc.cap.wetness.IWetness;
-import enginecrafter77.survivalinc.cap.wetness.WetnessProvider;
 import enginecrafter77.survivalinc.config.SchopConfig;
 import enginecrafter77.survivalinc.stats.OverflowHandler;
 import enginecrafter77.survivalinc.stats.StatProvider;
+import enginecrafter77.survivalinc.stats.StatRegister;
+import enginecrafter77.survivalinc.stats.StatTracker;
 import enginecrafter77.survivalinc.util.ModifierCalculator;
 import enginecrafter77.survivalinc.util.OperationType;
 import net.minecraft.block.Block;
@@ -96,8 +96,8 @@ public class HeatModifier implements StatProvider {
 	
 	public static float applyWetnessCooldown(EntityPlayer player)
 	{
-		IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
-		return 1F + (wetness.getWetness() / wetness.getMaxWetness());
+		StatTracker stats = player.getCapability(StatRegister.CAPABILITY, null);
+		return 1F + (stats.getStat(DefaultStats.WETNESS) / DefaultStats.WETNESS.getMaximum());
 	}
 	
 	public static float whenNearHotBlock(EntityPlayer player)
