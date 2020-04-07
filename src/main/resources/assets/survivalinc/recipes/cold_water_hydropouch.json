@@ -1,0 +1,17 @@
+{
+	"type": "survivalinc:canteen_shapeless",
+	"ingredients": [
+		{
+			"item": "survivalinc:hydropouch",
+			"data": 4
+		},
+		{
+			"item": "minecraft:snowball",
+			"data": 0
+		}
+	],
+	"result": {
+		"item": "survivalinc:hydropouch",
+		"data": 5
+	}
+}

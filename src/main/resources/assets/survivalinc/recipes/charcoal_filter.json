@@ -1,0 +1,23 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"%%%",
+		"###",
+		"%%%"
+	],
+	"key": {
+		"#": {
+			"item": "minecraft:coal",
+			"data": 1
+		},
+		"%": {
+			"item": "minecraft:paper",
+			"data": 0
+		}
+	},
+	"result": {
+		"item": "survivalinc:charcoal_filter",
+		"data": 0,
+		"count": 3
+	}
+}

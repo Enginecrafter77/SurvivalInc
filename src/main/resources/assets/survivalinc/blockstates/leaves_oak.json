@@ -1,0 +1,32 @@
+{
+	"forge_marker": 1,
+	"defaults": {
+		"textures": {
+			"all": "survivalinc:blocks/leaves_oak"
+		}
+	},
+	"variants": {
+		"normal": {
+			"model": "cube_all"
+		},
+		"inventory": {
+			"model": "cube_all"
+		},
+		"decayable": {
+			"true": {
+				"model": "cube_all"
+			},
+			"false": {
+				"model": "cube_all"
+			}
+		},
+		"check_decay": {
+			"true": {
+				"model": "cube_all"
+			},
+			"false": {
+				"model": "cube_all"
+			}
+		}
+	}
+}

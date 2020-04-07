@@ -1,0 +1,22 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"&&&",
+		"&&&",
+		" # "
+	],
+	"key": {
+		"#": {
+			"item": "minecraft:stick",
+			"data": 0
+		},
+		"&": {
+			"item": "minecraft:feather",
+			"data": 0
+		}
+	},
+	"result": {
+		"item": "survivalinc:feather_fan",
+		"data": 0
+	}
+}

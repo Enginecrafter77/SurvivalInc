@@ -1,0 +1,5 @@
+{
+	"recipes": {
+		"canteen_shapeless": "enginecrafter77.survivalinc.crafting.ShapelessCanteenRecipe$Factory"
+	}
+}

@@ -1,0 +1,14 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [
+		{
+			"item": "survivalinc:lucid_block",
+			"data": 0
+		}
+	],
+	"result": {
+		"item": "survivalinc:lucid_dream_essence",
+		"data": 0,
+		"count": 9
+	}
+}

@@ -1,0 +1,17 @@
+{
+	"type": "survivalinc:canteen_shapeless",
+	"ingredients": [
+		{
+			"item": "survivalinc:canteen",
+			"data": 2
+		},
+		{
+			"item": "survivalinc:charcoal_filter",
+			"data": 0
+		}
+	],
+	"result": {
+		"item": "survivalinc:canteen",
+		"data": 4
+	}
+}

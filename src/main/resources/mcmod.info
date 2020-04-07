@@ -1,15 +1,15 @@
 [
 {
-  "modid": "schopcraft",
-  "name": "SchopCraft",
-  "description": "SchopCraft is a mod influenced heavily by the EnviroMine mod, the Tough As Nails mod, and the external game Don't Starve. It's intended to make Minecraft harder, cooler, and... something in-between.",
+  "modid": "survivalinc",
+  "name": "Survival Inc.",
+  "description": "Tired of the all-same routine every day? Do you want something more... let's say, special? Wait no more! Survival Inc. corporation is proud to present you our newest product in a line!",
   "version": "0.3.1",
   "mcversion": "1.12.2",
-  "url": "https://minecraft.curseforge.com/projects/schopcraft",
+  "url": "https://minecraft.curseforge.com/projects/survivalinc",
   "updateUrl": "",
-  "authorList": ["Schoperation","See README for full list"],
-  "credits": "Made by Schoperation. Influenced by many others.",
-  "logoFile": "assets/schopcraft/textures/logo.png",
+  "authorList": ["Schoperation(Original Mod)","Enginecrafter77"],
+  "credits": "Original mod made by Schoperation. Forked work and framework improvements by Enginecrafter77",
+  "logoFile": "assets/survivalinc/textures/logo.png",
   "screenshots": [],
   "dependencies": []
 }

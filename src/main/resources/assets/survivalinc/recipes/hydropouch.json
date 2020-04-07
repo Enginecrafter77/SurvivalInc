@@ -1,0 +1,26 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		" ^ ",
+		"# #",
+		"#%#"
+	],
+	"key": {
+		"#": {
+			"item": "minecraft:wool",
+			"data": 11
+		},
+		"%": {
+			"item": "minecraft:soul_sand",
+			"data": 0
+		},
+		"^": {
+			"item": "survivalinc:lucid_dream_essence",
+			"data": 0
+		}
+	},
+	"result": {
+		"item": "survivalinc:hydropouch",
+		"data": 0
+	}
+}

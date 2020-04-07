@@ -1,0 +1,89 @@
+# Conveniently in alphabetical order.
+# Items
+item.survivalinc:cold_water_canteen.name=Cold Water Canteen
+item.survivalinc:dirty_water_canteen.name=Dirty Water Canteen
+item.survivalinc:empty_canteen.name=Empty Canteen
+item.survivalinc:filtered_water_canteen.name=Filtered Water Canteen
+item.survivalinc:fresh_water_canteen.name=Fresh Water Canteen
+item.survivalinc:salt_water_canteen.name=Salt Water Canteen
+item.survivalinc:charcoal_filter.name=Charcoal Filter
+item.survivalinc:feather_fan.name=Feather Fan
+item.survivalinc:cold_water_hydropouch.name=Cold Water HydroPouch
+item.survivalinc:dirty_water_hydropouch.name=Dirty Water HydroPouch
+item.survivalinc:empty_hydropouch.name=Empty HydroPouch
+item.survivalinc:filtered_water_hydropouch.name=Filtered Water HydroPouch
+item.survivalinc:fresh_water_hydropouch.name=Fresh Water HydroPouch
+item.survivalinc:salt_water_hydropouch.name=Salt Water HydroPouch
+item.survivalinc:ice_cream.name=Ice Cream
+item.survivalinc:lucid_dream_essence.name=Lucid Dream Essence
+item.survivalinc:tabicon.name=Tab Icon
+item.survivalinc:dry_towel.name=Dry Towel
+item.survivalinc:partially_wet_towel.name=§9Partially Wet Towel
+item.survivalinc:wet_towel.name=§1Wet Towel
+
+# Blocks
+tile.survivalinc:lucid_block.name=Lucid Block
+tile.survivalinc:leaves_big_oak.name=Dark Oak Leaves
+tile.survivalinc:leaves_oak.name=Oak Leaves
+tile.survivalinc:leaves_birch.name=Birch Leaves
+
+# Creative Tabs
+itemGroup.survivalinc:mainTab=survivalinc
+
+# Damage Sources
+death.attack.survivalinc_dehydration=%1$s failed to cry to get a drink of water
+death.attack.survivalinc_hyperthermia=%1$s boiled before they found a mister
+death.attack.survivalinc_hypothermia=%1$s forgot to pack a blanket
+
+# Sounds
+survivalinc.subtitle.fan_whoosh=Fan Whoosh
+
+# Config
+survivalinc.client=Client
+survivalinc.client.tooltip=Client-Only Settings
+config.survivalinc:client.showCelsius=Show in Celsius?
+config.survivalinc:client.showCelsius.tooltip=If true, the temperature will be shown in Celsius. If false, it will be shown in Fahrenheit.
+config.survivalinc:client.showSips=Show Canteen Sips?
+config.survivalinc:client.showSips.tooltip=By default, the durability bar of the canteen (and HydroPouch) will show its durability. Set this to true to have the bar show the number of sips left instead.
+config.survivalinc:client.barPos=Position of Bars?
+config.survivalinc:client.barPos.tooltip=Specify where to place the GUI bars. You can set it to any of the following: \ntop left \ntop right \nmiddle left \nmiddle right \nbottom left \nbottom right \nInclude the space. If you mess up, it'll default to middle right.
+
+survivalinc.mechanics=Mechanics
+survivalinc.mechanics.tooltip=Settings with the main player mechanics (temp, thirst, sanity, wetness, ghost)
+config.survivalinc:mechanics.enableGhost=Ghost on death?
+config.survivalinc:mechanics.enableGhost.tooltip=Upon death, you become a ghost, freely roaming the world. Disable this setting to allow for normal respawning.
+config.survivalinc:mechanics.enableTemperature=Temperature?
+config.survivalinc:mechanics.enableTemperature.tooltip=Toggle the temperature mechanic.
+config.survivalinc:mechanics.enableThirst=Thirst?
+config.survivalinc:mechanics.enableThirst.tooltip=Toggle the thirst mechanic.
+config.survivalinc:mechanics.enableSanity=Sanity?
+config.survivalinc:mechanics.enableSanity.tooltip=Toggle the sanity mechanic.
+config.survivalinc:mechanics.enableWetness=Wetness?
+config.survivalinc:mechanics.enableWetness.tooltip=Toggle the wetness mechanic.
+config.survivalinc:mechanics.temperatureScale=Heat Rate
+config.survivalinc:mechanics.temperatureScale.tooltip=The rate at which a player heats up and cools down.
+config.survivalinc:mechanics.thirstScale=Thirst Rate
+config.survivalinc:mechanics.thirstScale.tooltip=The rate at which a player gets thirsty.
+config.survivalinc:mechanics.sanityScale=Sanity Rate
+config.survivalinc:mechanics.sanityScale.tooltip=The rate at which a player goes sane and insane.
+config.survivalinc:mechanics.wetnessScale=Drench Rate
+config.survivalinc:mechanics.wetnessScale.tooltip=The rate at which a player gets drenched and dries off.
+config.survivalinc:mechanics.minAnnoyingWetness=Wetness Annoyance
+config.survivalinc:mechanics.minAnnoyingWetness.tooltip=The minimal level of wetness that starts to be annoying to the character, thus losing sanity.
+config.survivalinc:mechanics.darkSpookFactorBase=Dark Spookiness Base
+config.survivalinc:mechanics.darkSpookFactorBase.tooltip=The rate at which light level of 0 takes your sanity per tick.
+
+survivalinc.seasons=Seasons
+survivalinc.seasons.tooltip=Settings with the seasons.
+config.survivalinc:seasons.enableSeasons=Seasons?
+config.survivalinc:seasons.enableSeasons.tooltip=Should seasons be enabled?
+config.survivalinc:seasons.enableDayLength=Change Day lengths?
+config.survivalinc:seasons.enableDayLength.tooltip=By default, every summer increases the length of daylight, and winter does the opposite. Set this to false to disable.
+config.survivalinc:seasons.winterLength=Length of Winter
+config.survivalinc:seasons.winterLength.tooltip=Length of Winter in Minecraft days. Set to 0 for it to never occur.
+config.survivalinc:seasons.springLength=Length of Spring
+config.survivalinc:seasons.springLength.tooltip=Length of Spring in Minecraft days. Set to 0 for it to never occur.
+config.survivalinc:seasons.summerLength=Length of Summer
+config.survivalinc:seasons.summerLength.tooltip=Length of Summer in Minecraft days. Set to 0 for it to never occur.
+config.survivalinc:seasons.autumnLength=Length of Autumn
+config.survivalinc:seasons.autumnLength.tooltip=Length of Autumn in Minecraft days. Set to 0 for it to never occur.
