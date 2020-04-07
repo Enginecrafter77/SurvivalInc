@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import enginecrafter77.survivalinc.ModBlocks;
-import enginecrafter77.survivalinc.config.SchopConfig;
+import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatRegister;
 import enginecrafter77.survivalinc.stats.StatTracker;
@@ -41,7 +41,7 @@ public class GhostMain {
 		IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
 
 		// Make them a ghost (if enabled)
-		if(SchopConfig.MECHANICS.enableGhost)
+		if(ModConfig.MECHANICS.enableGhost)
 		{
 			ghost.create();
 			

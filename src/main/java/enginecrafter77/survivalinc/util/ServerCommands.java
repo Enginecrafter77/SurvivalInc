@@ -1,6 +1,6 @@
 package enginecrafter77.survivalinc.util;
 
-import enginecrafter77.survivalinc.config.SchopConfig;
+import enginecrafter77.survivalinc.config.ModConfig;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
@@ -49,7 +49,7 @@ public class ServerCommands {
 			BlockPos pos = player.getPosition();
 
 			// Set their spawnpoint to those coordinates.
-			if (!player.isDead && SchopConfig.MECHANICS.enableGhost)
+			if (!player.isDead && ModConfig.MECHANICS.enableGhost)
 			{
 
 				player.setSpawnPoint(pos, true);

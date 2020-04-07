@@ -1,15 +1,15 @@
 package enginecrafter77.survivalinc.stats.impl;
 
-import enginecrafter77.survivalinc.config.SchopConfig;
+import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.stats.OverflowHandler;
 import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.util.ModifierCalculator;
 import net.minecraft.entity.player.EntityPlayer;
 
 public enum DefaultStats implements StatProvider {
-	HYDRATION(SchopConfig.MECHANICS.thirstScale, 0, 100, 0F),
-	SANITY(SchopConfig.MECHANICS.sanityScale, 0, 100),
-	WETNESS(SchopConfig.MECHANICS.wetnessScale, 0, 100);
+	HYDRATION(ModConfig.MECHANICS.thirstScale, 0, 100, 0F),
+	SANITY(ModConfig.MECHANICS.sanityScale, 0, 100),
+	WETNESS(ModConfig.MECHANICS.wetnessScale, 0, 100);
 	
 	public final float scale;
 	

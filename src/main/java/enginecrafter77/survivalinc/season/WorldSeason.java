@@ -23,7 +23,7 @@ import java.util.List;
 
 import enginecrafter77.survivalinc.CommonProxy;
 import enginecrafter77.survivalinc.SurvivalInc;
-import enginecrafter77.survivalinc.config.SchopConfig;
+import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.net.SeasonPacket;
 import enginecrafter77.survivalinc.util.SchopWorldData;
 import enginecrafter77.survivalinc.util.WorldDataMgr;
@@ -61,7 +61,7 @@ public class WorldSeason {
 		daysIntoSeason = days;
 
 		// Change biome temperatures immediately.
-		if (SchopConfig.SEASONS.aenableSeasons)
+		if (ModConfig.SEASONS.aenableSeasons)
 		{
 
 			BiomeTempController temporaryController = new BiomeTempController();
@@ -74,7 +74,7 @@ public class WorldSeason {
 	public void onPlayerLogsIn(PlayerLoggedInEvent event)
 	{
 
-		if (SchopConfig.SEASONS.aenableSeasons)
+		if (ModConfig.SEASONS.aenableSeasons)
 		{
 
 			EntityPlayer player = event.player;
@@ -118,7 +118,7 @@ public class WorldSeason {
 	public void onPlayerLogsOut(PlayerLoggedOutEvent event)
 	{
 
-		if (SchopConfig.SEASONS.aenableSeasons)
+		if (ModConfig.SEASONS.aenableSeasons)
 		{
 
 			// Turn off day-night cycle if no more people on
@@ -165,7 +165,7 @@ public class WorldSeason {
 			World world = player.world;
 
 			// Server-side
-			if (!world.isRemote && SchopConfig.SEASONS.aenableSeasons)
+			if (!world.isRemote && ModConfig.SEASONS.aenableSeasons)
 			{
 
 				// Time
@@ -254,7 +254,7 @@ public class WorldSeason {
 				}
 
 				// Affect daytime
-				if (SchopConfig.SEASONS.aenableDayLength)
+				if (ModConfig.SEASONS.aenableDayLength)
 				{
 
 					cycleController.alter(world);
@@ -292,7 +292,7 @@ public class WorldSeason {
 
 			EntityPlayer player = (EntityPlayer) event.getEntity();
 
-			if (SchopConfig.SEASONS.aenableSeasons)
+			if (ModConfig.SEASONS.aenableSeasons)
 			{
 
 				// Is it summer? Then let's try to remove some snow and ice.
@@ -331,7 +331,7 @@ public class WorldSeason {
 
 		int color;
 
-		if (SchopConfig.SEASONS.aenableSeasons)
+		if (ModConfig.SEASONS.aenableSeasons)
 		{
 
 			color = tweaks.getSeasonGrassColor(season, event.getBiome());
@@ -362,7 +362,7 @@ public class WorldSeason {
 	{
 
 		// Is it actually Autumn?
-		if (!event.getWorld().isRemote && season == Season.AUTUMN && SchopConfig.SEASONS.aenableSeasons)
+		if (!event.getWorld().isRemote && season == Season.AUTUMN && ModConfig.SEASONS.aenableSeasons)
 		{
 
 			// Is this a legit crop?
@@ -396,14 +396,14 @@ public class WorldSeason {
 		{
 
 			// Winter?
-			if (season == Season.WINTER && SchopConfig.SEASONS.aenableSeasons)
+			if (season == Season.WINTER && ModConfig.SEASONS.aenableSeasons)
 			{
 
 				event.setResult(Event.Result.DENY);
 			}
 
 			// Summer?
-			else if (season == Season.SUMMER && SchopConfig.SEASONS.aenableSeasons)
+			else if (season == Season.SUMMER && ModConfig.SEASONS.aenableSeasons)
 			{
 
 				event.setResult(Event.Result.ALLOW);

@@ -1,6 +1,6 @@
 package enginecrafter77.survivalinc.client;
 
-import enginecrafter77.survivalinc.config.SchopConfig;
+import enginecrafter77.survivalinc.config.ModConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
 
@@ -116,19 +116,19 @@ public class StatBar {
 		// Don't display most crap if debug mode is enabled.
 		if (!isDebugEnabled && !isGhost)
 		{
-			if(type == StatType.TEMPERATURE && SchopConfig.MECHANICS.enableTemperature)
+			if(type == StatType.TEMPERATURE && ModConfig.MECHANICS.enableTemperature)
 			{
 				return true;
 			}
-			else if (type == StatType.THIRST && SchopConfig.MECHANICS.enableThirst)
+			else if (type == StatType.THIRST && ModConfig.MECHANICS.enableThirst)
 			{
 				return true;
 			}
-			else if (type == StatType.SANITY && SchopConfig.MECHANICS.enableSanity)
+			else if (type == StatType.SANITY && ModConfig.MECHANICS.enableSanity)
 			{
 				return true;
 			}
-			else if (type == StatType.WETNESS && value > 0 && SchopConfig.MECHANICS.enableWetness)
+			else if (type == StatType.WETNESS && value > 0 && ModConfig.MECHANICS.enableWetness)
 			{
 				return true;
 			}
@@ -179,7 +179,7 @@ public class StatBar {
 		if (type == StatType.TEMPERATURE)
 		{
 
-			if (SchopConfig.CLIENT.showCelsius)
+			if (ModConfig.CLIENT.showCelsius)
 			{
 
 				float tempInCelsius = (value - 32) / 1.8f;

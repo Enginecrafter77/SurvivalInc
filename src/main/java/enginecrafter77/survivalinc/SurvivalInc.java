@@ -15,7 +15,7 @@ import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import enginecrafter77.survivalinc.config.SchopConfig;
+import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.season.Season;
 import enginecrafter77.survivalinc.stats.StatManager;
 import enginecrafter77.survivalinc.stats.impl.DefaultStats;
@@ -72,16 +72,16 @@ public class SurvivalInc {
 		DefaultStats.WETNESS.modifiers.addModifier(WetnessModifier::naturalDrying, OperationType.OFFSET);
 		DefaultStats.WETNESS.modifiers.addModifier(WetnessModifier::whenInWater, OperationType.OFFSET);
 		
-		if(SchopConfig.MECHANICS.enableThirst)
+		if(ModConfig.MECHANICS.enableThirst)
 			StatManager.providers.add(DefaultStats.HYDRATION);
 		
-		if(SchopConfig.MECHANICS.enableSanity)
+		if(ModConfig.MECHANICS.enableSanity)
 			StatManager.providers.add(DefaultStats.SANITY);
 		
-		if(SchopConfig.MECHANICS.enableWetness)
+		if(ModConfig.MECHANICS.enableWetness)
 			StatManager.providers.add(DefaultStats.WETNESS);
 		
-		if(SchopConfig.MECHANICS.enableTemperature)
+		if(ModConfig.MECHANICS.enableTemperature)
 			StatManager.providers.add(HeatModifier.instance);
 	}
 

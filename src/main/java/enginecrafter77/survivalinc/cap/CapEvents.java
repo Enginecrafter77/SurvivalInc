@@ -24,7 +24,7 @@ import enginecrafter77.survivalinc.CommonProxy;
 import enginecrafter77.survivalinc.cap.ghost.GhostMain;
 import enginecrafter77.survivalinc.cap.ghost.GhostProvider;
 import enginecrafter77.survivalinc.cap.ghost.IGhost;
-import enginecrafter77.survivalinc.config.SchopConfig;
+import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.net.HUDRenderPacket;
 import enginecrafter77.survivalinc.stats.StatRegister;
 import enginecrafter77.survivalinc.stats.StatTracker;
@@ -87,12 +87,12 @@ public class CapEvents {
 			{
 				if(!player.isCreative() && !player.isSpectator())
 				{
-					if(SchopConfig.MECHANICS.enableThirst)
+					if(ModConfig.MECHANICS.enableThirst)
 					{
 						stat.update(player);
 					}
 
-					if(SchopConfig.MECHANICS.enableSanity)
+					if(ModConfig.MECHANICS.enableSanity)
 					{
 						sanityMod.onPlayerUpdate(player);
 
@@ -103,12 +103,12 @@ public class CapEvents {
 						}
 					}
 
-					if(SchopConfig.MECHANICS.enableWetness)
+					if(ModConfig.MECHANICS.enableWetness)
 					{
 						WetnessModifier.onPlayerUpdate(player);
 					}
 
-					if(SchopConfig.MECHANICS.enableGhost)
+					if(ModConfig.MECHANICS.enableGhost)
 					{
 						ghostMain.onPlayerUpdate(player);
 					}
@@ -137,7 +137,7 @@ public class CapEvents {
 			}
 
 			// Fire methods.
-			if(SchopConfig.MECHANICS.enableThirst && !player.isCreative() && !player.isSpectator())
+			if(ModConfig.MECHANICS.enableThirst && !player.isCreative() && !player.isSpectator())
 			{
 				thirstMod.onPlayerInteract(player);
 			}
@@ -165,12 +165,12 @@ public class CapEvents {
 				if (!player.isCreative())
 				{
 
-					if (SchopConfig.MECHANICS.enableTemperature)
+					if (ModConfig.MECHANICS.enableTemperature)
 					{
 						//tempMod.onPlayerConsumeItem(player, itemUsed);
 					}
 
-					if (SchopConfig.MECHANICS.enableSanity)
+					if (ModConfig.MECHANICS.enableSanity)
 					{
 
 						sanityMod.onPlayerConsumeItem(player, itemUsed);
@@ -215,7 +215,7 @@ public class CapEvents {
 			DamageSource damageSource = event.getSource();
 
 			// Fire methods.
-			if (SchopConfig.MECHANICS.enableSanity)
+			if (ModConfig.MECHANICS.enableSanity)
 			{
 
 				sanityMod.onDropsDropped(entityKilled, drops, lootingLevel, damageSource);

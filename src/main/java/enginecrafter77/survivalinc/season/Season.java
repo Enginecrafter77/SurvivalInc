@@ -3,14 +3,14 @@ package enginecrafter77.survivalinc.season;
 import java.util.ArrayList;
 import java.util.List;
 
-import enginecrafter77.survivalinc.config.SchopConfig;
+import enginecrafter77.survivalinc.config.ModConfig;
 
 public enum Season {
 
-	WINTER(SchopConfig.SEASONS.winterLength, 0.6f),
-	SPRING(SchopConfig.SEASONS.springLength, 0.7f),
-	SUMMER(SchopConfig.SEASONS.summerLength, 0.3f),
-	AUTUMN(SchopConfig.SEASONS.autumnLength, 0.4f);
+	WINTER(ModConfig.SEASONS.winterLength, 0.6f),
+	SPRING(ModConfig.SEASONS.springLength, 0.7f),
+	SUMMER(ModConfig.SEASONS.summerLength, 0.3f),
+	AUTUMN(ModConfig.SEASONS.autumnLength, 0.4f);
 	
 	/** The length of the season in minecraft days */
 	public final int length;

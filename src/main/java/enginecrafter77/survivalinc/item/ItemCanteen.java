@@ -24,7 +24,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 
 import enginecrafter77.survivalinc.SurvivalInc;
-import enginecrafter77.survivalinc.config.SchopConfig;
+import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.stats.StatRegister;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import enginecrafter77.survivalinc.stats.impl.DefaultStats;
@@ -775,7 +775,7 @@ public class ItemCanteen extends Item {
 		{
 
 			// What is configured?
-			if (SchopConfig.CLIENT.showSipsInDurabilityBar)
+			if (ModConfig.CLIENT.showSipsInDurabilityBar)
 			{
 
 				// Show sips
@@ -829,7 +829,7 @@ public class ItemCanteen extends Item {
 		if (nbt != null)
 		{
 
-			if (SchopConfig.CLIENT.showSipsInDurabilityBar)
+			if (ModConfig.CLIENT.showSipsInDurabilityBar)
 			{
 
 				percentLeft = Math.round((nbt.getInteger("sips") * 100) / canteenSips);

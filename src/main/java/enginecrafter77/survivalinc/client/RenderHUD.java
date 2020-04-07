@@ -1,7 +1,7 @@
 package enginecrafter77.survivalinc.client;
 
 import enginecrafter77.survivalinc.SurvivalInc;
-import enginecrafter77.survivalinc.config.SchopConfig;
+import enginecrafter77.survivalinc.config.ModConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
@@ -145,24 +145,24 @@ public class RenderHUD extends Gui {
 		// From there, figure out where exactly to put the single bar, according
 		// to the config value.
 		// On the left of the screen
-		if (SchopConfig.CLIENT.barPositions.equals("top left") || SchopConfig.CLIENT.barPositions.equals("middle left")
-				|| SchopConfig.CLIENT.barPositions.equals("bottom left"))
+		if (ModConfig.CLIENT.barPositions.equals("top left") || ModConfig.CLIENT.barPositions.equals("middle left")
+				|| ModConfig.CLIENT.barPositions.equals("bottom left"))
 		{
 
 			return 135;
 		}
 
 		// Right of the screen
-		else if (SchopConfig.CLIENT.barPositions.equals("top right")
-				|| SchopConfig.CLIENT.barPositions.equals("middle right")
-				|| SchopConfig.CLIENT.barPositions.equals("bottom right"))
+		else if (ModConfig.CLIENT.barPositions.equals("top right")
+				|| ModConfig.CLIENT.barPositions.equals("middle right")
+				|| ModConfig.CLIENT.barPositions.equals("bottom right"))
 		{
 
 			return screenWidth - 2;
 		}
 
 		// For the smartasses... :)
-		else if (SchopConfig.CLIENT.barPositions
+		else if (ModConfig.CLIENT.barPositions
 				.equals("Include the space. If you mess up, it'll default to middle right."))
 		{
 
@@ -182,7 +182,7 @@ public class RenderHUD extends Gui {
 	{
 
 		// Top of the screen
-		if (SchopConfig.CLIENT.barPositions.equals("top left") || SchopConfig.CLIENT.barPositions.equals("top right"))
+		if (ModConfig.CLIENT.barPositions.equals("top left") || ModConfig.CLIENT.barPositions.equals("top right"))
 		{
 
 			// Is this the 1st bar? 2nd bar? etc.
@@ -190,23 +190,23 @@ public class RenderHUD extends Gui {
 		}
 
 		// Middle of the screen
-		else if (SchopConfig.CLIENT.barPositions.equals("middle left")
-				|| SchopConfig.CLIENT.barPositions.equals("middle right"))
+		else if (ModConfig.CLIENT.barPositions.equals("middle left")
+				|| ModConfig.CLIENT.barPositions.equals("middle right"))
 		{
 
 			return (screenHeight / 2) - 30 + (20 * pos);
 		}
 
 		// Bottom of the screen
-		else if (SchopConfig.CLIENT.barPositions.equals("bottom left")
-				|| SchopConfig.CLIENT.barPositions.equals("bottom right"))
+		else if (ModConfig.CLIENT.barPositions.equals("bottom left")
+				|| ModConfig.CLIENT.barPositions.equals("bottom right"))
 		{
 
 			return screenHeight - 80 + (20 * pos);
 		}
 
 		// For the smartasses... :)
-		else if (SchopConfig.CLIENT.barPositions
+		else if (ModConfig.CLIENT.barPositions
 				.equals("Include the space. If you mess up, it'll default to middle right."))
 		{
 

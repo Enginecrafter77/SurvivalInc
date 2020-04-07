@@ -3,7 +3,7 @@ package enginecrafter77.survivalinc.stats.impl;
 import java.util.HashMap;
 import java.util.Map;
 
-import enginecrafter77.survivalinc.config.SchopConfig;
+import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.stats.OverflowHandler;
 import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatRegister;
@@ -59,7 +59,7 @@ public class HeatModifier implements StatProvider {
 		target = targettemp.apply(player, target * 78); // 78 = Schoperation's body heat constant
 		
 		float difference = Math.abs(target - current);
-		float rate = difference * (float)SchopConfig.MECHANICS.heatExchangeFactor;
+		float rate = difference * (float)ModConfig.MECHANICS.heatExchangeFactor;
 		rate = this.exchangerate.apply(player, rate);
 		
 		if(current > target) rate *= -1;

@@ -14,7 +14,7 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 
 @Config(modid = SurvivalInc.MOD_ID, name = SurvivalInc.MOD_ID, category = "")
-public class SchopConfig {
+public class ModConfig {
 
 	// The values in the config file. Add on more as needed.
 	// Sub-categories
@@ -53,14 +53,14 @@ public class SchopConfig {
 			{
 				// Send server config values to the client. This will not affect
 				// the client's config file; it's temporary stuff.
-				IMessage msg = new ConfigPacket.ConfigMessage(SchopConfig.MECHANICS.enableGhost,
-						SchopConfig.MECHANICS.enableTemperature, SchopConfig.MECHANICS.enableThirst,
-						SchopConfig.MECHANICS.enableSanity, SchopConfig.MECHANICS.enableWetness,
-						SchopConfig.MECHANICS.temperatureScale, SchopConfig.MECHANICS.thirstScale,
-						SchopConfig.MECHANICS.sanityScale, SchopConfig.MECHANICS.wetnessScale,
-						SchopConfig.SEASONS.aenableSeasons, SchopConfig.SEASONS.aenableDayLength,
-						SchopConfig.SEASONS.winterLength, SchopConfig.SEASONS.springLength,
-						SchopConfig.SEASONS.summerLength, SchopConfig.SEASONS.autumnLength);
+				IMessage msg = new ConfigPacket.ConfigMessage(ModConfig.MECHANICS.enableGhost,
+						ModConfig.MECHANICS.enableTemperature, ModConfig.MECHANICS.enableThirst,
+						ModConfig.MECHANICS.enableSanity, ModConfig.MECHANICS.enableWetness,
+						ModConfig.MECHANICS.temperatureScale, ModConfig.MECHANICS.thirstScale,
+						ModConfig.MECHANICS.sanityScale, ModConfig.MECHANICS.wetnessScale,
+						ModConfig.SEASONS.aenableSeasons, ModConfig.SEASONS.aenableDayLength,
+						ModConfig.SEASONS.winterLength, ModConfig.SEASONS.springLength,
+						ModConfig.SEASONS.summerLength, ModConfig.SEASONS.autumnLength);
 				CommonProxy.net.sendTo(msg, (EntityPlayerMP) player);
 			}
 		}

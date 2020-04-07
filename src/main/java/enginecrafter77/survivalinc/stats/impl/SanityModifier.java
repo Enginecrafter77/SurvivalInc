@@ -23,7 +23,7 @@ import java.util.function.Predicate;
 
 import enginecrafter77.survivalinc.CommonProxy;
 import enginecrafter77.survivalinc.ModItems;
-import enginecrafter77.survivalinc.config.SchopConfig;
+import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.net.SummonInfoPacket;
 import enginecrafter77.survivalinc.stats.StatRegister;
 import enginecrafter77.survivalinc.stats.StatTracker;
@@ -49,14 +49,14 @@ public class SanityModifier {
 		if(isOutsideOverworld.test(player)) return 0F;
 		int lightlevel = player.world.getLight(player.getPosition());
 		// If there is enough light, steve/alex is happy
-		if(lightlevel >= SchopConfig.MECHANICS.comfortLightLevel) return 0F;
-		float darknesslevel = (float)(SchopConfig.MECHANICS.comfortLightLevel - lightlevel) / (float)SchopConfig.MECHANICS.comfortLightLevel;
-		return (float)SchopConfig.MECHANICS.darkSpookFactorBase * -darknesslevel;
+		if(lightlevel >= ModConfig.MECHANICS.comfortLightLevel) return 0F;
+		float darknesslevel = (float)(ModConfig.MECHANICS.comfortLightLevel - lightlevel) / (float)ModConfig.MECHANICS.comfortLightLevel;
+		return (float)ModConfig.MECHANICS.darkSpookFactorBase * -darknesslevel;
 	}
 	
 	public static float whenWet(EntityPlayer player)
 	{
-		float boundary = (float)SchopConfig.MECHANICS.minAnnoyingWetness;
+		float boundary = (float)ModConfig.MECHANICS.minAnnoyingWetness;
 		StatTracker stats = player.getCapability(StatRegister.CAPABILITY, null);
 		float wetness = stats.getStat(DefaultStats.WETNESS);
 		float annoyance = (wetness - DefaultStats.WETNESS.getMaximum()) / 10000;

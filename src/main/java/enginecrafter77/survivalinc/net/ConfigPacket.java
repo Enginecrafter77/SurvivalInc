@@ -1,7 +1,7 @@
 package enginecrafter77.survivalinc.net;
 
 import enginecrafter77.survivalinc.SurvivalInc;
-import enginecrafter77.survivalinc.config.SchopConfig;
+import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.net.ConfigPacket.ConfigMessage;
 import io.netty.buffer.ByteBuf;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -34,21 +34,21 @@ public class ConfigPacket implements IMessageHandler<ConfigMessage, IMessage> {
 			int summerLength = message.summerLength;
 			int autumnLength = message.autumnLength;
 
-			SchopConfig.MECHANICS.enableGhost = enableGhost;
-			SchopConfig.MECHANICS.enableTemperature = enableTemperature;
-			SchopConfig.MECHANICS.enableThirst = enableThirst;
-			SchopConfig.MECHANICS.enableSanity = enableSanity;
-			SchopConfig.MECHANICS.enableWetness = enableWetness;
-			SchopConfig.MECHANICS.temperatureScale = temperatureScale;
-			SchopConfig.MECHANICS.thirstScale = thirstScale;
-			SchopConfig.MECHANICS.sanityScale = sanityScale;
-			SchopConfig.MECHANICS.wetnessScale = wetnessScale;
+			ModConfig.MECHANICS.enableGhost = enableGhost;
+			ModConfig.MECHANICS.enableTemperature = enableTemperature;
+			ModConfig.MECHANICS.enableThirst = enableThirst;
+			ModConfig.MECHANICS.enableSanity = enableSanity;
+			ModConfig.MECHANICS.enableWetness = enableWetness;
+			ModConfig.MECHANICS.temperatureScale = temperatureScale;
+			ModConfig.MECHANICS.thirstScale = thirstScale;
+			ModConfig.MECHANICS.sanityScale = sanityScale;
+			ModConfig.MECHANICS.wetnessScale = wetnessScale;
 
-			SchopConfig.SEASONS.aenableSeasons = aenableSeasons;
-			SchopConfig.SEASONS.winterLength = winterLength;
-			SchopConfig.SEASONS.springLength = springLength;
-			SchopConfig.SEASONS.summerLength = summerLength;
-			SchopConfig.SEASONS.autumnLength = autumnLength;
+			ModConfig.SEASONS.aenableSeasons = aenableSeasons;
+			ModConfig.SEASONS.winterLength = winterLength;
+			ModConfig.SEASONS.springLength = springLength;
+			ModConfig.SEASONS.summerLength = summerLength;
+			ModConfig.SEASONS.autumnLength = autumnLength;
 
 			SurvivalInc.logger.info("Synced the client's config values with the server's.");
 		}
