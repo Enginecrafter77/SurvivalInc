@@ -22,6 +22,7 @@ import schoperation.schopcraft.cap.stat.DefaultStats;
 import schoperation.schopcraft.cap.stat.HeatModifier;
 import schoperation.schopcraft.lib.ModItems;
 import schoperation.schopcraft.season.Season;
+import schoperation.schopcraft.util.OperationType;
 
 @Mod(modid = SchopCraft.MOD_ID, name = SchopCraft.MOD_NAME, version = SchopCraft.VERSION, acceptedMinecraftVersions = SchopCraft.MCVERSION, dependencies = SchopCraft.DEPENDENCIES)
 public class SchopCraft {
@@ -53,19 +54,15 @@ public class SchopCraft {
 		
 		Season.initSeasons();
 		
-		DefaultStats.HYDRATION.addConditionalModifier((EntityPlayer player) -> player.isInLava(), -0.5F);
-		DefaultStats.HYDRATION.addConditionalModifier((EntityPlayer player) -> player.dimension == -1, -0.006F);
-		DefaultStats.HYDRATION.addConditionalModifier((EntityPlayer player) -> player.world.rand.nextBoolean(), -0.003F);
+		DefaultStats.HYDRATION.modifiers.addConditionalModifier((EntityPlayer player) -> player.isInLava(), -0.5F, OperationType.OFFSET);
+		DefaultStats.HYDRATION.modifiers.addConditionalModifier((EntityPlayer player) -> player.dimension == -1, -0.006F, OperationType.OFFSET);
+		DefaultStats.HYDRATION.modifiers.addConditionalModifier((EntityPlayer player) -> player.world.rand.nextBoolean(), -0.003F, OperationType.OFFSET);
 		
-		DefaultStats.SANITY.addConditionalModifier((EntityPlayer player) -> !player.world.isDaytime() && !player.isPlayerSleeping(), -0.0015F);
-		DefaultStats.SANITY.addConditionalModifier(SanityModifier.isOutsideOverworld, -0.004F);
-		DefaultStats.SANITY.situational_modifiers.add(SanityModifier::whenInDark);
-		DefaultStats.SANITY.situational_modifiers.add(SanityModifier::whenWet);
-		DefaultStats.SANITY.situational_modifiers.add(SanityModifier::whenNearEntities);
-		
-		DefaultStats.HEAT.situational_modifiers.add(HeatModifier::whenNearHotBlock);
-		DefaultStats.HEAT.situational_modifiers.add(HeatModifier::equalizeWithEnvironment);
-		DefaultStats.HEAT.situational_modifiers.add(HeatModifier::applyWetnessCooldown);
+		DefaultStats.SANITY.modifiers.addConditionalModifier((EntityPlayer player) -> !player.world.isDaytime() && !player.isPlayerSleeping(), -0.0015F, OperationType.OFFSET);
+		DefaultStats.SANITY.modifiers.addConditionalModifier(SanityModifier.isOutsideOverworld, -0.004F, OperationType.OFFSET);
+		DefaultStats.SANITY.modifiers.addModifier(SanityModifier::whenInDark, OperationType.OFFSET);
+		DefaultStats.SANITY.modifiers.addModifier(SanityModifier::whenWet, OperationType.OFFSET);
+		DefaultStats.SANITY.modifiers.addModifier(SanityModifier::whenNearEntities, OperationType.OFFSET);
 		
 		if(SchopConfig.MECHANICS.enableThirst)
 			StatManager.providers.add(DefaultStats.HYDRATION);
@@ -74,10 +71,7 @@ public class SchopCraft {
 			StatManager.providers.add(DefaultStats.SANITY);
 		
 		if(SchopConfig.MECHANICS.enableTemperature)
-		{
-			StatManager.providers.add(DefaultStats.HEAT);
-			HeatModifier.initHeatMap();
-		}
+			StatManager.providers.add(HeatModifier.instance);
 	}
 
 	@EventHandler

@@ -12,18 +12,38 @@ import net.minecraft.world.biome.Biome;
 import schoperation.schopcraft.cap.wetness.IWetness;
 import schoperation.schopcraft.cap.wetness.WetnessProvider;
 import schoperation.schopcraft.config.SchopConfig;
+import schoperation.schopcraft.util.OperationType;
+import schoperation.schopcraft.util.ModifierCalculator;
 
-public class HeatModifier {
+public class HeatModifier implements StatProvider {
+	private static final long serialVersionUID = 6260092840749029918L;
 	
-	public static Map<Block, Float> heatmap = new HashMap<Block, Float>();
+	//Temporary debug trick
+	public int tick;
 	
-	public static void initHeatMap()
+	public static final HeatModifier instance = new HeatModifier();
+	
+	public Map<Block, Float> heatmap;
+	public ModifierCalculator<EntityPlayer> targettemp;
+	public ModifierCalculator<EntityPlayer> exchangerate;
+	
+	public HeatModifier()
 	{
-		HeatModifier.heatmap.put(Blocks.LAVA, 0.25F);
-		HeatModifier.heatmap.put(Blocks.FIRE, 0.1F);
+		this.heatmap = new HashMap<Block, Float>();
+		this.targettemp = new ModifierCalculator<EntityPlayer>();
+		this.exchangerate = new ModifierCalculator<EntityPlayer>();
+		
+		this.heatmap.put(Blocks.LAVA, 10F);
+		this.heatmap.put(Blocks.FIRE, 5F);
+		
+		this.targettemp.addModifier(HeatModifier::whenNearHotBlock, OperationType.OFFSET);
+		this.exchangerate.addModifier(HeatModifier::applyWetnessCooldown, OperationType.SCALE);
+		
+		this.tick = 0;
 	}
 	
-	public static float equalizeWithEnvironment(EntityPlayer player)
+	@Override
+	public float updateValue(EntityPlayer player, float current)
 	{
 		float target;
 		if(player.posY < player.world.getSeaLevel()) target = 0.7F; // Cave
@@ -34,22 +54,48 @@ public class HeatModifier {
 			if(target < -0.2F) target = -0.2F;
 			if(target > 1.5F) target = 1.5F;
 		}
-		target *= 78; // Schoperation's constant
+		target = targettemp.apply(player, target * 78); // 78 = Schoperation's body heat constant
 		
-		StatTracker stats = player.getCapability(StatRegister.CAPABILITY, null);
-		float rate = (float)SchopConfig.MECHANICS.heatExchangeFactor;
-		float current = stats.getStat(DefaultStats.HEAT);
+		float difference = Math.abs(target - current);
+		float rate = difference * (float)SchopConfig.MECHANICS.heatExchangeFactor;
+		rate = this.exchangerate.apply(player, rate);
 		
-		// Is the current temperature in correct range?
-		if(current < (target + rate) && current > (target - rate)) rate = 0;
 		if(current > target) rate *= -1;
-		return rate;
+		
+		// Debugging
+		if(tick++ % 20 == 0)
+			System.out.format("H: %f (+- %f) --> T: %f\n", current, rate, target);
+		return current + rate;
+	}
+
+	@Override
+	public String getStatID()
+	{
+		return "heat";
+	}
+
+	@Override
+	public float getMaximum()
+	{
+		return 120;
+	}
+
+	@Override
+	public float getMinimum()
+	{
+		return 0;
+	}
+
+	@Override
+	public float getDefault()
+	{
+		return 75;
 	}
 	
 	public static float applyWetnessCooldown(EntityPlayer player)
 	{
 		IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
-		return -0.05F * (wetness.getWetness() / wetness.getMaxWetness());
+		return 1F + (wetness.getWetness() / wetness.getMaxWetness());
 	}
 	
 	public static float whenNearHotBlock(EntityPlayer player)
@@ -65,11 +111,11 @@ public class HeatModifier {
 		for(BlockPos position : blocks)
 		{
 			Block block = player.world.getBlockState(position).getBlock();
-			if(HeatModifier.heatmap.containsKey(block))
+			if(HeatModifier.instance.heatmap.containsKey(block))
 			{
-				float baseheat = HeatModifier.heatmap.get(block);
+				float baseheat = HeatModifier.instance.heatmap.get(block);
 				float proximity = (float)Math.sqrt(origin.distanceSq(position));
-				heat += baseheat * Math.pow(1F - (proximity / max_proximity), 1.5F);
+				heat += baseheat * (1F - (proximity / max_proximity));
 			}
 		}
 		

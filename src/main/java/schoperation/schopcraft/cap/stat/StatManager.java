@@ -69,8 +69,8 @@ public class StatManager extends HashMap<StatProvider, Float> implements StatTra
 	@Override
 	public void update(EntityPlayer player)
 	{
-		for(DefaultStats stat : DefaultStats.values())
-			this.setStat(stat, stat.updateValue(player, this.getStat(stat)));
+		for(StatProvider provider : this.keySet())
+			this.setStat(provider, provider.updateValue(player, this.getStat(provider)));
 	}
 
 	@Override

@@ -26,6 +26,7 @@ import schoperation.schopcraft.cap.stat.StatTracker;
 import schoperation.schopcraft.cap.stat.ThirstModifier;
 import schoperation.schopcraft.cap.stat.StatRegister;
 import schoperation.schopcraft.cap.stat.DefaultStats;
+import schoperation.schopcraft.cap.stat.HeatModifier;
 import schoperation.schopcraft.cap.wetness.IWetness;
 import schoperation.schopcraft.cap.wetness.WetnessModifier;
 import schoperation.schopcraft.cap.wetness.WetnessProvider;
@@ -47,6 +48,13 @@ public class CapEvents {
 	private final WetnessModifier wetnessMod = new WetnessModifier();
 	private final GhostMain ghostMain = new GhostMain();
 
+	public static void sendUpdate(EntityPlayer player, StatTracker stats, IWetness wetness, IGhost ghost)
+	{
+		// Send data to client for rendering.
+		IMessage msgGui = new HUDRenderPacket.HUDRenderMessage(stats.getStat(HeatModifier.instance), HeatModifier.instance.getMaximum(), stats.getStat(DefaultStats.HYDRATION), DefaultStats.HYDRATION.getMaximum(), stats.getStat(DefaultStats.SANITY), DefaultStats.SANITY.getMaximum(), wetness.getWetness(), wetness.getMaxWetness(), ghost.status(), ghost.getEnergy());
+		CommonProxy.net.sendTo(msgGui, (EntityPlayerMP) player);
+	}
+	
 	// When a player logs on, give them their stats stored on the server.
 	@SubscribeEvent
 	public void onPlayerLogsIn(PlayerLoggedInEvent event)
@@ -59,10 +67,7 @@ public class CapEvents {
 			IWetness wetness = player.getCapability(WetnessProvider.WETNESS_CAP, null);
 			StatTracker stat = player.getCapability(StatRegister.CAPABILITY, null);
 			IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
-			
-			// Send data to client for rendering.
-			IMessage msgGui = new HUDRenderPacket.HUDRenderMessage(stat.getStat(DefaultStats.HEAT), DefaultStats.HEAT.getMaximum(), stat.getStat(DefaultStats.HYDRATION), DefaultStats.HYDRATION.getMaximum(), stat.getStat(DefaultStats.SANITY), DefaultStats.SANITY.getMaximum(), wetness.getWetness(), wetness.getMaxWetness(), ghost.status(), ghost.getEnergy());
-			CommonProxy.net.sendTo(msgGui, (EntityPlayerMP) player);
+			CapEvents.sendUpdate(player, stat, wetness, ghost);
 		}
 	}
 
@@ -138,9 +143,7 @@ public class CapEvents {
 						ghostMain.onPlayerUpdate(player);
 					}
 				}
-
-				IMessage msgGui = new HUDRenderPacket.HUDRenderMessage(stat.getStat(DefaultStats.HEAT), DefaultStats.HEAT.getMaximum(), stat.getStat(DefaultStats.HYDRATION), DefaultStats.HYDRATION.getMaximum(), stat.getStat(DefaultStats.SANITY), DefaultStats.SANITY.getMaximum(), wetness.getWetness(), wetness.getMaxWetness(), ghost.status(), ghost.getEnergy());
-				CommonProxy.net.sendTo(msgGui, (EntityPlayerMP) player);
+				CapEvents.sendUpdate(player, stat, wetness, ghost);
 			}
 		}
 	}

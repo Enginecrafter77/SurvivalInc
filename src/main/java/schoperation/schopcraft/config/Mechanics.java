@@ -58,6 +58,6 @@ public class Mechanics {
 	public int comfortLightLevel = 7;
 	
 	@Config.LangKey("config.schopcraft:mechanics.heatExchangeFactor")
-	@Config.RangeDouble(min = 0, max = 100)
-	public double heatExchangeFactor = 0.005;
+	@Config.RangeDouble(min = 0, max = 1)
+	public double heatExchangeFactor = 0.0003;
 }
