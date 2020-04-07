@@ -56,4 +56,10 @@ public enum DefaultStats implements StatProvider {
 	{
 		return this.def;
 	}
+
+	@Override
+	public OverflowHandler getOverflowHandler()
+	{
+		return OverflowHandler.CAP;
+	}
 }

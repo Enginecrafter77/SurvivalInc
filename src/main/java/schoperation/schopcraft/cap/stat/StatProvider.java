@@ -13,4 +13,6 @@ public interface StatProvider extends Serializable {
 	public float getMinimum();
 	
 	public float getDefault();
+	
+	public OverflowHandler getOverflowHandler();
 }

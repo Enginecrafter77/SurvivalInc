@@ -121,4 +121,10 @@ public class HeatModifier implements StatProvider {
 		
 		return heat;
 	}
+
+	@Override
+	public OverflowHandler getOverflowHandler()
+	{
+		return OverflowHandler.NONE;
+	}
 }

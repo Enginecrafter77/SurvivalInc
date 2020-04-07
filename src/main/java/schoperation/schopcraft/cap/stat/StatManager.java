@@ -48,16 +48,13 @@ public class StatManager extends HashMap<StatProvider, Float> implements StatTra
 	@Override
 	public void modifyStat(StatProvider stat, float amount)
 	{
-		float value = this.getStat(stat) + amount;
-		if(value > stat.getMaximum()) value = stat.getMaximum();
-		if(value < stat.getMinimum()) value = stat.getMinimum();
-		this.setStat(stat, value);
+		this.setStat(stat, this.getStat(stat) + amount);
 	}
 
 	@Override
 	public void setStat(StatProvider stat, float amount)
 	{
-		this.put(stat, amount);
+		this.put(stat, stat.getOverflowHandler().apply(stat, amount));
 	}
 	
 	@Override
