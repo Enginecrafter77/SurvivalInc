@@ -1,4 +1,4 @@
-package enginecrafter77.survivalinc.client;
+package enginecrafter77.survivalinc.net;
 
 import enginecrafter77.survivalinc.stats.StatRegister;
 import enginecrafter77.survivalinc.stats.StatTracker;

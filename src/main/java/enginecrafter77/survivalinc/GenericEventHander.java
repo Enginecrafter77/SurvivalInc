@@ -29,17 +29,15 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerWakeUpEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
-
 import java.util.Iterator;
 import java.util.List;
 
 import enginecrafter77.survivalinc.cap.ghost.GhostMain;
 import enginecrafter77.survivalinc.cap.ghost.GhostProvider;
 import enginecrafter77.survivalinc.cap.ghost.IGhost;
-import enginecrafter77.survivalinc.client.StatUpdateMessage;
 import enginecrafter77.survivalinc.config.ModConfig;
+import enginecrafter77.survivalinc.net.StatUpdateMessage;
 import enginecrafter77.survivalinc.stats.StatRegister;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import enginecrafter77.survivalinc.stats.impl.DefaultStats;
@@ -56,10 +54,10 @@ public class GenericEventHander {
 
 	// Modifiers
 	private static final GhostMain ghostMain = new GhostMain();
-
+	
 	public static void sendUpdate(EntityPlayer player, StatTracker stats, IGhost ghost)
 	{
-		CommonProxy.net.sendTo(new StatUpdateMessage(stats), (EntityPlayerMP) player);
+		SurvivalInc.proxy.net.sendTo(new StatUpdateMessage(stats), (EntityPlayerMP) player);
 	}
 	
 	@SubscribeEvent
@@ -68,21 +66,6 @@ public class GenericEventHander {
 		if(!(event.getObject() instanceof EntityPlayer)) return;
 		
 		event.addCapability(new ResourceLocation(SurvivalInc.MOD_ID, "ghost"), new GhostProvider());
-	}
-	
-	// When a player logs on, give them their stats stored on the server.
-	@SubscribeEvent
-	public static void onPlayerLogsIn(PlayerLoggedInEvent event)
-	{
-		EntityPlayer player = event.player;
-		
-		if(player instanceof EntityPlayerMP)
-		{
-			// Capabilities
-			StatTracker stat = player.getCapability(StatRegister.CAPABILITY, null);
-			IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
-			GenericEventHander.sendUpdate(player, stat, ghost);
-		}
 	}
 
 	// When an entity is updated. So, all the time.

@@ -21,7 +21,6 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 
 import java.util.List;
 
-import enginecrafter77.survivalinc.CommonProxy;
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.net.SeasonPacket;
@@ -87,7 +86,7 @@ public class WorldSeason {
 				// correctly.
 				int seasonInt = SchopWorldData.seasonToInt(season);
 				IMessage msg = new SeasonPacket.SeasonMessage(seasonInt, daysIntoSeason);
-				CommonProxy.net.sendTo(msg, (EntityPlayerMP) player);
+				SurvivalInc.proxy.net.sendTo(msg, (EntityPlayerMP) player);
 			}
 
 			// Turn on day-night cycle
@@ -145,7 +144,7 @@ public class WorldSeason {
 
 				int seasonInt = SchopWorldData.seasonToInt(season);
 				IMessage msg = new SeasonPacket.SeasonMessage(seasonInt, -21);
-				CommonProxy.net.sendTo(msg, (EntityPlayerMP) event.player);
+				SurvivalInc.proxy.net.sendTo(msg, (EntityPlayerMP) event.player);
 			}
 		}
 	}
@@ -209,7 +208,7 @@ public class WorldSeason {
 					// Send new season data to client
 					int seasonInt = SchopWorldData.seasonToInt(season);
 					IMessage msg = new SeasonPacket.SeasonMessage(seasonInt, daysIntoSeason);
-					CommonProxy.net.sendTo(msg, (EntityPlayerMP) player);
+					SurvivalInc.proxy.net.sendTo(msg, (EntityPlayerMP) player);
 
 					// Change temperatures
 					biomeTemp.changeBiomeTemperatures(season, daysIntoSeason);

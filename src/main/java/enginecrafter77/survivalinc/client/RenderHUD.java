@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 
+import enginecrafter77.survivalinc.net.StatUpdateMessage;
 import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatRegister;
 import enginecrafter77.survivalinc.stats.StatTracker;

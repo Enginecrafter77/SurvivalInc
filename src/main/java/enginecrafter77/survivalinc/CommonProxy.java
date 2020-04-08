@@ -3,9 +3,6 @@ package enginecrafter77.survivalinc;
 import enginecrafter77.survivalinc.cap.ghost.Ghost;
 import enginecrafter77.survivalinc.cap.ghost.GhostStorage;
 import enginecrafter77.survivalinc.cap.ghost.IGhost;
-import enginecrafter77.survivalinc.client.RenderHUD;
-import enginecrafter77.survivalinc.client.StatUpdateMessage;
-import enginecrafter77.survivalinc.net.ConfigPacket;
 import enginecrafter77.survivalinc.net.SeasonPacket;
 import enginecrafter77.survivalinc.net.SummonInfoPacket;
 import enginecrafter77.survivalinc.season.BiomeTempController;
@@ -29,7 +26,7 @@ import net.minecraftforge.fml.relauncher.Side;
 
 public class CommonProxy {
 
-	public static SimpleNetworkWrapper net;
+	public SimpleNetworkWrapper net;
 	
 	public void preInit(FMLPreInitializationEvent event)
 	{
@@ -49,11 +46,9 @@ public class CommonProxy {
 		MinecraftForge.EVENT_BUS.register(new WorldSeason());
 		MinecraftForge.EVENT_BUS.register(StatRegister.class);
 		
-		net = NetworkRegistry.INSTANCE.newSimpleChannel(SurvivalInc.MOD_ID);
-		net.registerMessage(RenderHUD.instance, StatUpdateMessage.class, 0, Side.CLIENT);
-		net.registerMessage(SummonInfoPacket.class, SummonInfoPacket.SummonInfoMessage.class, 1, Side.SERVER);
-		net.registerMessage(ConfigPacket.class, ConfigPacket.ConfigMessage.class, 2, Side.CLIENT);
-		net.registerMessage(SeasonPacket.class, SeasonPacket.SeasonMessage.class, 3, Side.SERVER);
+		this.net = NetworkRegistry.INSTANCE.newSimpleChannel(SurvivalInc.MOD_ID);
+		this.net.registerMessage(SummonInfoPacket.class, SummonInfoPacket.SummonInfoMessage.class, 1, Side.SERVER);
+		this.net.registerMessage(SeasonPacket.class, SeasonPacket.SeasonMessage.class, 3, Side.SERVER);
 	}
 	
 	public void postInit(FMLPostInitializationEvent event) {}

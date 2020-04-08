@@ -21,8 +21,8 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import java.util.List;
 import java.util.function.Predicate;
 
-import enginecrafter77.survivalinc.CommonProxy;
 import enginecrafter77.survivalinc.ModItems;
+import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.net.SummonInfoPacket;
 import enginecrafter77.survivalinc.stats.StatRegister;
@@ -149,7 +149,7 @@ public class SanityModifier {
 						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(dummy.getCachedUniqueIdString(),
 								"EndermanSound", "EndermanParticles", playerPosX + randOffset, playerPosY + 1,
 								playerPosZ + randOffset);
-						CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) dummy);
+						SurvivalInc.proxy.net.sendTo(msgStuff, (EntityPlayerMP) dummy);
 					}
 
 					// Zombie sound
@@ -159,7 +159,7 @@ public class SanityModifier {
 						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(dummy.getCachedUniqueIdString(),
 								"ZombieSound", "null", playerPosX + randOffset, playerPosY + randOffset,
 								playerPosZ + randOffset);
-						CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) dummy);
+						SurvivalInc.proxy.net.sendTo(msgStuff, (EntityPlayerMP) dummy);
 					}
 
 					// Ghast sound
@@ -169,7 +169,7 @@ public class SanityModifier {
 						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(dummy.getCachedUniqueIdString(),
 								"GhastSound", "null", playerPosX + randOffset, playerPosY + randOffset,
 								playerPosZ + randOffset);
-						CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) dummy);
+						SurvivalInc.proxy.net.sendTo(msgStuff, (EntityPlayerMP) dummy);
 					}
 
 					// Explosion sound + particles
@@ -179,7 +179,7 @@ public class SanityModifier {
 						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(dummy.getCachedUniqueIdString(),
 								"ExplosionSound", "ExplosionParticles", playerPosX + randOffset,
 								playerPosY + randOffset, playerPosZ + randOffset);
-						CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) dummy);
+						SurvivalInc.proxy.net.sendTo(msgStuff, (EntityPlayerMP) dummy);
 					}
 
 					// Stone sound
@@ -189,7 +189,7 @@ public class SanityModifier {
 						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(dummy.getCachedUniqueIdString(),
 								"StoneBreakSound", "null", playerPosX + randOffset, playerPosY + randOffset,
 								playerPosZ + randOffset);
-						CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) dummy);
+						SurvivalInc.proxy.net.sendTo(msgStuff, (EntityPlayerMP) dummy);
 					}
 
 					// Mist in the air... tf???????
@@ -199,7 +199,7 @@ public class SanityModifier {
 						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(dummy.getCachedUniqueIdString(),
 								"null", "CreepyMistParticles", playerPosX + randOffset, playerPosY + 1,
 								playerPosZ + randOffset);
-						CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) dummy);
+						SurvivalInc.proxy.net.sendTo(msgStuff, (EntityPlayerMP) dummy);
 					}
 
 					// A guardian appearing in your face. This one still scares
@@ -209,7 +209,7 @@ public class SanityModifier {
 
 						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(dummy.getCachedUniqueIdString(),
 								"null", "GuardianParticles", playerPosX, playerPosY, playerPosZ);
-						CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) dummy);
+						SurvivalInc.proxy.net.sendTo(msgStuff, (EntityPlayerMP) dummy);
 					}
 
 					// Fire sounds + smoke particles
@@ -219,7 +219,7 @@ public class SanityModifier {
 						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(dummy.getCachedUniqueIdString(),
 								"FireSound", "SmokeParticles", playerPosX + randOffset, playerPosY + randOffset,
 								playerPosZ + randOffset);
-						CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) dummy);
+						SurvivalInc.proxy.net.sendTo(msgStuff, (EntityPlayerMP) dummy);
 					}
 
 					// A�villager sound... are they lost?
@@ -229,7 +229,7 @@ public class SanityModifier {
 						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(dummy.getCachedUniqueIdString(),
 								"VillagerSound", "null", playerPosX + randOffset, playerPosY + randOffset,
 								playerPosZ + randOffset);
-						CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) dummy);
+						SurvivalInc.proxy.net.sendTo(msgStuff, (EntityPlayerMP) dummy);
 					}
 
 					// Lava sound
@@ -239,7 +239,7 @@ public class SanityModifier {
 						IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(dummy.getCachedUniqueIdString(),
 								"LavaSound", "null", playerPosX + randOffset, playerPosY + randOffset,
 								playerPosZ + randOffset);
-						CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) dummy);
+						SurvivalInc.proxy.net.sendTo(msgStuff, (EntityPlayerMP) dummy);
 					}
 				}
 			}
@@ -270,7 +270,7 @@ public class SanityModifier {
 
 					IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(dummy.getCachedUniqueIdString(),
 							"InsanityAmbienceSoundLoud", "null", playerPosX, playerPosY, playerPosZ);
-					CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) dummy);
+					SurvivalInc.proxy.net.sendTo(msgStuff, (EntityPlayerMP) dummy);
 				}
 			}
 			else if(stats.getStat(DefaultStats.SANITY) <= (DefaultStats.SANITY.getMaximum() * 0.50))
@@ -284,7 +284,7 @@ public class SanityModifier {
 
 					IMessage msgStuff = new SummonInfoPacket.SummonInfoMessage(dummy.getCachedUniqueIdString(),
 							"InsanityAmbienceSound", "null", playerPosX, playerPosY, playerPosZ);
-					CommonProxy.net.sendTo(msgStuff, (EntityPlayerMP) dummy);
+					SurvivalInc.proxy.net.sendTo(msgStuff, (EntityPlayerMP) dummy);
 				}
 			}
 
