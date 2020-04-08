@@ -1,7 +1,5 @@
 package enginecrafter77.survivalinc;
 
-import enginecrafter77.survivalinc.cap.CapEvents;
-import enginecrafter77.survivalinc.cap.CapabilityHandler;
 import enginecrafter77.survivalinc.cap.ghost.Ghost;
 import enginecrafter77.survivalinc.cap.ghost.GhostStorage;
 import enginecrafter77.survivalinc.cap.ghost.IGhost;
@@ -46,11 +44,10 @@ public class CommonProxy {
 	public void init(FMLInitializationEvent event)
 	{
 		// Register event handlers.
-		MinecraftForge.EVENT_BUS.register(new CapEvents());
+		MinecraftForge.EVENT_BUS.register(GenericEventHander.class);
 		MinecraftForge.EVENT_BUS.register(new TweakEvents());
 		MinecraftForge.EVENT_BUS.register(new WorldSeason());
 		MinecraftForge.EVENT_BUS.register(StatRegister.class);
-		MinecraftForge.EVENT_BUS.register(CapabilityHandler.class);
 		
 		net = NetworkRegistry.INSTANCE.newSimpleChannel(SurvivalInc.MOD_ID);
 		net.registerMessage(RenderHUD.instance, StatUpdateMessage.class, 0, Side.CLIENT);

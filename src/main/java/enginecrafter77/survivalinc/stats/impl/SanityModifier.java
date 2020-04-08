@@ -29,17 +29,13 @@ import enginecrafter77.survivalinc.stats.StatRegister;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import enginecrafter77.survivalinc.util.SchopServerEffects;
 
-/*
- * Where sanity is modified.
- */
-
 public class SanityModifier {
 
 	// The first variable is used for the timer at the end of onPlayerUpdate to
 	// allow for a hallucination once per 20 ticks.
 	// The other is for spawning "Them".
-	private int lucidTimer = 0;
-	private int spawnThemTimer = 0;
+	private static int lucidTimer = 0;
+	private static int spawnThemTimer = 0;
 	
 	public static final Predicate<EntityPlayer> isOutsideOverworld = (EntityPlayer player) -> Math.abs(player.dimension) == 1;
 	
@@ -83,7 +79,8 @@ public class SanityModifier {
 		return mod;
 	}
 	
-	public void onPlayerUpdate(Entity dummy)
+	//TODO move displaying "them" into render events
+	public static void applyAdverseEffects(Entity dummy)
 	{
 		// Capabilities
 		StatTracker stats = dummy.getCapability(StatRegister.CAPABILITY, null);
@@ -369,7 +366,8 @@ public class SanityModifier {
 
 	// This checks any consumed item by the player, and affects sanity
 	// accordingly. Just vanilla items for now.
-	public void onPlayerConsumeItem(EntityPlayer player, ItemStack item)
+	//TODO Make an event
+	public static void onPlayerConsumeItem(EntityPlayer player, ItemStack item)
 	{
 		// Capability
 		StatTracker stats = player.getCapability(StatRegister.CAPABILITY, null);
@@ -458,20 +456,10 @@ public class SanityModifier {
 		}
 	}
 
-	// This checks if the player is sleeping.
-	// It's mostly for servers, as not everyone may be asleep at the same time.
-	// This method alone doesn't run for too long on singleplayer.
-	public void onPlayerSleepInBed(EntityPlayer player)
-	{
-		StatTracker stats = player.getCapability(StatRegister.CAPABILITY, null);
-		stats.modifyStat(DefaultStats.SANITY, 0.004f);
-		// Induce some hunger.
-		SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "hunger", 20, 4, false, false);
-	}
-
 	// At this point, the player has awoke from their sleep. This "sleep" could've been 1 second or 1 day.
 	// Figure out if it is daytime (the sleep is successful). If so, grant extra sanity and drain extra hunger.
-	public void onPlayerWakeUp(EntityPlayer player)
+	//TODO Make an event
+	public static void onPlayerWakeUp(EntityPlayer player)
 	{
 		StatTracker stats = player.getCapability(StatRegister.CAPABILITY, null);
 		
@@ -485,7 +473,7 @@ public class SanityModifier {
 	}
 
 	// As we know, They will spawn near insane players. They should drop lucid dream essence when killed.
-	public void onDropsDropped(Entity entityKilled, List<EntityItem> drops, int lootingLevel, DamageSource damageSource)
+	public static void onDropsDropped(Entity entityKilled, List<EntityItem> drops, int lootingLevel, DamageSource damageSource)
 	{
 		// Was this mob killed by a player? (and server-side).
 		if (damageSource.getDamageType().equals("player") && !entityKilled.world.isRemote)
