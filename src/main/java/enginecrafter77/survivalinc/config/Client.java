@@ -11,6 +11,7 @@ public class Client {
 	@Config.LangKey("config.survivalinc:client.showSips")
 	public boolean showSipsInDurabilityBar = false;
 
-	@Config.LangKey("config.survivalinc:client.barPos")
-	public String barPositions = "middle right";
+	@Config.LangKey("config.survivalinc:client.barTransparency")
+	@Config.RangeDouble(min = 0, max = 1)
+	public double barTransparency = 0;
 }

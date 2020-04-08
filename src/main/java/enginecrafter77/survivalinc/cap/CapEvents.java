@@ -16,20 +16,16 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-
 import java.util.List;
 
 import enginecrafter77.survivalinc.CommonProxy;
 import enginecrafter77.survivalinc.cap.ghost.GhostMain;
 import enginecrafter77.survivalinc.cap.ghost.GhostProvider;
 import enginecrafter77.survivalinc.cap.ghost.IGhost;
+import enginecrafter77.survivalinc.client.StatUpdateMessage;
 import enginecrafter77.survivalinc.config.ModConfig;
-import enginecrafter77.survivalinc.net.HUDRenderPacket;
 import enginecrafter77.survivalinc.stats.StatRegister;
 import enginecrafter77.survivalinc.stats.StatTracker;
-import enginecrafter77.survivalinc.stats.impl.DefaultStats;
-import enginecrafter77.survivalinc.stats.impl.HeatModifier;
 import enginecrafter77.survivalinc.stats.impl.SanityModifier;
 import enginecrafter77.survivalinc.stats.impl.ThirstModifier;
 import enginecrafter77.survivalinc.stats.impl.WetnessModifier;
@@ -49,9 +45,7 @@ public class CapEvents {
 
 	public static void sendUpdate(EntityPlayer player, StatTracker stats, IGhost ghost)
 	{
-		// Send data to client for rendering.
-		IMessage msgGui = new HUDRenderPacket.HUDRenderMessage(stats.getStat(HeatModifier.instance), HeatModifier.instance.getMaximum(), stats.getStat(DefaultStats.HYDRATION), DefaultStats.HYDRATION.getMaximum(), stats.getStat(DefaultStats.SANITY), DefaultStats.SANITY.getMaximum(), stats.getStat(DefaultStats.WETNESS), DefaultStats.WETNESS.getMaximum(), ghost.status(), ghost.getEnergy());
-		CommonProxy.net.sendTo(msgGui, (EntityPlayerMP) player);
+		CommonProxy.net.sendTo(new StatUpdateMessage(stats), (EntityPlayerMP) player);
 	}
 	
 	// When a player logs on, give them their stats stored on the server.
@@ -84,18 +78,15 @@ public class CapEvents {
 			
 			// Server-side
 			if(!player.world.isRemote)
-			{
+			{				
 				if(!player.isCreative() && !player.isSpectator())
 				{
-					if(ModConfig.MECHANICS.enableThirst)
-					{
-						stat.update(player);
-					}
-
+					stat.update(player);
+					
 					if(ModConfig.MECHANICS.enableSanity)
 					{
 						sanityMod.onPlayerUpdate(player);
-
+						
 						// Fire this if the player is sleeping
 						if(player.isPlayerSleeping())
 						{
