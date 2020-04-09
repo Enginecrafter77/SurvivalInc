@@ -1,58 +1,17 @@
 package enginecrafter77.survivalinc.ghost;
 
-public class Ghost implements IGhost {
-	private boolean isGhost = false;
-	private float ghostEnergy = 0.00f;
-	private float maxGhostEnergy = 100.00f;
-	private float minGhostEnergy = 0.00f;
-	
-	@Override
-	public void create()
-	{
-		this.isGhost = true;
-	}
-	
-	@Override
-	public void resurrect()
-	{
-		this.isGhost = false;
-	}
-	
-	@Override
-	public boolean status()
-	{
-		return this.isGhost;
-	}
+import enginecrafter77.survivalinc.stats.StatProvider;
+import net.minecraft.entity.player.EntityPlayer;
 
-	// Methods for messing with ghost energy or getting it.
-	@Override
-	public void addEnergy(float amount)
-	{
-		this.ghostEnergy += amount;
-		this.checkEnergy();
-	}
-
-	public void setEnergy(float amount)
-	{
-		this.ghostEnergy = amount;
-		this.checkEnergy();
-	}
+//TODO document?
+public interface Ghost {
+	public void applyStatus(EntityPlayer player, boolean status);
+	public void setStatus(boolean status);
+	public boolean getStatus();
 	
-	protected void checkEnergy()
-	{
-		if(this.ghostEnergy > this.maxGhostEnergy)
-		{
-			this.ghostEnergy = this.maxGhostEnergy;
-		}
-		
-		if(this.ghostEnergy < this.minGhostEnergy)
-		{
-			this.ghostEnergy = this.minGhostEnergy;
-		}
-	}
-
-	public float getEnergy()
-	{
-		return this.ghostEnergy;
-	}
+	public StatProvider getEnergyProvider();
+	public void update(EntityPlayer player);
+	
+	public float setEnergy(float energy);
+	public float getEnergy();
 }

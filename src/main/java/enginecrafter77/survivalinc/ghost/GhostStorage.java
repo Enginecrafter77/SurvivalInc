@@ -7,32 +7,27 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.Capability.IStorage;
 
 // Save ghost data for each player.
-public class GhostStorage implements IStorage<IGhost> {
+public class GhostStorage implements IStorage<Ghost> {
 
 	@Override
-	public NBTBase writeNBT(Capability<IGhost> capability, IGhost instance, EnumFacing side)
+	public NBTBase writeNBT(Capability<Ghost> capability, Ghost instance, EnumFacing side)
 	{
-
 		NBTTagCompound compound = new NBTTagCompound();
-
-		compound.setBoolean("isGhost", instance.status());
-		compound.setFloat("ghostEnergyLevel", instance.getEnergy());
-
+		compound.setBoolean("status", instance.getStatus());
+		compound.setFloat("energy", instance.getEnergy());
 		return compound;
 	}
 
 	@Override
-	public void readNBT(Capability<IGhost> capability, IGhost instance, EnumFacing side, NBTBase nbt)
+	public void readNBT(Capability<Ghost> capability, Ghost instance, EnumFacing side, NBTBase nbt)
 	{
 		if(nbt instanceof NBTTagCompound)
 		{
 			NBTTagCompound compound = (NBTTagCompound) nbt;
-			if(compound.hasKey("isGhost") && compound.hasKey("ghostEnergyLevel"))
+			if(compound.hasKey("status") && compound.hasKey("energy"))
 			{
-				instance.setEnergy(compound.getFloat("ghostEnergyLevel"));
-
-				if(compound.getBoolean("isGhost")) instance.create();
-				else instance.resurrect();
+				instance.setStatus(compound.getBoolean("status"));
+				instance.setEnergy(compound.getFloat("energy"));
 			}
 		}
 	}

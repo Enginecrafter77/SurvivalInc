@@ -24,19 +24,16 @@ import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
-import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerWakeUpEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import java.util.Iterator;
 import java.util.List;
 
 import enginecrafter77.survivalinc.config.ModConfig;
-import enginecrafter77.survivalinc.ghost.GhostMain;
 import enginecrafter77.survivalinc.ghost.GhostProvider;
-import enginecrafter77.survivalinc.ghost.IGhost;
+import enginecrafter77.survivalinc.ghost.Ghost;
 import enginecrafter77.survivalinc.net.StatUpdateMessage;
 import enginecrafter77.survivalinc.stats.StatRegister;
 import enginecrafter77.survivalinc.stats.StatTracker;
@@ -51,11 +48,8 @@ import enginecrafter77.survivalinc.util.SchopServerEffects;
  */
 @Mod.EventBusSubscriber
 public class GenericEventHander {
-
-	// Modifiers
-	private static final GhostMain ghostMain = new GhostMain();
 	
-	public static void sendUpdate(EntityPlayer player, StatTracker stats, IGhost ghost)
+	public static void sendUpdate(EntityPlayer player, StatTracker stats, Ghost ghost)
 	{
 		SurvivalInc.proxy.net.sendTo(new StatUpdateMessage(stats), (EntityPlayerMP) player);
 	}
@@ -79,14 +73,15 @@ public class GenericEventHander {
 			// Instance of player.
 			EntityPlayer player = (EntityPlayer)event.getEntity();
 			StatTracker stat = player.getCapability(StatRegister.CAPABILITY, null);
-			IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
+			Ghost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
 			
 			// Server-side
 			if(!player.world.isRemote)
-			{				
+			{
 				if(!player.isCreative() && !player.isSpectator())
 				{
 					stat.update(player);
+					ghost.update(player);
 					
 					if(ModConfig.MECHANICS.enableSanity)
 					{
@@ -104,11 +99,6 @@ public class GenericEventHander {
 					{
 						WetnessModifier.onPlayerUpdate(player);
 					}
-
-					if(ModConfig.MECHANICS.enableGhost)
-					{
-						ghostMain.onPlayerUpdate(player);
-					}
 				}
 				GenericEventHander.sendUpdate(player, stat, ghost);
 			}
@@ -125,14 +115,6 @@ public class GenericEventHander {
 		// Server-side
 		if(!player.world.isRemote)
 		{
-			// Cancel interacting with blocks if the player is a ghost. This must be done here.
-			IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
-
-			if(ghost.status() && event.isCancelable())
-			{
-				event.setCanceled(true);
-			}
-
 			// Fire methods.
 			if(ModConfig.MECHANICS.enableThirst && !player.isCreative() && !player.isSpectator())
 			{
@@ -205,49 +187,6 @@ public class GenericEventHander {
 			{
 				SanityModifier.onDropsDropped(entityKilled, drops, lootingLevel, damageSource);
 			}
-		}
-	}
-	
-	@SubscribeEvent
-	public static void onPlayerRespawn(PlayerRespawnEvent event)
-	{
-		// Instance of player.
-		EntityPlayer player = event.player;
-
-		/* 
-		 * Check if we are operating on server side.
-		 * Also, going through the end portal back to
-		 * the overworld counts as respawning. This
-		 * shouldn't make you a ghost.
-		 */
-		if(!(player.world.isRemote || event.isEndConquered()))
-		{
-			ghostMain.onPlayerRespawn(player);
-			
-			// This should be handled by vanilla codes. No need to get our hands dirty.
-			/*else
-			{
-				// Set no gravity.
-				player.setNoGravity(true);
-
-				// Move player away from portal.
-				player.setLocationAndAngles(player.posX + 3, player.posY + 1, player.posZ + 3, 0.0f, 0.0f);
-
-				// Set gravity back.
-				player.setNoGravity(false);
-			}*/
-		}
-	}
-	
-	@SubscribeEvent
-	public static void onItemPickup(EntityItemPickupEvent event)
-	{
-		EntityPlayer player = event.getEntityPlayer();
-		IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
-
-		if(ghost.status())
-		{
-			event.setCanceled(true);
 		}
 	}
 	

@@ -2,8 +2,8 @@ package enginecrafter77.survivalinc;
 
 import enginecrafter77.survivalinc.ghost.Ghost;
 import enginecrafter77.survivalinc.ghost.GhostCommand;
+import enginecrafter77.survivalinc.ghost.GhostImpl;
 import enginecrafter77.survivalinc.ghost.GhostStorage;
-import enginecrafter77.survivalinc.ghost.IGhost;
 import enginecrafter77.survivalinc.net.SeasonPacket;
 import enginecrafter77.survivalinc.net.SummonInfoPacket;
 import enginecrafter77.survivalinc.season.BiomeTempController;
@@ -37,7 +37,7 @@ public class CommonProxy {
 
 		// Register capabilities.
 		CapabilityManager.INSTANCE.register(StatTracker.class, new StatRegister.Storage(), StatManager::new);
-		CapabilityManager.INSTANCE.register(IGhost.class, new GhostStorage(), Ghost::new);
+		CapabilityManager.INSTANCE.register(Ghost.class, new GhostStorage(), GhostImpl::new);
 	}
 
 	public void init(FMLInitializationEvent event)

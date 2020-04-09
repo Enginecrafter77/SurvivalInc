@@ -1,7 +1,7 @@
 package enginecrafter77.survivalinc.util;
 
 import enginecrafter77.survivalinc.ghost.GhostProvider;
-import enginecrafter77.survivalinc.ghost.IGhost;
+import enginecrafter77.survivalinc.ghost.Ghost;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.biome.Biome;
@@ -32,7 +32,7 @@ public class ColdBreath {
 		if (!player.world.isRemote)
 		{
 			// Capability
-			IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
+			Ghost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
 			
 			// Player position
 			BlockPos pos = player.getPosition();
@@ -44,7 +44,7 @@ public class ColdBreath {
 			float biomeTemp = biome.getTemperature(player.getPosition());
 			
 			// Cold breath particles when the player is in a cold biome.
-			if (biomeTemp < 0.2 && !ghost.status())
+			if (biomeTemp < 0.2 && !ghost.getStatus())
 			{
 				SchopServerParticles.summonParticle(player.getCachedUniqueIdString(), "ColdBreathParticles", pos.getX() + player.getLookVec().x, pos.getY() + 1.5, pos.getZ() + player.getLookVec().z);
 			}

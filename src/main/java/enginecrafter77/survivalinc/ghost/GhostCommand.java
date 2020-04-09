@@ -5,6 +5,7 @@ import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.text.TextComponentString;
 
 public class GhostCommand extends CommandBase {
 
@@ -28,17 +29,16 @@ public class GhostCommand extends CommandBase {
 		if(args.length >= 1) player = CommandBase.getPlayer(server, sender, args[0]);
 		else player = (EntityPlayer)sender;
 		
-		IGhost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
-		boolean status = !ghost.status();
+		Ghost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
+		boolean status = !ghost.getStatus();
 		
 		if(args.length >= 2) status = args[1].equals("on");
 		
-		if(status == ghost.status()) return;
+		if(status == ghost.getStatus()) return;
 		
-		if(status)
-			ghost.create();
-		else
-			ghost.resurrect();
+		server.sendMessage(new TextComponentString(String.format("Transformed %s's into %s", player.getName(), status ? "ghost" : "human")));
+		
+		ghost.applyStatus(player, status);
 	}
 
 }
