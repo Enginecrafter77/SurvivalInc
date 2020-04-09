@@ -7,9 +7,9 @@ import enginecrafter77.survivalinc.util.ModifierCalculator;
 import net.minecraft.entity.player.EntityPlayer;
 
 public enum DefaultStats implements StatProvider {
-	HYDRATION(ModConfig.MECHANICS.thirstScale, 0, 100, 0F),
+	HYDRATION(ModConfig.MECHANICS.thirstScale, 0, 100),
 	SANITY(ModConfig.MECHANICS.sanityScale, 0, 100),
-	WETNESS(ModConfig.MECHANICS.wetnessScale, 0, 100);
+	WETNESS(ModConfig.MECHANICS.wetnessScale, 0, 100, 0F);
 	
 	public final float scale;
 	
