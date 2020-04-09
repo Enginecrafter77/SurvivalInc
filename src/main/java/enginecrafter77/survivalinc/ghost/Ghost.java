@@ -1,4 +1,4 @@
-package enginecrafter77.survivalinc.cap.ghost;
+package enginecrafter77.survivalinc.ghost;
 
 public class Ghost implements IGhost {
 	private boolean isGhost = false;

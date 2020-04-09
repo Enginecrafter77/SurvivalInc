@@ -33,10 +33,10 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import java.util.Iterator;
 import java.util.List;
 
-import enginecrafter77.survivalinc.cap.ghost.GhostMain;
-import enginecrafter77.survivalinc.cap.ghost.GhostProvider;
-import enginecrafter77.survivalinc.cap.ghost.IGhost;
 import enginecrafter77.survivalinc.config.ModConfig;
+import enginecrafter77.survivalinc.ghost.GhostMain;
+import enginecrafter77.survivalinc.ghost.GhostProvider;
+import enginecrafter77.survivalinc.ghost.IGhost;
 import enginecrafter77.survivalinc.net.StatUpdateMessage;
 import enginecrafter77.survivalinc.stats.StatRegister;
 import enginecrafter77.survivalinc.stats.StatTracker;

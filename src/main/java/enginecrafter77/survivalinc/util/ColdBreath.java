@@ -1,7 +1,7 @@
 package enginecrafter77.survivalinc.util;
 
-import enginecrafter77.survivalinc.cap.ghost.GhostProvider;
-import enginecrafter77.survivalinc.cap.ghost.IGhost;
+import enginecrafter77.survivalinc.ghost.GhostProvider;
+import enginecrafter77.survivalinc.ghost.IGhost;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.biome.Biome;

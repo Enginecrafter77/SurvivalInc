@@ -1,8 +1,8 @@
 package enginecrafter77.survivalinc;
 
-import enginecrafter77.survivalinc.cap.ghost.Ghost;
-import enginecrafter77.survivalinc.cap.ghost.GhostStorage;
-import enginecrafter77.survivalinc.cap.ghost.IGhost;
+import enginecrafter77.survivalinc.ghost.Ghost;
+import enginecrafter77.survivalinc.ghost.GhostStorage;
+import enginecrafter77.survivalinc.ghost.IGhost;
 import enginecrafter77.survivalinc.net.SeasonPacket;
 import enginecrafter77.survivalinc.net.SummonInfoPacket;
 import enginecrafter77.survivalinc.season.BiomeTempController;
