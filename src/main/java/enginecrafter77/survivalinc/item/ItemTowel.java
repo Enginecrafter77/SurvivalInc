@@ -8,6 +8,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -29,8 +30,6 @@ import enginecrafter77.survivalinc.stats.StatTracker;
 import enginecrafter77.survivalinc.stats.impl.DefaultStats;
 import enginecrafter77.survivalinc.util.ProximityDetect;
 import enginecrafter77.survivalinc.util.SchopServerParticles;
-import enginecrafter77.survivalinc.util.SchopServerSounds;
-
 import java.util.List;
 
 public class ItemTowel extends Item {
@@ -42,14 +41,10 @@ public class ItemTowel extends Item {
 
 	public ItemTowel()
 	{
-
-		// Set registry name.
-		setRegistryName(new ResourceLocation(SurvivalInc.MOD_ID, "towel"));
-
-		// Basic properties.
-		setMaxStackSize(1);
-		setCreativeTab(SurvivalInc.mainTab);
-		setHasSubtypes(true);
+		this.setRegistryName(new ResourceLocation(SurvivalInc.MOD_ID, "towel"));
+		this.setCreativeTab(SurvivalInc.mainTab);
+		this.setHasSubtypes(true);
+		this.setMaxStackSize(1);
 	}
 
 	@Override
@@ -97,8 +92,7 @@ public class ItemTowel extends Item {
 				stack.setTagCompound(nbt);
 
 				// Play some sound.
-				SchopServerSounds.playSound(player.getCachedUniqueIdString(), "TowelDrySound", player.posX, player.posY,
-						player.posZ);
+				player.world.playSound(null, player.getPosition(), SoundEvents.ITEM_ARMOR_EQUIP_GENERIC, SoundCategory.PLAYERS, 1.0f, 0.5f);
 			}
 
 			// If they are, drench the player.
@@ -129,8 +123,7 @@ public class ItemTowel extends Item {
 				stack.setTagCompound(nbt);
 
 				// Play water splash sound.
-				SchopServerSounds.playSound(player.getCachedUniqueIdString(), "WaterSound", player.posX, player.posY,
-						player.posZ);
+				player.world.playSound(null, player.getPosition(), SoundEvents.ITEM_ARMOR_EQUIP_GENERIC, SoundCategory.PLAYERS, 1.0f, 0.5f);
 			}
 
 		}
@@ -201,8 +194,7 @@ public class ItemTowel extends Item {
 					heldItem.setTagCompound(nbt);
 
 					// Play water splash sound.
-					SchopServerSounds.playSound(player.getCachedUniqueIdString(), "WaterSound", player.posX,
-							player.posY, player.posZ);
+					player.world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_SWIM, SoundCategory.NEUTRAL, 0.5f, 1.5f);
 
 					return new ActionResult<ItemStack>(EnumActionResult.PASS, player.getHeldItem(hand));
 				}
@@ -232,8 +224,7 @@ public class ItemTowel extends Item {
 						cauldron.setWaterLevel(world, pos, world.getBlockState(pos), cauldronLevel - 1);
 
 						// Play water splash sound.
-						SchopServerSounds.playSound(player.getCachedUniqueIdString(), "WaterSound", player.posX,
-								player.posY, player.posZ);
+						player.world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_SWIM, SoundCategory.NEUTRAL, 0.5f, 1.5f);
 
 						return new ActionResult<ItemStack>(EnumActionResult.PASS, player.getHeldItem(hand));
 					}

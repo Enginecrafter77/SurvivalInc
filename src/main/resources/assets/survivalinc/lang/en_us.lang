@@ -1,11 +1,6 @@
 # Conveniently in alphabetical order.
 # Items
-item.survivalinc:cold_water_canteen.name=Cold Water Canteen
-item.survivalinc:dirty_water_canteen.name=Dirty Water Canteen
-item.survivalinc:empty_canteen.name=Empty Canteen
-item.survivalinc:filtered_water_canteen.name=Filtered Water Canteen
-item.survivalinc:fresh_water_canteen.name=Fresh Water Canteen
-item.survivalinc:salt_water_canteen.name=Salt Water Canteen
+item.survivalinc:water_canteen.name=Water Canteen
 item.survivalinc:charcoal_filter.name=Charcoal Filter
 item.survivalinc:feather_fan.name=Feather Fan
 item.survivalinc:cold_water_hydropouch.name=Cold Water HydroPouch

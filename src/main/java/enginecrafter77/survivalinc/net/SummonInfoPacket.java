@@ -4,7 +4,6 @@ import enginecrafter77.survivalinc.client.SchopClientParticles;
 import enginecrafter77.survivalinc.client.SchopClientSounds;
 import enginecrafter77.survivalinc.net.SummonInfoPacket.SummonInfoMessage;
 import enginecrafter77.survivalinc.util.SchopServerParticles;
-import enginecrafter77.survivalinc.util.SchopServerSounds;
 import io.netty.buffer.ByteBuf;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -21,15 +20,14 @@ public class SummonInfoPacket implements IMessageHandler<SummonInfoMessage, IMes
 	{
 		if (ctx.side.isServer())
 		{
-
 			String uuid = message.uuid;
-			String soundPicker = message.soundPicker;
+			//String soundPicker = message.soundPicker;
 			String particlePicker = message.particlePicker;
 			double posX = message.posX;
 			double posY = message.posY;
 			double posZ = message.posZ;
 			SchopServerParticles.summonParticle(uuid, particlePicker, posX, posY, posZ);
-			SchopServerSounds.playSound(uuid, soundPicker, posX, posY, posZ);
+			//SchopServerSounds.playSound(uuid, soundPicker, posX, posY, posZ);
 		}
 		else
 		{

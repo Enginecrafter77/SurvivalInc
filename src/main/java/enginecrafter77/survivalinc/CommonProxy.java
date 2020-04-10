@@ -11,7 +11,6 @@ import enginecrafter77.survivalinc.season.WorldSeason;
 import enginecrafter77.survivalinc.stats.StatManager;
 import enginecrafter77.survivalinc.stats.StatRegister;
 import enginecrafter77.survivalinc.stats.StatTracker;
-import enginecrafter77.survivalinc.util.Registererer;
 import enginecrafter77.survivalinc.util.ServerCommands;
 import enginecrafter77.survivalinc.util.TweakEvents;
 import enginecrafter77.survivalinc.util.WorldDataMgr;
@@ -33,7 +32,12 @@ public class CommonProxy {
 	public void preInit(FMLPreInitializationEvent event)
 	{
 		// Register all new items and blocks.
-		MinecraftForge.EVENT_BUS.register(new Registererer());
+		MinecraftForge.EVENT_BUS.register(ModItems.class);
+		MinecraftForge.EVENT_BUS.register(ModBlocks.class);
+		MinecraftForge.EVENT_BUS.register(GenericEventHander.class);
+		MinecraftForge.EVENT_BUS.register(StatRegister.class);
+		MinecraftForge.EVENT_BUS.register(new TweakEvents());
+		MinecraftForge.EVENT_BUS.register(new WorldSeason());
 
 		// Register capabilities.
 		CapabilityManager.INSTANCE.register(StatTracker.class, new StatRegister.Storage(), StatManager::new);
@@ -41,13 +45,7 @@ public class CommonProxy {
 	}
 
 	public void init(FMLInitializationEvent event)
-	{
-		// Register event handlers.
-		MinecraftForge.EVENT_BUS.register(GenericEventHander.class);
-		MinecraftForge.EVENT_BUS.register(new TweakEvents());
-		MinecraftForge.EVENT_BUS.register(new WorldSeason());
-		MinecraftForge.EVENT_BUS.register(StatRegister.class);
-		
+	{	
 		this.net = NetworkRegistry.INSTANCE.newSimpleChannel(SurvivalInc.MOD_ID);
 		this.net.registerMessage(SummonInfoPacket.class, SummonInfoPacket.SummonInfoMessage.class, 1, Side.SERVER);
 		this.net.registerMessage(SeasonPacket.class, SeasonPacket.SeasonMessage.class, 3, Side.SERVER);
