@@ -24,7 +24,6 @@ import java.util.List;
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.net.SeasonPacket;
-import enginecrafter77.survivalinc.util.SchopWorldData;
 import enginecrafter77.survivalinc.util.WorldDataMgr;
 
 @Mod.EventBusSubscriber
@@ -84,7 +83,7 @@ public class WorldSeason {
 				// Sync server stuff with client.
 				// This is needed so the snow, foliage, and stuff gets rendered
 				// correctly.
-				int seasonInt = SchopWorldData.seasonToInt(season);
+				int seasonInt = SeasonData.seasonToInt(season);
 				IMessage msg = new SeasonPacket.SeasonMessage(seasonInt, daysIntoSeason);
 				SurvivalInc.proxy.net.sendTo(msg, (EntityPlayerMP) player);
 			}
@@ -142,7 +141,7 @@ public class WorldSeason {
 			else if (event.player instanceof EntityPlayerMP)
 			{
 
-				int seasonInt = SchopWorldData.seasonToInt(season);
+				int seasonInt = SeasonData.seasonToInt(season);
 				IMessage msg = new SeasonPacket.SeasonMessage(seasonInt, -21);
 				SurvivalInc.proxy.net.sendTo(msg, (EntityPlayerMP) event.player);
 			}
@@ -206,7 +205,7 @@ public class WorldSeason {
 					WorldDataMgr.save(season, daysIntoSeason);
 
 					// Send new season data to client
-					int seasonInt = SchopWorldData.seasonToInt(season);
+					int seasonInt = SeasonData.seasonToInt(season);
 					IMessage msg = new SeasonPacket.SeasonMessage(seasonInt, daysIntoSeason);
 					SurvivalInc.proxy.net.sendTo(msg, (EntityPlayerMP) player);
 

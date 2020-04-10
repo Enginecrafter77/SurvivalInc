@@ -1,9 +1,6 @@
 package enginecrafter77.survivalinc.net;
 
-import enginecrafter77.survivalinc.client.SchopClientParticles;
-import enginecrafter77.survivalinc.client.SchopClientSounds;
 import enginecrafter77.survivalinc.net.SummonInfoPacket.SummonInfoMessage;
-import enginecrafter77.survivalinc.util.SchopServerParticles;
 import io.netty.buffer.ByteBuf;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -13,21 +10,22 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 /*
  * Used for summoning particles and playing sounds.
  */
+//TODO reimplement
 public class SummonInfoPacket implements IMessageHandler<SummonInfoMessage, IMessage> {
 
 	@Override
 	public IMessage onMessage(SummonInfoMessage message, MessageContext ctx)
 	{
-		if (ctx.side.isServer())
+		/*if (ctx.side.isServer())
 		{
 			String uuid = message.uuid;
-			//String soundPicker = message.soundPicker;
+			String soundPicker = message.soundPicker;
 			String particlePicker = message.particlePicker;
 			double posX = message.posX;
 			double posY = message.posY;
 			double posZ = message.posZ;
 			SchopServerParticles.summonParticle(uuid, particlePicker, posX, posY, posZ);
-			//SchopServerSounds.playSound(uuid, soundPicker, posX, posY, posZ);
+			SchopServerSounds.playSound(uuid, soundPicker, posX, posY, posZ);
 		}
 		else
 		{
@@ -40,7 +38,7 @@ public class SummonInfoPacket implements IMessageHandler<SummonInfoMessage, IMes
 			double posZ = message.posZ;
 			SchopClientParticles.summonParticle(uuid, particlePicker, posX, posY, posZ);
 			SchopClientSounds.playSound(uuid, soundPicker, posX, posY, posZ);
-		}
+		}*/
 
 		return null;
 	}

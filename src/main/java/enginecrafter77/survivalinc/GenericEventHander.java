@@ -5,7 +5,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
@@ -37,7 +39,6 @@ import enginecrafter77.survivalinc.stats.StatTracker;
 import enginecrafter77.survivalinc.stats.impl.DefaultStats;
 import enginecrafter77.survivalinc.stats.impl.SanityModifier;
 import enginecrafter77.survivalinc.stats.impl.WetnessModifier;
-import enginecrafter77.survivalinc.util.SchopServerEffects;
 
 /*
  * This is the event handler regarding capabilities and changes to individual stats.
@@ -95,7 +96,7 @@ public class GenericEventHander {
 						if(player.isPlayerSleeping())
 						{
 							stat.modifyStat(DefaultStats.SANITY, 0.004f);
-							SchopServerEffects.affectPlayer(player.getCachedUniqueIdString(), "hunger", 20, 4, false, false);
+							player.addPotionEffect(new PotionEffect(MobEffects.HUNGER, 20, 4, false, false));
 						}
 					}
 

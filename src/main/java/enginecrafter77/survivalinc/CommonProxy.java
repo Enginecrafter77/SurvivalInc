@@ -11,8 +11,6 @@ import enginecrafter77.survivalinc.season.WorldSeason;
 import enginecrafter77.survivalinc.stats.StatManager;
 import enginecrafter77.survivalinc.stats.StatRegister;
 import enginecrafter77.survivalinc.stats.StatTracker;
-import enginecrafter77.survivalinc.util.ServerCommands;
-import enginecrafter77.survivalinc.util.TweakEvents;
 import enginecrafter77.survivalinc.util.WorldDataMgr;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.CapabilityManager;
@@ -36,7 +34,6 @@ public class CommonProxy {
 		MinecraftForge.EVENT_BUS.register(ModBlocks.class);
 		MinecraftForge.EVENT_BUS.register(GenericEventHander.class);
 		MinecraftForge.EVENT_BUS.register(StatRegister.class);
-		MinecraftForge.EVENT_BUS.register(new TweakEvents());
 		MinecraftForge.EVENT_BUS.register(new WorldSeason());
 
 		// Register capabilities.
@@ -54,10 +51,7 @@ public class CommonProxy {
 	public void postInit(FMLPostInitializationEvent event) {}
 
 	public void serverStarted(FMLServerStartedEvent event)
-	{
-		// Fire some simple commands on the server before players log on.
-		ServerCommands.fireCommandsOnStartup();
-		
+	{		
 		// Grab initial biome temperatures.
 		BiomeTempController biomeTemp = new BiomeTempController();
 		biomeTemp.storeOriginalTemperatures();

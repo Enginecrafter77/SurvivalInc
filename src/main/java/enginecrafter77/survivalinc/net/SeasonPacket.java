@@ -4,7 +4,7 @@ import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.net.SeasonPacket.SeasonMessage;
 import enginecrafter77.survivalinc.season.BiomeTempController;
 import enginecrafter77.survivalinc.season.Season;
-import enginecrafter77.survivalinc.util.SchopWorldData;
+import enginecrafter77.survivalinc.season.SeasonData;
 import io.netty.buffer.ByteBuf;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
@@ -41,7 +41,7 @@ public class SeasonPacket implements IMessageHandler<SeasonMessage, IMessage> {
 				controller.storeOriginalTemperatures();
 
 				// Actual season
-				Season season = SchopWorldData.intToSeason(seasonInt);
+				Season season = SeasonData.intToSeason(seasonInt);
 
 				// Change temperatures
 				controller.changeBiomeTemperatures(season, daysIntoSeason);

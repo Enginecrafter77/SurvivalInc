@@ -5,11 +5,10 @@ import java.util.Map;
 
 import enginecrafter77.survivalinc.stats.StatRegister;
 import enginecrafter77.survivalinc.stats.StatTracker;
-import enginecrafter77.survivalinc.util.SchopServerParticles;
 import net.minecraft.block.Block;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 
@@ -85,8 +84,9 @@ public class WetnessModifier {
 		return diff;
 	}
 	
-	public static void onPlayerUpdate(Entity player)
+	public static void onPlayerUpdate(EntityPlayer player)
 	{
-		SchopServerParticles.summonParticle(player.getCachedUniqueIdString(), "WetnessParticles", player.posX, player.posY, player.posZ);
+		if(!player.world.isRemote)
+			player.world.spawnParticle(EnumParticleTypes.DRIP_WATER, player.posX, player.posY, player.posZ, 0, -0.3, 0, null);
 	}
 }

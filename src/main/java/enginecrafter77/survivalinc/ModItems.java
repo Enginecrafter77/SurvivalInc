@@ -32,7 +32,7 @@ public enum ModItems implements Supplier<Item> {
 	}
 	
 	@SubscribeEvent
-	public void registerItems(RegistryEvent.Register<Item> event)
+	public static void registerItems(RegistryEvent.Register<Item> event)
 	{
 		IForgeRegistry<Item> reg = event.getRegistry();
 		for(ModItems mi : ModItems.values())

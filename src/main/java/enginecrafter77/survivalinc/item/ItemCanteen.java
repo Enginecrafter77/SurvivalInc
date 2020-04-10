@@ -31,6 +31,8 @@ import java.util.List;
 
 public class ItemCanteen extends Item {
 	
+	public static final int waterBarColor = 0x23C4FF;
+	
 	public ItemCanteen()
 	{
 		this.setRegistryName(new ResourceLocation(SurvivalInc.MOD_ID, "canteen"));
@@ -148,9 +150,15 @@ public class ItemCanteen extends Item {
 	
 	@Override
 	public double getDurabilityForDisplay(ItemStack stack)
-	{		
+	{
 		NBTTagCompound tag = stack.getTagCompound();
-		float fraction = (float)tag.getInteger("stored") / (float)tag.getInteger("capacity");
-		return 100 - (fraction * 99);
+		return 1 - (double)tag.getInteger("stored") / (double)tag.getInteger("capacity");
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public int getRGBDurabilityForDisplay(ItemStack stack)
+	{
+		return ItemCanteen.waterBarColor;
 	}
 }

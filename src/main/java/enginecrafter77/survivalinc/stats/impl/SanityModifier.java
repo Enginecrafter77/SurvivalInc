@@ -27,7 +27,6 @@ import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.net.SummonInfoPacket;
 import enginecrafter77.survivalinc.stats.StatRegister;
 import enginecrafter77.survivalinc.stats.StatTracker;
-import enginecrafter77.survivalinc.util.SchopServerEffects;
 
 public class SanityModifier {
 
@@ -80,7 +79,7 @@ public class SanityModifier {
 	}
 	
 	//TODO move displaying "them" into render events
-	public static void applyAdverseEffects(Entity dummy)
+	public static void applyAdverseEffects(EntityPlayer dummy)
 	{
 		// Capabilities
 		StatTracker stats = dummy.getCapability(StatRegister.CAPABILITY, null);
@@ -254,8 +253,7 @@ public class SanityModifier {
 			// Make the screen of the insane player wobble.
 			if(stats.getStat(DefaultStats.SANITY) <= (DefaultStats.SANITY.getMaximum() * 0.35))
 			{
-
-				SchopServerEffects.affectPlayer(dummy.getCachedUniqueIdString(), "nausea", 100, 5, false, false);
+				dummy.addPotionEffect(new PotionEffect(MobEffects.NAUSEA, 100, 5, false, false));
 			}
 
 			// Add some weird insanity ambiance.

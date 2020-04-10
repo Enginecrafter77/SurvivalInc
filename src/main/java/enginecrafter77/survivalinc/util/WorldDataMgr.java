@@ -2,6 +2,7 @@ package enginecrafter77.survivalinc.util;
 
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.season.Season;
+import enginecrafter77.survivalinc.season.SeasonData;
 import enginecrafter77.survivalinc.season.WorldSeason;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
@@ -23,7 +24,7 @@ public class WorldDataMgr {
 		World world = server.getEntityWorld();
 
 		// Load stuff from world data file
-		SchopWorldData data = SchopWorldData.load(world);
+		SeasonData data = SeasonData.load(world);
 
 		// Notification
 		SurvivalInc.logger.info("Loaded world data. Current season is " + data.getSeasonFromData() + " and we are " + data.daysIntoSeason + " days into this season.");
@@ -45,10 +46,10 @@ public class WorldDataMgr {
 		World world = server.getEntityWorld();
 
 		// Load stuff from world data file
-		SchopWorldData data = SchopWorldData.load(world);
+		SeasonData data = SeasonData.load(world);
 
 		// Overwrite data
-		data.season = SchopWorldData.seasonToInt(seasonNew);
+		data.season = SeasonData.seasonToInt(seasonNew);
 		data.daysIntoSeason = daysIntoSeasonNew;
 
 		SurvivalInc.logger.info("Saving data to disk.");
