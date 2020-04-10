@@ -1,6 +1,5 @@
 package enginecrafter77.survivalinc;
 
-import enginecrafter77.survivalinc.client.ModelRegisterer;
 import enginecrafter77.survivalinc.client.RenderHUD;
 import enginecrafter77.survivalinc.client.StatBar;
 import enginecrafter77.survivalinc.item.ItemCanteen;
@@ -21,13 +20,15 @@ public class ClientProxy extends CommonProxy {
 	public void preInit(FMLPreInitializationEvent event)
 	{
 		super.preInit(event);
-		MinecraftForge.EVENT_BUS.register(new ModelRegisterer());
+		//MinecraftForge.EVENT_BUS.register(new ModelRegisterer());
 	}
 	
 	@Override
 	public void init(FMLInitializationEvent event)
 	{
 		super.init(event);
+		//All packets are by default sent with discriminator 0.
+		//TODO Extend SNW and add handler for disc 0 on client side only to forward unregistered.
 		this.net.registerMessage(RenderHUD.instance, StatUpdateMessage.class, 0, Side.CLIENT);
 		this.net.registerMessage(SummonInfoPacket.class, SummonInfoPacket.SummonInfoMessage.class, 2, Side.CLIENT);
 	}

@@ -3,7 +3,10 @@ package enginecrafter77.survivalinc;
 import java.util.function.Supplier;
 
 import enginecrafter77.survivalinc.item.*;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
+import net.minecraftforge.client.event.ModelRegistryEvent;
+import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.registries.IForgeRegistry;
@@ -37,5 +40,16 @@ public enum ModItems implements Supplier<Item> {
 		IForgeRegistry<Item> reg = event.getRegistry();
 		for(ModItems mi : ModItems.values())
 			reg.register(mi.get());
+	}
+	
+	@SubscribeEvent
+	public static void registerModels(ModelRegistryEvent event)
+	{
+		// Register item models.
+		for(ModItems mi : ModItems.values())
+		{
+			Item item = mi.get();
+			ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(item.getRegistryName(), "inventory"));
+		}
 	}
 }

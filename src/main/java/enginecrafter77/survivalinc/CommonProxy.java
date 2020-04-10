@@ -1,17 +1,20 @@
 package enginecrafter77.survivalinc;
 
+import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.ghost.Ghost;
 import enginecrafter77.survivalinc.ghost.GhostCommand;
 import enginecrafter77.survivalinc.ghost.GhostImpl;
 import enginecrafter77.survivalinc.ghost.GhostStorage;
-import enginecrafter77.survivalinc.net.SeasonPacket;
 import enginecrafter77.survivalinc.net.SummonInfoPacket;
 import enginecrafter77.survivalinc.season.BiomeTempController;
-import enginecrafter77.survivalinc.season.WorldSeason;
+import enginecrafter77.survivalinc.season.SeasonCommand;
+import enginecrafter77.survivalinc.season.SeasonController;
+import enginecrafter77.survivalinc.season.SeasonData;
 import enginecrafter77.survivalinc.stats.StatManager;
 import enginecrafter77.survivalinc.stats.StatRegister;
 import enginecrafter77.survivalinc.stats.StatTracker;
-import enginecrafter77.survivalinc.util.WorldDataMgr;
+import net.minecraft.command.CommandHandler;
+import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -31,38 +34,36 @@ public class CommonProxy {
 	{
 		// Register all new items and blocks.
 		MinecraftForge.EVENT_BUS.register(ModItems.class);
-		MinecraftForge.EVENT_BUS.register(ModBlocks.class);
 		MinecraftForge.EVENT_BUS.register(GenericEventHander.class);
 		MinecraftForge.EVENT_BUS.register(StatRegister.class);
-		MinecraftForge.EVENT_BUS.register(new WorldSeason());
-
+		// Register seasons if enabled
+		if(ModConfig.SEASONS.aenableSeasons) MinecraftForge.EVENT_BUS.register(SeasonController.class);
+		
 		// Register capabilities.
 		CapabilityManager.INSTANCE.register(StatTracker.class, new StatRegister.Storage(), StatManager::new);
 		CapabilityManager.INSTANCE.register(Ghost.class, new GhostStorage(), GhostImpl::new);
 	}
 
 	public void init(FMLInitializationEvent event)
-	{	
+	{
 		this.net = NetworkRegistry.INSTANCE.newSimpleChannel(SurvivalInc.MOD_ID);
 		this.net.registerMessage(SummonInfoPacket.class, SummonInfoPacket.SummonInfoMessage.class, 1, Side.SERVER);
-		this.net.registerMessage(SeasonPacket.class, SeasonPacket.SeasonMessage.class, 3, Side.SERVER);
+		this.net.registerMessage(SeasonController.class, SeasonData.class, 3, Side.CLIENT);
 	}
 	
 	public void postInit(FMLPostInitializationEvent event) {}
 
 	public void serverStarted(FMLServerStartedEvent event)
-	{		
-		// Grab initial biome temperatures.
+	{
 		BiomeTempController biomeTemp = new BiomeTempController();
 		biomeTemp.storeOriginalTemperatures();
-		biomeTemp = null;
-		
-		// Load world data from file.
-		WorldDataMgr.loadFromDisk();
 	}
 	
 	public void serverStarting(FMLServerStartingEvent event)
 	{
-		event.registerServerCommand(new GhostCommand());
+		MinecraftServer server = event.getServer();
+		CommandHandler manager = (CommandHandler)server.getCommandManager();
+		manager.registerCommand(new SeasonCommand());
+		manager.registerCommand(new GhostCommand());
 	}
 }

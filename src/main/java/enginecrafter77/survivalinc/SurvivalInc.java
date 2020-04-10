@@ -17,7 +17,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import enginecrafter77.survivalinc.config.ModConfig;
-import enginecrafter77.survivalinc.ghost.GhostCommand;
 import enginecrafter77.survivalinc.season.Season;
 import enginecrafter77.survivalinc.stats.StatManager;
 import enginecrafter77.survivalinc.stats.impl.DefaultStats;
@@ -102,7 +101,7 @@ public class SurvivalInc {
 	@EventHandler
 	public void serverStarting(FMLServerStartingEvent event)
 	{
-		event.registerServerCommand(new GhostCommand());
+		proxy.serverStarting(event);
 	}
 
 	@EventHandler

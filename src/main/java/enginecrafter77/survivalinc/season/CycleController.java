@@ -22,10 +22,29 @@ public class CycleController {
 
 	// isNight bool
 	private boolean isNight = false;
-
+	
+	public void applySeason(Season season)
+	{
+		// Turn on day-night cycle
+		this.toggleCycle(true);
+		
+		// Alter cycle if needed
+		switch(season)
+		{
+		case SUMMER:
+			this.changeLengthOfCycle(15000);
+			break;
+		case WINTER:
+			this.changeLengthOfCycle(9000);
+			break;
+		default:
+			this.changeLengthOfCycle(12000);
+			break;
+		}
+	}
+	
 	public void toggleCycle(boolean enable)
 	{
-
 		// Server
 		MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
 

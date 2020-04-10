@@ -1,110 +1,96 @@
 package enginecrafter77.survivalinc.season;
 
 import enginecrafter77.survivalinc.SurvivalInc;
-import enginecrafter77.survivalinc.config.ModConfig;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
+import net.minecraft.world.storage.MapStorage;
 import net.minecraft.world.storage.WorldSavedData;
+import net.minecraftforge.fml.common.network.ByteBufUtils;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 
-//TODO reimplement
-public class SeasonData extends WorldSavedData {
+public class SeasonData extends WorldSavedData implements IMessage {
 	
-	// Stuff to save
-	// Season data
-	// 1 = winter, 2 = spring, 3 = summer, 4 = autumn
-	public int season = 0; //TODO store using emums
-	public int daysIntoSeason = 0;
-
-	// Put anymore data here whenever necessary
-
-	// Constructors
+	public static final String datakey = SurvivalInc.MOD_ID + "_season";
+	
+	/** The current season */
+	public Season season;
+	
+	/** Days elapsed in the current season */
+	public int day;
+	
 	public SeasonData()
 	{
-		this(SurvivalInc.MOD_ID);
+		this(SeasonData.datakey);
 	}
-
+	
 	public SeasonData(String id)
 	{
 		super(id);
+		this.season = Season.SPRING; // Start in spring
+		this.day = 0;
 	}
 
 	@Override
 	public void readFromNBT(NBTTagCompound nbt)
 	{
-		daysIntoSeason = nbt.getInteger("daysIntoSeason");
-		season = nbt.getInteger("season");
+		int ordinal = nbt.getInteger("season");
+		this.season = Season.values()[ordinal];
+		this.day = nbt.getInteger("day");
 	}
 
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound)
 	{
-		compound.setInteger("season", season);
-		compound.setInteger("daysIntoSeason", daysIntoSeason);
-		
+		compound.setInteger("season", this.season.ordinal());
+		compound.setInteger("day", this.day);
 		return compound;
+	}
+	
+	@Override
+	public void fromBytes(ByteBuf buf)
+	{
+		NBTTagCompound tag = ByteBufUtils.readTag(buf);
+		this.readFromNBT(tag);
+	}
+
+	@Override
+	public void toBytes(ByteBuf buf)
+	{
+		NBTTagCompound tag = new NBTTagCompound();
+		this.writeToNBT(tag);
+		ByteBufUtils.writeTag(buf, tag);
+	}
+	
+	@Override
+	public String toString()
+	{
+		return String.format("%s (Day %d)", season.name(), day);
+	}
+	
+	public void update(World world)
+	{
+		this.day++;
+		
+		if(day > season.length)
+		{
+			this.season = season.getFollowing(1);
+			this.day = 0;
+		}
 	}
 
 	// Easy loading (Do SchopWorldData data = SchopWorldData.load(world);)
 	public static SeasonData load(World world)
 	{
-		SeasonData data = (SeasonData) world.getMapStorage().getOrLoadData(SeasonData.class, SurvivalInc.MOD_ID);
-
+		MapStorage storage = world.getMapStorage();
+		SeasonData data = (SeasonData)storage.getOrLoadData(SeasonData.class, SeasonData.datakey);
 		// Does it not exist?
-		if (data == null)
+		if(data == null)
 		{
-			SurvivalInc.logger.warn("No world data found for survivalinc. Creating new file.");
-
-			data = new SeasonData();
-
-			// Predetermine some values if necessary
-
-			// Seasons
-			// Determine starting season and daysIntoSeason
-			double springOrFall = Math.random();
-
-			if (springOrFall < 0.50)
-			{
-
-				data.season = 2;
-			}
-
-			else
-			{
-
-				data.season = 4;
-			}
-
-			if (data.season == 2)
-			{
-
-				data.daysIntoSeason = (ModConfig.SEASONS.springLength / 2) - 1;
-			}
-
-			else
-			{
-
-				data.daysIntoSeason = 0;
-			}
-
-			data.markDirty();
-			world.getMapStorage().setData(SurvivalInc.MOD_ID, data);
+			SurvivalInc.logger.warn("No season data found in world.");
+			data = new SeasonData(SeasonData.datakey);
+			storage.setData(SeasonData.datakey, data);
 		}
-
 		return data;
-	}
-	
-	public static int seasonToInt(Season season)
-	{
-		return season.ordinal() + 1;
-	}
-
-	public static Season intToSeason(int seasonInt)
-	{
-		return Season.values()[seasonInt - 1];
-	}
-
-	public Season getSeasonFromData()
-	{
-		return intToSeason(this.season);
 	}
 }

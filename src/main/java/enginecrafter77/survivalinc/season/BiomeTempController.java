@@ -11,17 +11,16 @@ import java.util.Iterator;
 
 import enginecrafter77.survivalinc.SurvivalInc;
 
+/**
+ * This stores the original biome temperatures, modifying the base temps if
+ * necessary. It also deals with changing the temperature of each biome
+ * according to the season, and where we are in the season.
+ */
 public class BiomeTempController {
 
-	/*
-	 * This stores the original biome temperatures, modifying the base temps if
-	 * necessary. It also deals with changing the temperature of each biome
-	 * according to the season, and where we are in the season.
-	 */
-
 	// The array of original temperatures.
-	private static float[] temperatures;
-
+	private static float[] temperatures;	
+	
 	// This method goes through every biome and grabs the original temperature.
 	// Called at the beginning.
 	public void storeOriginalTemperatures()
