@@ -28,7 +28,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import java.util.List;
 
 import enginecrafter77.survivalinc.SurvivalInc;
-import enginecrafter77.survivalinc.config.ModConfig;
 
 /**
  * The main class that controls the seasons and the universe. Alright, I
@@ -40,7 +39,6 @@ public class SeasonController implements IMessageHandler<SeasonData, IMessage> {
 	
 	public static final int minecraftDayLength = 24000;
 	
-	private static final CycleController cycleController = new CycleController();
 	private static final BiomeTempController biomeTemp = new BiomeTempController();
 	private static final SnowMelter melter = new SnowMelter();
 	
@@ -62,7 +60,6 @@ public class SeasonController implements IMessageHandler<SeasonData, IMessage> {
 			SeasonData data = SeasonData.load(event.player.world);
 			SurvivalInc.proxy.net.sendTo(data, (EntityPlayerMP)event.player);
 			System.out.println("Sending season data [" + data.toString() + "] to " + event.player.getDisplayNameString());
-			cycleController.applySeason(data.season);
 		}
 	}
 	
@@ -92,13 +89,8 @@ public class SeasonController implements IMessageHandler<SeasonData, IMessage> {
 				float randWeather = (float) Math.random();
 				if(randWeather < data.season.rainfallchance && info.isRaining())
 					info.setRaining(true);
-				
-				cycleController.applySeason(data.season);
 				SurvivalInc.logger.info(data.toString());
 			}
-			
-			// Affect daytime
-			if(ModConfig.SEASONS.aenableDayLength) cycleController.alter(player.world);
 			
 			// We need to melt snow and ice manually in the spring.
 			// Summer has a different melting method.

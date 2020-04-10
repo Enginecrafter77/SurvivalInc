@@ -6,42 +6,42 @@ import net.minecraftforge.common.config.Config;
 public class Mechanics {
 
 	@Config.LangKey("config.survivalinc:mechanics.enableGhost")
-	@Config.RequiresWorldRestart
+	@Config.RequiresMcRestart
 	public boolean enableGhost = true;
 
 	@Config.LangKey("config.survivalinc:mechanics.enableTemperature")
-	@Config.RequiresWorldRestart
+	@Config.RequiresMcRestart
 	public boolean enableTemperature = true;
 
 	@Config.LangKey("config.survivalinc:mechanics.enableThirst")
-	@Config.RequiresWorldRestart
+	@Config.RequiresMcRestart
 	public boolean enableThirst = true;
 
 	@Config.LangKey("config.survivalinc:mechanics.enableSanity")
-	@Config.RequiresWorldRestart
+	@Config.RequiresMcRestart
 	public boolean enableSanity = true;
 
 	@Config.LangKey("config.survivalinc:mechanics.enableWetness")
-	@Config.RequiresWorldRestart
+	@Config.RequiresMcRestart
 	public boolean enableWetness = true;
 
 	@Config.LangKey("config.survivalinc:mechanics.temperatureScale")
-	@Config.RequiresWorldRestart
+	@Config.RequiresMcRestart
 	@Config.RangeDouble(min = 0.1, max = 3.0)
 	public double temperatureScale = 1.0;
 
 	@Config.LangKey("config.survivalinc:mechanics.thirstScale")
-	@Config.RequiresWorldRestart
+	@Config.RequiresMcRestart
 	@Config.RangeDouble(min = 0.1, max = 3.0)
 	public double thirstScale = 1.0;
 
 	@Config.LangKey("config.survivalinc:mechanics.sanityScale")
-	@Config.RequiresWorldRestart
+	@Config.RequiresMcRestart
 	@Config.RangeDouble(min = 0.1, max = 3.0)
 	public double sanityScale = 1.0;
 
 	@Config.LangKey("config.survivalinc:mechanics.wetnessScale")
-	@Config.RequiresWorldRestart
+	@Config.RequiresMcRestart
 	@Config.RangeDouble(min = 0.1, max = 3.0)
 	public double wetnessScale = 1.0;
 	

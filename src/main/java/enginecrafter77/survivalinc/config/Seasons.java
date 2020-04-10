@@ -6,26 +6,22 @@ import net.minecraftforge.common.config.Config;
 public class Seasons {
 
 	@Config.LangKey("config.survivalinc:seasons.enableSeasons")
-	@Config.RequiresWorldRestart
+	@Config.RequiresMcRestart
 	public boolean aenableSeasons = true;
 
-	@Config.LangKey("config.survivalinc:seasons.enableDayLength")
-	@Config.RequiresWorldRestart
-	public boolean aenableDayLength = true;
-
 	@Config.LangKey("config.survivalinc:seasons.winterLength")
-	@Config.RequiresWorldRestart
+	@Config.RequiresMcRestart
 	public int winterLength = 14;
 
 	@Config.LangKey("config.survivalinc:seasons.springLength")
-	@Config.RequiresWorldRestart
+	@Config.RequiresMcRestart
 	public int springLength = 14;
 
 	@Config.LangKey("config.survivalinc:seasons.summerLength")
-	@Config.RequiresWorldRestart
+	@Config.RequiresMcRestart
 	public int summerLength = 14;
 
 	@Config.LangKey("config.survivalinc:seasons.autumnLength")
-	@Config.RequiresWorldRestart
+	@Config.RequiresMcRestart
 	public int autumnLength = 14;
 }
