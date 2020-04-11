@@ -6,7 +6,6 @@ import enginecrafter77.survivalinc.ghost.GhostCommand;
 import enginecrafter77.survivalinc.ghost.GhostImpl;
 import enginecrafter77.survivalinc.ghost.GhostStorage;
 import enginecrafter77.survivalinc.net.SummonInfoPacket;
-import enginecrafter77.survivalinc.season.BiomeTempController;
 import enginecrafter77.survivalinc.season.SeasonCommand;
 import enginecrafter77.survivalinc.season.SeasonController;
 import enginecrafter77.survivalinc.season.SeasonData;
@@ -20,7 +19,6 @@ import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
@@ -53,12 +51,6 @@ public class CommonProxy {
 	
 	public void postInit(FMLPostInitializationEvent event) {}
 
-	public void serverStarted(FMLServerStartedEvent event)
-	{
-		BiomeTempController biomeTemp = new BiomeTempController();
-		biomeTemp.storeOriginalTemperatures();
-	}
-	
 	public void serverStarting(FMLServerStartingEvent event)
 	{
 		MinecraftServer server = event.getServer();

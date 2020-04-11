@@ -10,7 +10,6 @@ import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 
 import org.apache.logging.log4j.LogManager;
@@ -102,12 +101,6 @@ public class SurvivalInc {
 	public void serverStarting(FMLServerStartingEvent event)
 	{
 		proxy.serverStarting(event);
-	}
-
-	@EventHandler
-	public void serverStarted(FMLServerStartedEvent event)
-	{
-		proxy.serverStarted(event);
 	}
 
 	// Create tab for creative mode.

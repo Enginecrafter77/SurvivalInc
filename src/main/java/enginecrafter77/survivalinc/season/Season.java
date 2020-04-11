@@ -98,7 +98,7 @@ public enum Season {
 		// The part we are currently in.
 		int part = days / seasonpart;
 		// Cap the part if we have crossed the border
-		if(part > this.thermodelta.size()) part = this.thermodelta.size();
+		if(part >= this.thermodelta.size()) part = this.thermodelta.size() - 1;
 		// Return the temperature delta of the current season part
 		return this.thermodelta.get(part);
 	}

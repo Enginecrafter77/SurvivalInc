@@ -7,6 +7,7 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
 
 public class SeasonCommand extends CommandBase {
 
@@ -55,6 +56,7 @@ public class SeasonCommand extends CommandBase {
 		if(args[0] != "get")
 		{
 			SurvivalInc.proxy.net.sendToAll(data);
+			MinecraftForge.EVENT_BUS.post(new SeasonUpdateEvent(world, data));
 			data.markDirty();
 		}
 	}

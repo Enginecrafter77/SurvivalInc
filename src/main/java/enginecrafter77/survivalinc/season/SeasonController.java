@@ -5,20 +5,25 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
+import net.minecraft.world.DimensionType;
 import net.minecraft.world.World;
+import net.minecraft.world.biome.BiomeEnd;
+import net.minecraft.world.biome.BiomeHell;
+import net.minecraft.world.biome.BiomeOcean;
 import net.minecraft.world.storage.WorldInfo;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityEvent;
-import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.terraingen.BiomeEvent;
 import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
@@ -29,18 +34,13 @@ import java.util.List;
 
 import enginecrafter77.survivalinc.SurvivalInc;
 
-/**
- * The main class that controls the seasons and the universe. Alright, I
- * exaggerated on the universe part. This does not affect temperature.
- * That's another file.
- */
 @Mod.EventBusSubscriber
 public class SeasonController implements IMessageHandler<SeasonData, IMessage> {
 	
 	public static final int minecraftDayLength = 24000;
 	
-	private static final BiomeTempController biomeTemp = new BiomeTempController();
-	private static final SnowMelter melter = new SnowMelter();
+	public static BiomeTempController biomeTemp;
+	public static SnowMelter melter;
 	
 	@Override
 	@SideOnly(Side.CLIENT)
@@ -48,8 +48,20 @@ public class SeasonController implements IMessageHandler<SeasonData, IMessage> {
 	{
 		// I hope I know what I am doing
 		Minecraft.getMinecraft().world.setData(SeasonData.datakey, message);
-		System.out.println("Received season data [" + message.toString() + "] from server");
+		SurvivalInc.logger.info("Received season data ({}) from server", message.toString());
 		return null;
+	}
+	
+	@SubscribeEvent
+	@SideOnly(Side.CLIENT)
+	public static void biomeGrass(BiomeEvent.GetGrassColor event)
+	{
+		// Yes I know what I am doing when using MC.getMC()
+		WorldClient world = Minecraft.getMinecraft().world;
+		SeasonData data = SeasonData.load(world);
+		
+		if(data.season.grasscolor != 0)
+			event.setNewColor(data.season.grasscolor);
 	}
 	
 	@SubscribeEvent
@@ -59,50 +71,58 @@ public class SeasonController implements IMessageHandler<SeasonData, IMessage> {
 		{
 			SeasonData data = SeasonData.load(event.player.world);
 			SurvivalInc.proxy.net.sendTo(data, (EntityPlayerMP)event.player);
-			System.out.println("Sending season data [" + data.toString() + "] to " + event.player.getDisplayNameString());
+			SurvivalInc.logger.info("Sending season data [{}] to ",event.player.getDisplayNameString());
 		}
 	}
 	
 	@SubscribeEvent
-	public static void onPlayerUpdate(LivingUpdateEvent event)
+	public static void onWorldLoad(WorldEvent.Load event)
 	{
-		EntityLivingBase ent = event.getEntityLiving();
-		if(ent instanceof EntityPlayer && !ent.world.isRemote)
+		if(!event.getWorld().isRemote) // We only want to affect the server
 		{
-			EntityPlayer player = (EntityPlayer)ent;
-			SeasonData data = SeasonData.load(player.world);
-			WorldInfo info = player.world.getWorldInfo();
-			
-			long worldTime = player.world.getWorldTime();
-			
-			// Is it early morning? It's not exactly 0 because of beds. And it's an odd number because CycleController.
-			if(worldTime % SeasonController.minecraftDayLength == 41)
+			SeasonController.melter = new SnowMelter();
+			SeasonController.biomeTemp = new BiomeTempController();
+			SeasonController.biomeTemp.excluded.add(BiomeOcean.class);
+			SeasonController.biomeTemp.excluded.add(BiomeHell.class);
+			SeasonController.biomeTemp.excluded.add(BiomeEnd.class);
+		}
+	}
+	
+	@SubscribeEvent
+	public static void onUpdate(TickEvent.WorldTickEvent event)
+	{
+		DimensionType dimension = event.world.provider.getDimensionType();
+		if(!event.world.isRemote && event.phase == TickEvent.Phase.START && dimension == DimensionType.OVERWORLD)
+		{
+			// Is it early morning? It's not exactly 0 because of beds.
+			if(event.world.getWorldTime() % SeasonController.minecraftDayLength == 10)
 			{
-				data.update(player.world);
-				data.markDirty();
+				SurvivalInc.logger.info("Day advance. Event: Side: {}, Phase: {}, Type: {}, Dim: {}", event.side.name(), event.phase.name(), event.type.name(), dimension.name());
+				SeasonData data = SeasonData.load(event.world);
+				data.update(event.world);
 				
-				// Send new season data to client
-				SurvivalInc.proxy.net.sendTo(data, (EntityPlayerMP)player);
-				biomeTemp.changeBiomeTemperatures(data.season, data.day);
-
-				// Determine the weather. The season is the main factor.
-				float randWeather = (float) Math.random();
-				if(randWeather < data.season.rainfallchance && info.isRaining())
-					info.setRaining(true);
-				SurvivalInc.logger.info(data.toString());
-			}
-			
-			// We need to melt snow and ice manually in the spring.
-			// Summer has a different melting method.
-			if(data.season == Season.SPRING && player.dimension == 0)
-			{
-				melter.melt(player.world, player, data.day);
+				MinecraftForge.EVENT_BUS.post(new SeasonUpdateEvent(event.world, data));
+				SurvivalInc.proxy.net.sendToAll(data); // Send new season data to all clients
+				
+				data.markDirty();
 			}
 		}
 	}
-
-	// Helps to melt snow in summer. Where there shouldn't be any snow.
-	// Also does the leaves.
+	
+	@SubscribeEvent
+	public static void onSeasonUpdate(SeasonUpdateEvent event)
+	{
+		WorldInfo info = event.getWorld().getWorldInfo();
+		biomeTemp.applySeason(event.data);
+		
+		// Determine the weather. The season is the main factor.
+		float randWeather = (float) Math.random();
+		if(randWeather < event.getSeason().rainfallchance && info.isRaining())
+			info.setRaining(true);
+		
+		SurvivalInc.logger.info(event.data.toString());
+	}
+	
 	@SubscribeEvent
 	public static void onChunkWalkIn(EntityEvent.EnteringChunk event)
 	{
@@ -121,24 +141,12 @@ public class SeasonController implements IMessageHandler<SeasonData, IMessage> {
 			}
 		}
 	}
-	
-	@SubscribeEvent
-	@SideOnly(Side.CLIENT)
-	public static void biomeGrass(BiomeEvent.GetGrassColor event)
-	{
-		// Yes I know what I am doing when using MC.getMC()
-		WorldClient world = Minecraft.getMinecraft().world;
-		SeasonData data = SeasonData.load(world);
-		
-		if(data.season.grasscolor != 0)
-			event.setNewColor(data.season.grasscolor);
-	}
 
 	// Add bonus harvest drops from crops in the Autumn.
 	@SubscribeEvent
-	public static void harvestDrops(BlockEvent.HarvestDropsEvent event)
+	public static void onCropHarvest(BlockEvent.HarvestDropsEvent event)
 	{
-		World world = event.getWorld();		
+		World world = event.getWorld();
 		IBlockState state = event.getState();
 		
 		// Is (was?) the harvested block really a crop?
