@@ -3,9 +3,11 @@ package enginecrafter77.survivalinc.util;
 import java.util.function.BiFunction;
 
 public enum OperationType implements BiFunction<Float, Float, Float> {
+	
+	NOOP((Float current, Float mod) -> current),
+	OVERWRITE((Float current, Float mod) -> mod),
 	OFFSET((Float current, Float mod) -> current + mod),
-	SCALE((Float current, Float mod) -> current * mod),
-	OVERWRITE((Float current, Float mod) -> mod);
+	SCALE((Float current, Float mod) -> current * mod);
 	
 	private final BiFunction<Float, Float, Float> function;
 	
