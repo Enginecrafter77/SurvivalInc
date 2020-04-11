@@ -2,15 +2,21 @@ package enginecrafter77.survivalinc.stats.impl;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import enginecrafter77.survivalinc.stats.StatRegister;
 import enginecrafter77.survivalinc.stats.StatTracker;
+import enginecrafter77.survivalinc.util.OperationType;
 import net.minecraft.block.Block;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
+import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 /*
  * This is where the magic of changing one's wetness occurs. You'll most likely be here.
@@ -20,14 +26,21 @@ import net.minecraft.util.math.Vec3i;
  * 	-Schoperation
  */
 
+@Mod.EventBusSubscriber
 public class WetnessModifier {
 	
 	public static Map<Block, Float> humiditymap;
 	
-	public static void initHumidityMap()
+	public static void init()
 	{
+		DefaultStats.WETNESS.modifiers.addConditionalModifier((EntityPlayer player) -> player.dimension == -1, -0.08F, OperationType.OFFSET);
+		DefaultStats.WETNESS.modifiers.addConditionalModifier((EntityPlayer player) -> player.isInLava(), -5F, OperationType.OFFSET);
+		DefaultStats.WETNESS.modifiers.addConditionalModifier((EntityPlayer player) -> player.world.isRainingAt(player.getPosition().up()), 0.01F, OperationType.OFFSET);
+		DefaultStats.WETNESS.modifiers.addModifier(WetnessModifier::scanSurroundings, OperationType.OFFSET);
+		DefaultStats.WETNESS.modifiers.addModifier(WetnessModifier::naturalDrying, OperationType.OFFSET);
+		DefaultStats.WETNESS.modifiers.addModifier(WetnessModifier::whenInWater, OperationType.OFFSET);
+		
 		WetnessModifier.humiditymap = new HashMap<Block, Float>();
-		//TODO extend StatCalculator, make block space iterator
 		WetnessModifier.humiditymap.put(Blocks.FIRE, -0.5F);
 		WetnessModifier.humiditymap.put(Blocks.LAVA, -1F);
 		WetnessModifier.humiditymap.put(Blocks.FLOWING_LAVA, -1F);
@@ -84,9 +97,23 @@ public class WetnessModifier {
 		return diff;
 	}
 	
-	public static void onPlayerUpdate(EntityPlayer player)
+	@SubscribeEvent
+	public static void onPlayerUpdate(LivingUpdateEvent event)
 	{
-		if(!player.world.isRemote)
-			player.world.spawnParticle(EnumParticleTypes.DRIP_WATER, player.posX, player.posY, player.posZ, 0, -0.3, 0, null);
+		EntityLivingBase ent = event.getEntityLiving();
+		if(ent.world.isRemote) return;
+		
+		if(ent instanceof EntityPlayer)
+		{
+			StatTracker tracker = ent.getCapability(StatRegister.CAPABILITY, null);
+			Random rng = ent.world.rand;
+			for(int index = 0; index < tracker.getStat(DefaultStats.WETNESS); index++)
+			{
+				double offx = rng.nextFloat() * 2 - 1; // from -1F to +1F
+				double offy = rng.nextFloat() * 2 - 1; // from -1F to +1F
+				double offz = rng.nextFloat() * 2 - 1; // from -1F to +1F
+				ent.world.spawnParticle(EnumParticleTypes.DRIP_WATER, ent.posX + offx, ent.posY + offy, ent.posZ + offz, 0, -0.3, 0, null);
+			}
+		}
 	}
 }

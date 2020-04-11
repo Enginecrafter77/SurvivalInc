@@ -5,13 +5,18 @@ import enginecrafter77.survivalinc.ghost.Ghost;
 import enginecrafter77.survivalinc.ghost.GhostCommand;
 import enginecrafter77.survivalinc.ghost.GhostImpl;
 import enginecrafter77.survivalinc.ghost.GhostStorage;
-import enginecrafter77.survivalinc.net.SummonInfoPacket;
+import enginecrafter77.survivalinc.season.Season;
 import enginecrafter77.survivalinc.season.SeasonCommand;
 import enginecrafter77.survivalinc.season.SeasonController;
 import enginecrafter77.survivalinc.season.SeasonData;
 import enginecrafter77.survivalinc.stats.StatManager;
 import enginecrafter77.survivalinc.stats.StatRegister;
 import enginecrafter77.survivalinc.stats.StatTracker;
+import enginecrafter77.survivalinc.stats.impl.DefaultStats;
+import enginecrafter77.survivalinc.stats.impl.HeatModifier;
+import enginecrafter77.survivalinc.stats.impl.HydrationModifier;
+import enginecrafter77.survivalinc.stats.impl.SanityModifier;
+import enginecrafter77.survivalinc.stats.impl.WetnessModifier;
 import net.minecraft.command.CommandHandler;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.MinecraftForge;
@@ -45,8 +50,32 @@ public class CommonProxy {
 	public void init(FMLInitializationEvent event)
 	{
 		this.net = NetworkRegistry.INSTANCE.newSimpleChannel(SurvivalInc.MOD_ID);
-		this.net.registerMessage(SummonInfoPacket.class, SummonInfoPacket.SummonInfoMessage.class, 1, Side.SERVER);
 		this.net.registerMessage(SeasonController.class, SeasonData.class, 3, Side.CLIENT);
+		
+		Season.initSeasons();
+		
+		if(ModConfig.MECHANICS.enableThirst)
+		{
+			StatManager.providers.add(DefaultStats.HYDRATION);
+			HydrationModifier.init();
+		}
+		
+		if(ModConfig.MECHANICS.enableSanity)
+		{
+			StatManager.providers.add(DefaultStats.SANITY);
+			MinecraftForge.EVENT_BUS.register(SanityModifier.class);
+			SanityModifier.init();
+		}
+		
+		if(ModConfig.MECHANICS.enableWetness)
+		{
+			StatManager.providers.add(DefaultStats.WETNESS);
+			MinecraftForge.EVENT_BUS.register(WetnessModifier.class);
+			WetnessModifier.init();
+		}
+		
+		if(ModConfig.MECHANICS.enableTemperature)
+			StatManager.providers.add(HeatModifier.instance);
 	}
 	
 	public void postInit(FMLPostInitializationEvent event) {}

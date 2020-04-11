@@ -1,7 +1,6 @@
 package enginecrafter77.survivalinc;
 
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -14,15 +13,6 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import enginecrafter77.survivalinc.config.ModConfig;
-import enginecrafter77.survivalinc.season.Season;
-import enginecrafter77.survivalinc.stats.StatManager;
-import enginecrafter77.survivalinc.stats.impl.DefaultStats;
-import enginecrafter77.survivalinc.stats.impl.HeatModifier;
-import enginecrafter77.survivalinc.stats.impl.SanityModifier;
-import enginecrafter77.survivalinc.stats.impl.WetnessModifier;
-import enginecrafter77.survivalinc.util.OperationType;
 
 @Mod(modid = SurvivalInc.MOD_ID, name = SurvivalInc.MOD_NAME, version = SurvivalInc.VERSION, acceptedMinecraftVersions = SurvivalInc.MCVERSION, dependencies = SurvivalInc.DEPENDENCIES)
 public class SurvivalInc {
@@ -51,38 +41,6 @@ public class SurvivalInc {
 	public void preInit(FMLPreInitializationEvent event)
 	{
 		proxy.preInit(event);
-		
-		Season.initSeasons();
-		
-		DefaultStats.HYDRATION.modifiers.addConditionalModifier((EntityPlayer player) -> player.isInLava(), -0.5F, OperationType.OFFSET);
-		DefaultStats.HYDRATION.modifiers.addConditionalModifier((EntityPlayer player) -> player.dimension == -1, -0.006F, OperationType.OFFSET);
-		DefaultStats.HYDRATION.modifiers.addConditionalModifier((EntityPlayer player) -> player.world.rand.nextBoolean(), -0.003F, OperationType.OFFSET);
-		
-		DefaultStats.SANITY.modifiers.addConditionalModifier((EntityPlayer player) -> !player.world.isDaytime() && !player.isPlayerSleeping(), -0.0015F, OperationType.OFFSET);
-		DefaultStats.SANITY.modifiers.addConditionalModifier(SanityModifier.isOutsideOverworld, -0.004F, OperationType.OFFSET);
-		DefaultStats.SANITY.modifiers.addModifier(SanityModifier::whenInDark, OperationType.OFFSET);
-		DefaultStats.SANITY.modifiers.addModifier(SanityModifier::whenWet, OperationType.OFFSET);
-		DefaultStats.SANITY.modifiers.addModifier(SanityModifier::whenNearEntities, OperationType.OFFSET);
-		
-		WetnessModifier.initHumidityMap();
-		DefaultStats.WETNESS.modifiers.addConditionalModifier((EntityPlayer player) -> player.dimension == -1, -0.08F, OperationType.OFFSET);
-		DefaultStats.WETNESS.modifiers.addConditionalModifier((EntityPlayer player) -> player.isInLava(), -5F, OperationType.OFFSET);
-		DefaultStats.WETNESS.modifiers.addConditionalModifier((EntityPlayer player) -> player.world.isRainingAt(player.getPosition().up()), 0.01F, OperationType.OFFSET);
-		DefaultStats.WETNESS.modifiers.addModifier(WetnessModifier::scanSurroundings, OperationType.OFFSET);
-		DefaultStats.WETNESS.modifiers.addModifier(WetnessModifier::naturalDrying, OperationType.OFFSET);
-		DefaultStats.WETNESS.modifiers.addModifier(WetnessModifier::whenInWater, OperationType.OFFSET);
-		
-		if(ModConfig.MECHANICS.enableThirst)
-			StatManager.providers.add(DefaultStats.HYDRATION);
-		
-		if(ModConfig.MECHANICS.enableSanity)
-			StatManager.providers.add(DefaultStats.SANITY);
-		
-		if(ModConfig.MECHANICS.enableWetness)
-			StatManager.providers.add(DefaultStats.WETNESS);
-		
-		if(ModConfig.MECHANICS.enableTemperature)
-			StatManager.providers.add(HeatModifier.instance);
 	}
 
 	@EventHandler
