@@ -81,10 +81,19 @@ public class SeasonController implements IMessageHandler<SeasonData, IMessage> {
 		if(!event.getWorld().isRemote) // We only want to affect the server
 		{
 			SeasonController.melter = new SnowMelter();
-			SeasonController.biomeTemp = new BiomeTempController();
-			SeasonController.biomeTemp.excluded.add(BiomeOcean.class);
-			SeasonController.biomeTemp.excluded.add(BiomeHell.class);
-			SeasonController.biomeTemp.excluded.add(BiomeEnd.class);
+			try
+			{
+				SeasonController.biomeTemp = new BiomeTempController();
+				SeasonController.biomeTemp.excluded.add(BiomeOcean.class);
+				SeasonController.biomeTemp.excluded.add(BiomeHell.class);
+				SeasonController.biomeTemp.excluded.add(BiomeEnd.class);
+			}
+			catch(NoSuchFieldException exc)
+			{
+				RuntimeException nexc = new RuntimeException();
+				nexc.initCause(exc); //ReportedException
+				throw nexc;
+			}
 		}
 	}
 	

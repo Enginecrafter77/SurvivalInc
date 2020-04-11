@@ -9,8 +9,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import enginecrafter77.survivalinc.SurvivalInc;
-
 /**
  * This stores the original biome temperatures, modifying the base temps if
  * necessary. It also deals with changing the temperature of each biome
@@ -19,13 +17,15 @@ import enginecrafter77.survivalinc.SurvivalInc;
 public class BiomeTempController extends HashMap<Biome, Float> {
 	private static final long serialVersionUID = 4090434007816386553L;	
 	
+	private static final String[] possiblenames = new String[]{"field_76750_F", "temperature"};
+	
 	public final Map<Biome, Float> originals;
 	public final Set<Class<? extends Biome>> excluded;
-	protected String[] possiblenames;
 	
-	public BiomeTempController()
+	protected final Field target;
+	
+	public BiomeTempController() throws NoSuchFieldException
 	{
-		this.possiblenames = new String[]{"field_76750_F", "temperature"};
 		this.originals = new HashMap<Biome, Float>();
 		this.excluded = new HashSet<Class<? extends Biome>>();
 		
@@ -34,36 +34,33 @@ public class BiomeTempController extends HashMap<Biome, Float> {
 		{
 			originals.put(biome, biome.getDefaultTemperature());
 		}
-	}
-	
-	protected Field tryAccess() throws NoSuchFieldException, ReflectiveOperationException
-	{
+		
+		// Reflectively locate the target field
+		Field field = null;
 		for(String name : possiblenames)
 		{
 			try
 			{
-				Field field = Biome.class.getDeclaredField(name);
+				field = Biome.class.getDeclaredField(name);
 				field.setAccessible(true);
-				return field;
 			}
-			catch(NoSuchFieldException exc)
+			catch(ReflectiveOperationException exc)
 			{
-				continue;
+				continue; // Try the next possible field
 			}
 		}
-		throw new NoSuchFieldException("Temperature field not found in biome class");
+		
+		if(field == null)
+			throw new NoSuchFieldException("Temperature field not found in Biome.class");
+		else
+			this.target = field;
 	}
 	
 	public void setTemperature(Biome biome, float temperature)
 	{
 		try
 		{
-			Field field = this.tryAccess();
-			field.setFloat(biome, temperature);
-		}
-		catch(NoSuchFieldException exc)
-		{
-			SurvivalInc.logger.error(exc.getMessage());
+			target.setFloat(biome, temperature);
 		}
 		catch(ReflectiveOperationException exc)
 		{
