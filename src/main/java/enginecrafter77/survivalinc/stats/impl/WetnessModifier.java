@@ -2,7 +2,9 @@ package enginecrafter77.survivalinc.stats.impl;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
+import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.stats.StatRegister;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import enginecrafter77.survivalinc.stats.modifier.ConditionalModifier;
@@ -10,6 +12,8 @@ import enginecrafter77.survivalinc.stats.modifier.FunctionalModifier;
 import enginecrafter77.survivalinc.stats.modifier.OperationType;
 import net.minecraft.block.Block;
 import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumParticleTypes;
@@ -30,7 +34,7 @@ import net.minecraftforge.fml.common.Mod;
 public class WetnessModifier {
 	public static Map<Block, Float> humiditymap;
 	
-	public static final PlayerAttributeModifier wetness_slowdown = new PlayerAttributeModifier(DefaultStats.WETNESS, SharedMonsterAttributes.MOVEMENT_SPEED);
+	public static UUID wetnessSlowdown = UUID.randomUUID();
 	
 	public static void init()
 	{
@@ -41,7 +45,7 @@ public class WetnessModifier {
 		DefaultStats.WETNESS.modifiers.add(new FunctionalModifier<EntityPlayer>(WetnessModifier::naturalDrying), OperationType.OFFSET);
 		DefaultStats.WETNESS.modifiers.add(new FunctionalModifier<EntityPlayer>(WetnessModifier::whenInWater), OperationType.OFFSET);
 		DefaultStats.WETNESS.modifiers.add(new FunctionalModifier<EntityPlayer>(WetnessModifier::causeDripping));
-		DefaultStats.WETNESS.modifiers.add(WetnessModifier.wetness_slowdown);
+		DefaultStats.WETNESS.modifiers.add(new FunctionalModifier<EntityPlayer>(WetnessModifier::slowDown));
 		
 		WetnessModifier.humiditymap = new HashMap<Block, Float>();
 		WetnessModifier.humiditymap.put(Blocks.FIRE, -0.5F);
@@ -49,6 +53,40 @@ public class WetnessModifier {
 		WetnessModifier.humiditymap.put(Blocks.FLOWING_LAVA, -1F);
 		WetnessModifier.humiditymap.put(Blocks.LIT_FURNACE, -0.4F);
 		WetnessModifier.humiditymap.put(Blocks.MAGMA, -0.4F);
+	}
+	
+	public static float slowDown(EntityPlayer player, float current)
+	{
+		float max = DefaultStats.WETNESS.getMaximum();
+		float threshold = (float)ModConfig.MECHANICS.wetnessSlowdownThreshold / 100F;
+		
+		// This is the math part. I am way less worried about impact of this. Mmmm math...
+		float mod = 0F;
+		if(current > (threshold * max))
+		{
+			/*
+			 * We want to achieve following scenario:
+			 * 	When the wetness is just at the slowdown threshold, apply zero slowdown (closest 0)
+			 * 	As the wetness is rising, slow the player down in linear manner (which implies using direct relationship function)
+			 * 	When the wetness is at maximum, the value should be just above -1 (to avoid total nullification of the speed)
+			 * After some experimentation and calculations, I came up with this little equation:
+			 * 	      1 - g           g - 1
+			 * 	y = ---------- x + t -------
+			 * 	     m(t - 1)         t - 1
+			 * It may seem a little bit complicated, but you would get to that anyways if you would try to solve it.
+			 */
+			float correction = (float)ModConfig.MECHANICS.minimalWalkSpeed;
+			float inclination = (1 - correction) / (max * (threshold - 1)); // The inclination of the graph, aka the A
+			float offset = threshold * ((correction - 1) / (threshold - 1)); // The offset of the graph, aka the B
+			mod += inclination * current + offset; // Direct relationship formula
+		}
+		
+		// Ugh I really hate this code. It's damn ineffective. So much list IO to handle every single tick.
+		IAttributeInstance inst = player.getAttributeMap().getAttributeInstance(SharedMonsterAttributes.MOVEMENT_SPEED);
+		inst.removeModifier(WetnessModifier.wetnessSlowdown);
+		inst.applyModifier(new AttributeModifier(WetnessModifier.wetnessSlowdown, "wetnessSlowdown", mod, 1).setSaved(false));
+		
+		return current;
 	}
 	
 	public static float causeDripping(EntityPlayer player, float current)

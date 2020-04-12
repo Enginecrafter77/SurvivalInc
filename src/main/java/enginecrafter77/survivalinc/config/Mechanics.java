@@ -64,4 +64,8 @@ public class Mechanics {
 	@Config.LangKey("config.survivalinc:mechanics.wetnessSlowdownThreshold")
 	@Config.RangeDouble(min = 0, max = 100)
 	public double wetnessSlowdownThreshold = 75;
+	
+	@Config.LangKey("config.survivalinc:mechanics.minimalWalkSpeed")
+	@Config.RangeDouble(min = 0, max = 1)
+	public double minimalWalkSpeed = 0.25;
 }
