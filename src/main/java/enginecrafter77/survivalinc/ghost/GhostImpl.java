@@ -3,8 +3,9 @@ package enginecrafter77.survivalinc.ghost;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.stats.OverflowHandler;
 import enginecrafter77.survivalinc.stats.StatProvider;
-import enginecrafter77.survivalinc.util.ModifierCalculator;
-import enginecrafter77.survivalinc.util.OperationType;
+import enginecrafter77.survivalinc.stats.modifier.ConditionalModifier;
+import enginecrafter77.survivalinc.stats.modifier.ModifierApplicator;
+import enginecrafter77.survivalinc.stats.modifier.OperationType;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.GameType;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -13,7 +14,7 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 public class GhostImpl implements Ghost, StatProvider {
 	private static final long serialVersionUID = -3704889805293574354L;
 	
-	public static final ModifierCalculator<EntityPlayer> calc = new ModifierCalculator<EntityPlayer>();
+	public static final ModifierApplicator<EntityPlayer> calc = new ModifierApplicator<EntityPlayer>();
 	
 	protected boolean status;
 	protected float energy;
@@ -115,8 +116,8 @@ public class GhostImpl implements Ghost, StatProvider {
 	
 	public static void register()
 	{
-		GhostImpl.calc.addConditionalModifier((EntityPlayer player) -> !player.world.isDaytime(), 0.05F, OperationType.OFFSET);
-		GhostImpl.calc.addConditionalModifier((EntityPlayer player) -> player.isSprinting(), -0.2F, OperationType.OFFSET);
+		GhostImpl.calc.put(new ConditionalModifier<EntityPlayer>((EntityPlayer player) -> !player.world.isDaytime(), 0.05F), OperationType.OFFSET);
+		GhostImpl.calc.put(new ConditionalModifier<EntityPlayer>((EntityPlayer player) -> player.isSprinting(), -0.2F), OperationType.OFFSET);
 	}
 	
 	@SubscribeEvent

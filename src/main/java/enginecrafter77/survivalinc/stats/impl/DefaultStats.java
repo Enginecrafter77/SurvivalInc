@@ -3,7 +3,7 @@ package enginecrafter77.survivalinc.stats.impl;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.stats.OverflowHandler;
 import enginecrafter77.survivalinc.stats.StatProvider;
-import enginecrafter77.survivalinc.util.ModifierCalculator;
+import enginecrafter77.survivalinc.stats.modifier.ModifierApplicator;
 import net.minecraft.entity.player.EntityPlayer;
 
 public enum DefaultStats implements StatProvider {
@@ -13,12 +13,12 @@ public enum DefaultStats implements StatProvider {
 	
 	public final float scale;
 	
-	public final ModifierCalculator<EntityPlayer> modifiers;
+	public final ModifierApplicator<EntityPlayer> modifiers;
 	private float max, min, def;
 	
 	private DefaultStats(double scale, float min, float max, float def)
 	{
-		this.modifiers = new ModifierCalculator<EntityPlayer>();
+		this.modifiers = new ModifierApplicator<EntityPlayer>();
 		this.scale = (float)scale;
 		this.min = min;
 		this.max = max;

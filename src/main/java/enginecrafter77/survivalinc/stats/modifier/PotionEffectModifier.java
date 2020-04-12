@@ -1,4 +1,4 @@
-package enginecrafter77.survivalinc.util;
+package enginecrafter77.survivalinc.stats.modifier;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.potion.Potion;

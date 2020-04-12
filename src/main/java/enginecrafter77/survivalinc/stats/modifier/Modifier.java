@@ -1,4 +1,4 @@
-package enginecrafter77.survivalinc.util;
+package enginecrafter77.survivalinc.stats.modifier;
 
 /**
  * Modifier represents an abstract way to

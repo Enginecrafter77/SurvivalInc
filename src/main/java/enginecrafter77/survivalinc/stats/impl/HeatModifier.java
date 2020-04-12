@@ -8,8 +8,9 @@ import enginecrafter77.survivalinc.stats.OverflowHandler;
 import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatRegister;
 import enginecrafter77.survivalinc.stats.StatTracker;
-import enginecrafter77.survivalinc.util.ModifierCalculator;
-import enginecrafter77.survivalinc.util.OperationType;
+import enginecrafter77.survivalinc.stats.modifier.FunctionalModifier;
+import enginecrafter77.survivalinc.stats.modifier.ModifierApplicator;
+import enginecrafter77.survivalinc.stats.modifier.OperationType;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -26,20 +27,20 @@ public class HeatModifier implements StatProvider {
 	public static final HeatModifier instance = new HeatModifier();
 	
 	public Map<Block, Float> heatmap;
-	public ModifierCalculator<EntityPlayer> targettemp;
-	public ModifierCalculator<EntityPlayer> exchangerate;
+	public ModifierApplicator<EntityPlayer> targettemp;
+	public ModifierApplicator<EntityPlayer> exchangerate;
 	
 	public HeatModifier()
 	{
 		this.heatmap = new HashMap<Block, Float>();
-		this.targettemp = new ModifierCalculator<EntityPlayer>();
-		this.exchangerate = new ModifierCalculator<EntityPlayer>();
+		this.targettemp = new ModifierApplicator<EntityPlayer>();
+		this.exchangerate = new ModifierApplicator<EntityPlayer>();
 		
 		this.heatmap.put(Blocks.LAVA, 10F);
 		this.heatmap.put(Blocks.FIRE, 5F);
 		
-		this.targettemp.addModifier(HeatModifier::whenNearHotBlock, OperationType.OFFSET);
-		this.exchangerate.addModifier(HeatModifier::applyWetnessCooldown, OperationType.SCALE);
+		this.targettemp.put(new FunctionalModifier<EntityPlayer>(HeatModifier::whenNearHotBlock), OperationType.OFFSET);
+		this.exchangerate.put(new FunctionalModifier<EntityPlayer>(HeatModifier::applyWetnessCooldown), OperationType.SCALE);
 		
 		this.tick = 0;
 	}

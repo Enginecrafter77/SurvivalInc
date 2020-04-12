@@ -60,4 +60,8 @@ public class Mechanics {
 	@Config.LangKey("config.survivalinc:mechanics.heatExchangeFactor")
 	@Config.RangeDouble(min = 0, max = 1)
 	public double heatExchangeFactor = 0.0003;
+	
+	@Config.LangKey("config.survivalinc:mechanics.wetnessSlowdownThreshold")
+	@Config.RangeDouble(min = 0, max = 100)
+	public double wetnessSlowdownThreshold = 75;
 }
