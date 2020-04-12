@@ -116,8 +116,8 @@ public class GhostImpl implements Ghost, StatProvider {
 	
 	public static void register()
 	{
-		GhostImpl.calc.put(new ConditionalModifier<EntityPlayer>((EntityPlayer player) -> !player.world.isDaytime(), 0.05F), OperationType.OFFSET);
-		GhostImpl.calc.put(new ConditionalModifier<EntityPlayer>((EntityPlayer player) -> player.isSprinting(), -0.2F), OperationType.OFFSET);
+		GhostImpl.calc.add(new ConditionalModifier<EntityPlayer>((EntityPlayer player) -> !player.world.isDaytime(), 0.05F), OperationType.OFFSET);
+		GhostImpl.calc.add(new ConditionalModifier<EntityPlayer>((EntityPlayer player) -> player.isSprinting(), -0.2F), OperationType.OFFSET);
 	}
 	
 	@SubscribeEvent

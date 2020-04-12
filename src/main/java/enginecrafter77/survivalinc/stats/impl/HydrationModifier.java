@@ -24,9 +24,9 @@ public class HydrationModifier {
 	
 	public static void init()
 	{
-		DefaultStats.HYDRATION.modifiers.put(new ConditionalModifier<EntityPlayer>((EntityPlayer player) -> player.isInLava(), -0.5F), OperationType.OFFSET);
-		DefaultStats.HYDRATION.modifiers.put(new ConditionalModifier<EntityPlayer>((EntityPlayer player) -> player.dimension == -1, -0.006F), OperationType.OFFSET);
-		DefaultStats.HYDRATION.modifiers.put(new ConditionalModifier<EntityPlayer>((EntityPlayer player) -> player.world.rand.nextBoolean(), -0.003F), OperationType.OFFSET);
+		DefaultStats.HYDRATION.modifiers.add(new ConditionalModifier<EntityPlayer>((EntityPlayer player) -> player.isInLava(), -0.5F), OperationType.OFFSET);
+		DefaultStats.HYDRATION.modifiers.add(new ConditionalModifier<EntityPlayer>((EntityPlayer player) -> player.dimension == -1, -0.006F), OperationType.OFFSET);
+		DefaultStats.HYDRATION.modifiers.add(new ConditionalModifier<EntityPlayer>((EntityPlayer player) -> player.world.rand.nextBoolean(), -0.003F), OperationType.OFFSET);
 	}
 	
 	// When a player interacts with a block (usually right clicking something).

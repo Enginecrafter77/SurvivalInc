@@ -37,11 +37,11 @@ public class SanityModifier {
 	
 	public static void init()
 	{
-		DefaultStats.SANITY.modifiers.put(new ConditionalModifier<EntityPlayer>((EntityPlayer player) -> !player.world.isDaytime() && !player.isPlayerSleeping(), -0.0015F), OperationType.OFFSET);
-		DefaultStats.SANITY.modifiers.put(new ConditionalModifier<EntityPlayer>(SanityModifier.isOutsideOverworld, -0.004F), OperationType.OFFSET);
-		DefaultStats.SANITY.modifiers.put(new FunctionalModifier<EntityPlayer>(SanityModifier::whenNearEntities), OperationType.OFFSET);
-		DefaultStats.SANITY.modifiers.put(new FunctionalModifier<EntityPlayer>(SanityModifier::whenInDark), OperationType.OFFSET);
-		DefaultStats.SANITY.modifiers.put(new FunctionalModifier<EntityPlayer>(SanityModifier::whenWet), OperationType.OFFSET);
+		DefaultStats.SANITY.modifiers.add(new ConditionalModifier<EntityPlayer>((EntityPlayer player) -> !player.world.isDaytime() && !player.isPlayerSleeping(), -0.0015F), OperationType.OFFSET);
+		DefaultStats.SANITY.modifiers.add(new ConditionalModifier<EntityPlayer>(SanityModifier.isOutsideOverworld, -0.004F), OperationType.OFFSET);
+		DefaultStats.SANITY.modifiers.add(new FunctionalModifier<EntityPlayer>(SanityModifier::whenNearEntities), OperationType.OFFSET);
+		DefaultStats.SANITY.modifiers.add(new FunctionalModifier<EntityPlayer>(SanityModifier::whenInDark), OperationType.OFFSET);
+		DefaultStats.SANITY.modifiers.add(new FunctionalModifier<EntityPlayer>(SanityModifier::whenWet), OperationType.OFFSET);
 		
 		SanityModifier.foodSanityMap.put(Items.CHICKEN, -5F);
 		SanityModifier.foodSanityMap.put(Items.BEEF, -5F);

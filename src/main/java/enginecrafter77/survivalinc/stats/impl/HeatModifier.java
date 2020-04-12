@@ -39,8 +39,8 @@ public class HeatModifier implements StatProvider {
 		this.heatmap.put(Blocks.LAVA, 10F);
 		this.heatmap.put(Blocks.FIRE, 5F);
 		
-		this.targettemp.put(new FunctionalModifier<EntityPlayer>(HeatModifier::whenNearHotBlock), OperationType.OFFSET);
-		this.exchangerate.put(new FunctionalModifier<EntityPlayer>(HeatModifier::applyWetnessCooldown), OperationType.SCALE);
+		this.targettemp.add(new FunctionalModifier<EntityPlayer>(HeatModifier::whenNearHotBlock), OperationType.OFFSET);
+		this.exchangerate.add(new FunctionalModifier<EntityPlayer>(HeatModifier::applyWetnessCooldown), OperationType.SCALE);
 		
 		this.tick = 0;
 	}

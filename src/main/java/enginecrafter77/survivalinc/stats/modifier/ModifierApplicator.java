@@ -1,6 +1,7 @@
 package enginecrafter77.survivalinc.stats.modifier;
 
-import java.util.HashMap;
+import java.util.EnumMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 /**
@@ -17,9 +18,7 @@ import java.util.Map;
  * @author Enginecrafter77
  * @param <TYPE> The type this applicator works with
  */
-public class ModifierApplicator<TYPE> extends HashMap<Modifier<TYPE>, OperationType> implements Modifier<TYPE> {
-	private static final long serialVersionUID = -4354151273868761972L;
-	
+public class ModifierApplicator<TYPE> implements Modifier<TYPE> {
 	/**
 	 * Determines if this applicator should give up after
 	 * it has found a modifier whose {@link Modifier#shouldTrigger(float)}
@@ -27,8 +26,15 @@ public class ModifierApplicator<TYPE> extends HashMap<Modifier<TYPE>, OperationT
 	 */
 	public boolean singleCatch;
 	
+	/** The map storing the ordered mappings */
+	protected final EnumMap<OperationType, LinkedList<Modifier<TYPE>>> container;
+	
 	public ModifierApplicator()
 	{
+		this.container = new EnumMap<OperationType, LinkedList<Modifier<TYPE>>>(OperationType.class);
+		for(OperationType operation : OperationType.values()) // Initialize the container
+			this.container.put(operation, new LinkedList<Modifier<TYPE>>());
+		
 		this.singleCatch = false;
 	}
 	
@@ -44,23 +50,30 @@ public class ModifierApplicator<TYPE> extends HashMap<Modifier<TYPE>, OperationT
 		return !this.singleCatch;
 	}
 	
+	public void add(Modifier<TYPE> mod, OperationType operation)
+	{
+		this.container.get(operation).add(mod);
+	}
+	
 	public void add(Modifier<TYPE> mod)
 	{
-		this.put(mod, OperationType.NOOP);
+		this.add(mod, OperationType.NOOP);
 	}
 	
 	@Override
 	public float apply(TYPE target, float level)
 	{
-		for(Map.Entry<Modifier<TYPE>, OperationType> entry : this.entrySet())
+		for(Map.Entry<OperationType, LinkedList<Modifier<TYPE>>> entry : this.container.entrySet())
 		{
-			Modifier<TYPE> mod = entry.getKey();
-			if(mod.shouldTrigger(target, level))
+			for(Modifier<TYPE> mod : entry.getValue())
 			{
-				float newvalue = mod.apply(target, level);
-				level = entry.getValue().apply(level, newvalue);
-				
-				if(!this.continueAfterMatch(mod)) break;
+				if(mod.shouldTrigger(target, level))
+				{
+					float newvalue = mod.apply(target, level);
+					level = entry.getKey().apply(level, newvalue);
+					
+					if(!this.continueAfterMatch(mod)) break;
+				}
 			}
 		}
 		return level;
@@ -69,6 +82,6 @@ public class ModifierApplicator<TYPE> extends HashMap<Modifier<TYPE>, OperationT
 	@Override
 	public boolean shouldTrigger(TYPE target, float level)
 	{
-		return this.size() > 0;
+		return this.container.size() > 0;
 	}
 }

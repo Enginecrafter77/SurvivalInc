@@ -34,14 +34,14 @@ public class WetnessModifier {
 	
 	public static void init()
 	{
-		DefaultStats.WETNESS.modifiers.put(new ConditionalModifier<EntityPlayer>((EntityPlayer player) -> player.world.isRainingAt(player.getPosition().up()), 0.01F), OperationType.OFFSET);
-		DefaultStats.WETNESS.modifiers.put(new ConditionalModifier<EntityPlayer>((EntityPlayer player) -> player.dimension == -1, -0.08F), OperationType.OFFSET);
-		DefaultStats.WETNESS.modifiers.put(new ConditionalModifier<EntityPlayer>((EntityPlayer player) -> player.isInLava(), -5F), OperationType.OFFSET);
-		DefaultStats.WETNESS.modifiers.put(new FunctionalModifier<EntityPlayer>(WetnessModifier::scanSurroundings), OperationType.OFFSET);
-		DefaultStats.WETNESS.modifiers.put(new FunctionalModifier<EntityPlayer>(WetnessModifier::naturalDrying), OperationType.OFFSET);
-		DefaultStats.WETNESS.modifiers.put(new FunctionalModifier<EntityPlayer>(WetnessModifier::whenInWater), OperationType.OFFSET);
-		DefaultStats.WETNESS.modifiers.put(new FunctionalModifier<EntityPlayer>(WetnessModifier::causeDripping), OperationType.NOOP);
-		DefaultStats.WETNESS.modifiers.put(WetnessModifier.wetness_slowdown, OperationType.NOOP);
+		DefaultStats.WETNESS.modifiers.add(new ConditionalModifier<EntityPlayer>((EntityPlayer player) -> player.world.isRainingAt(player.getPosition().up()), 0.01F), OperationType.OFFSET);
+		DefaultStats.WETNESS.modifiers.add(new ConditionalModifier<EntityPlayer>((EntityPlayer player) -> player.dimension == -1, -0.08F), OperationType.OFFSET);
+		DefaultStats.WETNESS.modifiers.add(new ConditionalModifier<EntityPlayer>((EntityPlayer player) -> player.isInLava(), -5F), OperationType.OFFSET);
+		DefaultStats.WETNESS.modifiers.add(new FunctionalModifier<EntityPlayer>(WetnessModifier::scanSurroundings), OperationType.OFFSET);
+		DefaultStats.WETNESS.modifiers.add(new FunctionalModifier<EntityPlayer>(WetnessModifier::naturalDrying), OperationType.OFFSET);
+		DefaultStats.WETNESS.modifiers.add(new FunctionalModifier<EntityPlayer>(WetnessModifier::whenInWater), OperationType.OFFSET);
+		DefaultStats.WETNESS.modifiers.add(new FunctionalModifier<EntityPlayer>(WetnessModifier::causeDripping));
+		DefaultStats.WETNESS.modifiers.add(WetnessModifier.wetness_slowdown);
 		
 		WetnessModifier.humiditymap = new HashMap<Block, Float>();
 		WetnessModifier.humiditymap.put(Blocks.FIRE, -0.5F);
