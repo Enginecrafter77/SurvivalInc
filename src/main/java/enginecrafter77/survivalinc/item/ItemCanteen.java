@@ -72,15 +72,18 @@ public class ItemCanteen extends Item {
 			return new ActionResult<ItemStack>(EnumActionResult.PASS, item);
 		}
 		
+		int stored = nbt.getInteger("stored");
 		Vec3d look = player.getPositionEyes(1.0f).add(player.getLookVec().addVector(player.getLookVec().x < 0 ? -0.5 : 0.5, -1, player.getLookVec().z < 0 ? -0.5 : 0.5));
 		RayTraceResult raytrace = player.world.rayTraceBlocks(player.getPositionEyes(1.0f), look, true);
 		if(raytrace == null || raytrace.typeOfHit != RayTraceResult.Type.BLOCK || world.getBlockState(raytrace.getBlockPos()).getMaterial() != Material.WATER)
 		{
-			player.setActiveHand(hand);
-			return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, item);
+			if(stored > 0)
+			{
+				player.setActiveHand(hand);
+				return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, item);
+			}
+			else return new ActionResult<ItemStack>(EnumActionResult.FAIL, item);
 		}
-		
-		int stored = nbt.getInteger("stored");
 		
 		// If the canteen is full
 		if(stored == nbt.getInteger("capacity")) return new ActionResult<ItemStack>(EnumActionResult.FAIL, item);
