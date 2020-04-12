@@ -4,6 +4,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.monster.*;
 import net.minecraft.entity.passive.EntityAnimal;
+import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.init.MobEffects;
@@ -12,6 +13,7 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
+import net.minecraftforge.event.entity.living.AnimalTameEvent;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.entity.player.PlayerWakeUpEvent;
@@ -96,10 +98,17 @@ public class SanityModifier {
 		float mod = 0;
 		for(EntityCreature creature : entities)
 		{
-			if(creature instanceof EntityMob)
-				mod -= 0.003F;
+			if(creature instanceof EntityTameable)
+			{
+				EntityTameable pet = (EntityTameable)creature;
+				// 4x bonus for tamed creatures. Having pets has it's perks :D
+				float bonus = pet.isTamed() ? 4 : 1;
+				mod += 0.006F * bonus;
+			}
 			else if(creature instanceof EntityAnimal)
 				mod += 0.004F;
+			else if(creature instanceof EntityMob)
+				mod -= 0.003F;
 		}
 		return mod;
 	}
@@ -144,7 +153,7 @@ public class SanityModifier {
 	@SubscribeEvent
 	public static void onPlayerUpdate(LivingUpdateEvent event)
 	{
-		Entity ent = event.getEntity();
+		Entity ent = event.getEntity();//EntityWolf
 		if(ent.world.isRemote) return;
 		
 		if(ent instanceof EntityPlayer)
@@ -157,6 +166,17 @@ public class SanityModifier {
 				stat.modifyStat(DefaultStats.SANITY, 0.004f);
 				player.addPotionEffect(new PotionEffect(MobEffects.HUNGER, 20, 4, false, false));
 			}
+		}
+	}
+	
+	@SubscribeEvent
+	public static void onTame(AnimalTameEvent event)
+	{
+		Entity ent = event.getEntity();
+		if(ent instanceof EntityPlayer && !ent.world.isRemote)
+		{
+			StatTracker stat = ent.getCapability(StatRegister.CAPABILITY, null);
+			stat.modifyStat(DefaultStats.SANITY, 5F); // Solid 5 points for taming any animal
 		}
 	}
 }

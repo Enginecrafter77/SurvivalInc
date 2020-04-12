@@ -36,7 +36,7 @@ public class WetnessModifier {
 	{
 		DefaultStats.WETNESS.modifiers.add(new ConditionalModifier<EntityPlayer>((EntityPlayer player) -> player.world.isRainingAt(player.getPosition().up()), 0.01F), OperationType.OFFSET);
 		DefaultStats.WETNESS.modifiers.add(new ConditionalModifier<EntityPlayer>((EntityPlayer player) -> player.dimension == -1, -0.08F), OperationType.OFFSET);
-		DefaultStats.WETNESS.modifiers.add(new ConditionalModifier<EntityPlayer>((EntityPlayer player) -> player.isInLava(), -5F), OperationType.OFFSET);
+		DefaultStats.WETNESS.modifiers.add(new ConditionalModifier<EntityPlayer>((EntityPlayer player) -> player.isBurning(), -0.8F), OperationType.OFFSET);
 		DefaultStats.WETNESS.modifiers.add(new FunctionalModifier<EntityPlayer>(WetnessModifier::scanSurroundings), OperationType.OFFSET);
 		DefaultStats.WETNESS.modifiers.add(new FunctionalModifier<EntityPlayer>(WetnessModifier::naturalDrying), OperationType.OFFSET);
 		DefaultStats.WETNESS.modifiers.add(new FunctionalModifier<EntityPlayer>(WetnessModifier::whenInWater), OperationType.OFFSET);
@@ -55,7 +55,7 @@ public class WetnessModifier {
 	{
 		WorldServer serverworld = (WorldServer)player.world;
 		float particle_amount = 20 * (current / DefaultStats.WETNESS.getMaximum());
-		serverworld.spawnParticle(EnumParticleTypes.DRIP_WATER, player.posX, player.posY, player.posZ, (int)particle_amount, 0.25, 0.5, 0.25, 0.1, null);
+		serverworld.spawnParticle(EnumParticleTypes.DRIP_WATER, player.posX, player.posY, player.posZ, Math.round((float)Math.floor(particle_amount)), 0.25, 0.5, 0.25, 0.1, null);
 		return current;
 	}
 	
