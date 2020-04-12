@@ -1,6 +1,5 @@
 package enginecrafter77.survivalinc.ghost;
 
-import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.stats.OverflowHandler;
 import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.modifier.ConditionalModifier;
@@ -8,9 +7,11 @@ import enginecrafter77.survivalinc.stats.modifier.ModifierApplicator;
 import enginecrafter77.survivalinc.stats.modifier.OperationType;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.GameType;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 
+@EventBusSubscriber
 public class GhostImpl implements Ghost, StatProvider {
 	private static final long serialVersionUID = -3704889805293574354L;
 	
@@ -127,8 +128,7 @@ public class GhostImpl implements Ghost, StatProvider {
 		if(!(player.world.isRemote || event.isEndConquered()))
 		{
 			Ghost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
-			if(ModConfig.MECHANICS.enableGhost)
-				ghost.setStatus(true);
+			ghost.setStatus(true);
 		}
 	}
 }

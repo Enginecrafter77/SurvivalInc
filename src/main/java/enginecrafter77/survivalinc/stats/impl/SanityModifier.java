@@ -72,14 +72,14 @@ public class SanityModifier {
 		if(isOutsideOverworld.test(player)) return 0F;
 		int lightlevel = player.world.getLight(player.getPosition());
 		// If there is enough light, steve/alex is happy
-		if(lightlevel >= ModConfig.MECHANICS.comfortLightLevel) return 0F;
-		float darknesslevel = (float)(ModConfig.MECHANICS.comfortLightLevel - lightlevel) / (float)ModConfig.MECHANICS.comfortLightLevel;
-		return (float)ModConfig.MECHANICS.darkSpookFactorBase * -darknesslevel;
+		if(lightlevel >= ModConfig.SANITY.comfortLightLevel) return 0F;
+		float darknesslevel = (float)(ModConfig.SANITY.comfortLightLevel - lightlevel) / (float)ModConfig.SANITY.comfortLightLevel;
+		return (float)ModConfig.SANITY.darkSpookFactorBase * -darknesslevel;
 	}
 	
 	public static float whenWet(EntityPlayer player)
 	{
-		float boundary = (float)ModConfig.MECHANICS.minAnnoyingWetness;
+		float boundary = (float)ModConfig.SANITY.wetnessAnnoyanceThreshold;
 		StatTracker stats = player.getCapability(StatRegister.CAPABILITY, null);
 		float wetness = stats.getStat(DefaultStats.WETNESS);
 		float annoyance = (wetness - DefaultStats.WETNESS.getMaximum()) / 10000;

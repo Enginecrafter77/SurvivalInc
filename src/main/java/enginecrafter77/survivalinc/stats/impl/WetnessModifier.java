@@ -58,7 +58,7 @@ public class WetnessModifier {
 	public static float slowDown(EntityPlayer player, float current)
 	{
 		float max = DefaultStats.WETNESS.getMaximum();
-		float threshold = (float)ModConfig.MECHANICS.wetnessSlowdownThreshold / 100F;
+		float threshold = (float)ModConfig.WETNESS.slowdownThreshold / 100F;
 		
 		// This is the math part. I am way less worried about impact of this. Mmmm math...
 		float mod = 0F;
@@ -75,7 +75,7 @@ public class WetnessModifier {
 			 * 	     m(t - 1)         t - 1
 			 * It may seem a little bit complicated, but you would get to that anyways if you would try to solve it.
 			 */
-			float correction = (float)ModConfig.MECHANICS.minimalWalkSpeed;
+			float correction = (float)ModConfig.WETNESS.minimalWalkSpeed;
 			float inclination = (1 - correction) / (max * (threshold - 1)); // The inclination of the graph, aka the A
 			float offset = threshold * ((correction - 1) / (threshold - 1)); // The offset of the graph, aka the B
 			mod += inclination * current + offset; // Direct relationship formula

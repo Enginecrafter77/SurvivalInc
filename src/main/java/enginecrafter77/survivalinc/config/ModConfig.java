@@ -13,13 +13,25 @@ public class ModConfig {
 	// The values in the config file. Add on more as needed.
 	// Sub-categories
 	@Config.Name("client")
-	public static final Client CLIENT = new Client();
+	public static final ClientConfig CLIENT = new ClientConfig();
+	
+	@Config.Name("heat")
+	public static final HeatConfig HEAT = new HeatConfig();
+	
+	@Config.Name("hydration")
+	public static final HydrationConfig HYDRATION = new HydrationConfig();
+	
+	@Config.Name("sanity")
+	public static final SanityConfig SANITY = new SanityConfig();
+	
+	@Config.Name("wetness")
+	public static final WetnessConfig WETNESS = new WetnessConfig();
 
-	@Config.Name("mechanics")
-	public static final Mechanics MECHANICS = new Mechanics();
-
+	@Config.Name("ghost")
+	public static final GhostConfig GHOST = new GhostConfig();
+	
 	@Config.Name("seasons")
-	public static final Seasons SEASONS = new Seasons();
+	public static final SeasonConfig SEASONS = new SeasonConfig();
 
 	// This deals with changed the config values in Forge's GUI in-game.
 	// It also deals with syncing some config values from the server to the

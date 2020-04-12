@@ -3,11 +3,11 @@ package enginecrafter77.survivalinc.config;
 import net.minecraftforge.common.config.Config;
 
 @Config.LangKey("config.survivalinc:seasons")
-public class Seasons {
+public class SeasonConfig {
 
-	@Config.LangKey("config.survivalinc:seasons.enableSeasons")
+	@Config.LangKey("config.survivalinc:seasons.enable")
 	@Config.RequiresMcRestart
-	public boolean aenableSeasons = true;
+	public boolean enabled = true;
 
 	@Config.LangKey("config.survivalinc:seasons.winterLength")
 	@Config.RequiresMcRestart

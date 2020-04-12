@@ -33,52 +33,72 @@ death.attack.survivalinc_hypothermia=%1$s forgot to pack a blanket
 # Sounds
 survivalinc.subtitle.fan_whoosh=Fan Whoosh
 
-# Config
+# Client config
 survivalinc.client=Client
 survivalinc.client.tooltip=Client-Only Settings
-config.survivalinc:client.showCelsius=Show in Celsius?
-config.survivalinc:client.showCelsius.tooltip=If true, the temperature will be shown in Celsius. If false, it will be shown in Fahrenheit.
-config.survivalinc:client.showSips=Show Canteen Sips?
-config.survivalinc:client.showSips.tooltip=By default, the durability bar of the canteen (and HydroPouch) will show its durability. Set this to true to have the bar show the number of sips left instead.
-config.survivalinc:client.barPos=Position of Bars?
-config.survivalinc:client.barPos.tooltip=Specify where to place the GUI bars. You can set it to any of the following: \ntop left \ntop right \nmiddle left \nmiddle right \nbottom left \nbottom right \nInclude the space. If you mess up, it'll default to middle right.
+config.survivalinc:client.barTransparency=Bar Transparency
+config.survivalinc:client.barTransparency.tooltip=The transparency of the HUD
 
-survivalinc.mechanics=Mechanics
-survivalinc.mechanics.tooltip=Settings with the main player mechanics (temp, thirst, sanity, wetness, ghost)
-config.survivalinc:mechanics.enableGhost=Ghost on death?
-config.survivalinc:mechanics.enableGhost.tooltip=Upon death, you become a ghost, freely roaming the world. Disable this setting to allow for normal respawning.
-config.survivalinc:mechanics.enableTemperature=Temperature?
-config.survivalinc:mechanics.enableTemperature.tooltip=Toggle the temperature mechanic.
-config.survivalinc:mechanics.enableThirst=Thirst?
-config.survivalinc:mechanics.enableThirst.tooltip=Toggle the thirst mechanic.
-config.survivalinc:mechanics.enableSanity=Sanity?
-config.survivalinc:mechanics.enableSanity.tooltip=Toggle the sanity mechanic.
-config.survivalinc:mechanics.enableWetness=Wetness?
-config.survivalinc:mechanics.enableWetness.tooltip=Toggle the wetness mechanic.
-config.survivalinc:mechanics.temperatureScale=Heat Rate
-config.survivalinc:mechanics.temperatureScale.tooltip=The rate at which a player heats up and cools down.
-config.survivalinc:mechanics.thirstScale=Thirst Rate
-config.survivalinc:mechanics.thirstScale.tooltip=The rate at which a player gets thirsty.
-config.survivalinc:mechanics.sanityScale=Sanity Rate
-config.survivalinc:mechanics.sanityScale.tooltip=The rate at which a player goes sane and insane.
-config.survivalinc:mechanics.wetnessScale=Drench Rate
-config.survivalinc:mechanics.wetnessScale.tooltip=The rate at which a player gets drenched and dries off.
-config.survivalinc:mechanics.minAnnoyingWetness=Wetness Annoyance
-config.survivalinc:mechanics.minAnnoyingWetness.tooltip=The minimal level of wetness that starts to be annoying to the character, thus losing sanity.
-config.survivalinc:mechanics.darkSpookFactorBase=Dark Spookiness Base
-config.survivalinc:mechanics.darkSpookFactorBase.tooltip=The rate at which light level of 0 takes your sanity per tick.
+# Heat config
+survivalinc.heat=Heat
+survivalinc.heat.tooltip=Settings regarding Body Heat mechanics
+config.survivalinc:heat.enable=Enable Heat
+config.survivalinc:heat.enable.tooltip=Determines if the heat mechanics should take part in the game.
+config.survivalinc:heat.scale=Heat Scale
+config.survivalinc:heat.scale.tooltip=The scaling value applied to all modifiers.
+config.survivalinc:heat.exchangeFactor=Heat Exchange Factor
+config.survivalinc:heat.exchangeFactor.tooltip=How quickly you can heat up when you are in the desert? (units/tick)
 
+# Hydration config
+survivalinc.hydration=Hydration
+survivalinc.hydration.tooltip=Settings regarding Hydration mechanics
+config.survivalinc:hydration.enable=Enable Hydration
+config.survivalinc:hydration.enable.tooltip=Determines if the hydration mechanics should take part in the game.
+config.survivalinc:hydration.scale=Hydration Scale
+config.survivalinc:hydration.scale.tooltip=The scaling value applied to all modifiers.
+
+# Sanity config
+survivalinc.sanity=Sanity
+survivalinc.sanity.tooltip=Settings regarding Mental Sanity mechanics
+config.survivalinc:sanity.enable=Enable Sanity
+config.survivalinc:sanity.enable.tooltip=Determines if the sanity mechanics should take part in the game.
+config.survivalinc:sanity.scale=Sanity Scale
+config.survivalinc:sanity.scale.tooltip=The scaling value applied to all modifiers.
+config.survivalinc:sanity.wetnessAnnoyanceThreshold=Wetness Annoyance
+config.survivalinc:sanity.wetnessAnnoyanceThreshold.tooltip=The minimal level of wetness that starts to be annoying to the character, thus losing sanity.
+config.survivalinc:sanity.comfortLightLevel=Comfort Light Level
+config.survivalinc:sanity.comfortLightLevel.tooltip=The lowest sanity-neutral light level.
+config.survivalinc:sanity.darkSpookFactorBase=Dark Spookiness Base
+config.survivalinc:sanity.darkSpookFactorBase.tooltip=The rate at which light level of 0 takes your sanity per tick.
+
+# Wetness config
+survivalinc.wetness=Wetness
+survivalinc.wetness.tooltip=Settings regarding Wetness mechanics
+config.survivalinc:wetness.enable=Enable Wetness
+config.survivalinc:wetness.enable.tooltip=Determines if the wetness mechanics should take part in the game.
+config.survivalinc:wetness.scale=Wetness Scale
+config.survivalinc:wetness.scale.tooltip=The scaling value applied to all modifiers.
+config.survivalinc:wetness.minimalWalkSpeed=Minimal Walk Speed
+config.survivalinc:wetness.minimalWalkSpeed.tooltip=The maximum slowdown debuff that can be applied (fraction of the original speed)
+config.survivalinc:wetness.slowdownThreshold=Slowdown Threshold
+config.survivalinc:wetness.slowdownThreshold.tooltip=The percentage of wetness that should start weighing the player down
+
+# Season config
 survivalinc.seasons=Seasons
-survivalinc.seasons.tooltip=Settings with the seasons.
-config.survivalinc:seasons.enableSeasons=Seasons?
-config.survivalinc:seasons.enableSeasons.tooltip=Should seasons be enabled?
-config.survivalinc:seasons.enableDayLength=Change Day lengths?
-config.survivalinc:seasons.enableDayLength.tooltip=By default, every summer increases the length of daylight, and winter does the opposite. Set this to false to disable.
-config.survivalinc:seasons.winterLength=Length of Winter
-config.survivalinc:seasons.winterLength.tooltip=Length of Winter in Minecraft days. Set to 0 for it to never occur.
-config.survivalinc:seasons.springLength=Length of Spring
-config.survivalinc:seasons.springLength.tooltip=Length of Spring in Minecraft days. Set to 0 for it to never occur.
-config.survivalinc:seasons.summerLength=Length of Summer
-config.survivalinc:seasons.summerLength.tooltip=Length of Summer in Minecraft days. Set to 0 for it to never occur.
-config.survivalinc:seasons.autumnLength=Length of Autumn
-config.survivalinc:seasons.autumnLength.tooltip=Length of Autumn in Minecraft days. Set to 0 for it to never occur.
+survivalinc.seasons.tooltip=Settings regarding season behavior
+config.survivalinc:seasons.enable=Enable Seasons
+config.survivalinc:seasons.enable.tooltip=Should seasonal mechanics be included in the game?
+config.survivalinc:seasons.winterLength=Winter Length
+config.survivalinc:seasons.winterLength.tooltip=Length of Winter in Minecraft days. Set to 0 to skip this season.
+config.survivalinc:seasons.springLength=Spring Length
+config.survivalinc:seasons.springLength.tooltip=Length of Spring in Minecraft days. Set to 0 to skip this season.
+config.survivalinc:seasons.summerLength=Summer Length
+config.survivalinc:seasons.summerLength.tooltip=Length of Summer in Minecraft days. Set to 0 to skip this season.
+config.survivalinc:seasons.autumnLength=Autumn Length
+config.survivalinc:seasons.autumnLength.tooltip=Length of Autumn in Minecraft days. Set to 0 to skip this season.
+
+# Ghost config
+survivalinc.ghost=Ghost
+survivalinc.ghost.tooltip=Ghost related settings
+config.survivalinc:ghost.enable=Enable Ghost
+config.survivalinc:ghost.enable.tooltip=Should spawning ghost on death instead of respawn be enabled?

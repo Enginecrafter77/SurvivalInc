@@ -60,7 +60,7 @@ public class HeatModifier implements StatProvider {
 		target = targettemp.apply(player, target * 78); // 78 = Schoperation's body heat constant
 		
 		float difference = Math.abs(target - current);
-		float rate = difference * (float)ModConfig.MECHANICS.heatExchangeFactor;
+		float rate = difference * (float)ModConfig.HEAT.heatExchangeFactor;
 		rate = this.exchangerate.apply(player, rate);
 		
 		if(current > target) rate *= -1;

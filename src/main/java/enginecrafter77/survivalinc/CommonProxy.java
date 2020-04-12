@@ -40,7 +40,7 @@ public class CommonProxy {
 		MinecraftForge.EVENT_BUS.register(GenericEventHander.class);
 		MinecraftForge.EVENT_BUS.register(StatRegister.class);
 		// Register seasons if enabled
-		if(ModConfig.SEASONS.aenableSeasons) MinecraftForge.EVENT_BUS.register(SeasonController.class);
+		if(ModConfig.SEASONS.enabled) MinecraftForge.EVENT_BUS.register(SeasonController.class);
 		
 		// Register capabilities.
 		CapabilityManager.INSTANCE.register(StatTracker.class, new StatRegister.Storage(), StatManager::new);
@@ -54,28 +54,33 @@ public class CommonProxy {
 		
 		Season.initSeasons();
 		
-		if(ModConfig.MECHANICS.enableThirst)
+		if(ModConfig.HEAT.enabled)
+			StatManager.providers.add(HeatModifier.instance);
+		
+		if(ModConfig.HYDRATION.enabled)
 		{
 			StatManager.providers.add(DefaultStats.HYDRATION);
 			HydrationModifier.init();
 		}
 		
-		if(ModConfig.MECHANICS.enableSanity)
+		if(ModConfig.SANITY.enabled)
 		{
 			StatManager.providers.add(DefaultStats.SANITY);
 			MinecraftForge.EVENT_BUS.register(SanityModifier.class);
 			SanityModifier.init();
 		}
 		
-		if(ModConfig.MECHANICS.enableWetness)
+		if(ModConfig.WETNESS.enabled)
 		{
 			StatManager.providers.add(DefaultStats.WETNESS);
 			MinecraftForge.EVENT_BUS.register(WetnessModifier.class);
 			WetnessModifier.init();
 		}
 		
-		if(ModConfig.MECHANICS.enableTemperature)
-			StatManager.providers.add(HeatModifier.instance);
+		if(ModConfig.GHOST.enabled)
+		{
+			MinecraftForge.EVENT_BUS.register(GhostImpl.class);
+		}
 	}
 	
 	public void postInit(FMLPostInitializationEvent event) {}
@@ -84,7 +89,8 @@ public class CommonProxy {
 	{
 		MinecraftServer server = event.getServer();
 		CommandHandler manager = (CommandHandler)server.getCommandManager();
-		manager.registerCommand(new SeasonCommand());
-		manager.registerCommand(new GhostCommand());
+		
+		if(ModConfig.SEASONS.enabled) manager.registerCommand(new SeasonCommand());
+		if(ModConfig.GHOST.enabled) manager.registerCommand(new GhostCommand());
 	}
 }
