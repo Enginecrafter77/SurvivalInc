@@ -66,7 +66,7 @@ public class SurvivalInc {
 		@Override
 		public ItemStack getTabIconItem()
 		{
-			return new ItemStack(ModItems.CANTEEN.get());
+			return new ItemStack(ModItems.CANTEEN.getItem());
 		}
 	};
 }

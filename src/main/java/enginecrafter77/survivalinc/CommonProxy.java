@@ -5,6 +5,8 @@ import enginecrafter77.survivalinc.ghost.Ghost;
 import enginecrafter77.survivalinc.ghost.GhostCommand;
 import enginecrafter77.survivalinc.ghost.GhostImpl;
 import enginecrafter77.survivalinc.ghost.GhostStorage;
+import enginecrafter77.survivalinc.net.EntityItemUpdateMessage;
+import enginecrafter77.survivalinc.net.EntityItemUpdater;
 import enginecrafter77.survivalinc.season.Season;
 import enginecrafter77.survivalinc.season.SeasonCommand;
 import enginecrafter77.survivalinc.season.SeasonController;
@@ -51,6 +53,7 @@ public class CommonProxy {
 	{
 		this.net = NetworkRegistry.INSTANCE.newSimpleChannel(SurvivalInc.MOD_ID);
 		this.net.registerMessage(SeasonController.class, SeasonData.class, 3, Side.CLIENT);
+		this.net.registerMessage(EntityItemUpdater.class, EntityItemUpdateMessage.class, 6, Side.CLIENT);
 		
 		Season.initSeasons();
 		

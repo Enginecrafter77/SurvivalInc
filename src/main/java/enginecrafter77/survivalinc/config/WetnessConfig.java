@@ -22,4 +22,12 @@ public class WetnessConfig {
 	@Config.RangeDouble(min = 0, max = 100)
 	public double slowdownThreshold = 75;
 	
+	@Config.LangKey("config.survivalinc:wetness.towelCapacity")
+	@Config.RangeDouble(min = 0)
+	public double towelCapacity = 40;
+	
+	@Config.LangKey("config.survivalinc:wetness.towelDryRate")
+	@Config.RangeDouble(min = 0)
+	public double towelDryRate = 0.025;
+	
 }

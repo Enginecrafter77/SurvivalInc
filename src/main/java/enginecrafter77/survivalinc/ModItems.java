@@ -1,35 +1,42 @@
 package enginecrafter77.survivalinc;
 
-import java.util.function.Supplier;
-
 import enginecrafter77.survivalinc.item.*;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.registries.IForgeRegistry;
 
-public enum ModItems implements Supplier<Item> {
+public enum ModItems {
 	
-	CANTEEN(new ItemCanteen()),
-	CHARCOAL_FILTER(new ItemCharcoalFilter()),
-	FEATHER_FAN(new ItemFeatherFan()),
-	ICE_CREAM(new ItemIceCream(4, 0.4f, false)),
-	LUCID_DREAM_ESSENCE(new ItemLucidDreamEssence()),
+	CANTEEN(new ItemCanteen(), "canteen"),
+	CHARCOAL_FILTER(new ItemCharcoalFilter(), "charcoal_filter"),
+	FEATHER_FAN(new ItemFeatherFan(), "feather_fan"),
+	ICE_CREAM(new ItemIceCream(4, 0.4f, false), "ice_cream"),
+	LUCID_DREAM_ESSENCE(new ItemLucidDreamEssence(), "lucid_dream_essence"),
 	RESETTER(new ItemResetter()),
-	TOWEL(new ItemTowel());
+	TOWEL(new ItemTowel(), "towel_dry", "towel_wet");
 	
 	public final Item target;
-
-	private ModItems(Item instance)
+	public final String[] models;
+	public final int[] mappings;
+	
+	private ModItems(Item instance, int[] mappings, String... models)
 	{
 		this.target = instance;
+		this.models = models;
+		this.mappings = mappings;
 	}
 	
-	@Override
-	public Item get()
+	private ModItems(Item instance, String... models)
+	{
+		this(instance, new int[0], models);
+	}
+	
+	public Item getItem()
 	{
 		return this.target;
 	}
@@ -39,17 +46,27 @@ public enum ModItems implements Supplier<Item> {
 	{
 		IForgeRegistry<Item> reg = event.getRegistry();
 		for(ModItems mi : ModItems.values())
-			reg.register(mi.get());
+			reg.register(mi.getItem());
 	}
 	
 	@SubscribeEvent
 	public static void registerModels(ModelRegistryEvent event)
 	{
-		// Register item models.
-		for(ModItems mi : ModItems.values())
+		for(ModItems entry : ModItems.values())
 		{
-			Item item = mi.get();
-			ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(item.getRegistryName(), "inventory"));
+			Item item = entry.getItem();
+			int index = 0, meta;
+			
+			for(String model : entry.models)
+			{
+				meta = index;
+				if(entry.mappings.length > index)
+					meta = entry.mappings[index];
+				ResourceLocation loc = new ResourceLocation(SurvivalInc.MOD_ID, model);
+				ModelLoader.setCustomModelResourceLocation(item, meta, new ModelResourceLocation(loc, "inventory"));
+				SurvivalInc.logger.info("Registering model {} on meta {} for item {}", loc.toString(), meta, item.getRegistryName().toString());
+				index++;
+			}
 		}
 	}
 }
