@@ -18,4 +18,12 @@ public class HeatConfig {
 	@Config.RangeDouble(min = 0, max = 1)
 	public double heatExchangeFactor = 0.0003;
 	
+	@Config.LangKey("config.survivalinc:heat.gaussScaling")
+	@Config.RangeDouble(min = 0)
+	public double gaussScaling = 1.5;
+	
+	@Config.LangKey("config.survivalinc:heat.blockScanRange")
+	@Config.RangeInt(min = 0)
+	public double blockScanRange = 4;
+	
 }
