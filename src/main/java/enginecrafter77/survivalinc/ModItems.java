@@ -13,10 +13,7 @@ import net.minecraftforge.registries.IForgeRegistry;
 public enum ModItems {
 	
 	CANTEEN(new ItemCanteen(), "canteen"),
-	CHARCOAL_FILTER(new ItemCharcoalFilter(), "charcoal_filter"),
 	FEATHER_FAN(new ItemFeatherFan(), "feather_fan"),
-	ICE_CREAM(new ItemIceCream(4, 0.4f, false), "ice_cream"),
-	LUCID_DREAM_ESSENCE(new ItemLucidDreamEssence(), "lucid_dream_essence"),
 	RESETTER(new ItemResetter()),
 	TOWEL(new ItemTowel(), "towel_dry", "towel_wet");
 	

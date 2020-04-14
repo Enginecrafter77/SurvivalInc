@@ -127,7 +127,8 @@ public class ItemTowel extends Item {
 		if(!stack.hasTagCompound()) return false;
 		
 		NBTTagCompound tag = stack.getTagCompound();
-		if(tag.getFloat("stored") > 0)
+		float stored = tag.getFloat("stored");
+		if(stored > 0)
 		{
 			BlockPos position = entity.getPosition().down();
 			if(world.getBlockState(position).getBlock() == Blocks.LIT_FURNACE)
@@ -145,13 +146,12 @@ public class ItemTowel extends Item {
 				else
 				{
 					WorldServer serverworld = (WorldServer)world;
-					float stored = tag.getFloat("stored");
 					float post = stored - (float)ModConfig.WETNESS.towelDryRate;
 					if(post < 0) post = 0; // Safety measure (mostly cosmetic feature)
 					tag.setFloat("stored", post);
 					
-					// If the texture shall change (metadata chandes), sync the ItemStack data
-					if(this.getMetadata(stored) != this.getMetadata(post))
+					// If the texture shall change (metadata chandes), or the towel is completely dried (should stop emmiting steam), sync the ItemStack data
+					if(this.getMetadata(stored) != this.getMetadata(post) || post == 0)
 						serverworld.getEntityTracker().sendToTracking(entity, SurvivalInc.proxy.net.getPacketFrom(new EntityItemUpdateMessage(entity)));
 				}
 			}

@@ -5,6 +5,7 @@ import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -13,6 +14,7 @@ import net.minecraft.util.*;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeBeach;
 import net.minecraft.world.biome.BiomeOcean;
@@ -52,7 +54,7 @@ public class ItemCanteen extends Item {
 			NBTTagCompound nbt = stack.getTagCompound();
 			int stored = nbt.getInteger("stored");
 			nbt.setInteger("stored", stored - 32);
-			stats.modifyStat(DefaultStats.HYDRATION, 5F);
+			stats.modifyStat(DefaultStats.HYDRATION, 10F);
 		}
 		return stack;
 	}
@@ -84,6 +86,7 @@ public class ItemCanteen extends Item {
 			}
 			else return new ActionResult<ItemStack>(EnumActionResult.FAIL, item);
 		}
+		// The player wants to fill the canteen (water raytrace succeeded)
 		
 		// If the canteen is full
 		if(stored == nbt.getInteger("capacity")) return new ActionResult<ItemStack>(EnumActionResult.FAIL, item);
@@ -102,6 +105,7 @@ public class ItemCanteen extends Item {
 		
 		nbt.setFloat("quality", qiq);
 		nbt.setInteger("stored", stored);
+		((WorldServer)player.world).playSound(null, raytrace.getBlockPos(), SoundEvents.ENTITY_GENERIC_SWIM, SoundCategory.AMBIENT, 0.25F, 1.5F);
 		
 		return new ActionResult<ItemStack>(EnumActionResult.PASS, item);
 	}

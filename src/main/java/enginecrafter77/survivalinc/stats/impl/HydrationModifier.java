@@ -17,10 +17,8 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-@Mod.EventBusSubscriber
 public class HydrationModifier {
 	
 	public static void init()
@@ -49,12 +47,11 @@ public class HydrationModifier {
 		return 0F;
 	}
 	
-	// When a player interacts with a block (usually right clicking something).
 	@SubscribeEvent
 	public static void onPlayerInteract(PlayerInteractEvent event)
 	{
 		EntityPlayer player = event.getEntityPlayer();
-		if(player.isCreative() || player.isSpectator()) return;
+		if(player.world.isRemote || player.isCreative() || player.isSpectator()) return;
 		
 		if(player.getHeldItem(EnumHand.MAIN_HAND) == ItemStack.EMPTY)
 		{
@@ -65,16 +62,13 @@ public class HydrationModifier {
 				BlockPos position = raytrace.getBlockPos();
 				if(player.world.getBlockState(position).getMaterial() == Material.WATER)
 				{
-					if(!player.world.isRemote)
-					{
-						WorldServer world = (WorldServer)player.world;
-						world.spawnParticle(EnumParticleTypes.WATER_SPLASH, raytrace.hitVec.x, raytrace.hitVec.y + 0.1, raytrace.hitVec.z, 20, 0.5, 0.1, 0.5, 0.1, null);
-						world.spawnParticle(EnumParticleTypes.WATER_BUBBLE, raytrace.hitVec.x, raytrace.hitVec.y + 0.1, raytrace.hitVec.z, 20, 0.5, 0.1, 0.5, 0.1, null);
-						world.playSound(null, position, SoundEvents.ENTITY_GENERIC_SWIM, SoundCategory.AMBIENT, 0.5f, 1.5f);
-						
-						StatTracker tracker = player.getCapability(StatRegister.CAPABILITY, null);
-						tracker.modifyStat(DefaultStats.HYDRATION, 5F);
-					}
+					WorldServer world = (WorldServer)player.world;
+					world.spawnParticle(EnumParticleTypes.WATER_SPLASH, raytrace.hitVec.x, raytrace.hitVec.y + 0.1, raytrace.hitVec.z, 20, 0.5, 0.1, 0.5, 0.1, null);
+					world.spawnParticle(EnumParticleTypes.WATER_BUBBLE, raytrace.hitVec.x, raytrace.hitVec.y + 0.1, raytrace.hitVec.z, 20, 0.5, 0.1, 0.5, 0.1, null);
+					world.playSound(null, position, SoundEvents.ENTITY_GENERIC_SWIM, SoundCategory.AMBIENT, 0.5f, 1.5f);
+					
+					StatTracker tracker = player.getCapability(StatRegister.CAPABILITY, null);
+					tracker.modifyStat(DefaultStats.HYDRATION, 5F);
 				}
 			}
 		}
