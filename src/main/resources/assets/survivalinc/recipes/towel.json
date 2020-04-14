@@ -1,16 +1,16 @@
 {
 	"type": "minecraft:crafting_shaped",
 	"pattern": [
-		"###",
-		"###",
-		" ^ "
+		"#S ",
+		"S#S",
+		" S#"
 	],
 	"key": {
 		"#": {
 			"item": "minecraft:wool",
 			"data": 32767
 		},
-		"^": {
+		"S": {
 			"item": "minecraft:string",
 			"data": 0
 		}

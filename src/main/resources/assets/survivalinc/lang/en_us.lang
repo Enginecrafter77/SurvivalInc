@@ -1,37 +1,19 @@
 # Conveniently in alphabetical order.
 # Items
-item.survivalinc:water_canteen.name=Water Canteen
-item.survivalinc:charcoal_filter.name=Charcoal Filter
-item.survivalinc:feather_fan.name=Feather Fan
-item.survivalinc:cold_water_hydropouch.name=Cold Water HydroPouch
-item.survivalinc:dirty_water_hydropouch.name=Dirty Water HydroPouch
-item.survivalinc:empty_hydropouch.name=Empty HydroPouch
-item.survivalinc:filtered_water_hydropouch.name=Filtered Water HydroPouch
-item.survivalinc:fresh_water_hydropouch.name=Fresh Water HydroPouch
-item.survivalinc:salt_water_hydropouch.name=Salt Water HydroPouch
-item.survivalinc:ice_cream.name=Ice Cream
-item.survivalinc:lucid_dream_essence.name=Lucid Dream Essence
-item.survivalinc:tabicon.name=Tab Icon
-item.survivalinc:dry_towel.name=Dry Towel
-item.survivalinc:partially_wet_towel.name=§9Partially Wet Towel
-item.survivalinc:wet_towel.name=§1Wet Towel
-
-# Blocks
-tile.survivalinc:lucid_block.name=Lucid Block
-tile.survivalinc:leaves_big_oak.name=Dark Oak Leaves
-tile.survivalinc:leaves_oak.name=Oak Leaves
-tile.survivalinc:leaves_birch.name=Birch Leaves
+item.water_canteen.name=Water Canteen
+item.feather_fan.name=Feather Fan
+item.towel.name=Towel
 
 # Creative Tabs
-itemGroup.survivalinc:mainTab=survivalinc
+itemGroup.survivalinc:mainTab=Survival Inc.
 
 # Damage Sources
-death.attack.survivalinc_dehydration=%1$s failed to cry to get a drink of water
-death.attack.survivalinc_hyperthermia=%1$s boiled before they found a mister
-death.attack.survivalinc_hypothermia=%1$s forgot to pack a blanket
+death.attack.survivalinc_dehydration=%1$s's organs have died desperately searching for a molecule of water
+death.attack.survivalinc_hyperthermia=%1$s has standed by their bonfire a little too long
+death.attack.survivalinc_hypothermia=%1$s forgot to pack a bunch of clothing
 
 # Sounds
-survivalinc.subtitle.fan_whoosh=Fan Whoosh
+survivalinc.subtitle.fan_whoosh=Whoosh
 
 # Client config
 survivalinc.client=Client

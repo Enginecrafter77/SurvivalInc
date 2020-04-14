@@ -59,8 +59,6 @@ public class CommonProxy {
 		this.net.registerMessage(SeasonController.class, SeasonData.class, 1, Side.CLIENT);
 		this.net.registerMessage(EntityItemUpdater.class, EntityItemUpdateMessage.class, 2, Side.CLIENT);
 		
-		Season.initSeasons();
-		
 		if(ModConfig.HEAT.enabled)
 		{
 			StatManager.providers.add(HeatModifier.instance);
@@ -92,6 +90,8 @@ public class CommonProxy {
 		{
 			MinecraftForge.EVENT_BUS.register(GhostImpl.class);
 		}
+		
+		if(ModConfig.SEASONS.enabled) Season.initSeasons();
 	}
 	
 	public void postInit(FMLPostInitializationEvent event) {}

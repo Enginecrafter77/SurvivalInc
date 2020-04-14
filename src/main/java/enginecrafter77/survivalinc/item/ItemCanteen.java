@@ -38,7 +38,7 @@ public class ItemCanteen extends Item {
 	public ItemCanteen()
 	{
 		this.setRegistryName(new ResourceLocation(SurvivalInc.MOD_ID, "canteen"));
-		this.setUnlocalizedName(SurvivalInc.RESOURCE_PREFIX + "water_canteen");
+		this.setUnlocalizedName("water_canteen");
 		this.setCreativeTab(SurvivalInc.mainTab);
 		this.setMaxStackSize(1);
 		this.setNoRepair();//ItemFood
