@@ -3,24 +3,13 @@ package enginecrafter77.survivalinc;
 import enginecrafter77.survivalinc.client.RenderHUD;
 import enginecrafter77.survivalinc.client.StatBar;
 import enginecrafter77.survivalinc.item.ItemCanteen;
-import enginecrafter77.survivalinc.net.StatUpdateMessage;
 import enginecrafter77.survivalinc.stats.impl.DefaultStats;
 import enginecrafter77.survivalinc.stats.impl.HeatModifier;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.minecraftforge.fml.relauncher.Side;
 
 public class ClientProxy extends CommonProxy {
-	
-	@Override
-	public void init(FMLInitializationEvent event)
-	{
-		super.init(event);
-		this.net.registerMessage(RenderHUD.instance, StatUpdateMessage.class, 0, Side.CLIENT);
-	}
-	
 	@Override
 	public void postInit(FMLPostInitializationEvent event)
 	{

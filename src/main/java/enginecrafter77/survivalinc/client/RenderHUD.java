@@ -2,8 +2,6 @@ package enginecrafter77.survivalinc.client;
 
 import java.util.LinkedList;
 import java.util.List;
-import enginecrafter77.survivalinc.net.StatUpdateMessage;
-import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatRegister;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import net.minecraft.client.gui.Gui;
@@ -11,19 +9,16 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class RenderHUD extends Gui implements IMessageHandler<StatUpdateMessage, IMessage> {
+public class RenderHUD extends Gui {
 	
 	public static final RenderHUD instance = new RenderHUD();
 	
 	public final List<StatBar> statbars;
-	private StatTracker tracker;
+	protected StatTracker tracker;
 	
 	private RenderHUD()
 	{
@@ -51,13 +46,5 @@ public class RenderHUD extends Gui implements IMessageHandler<StatUpdateMessage,
 				System.err.format("Server doesn't track stat %s! Some other mod on client's side is overriding default implementation." + bar.key.getStatID());
 			}
 		}
-	}
-	
-	@Override
-	public IMessage onMessage(StatUpdateMessage message, MessageContext ctx)
-	{
-		for(StatProvider provider : message.tracker.getRegisteredProviders())
-			this.tracker.setStat(provider, message.tracker.getStat(provider));
-		return null;
 	}
 }
