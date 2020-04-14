@@ -1,7 +1,5 @@
 package enginecrafter77.survivalinc.stats;
 
-import java.util.Map.Entry;
-
 import enginecrafter77.survivalinc.SurvivalInc;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -61,8 +59,8 @@ public class StatRegister implements ICapabilitySerializable<NBTBase> {
 		public NBTBase writeNBT(Capability<StatTracker> capability, StatTracker instance, EnumFacing side)
 		{
 			NBTTagCompound compound = new NBTTagCompound();
-			for(Entry<StatProvider, Float> entry : instance)
-				compound.setFloat(entry.getKey().getStatID(), entry.getValue());
+			for(StatProvider provider : instance.getRegisteredProviders())
+				compound.setFloat(provider.getStatID(), instance.getStat(provider));
 			return compound;
 		}
 
@@ -72,11 +70,11 @@ public class StatRegister implements ICapabilitySerializable<NBTBase> {
 			if(nbt instanceof NBTTagCompound)
 			{
 				NBTTagCompound compound = (NBTTagCompound)nbt;
-				for(Entry<StatProvider, Float> entry : instance)
+				for(StatProvider provider : instance.getRegisteredProviders())
 				{
-					String id = entry.getKey().getStatID();
+					String id = provider.getStatID();
 					if(compound.hasKey(id))
-						instance.setStat(entry.getKey(), compound.getFloat(id));
+						instance.setStat(provider, compound.getFloat(id));
 					else
 						System.err.format("Error: Requested stat %s not defined in saved NBT!\n", id);
 				}

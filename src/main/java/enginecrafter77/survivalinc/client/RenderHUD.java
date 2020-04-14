@@ -2,8 +2,6 @@ package enginecrafter77.survivalinc.client;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map.Entry;
-
 import enginecrafter77.survivalinc.net.StatUpdateMessage;
 import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatRegister;
@@ -58,8 +56,8 @@ public class RenderHUD extends Gui implements IMessageHandler<StatUpdateMessage,
 	@Override
 	public IMessage onMessage(StatUpdateMessage message, MessageContext ctx)
 	{
-		for(Entry<StatProvider, Float> entry : message.tracker)
-			this.tracker.setStat(entry.getKey(), message.tracker.getStat(entry.getKey()));
+		for(StatProvider provider : message.tracker.getRegisteredProviders())
+			this.tracker.setStat(provider, message.tracker.getStat(provider));
 		return null;
 	}
 }

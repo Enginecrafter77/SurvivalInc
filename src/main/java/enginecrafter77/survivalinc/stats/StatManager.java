@@ -1,9 +1,9 @@
 package enginecrafter77.survivalinc.stats;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import net.minecraft.entity.player.EntityPlayer;
 
@@ -39,7 +39,7 @@ public class StatManager extends HashMap<StatProvider, Float> implements StatTra
 	{
 		for(StatProvider provider : this.keySet())
 		{
-			if(provider.getStatID() == identifier)
+			if(provider.getStatID().equals(identifier))
 				return provider;
 		}
 		return null;
@@ -71,8 +71,8 @@ public class StatManager extends HashMap<StatProvider, Float> implements StatTra
 	}
 
 	@Override
-	public Iterator<Entry<StatProvider, Float>> iterator()
+	public Set<StatProvider> getRegisteredProviders()
 	{
-		return this.entrySet().iterator();
+		return this.keySet();
 	}
 }

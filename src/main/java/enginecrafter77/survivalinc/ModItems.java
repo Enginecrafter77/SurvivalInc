@@ -14,7 +14,6 @@ public enum ModItems {
 	
 	CANTEEN(new ItemCanteen(), "canteen"),
 	FEATHER_FAN(new ItemFeatherFan(), "feather_fan"),
-	RESETTER(new ItemResetter()),
 	TOWEL(new ItemTowel(), "towel_dry", "towel_wet");
 	
 	public final Item target;
