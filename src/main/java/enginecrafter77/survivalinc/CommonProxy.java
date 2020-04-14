@@ -67,6 +67,7 @@ public class CommonProxy {
 		if(ModConfig.HYDRATION.enabled)
 		{
 			StatManager.providers.add(DefaultStats.HYDRATION);
+			MinecraftForge.EVENT_BUS.register(HydrationModifier.class);
 			HydrationModifier.init();
 		}
 		

@@ -13,7 +13,7 @@ import net.minecraft.potion.PotionEffect;
 public class PotionEffectModifier implements Modifier<EntityPlayer>
 {
 	/** The duration after which the potion effect (when applicable) is reset to double this time */
-	public static final int duration = 40;
+	public static final int duration = 100;
 	
 	/** The effect to apply */
 	public final Potion effect;

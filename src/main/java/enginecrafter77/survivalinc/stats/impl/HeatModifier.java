@@ -134,7 +134,7 @@ public class HeatModifier implements StatProvider {
 	@Override
 	public OverflowHandler getOverflowHandler()
 	{
-		return OverflowHandler.NONE;
+		return OverflowHandler.CAP;
 	}
 	
 	public static float applyWetnessCooldown(EntityPlayer player)

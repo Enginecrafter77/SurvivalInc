@@ -115,7 +115,7 @@ public class ItemTowel extends Item {
 	public void addInformation(ItemStack stack, World world, List<String> tooltip, ITooltipFlag flag)
 	{
 		if(stack.hasTagCompound())
-			tooltip.add(String.format("Wetness: %d%%", Math.round(stack.getTagCompound().getFloat("stored"))));
+			tooltip.add(String.format("Wetness: %d%%", Math.round(100F * (stack.getTagCompound().getFloat("stored") / this.getCapacity()))));
 	}
 
 	// Provides automatic drying when on lit furnace
