@@ -13,13 +13,10 @@ import net.minecraft.potion.PotionEffect;
 public class PotionEffectModifier implements Modifier<EntityPlayer>
 {
 	/** The duration after which the potion effect (when applicable) is reset to double this time */
-	public static final int duration = 5;
+	public static final int duration = 40;
 	
 	/** The effect to apply */
 	public final Potion effect;
-	
-	/** The threshold below which the effect will be applied */
-	public final float threshold;
 	
 	/** The amplifier of the effect */
 	public int amplifier;
@@ -27,11 +24,10 @@ public class PotionEffectModifier implements Modifier<EntityPlayer>
 	/** Determines whether the potion particles will be visible */
 	public boolean visible;
 	
-	public PotionEffectModifier(Potion effect, float threshold)
+	public PotionEffectModifier(Potion effect, int amplifier)
 	{
-		this.threshold = threshold;
+		this.amplifier = amplifier;
 		this.effect = effect;
-		this.amplifier = 1;
 		this.visible = false;
 	}
 	
@@ -39,7 +35,7 @@ public class PotionEffectModifier implements Modifier<EntityPlayer>
 	public boolean shouldTrigger(EntityPlayer player, float level)
 	{
 		PotionEffect poteff = player.getActivePotionEffect(effect);
-		return level < threshold && (poteff == null || poteff.getDuration() < duration);
+		return poteff == null || poteff.getDuration() < duration;
 	}
 
 	@Override

@@ -19,6 +19,7 @@ import enginecrafter77.survivalinc.stats.impl.HeatModifier;
 import enginecrafter77.survivalinc.stats.impl.HydrationModifier;
 import enginecrafter77.survivalinc.stats.impl.SanityModifier;
 import enginecrafter77.survivalinc.stats.impl.WetnessModifier;
+import enginecrafter77.survivalinc.stats.modifier.StatCommand;
 import net.minecraft.command.CommandHandler;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.MinecraftForge;
@@ -58,7 +59,10 @@ public class CommonProxy {
 		Season.initSeasons();
 		
 		if(ModConfig.HEAT.enabled)
+		{
 			StatManager.providers.add(HeatModifier.instance);
+			HeatModifier.instance.init();
+		}
 		
 		if(ModConfig.HYDRATION.enabled)
 		{
@@ -95,5 +99,6 @@ public class CommonProxy {
 		
 		if(ModConfig.SEASONS.enabled) manager.registerCommand(new SeasonCommand());
 		if(ModConfig.GHOST.enabled) manager.registerCommand(new GhostCommand());
+		manager.registerCommand(new StatCommand());
 	}
 }

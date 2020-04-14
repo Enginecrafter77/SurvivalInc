@@ -3,17 +3,25 @@ package enginecrafter77.survivalinc.stats.impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import enginecrafter77.survivalinc.ModDamageSources;
+import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.stats.OverflowHandler;
 import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatRegister;
 import enginecrafter77.survivalinc.stats.StatTracker;
+import enginecrafter77.survivalinc.stats.modifier.DamagingModifier;
 import enginecrafter77.survivalinc.stats.modifier.FunctionalModifier;
 import enginecrafter77.survivalinc.stats.modifier.ModifierApplicator;
 import enginecrafter77.survivalinc.stats.modifier.OperationType;
+import enginecrafter77.survivalinc.stats.modifier.PotionEffectModifier;
+import enginecrafter77.survivalinc.stats.modifier.ThresholdModifier;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.init.MobEffects;
+import net.minecraft.item.ItemArmor;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
@@ -30,30 +38,48 @@ public class HeatModifier implements StatProvider {
 	
 	public static final HeatModifier instance = new HeatModifier();
 	
-	public Map<Block, Float> heatmap;
-	public ModifierApplicator<EntityPlayer> targettemp;
-	public ModifierApplicator<EntityPlayer> exchangerate;
+	public static Map<Block, Float> blockHeatMap = new HashMap<Block, Float>();
+	public static Map<ItemArmor.ArmorMaterial, Float> armorInsulation = new HashMap<ItemArmor.ArmorMaterial, Float>();
+	public static ModifierApplicator<EntityPlayer> targettemp = new ModifierApplicator<EntityPlayer>();
+	public static ModifierApplicator<EntityPlayer> exchangerate = new ModifierApplicator<EntityPlayer>();
+	public static ModifierApplicator<EntityPlayer> consequences = new ModifierApplicator<EntityPlayer>();
 	
-	public HeatModifier()
+	// Make it a singleton
+	private HeatModifier() {}
+	
+	public void init()
 	{
-		this.heatmap = new HashMap<Block, Float>();
-		this.targettemp = new ModifierApplicator<EntityPlayer>();
-		this.exchangerate = new ModifierApplicator<EntityPlayer>();
+		// Block temperature map
+		HeatModifier.blockHeatMap.put(Blocks.LAVA, 400F);
+		HeatModifier.blockHeatMap.put(Blocks.FLOWING_LAVA, 350F);
+		HeatModifier.blockHeatMap.put(Blocks.MAGMA, 300F);
+		HeatModifier.blockHeatMap.put(Blocks.FIRE, 200F);
+		HeatModifier.blockHeatMap.put(Blocks.LIT_FURNACE, 80F);
+		HeatModifier.blockHeatMap.put(Blocks.LIT_PUMPKIN, 10F);
 		
-		this.heatmap.put(Blocks.LAVA, 400F);
-		this.heatmap.put(Blocks.FLOWING_LAVA, 350F);
-		this.heatmap.put(Blocks.MAGMA, 300F);
-		this.heatmap.put(Blocks.FIRE, 200F);
-		this.heatmap.put(Blocks.LIT_FURNACE, 80F);
-		this.heatmap.put(Blocks.LIT_PUMPKIN, 10F);
+		// Armor heat isolation
+		HeatModifier.armorInsulation.put(ItemArmor.ArmorMaterial.LEATHER, 0.5F);
+		HeatModifier.armorInsulation.put(ItemArmor.ArmorMaterial.CHAIN, 1.1F);
+		HeatModifier.armorInsulation.put(ItemArmor.ArmorMaterial.IRON, 1.2F);
+		HeatModifier.armorInsulation.put(ItemArmor.ArmorMaterial.GOLD, 1.5F);
+		HeatModifier.armorInsulation.put(ItemArmor.ArmorMaterial.DIAMOND, 2.25F);
 		
-		this.targettemp.add(new FunctionalModifier<EntityPlayer>(HeatModifier::whenNearHotBlock), OperationType.OFFSET);
-		this.exchangerate.add(new FunctionalModifier<EntityPlayer>(HeatModifier::applyWetnessCooldown), OperationType.SCALE);
+		HeatModifier.targettemp.add(new FunctionalModifier<EntityPlayer>(HeatModifier::whenNearHotBlock), OperationType.OFFSET);
+		
+		HeatModifier.exchangerate.add(new FunctionalModifier<EntityPlayer>(HeatModifier::whenWearingArmor), OperationType.SCALE);
+		HeatModifier.exchangerate.add(new FunctionalModifier<EntityPlayer>(HeatModifier::applyWetnessCooldown), OperationType.SCALE);
+		
+		HeatModifier.consequences.add(new ThresholdModifier<EntityPlayer>(new PotionEffectModifier(MobEffects.WEAKNESS, 0), 25F, ThresholdModifier.LOWER));
+		HeatModifier.consequences.add(new ThresholdModifier<EntityPlayer>(new PotionEffectModifier(MobEffects.MINING_FATIGUE, 0), 20F, ThresholdModifier.LOWER));
+		HeatModifier.consequences.add(new ThresholdModifier<EntityPlayer>(new DamagingModifier(ModDamageSources.HYPOTHERMIA, 1F, 10), 10F, ThresholdModifier.LOWER));
+		HeatModifier.consequences.add(new ThresholdModifier<EntityPlayer>(new FunctionalModifier<EntityPlayer>((EntityPlayer player) -> player.setFire(1)), 110F, ThresholdModifier.HIGHER));
 	}
+	
+	int tick = 0;
 	
 	@Override
 	public float updateValue(EntityPlayer player, float current)
-	{
+	{		
 		float target;
 		if(player.posY < player.world.getSeaLevel()) target = 0.7F; // Cave
 		else
@@ -67,10 +93,17 @@ public class HeatModifier implements StatProvider {
 		
 		float difference = Math.abs(target - current);
 		float rate = difference * (float)ModConfig.HEAT.heatExchangeFactor;
-		rate = this.exchangerate.apply(player, rate);
+		rate = HeatModifier.exchangerate.apply(player, rate);
+		
+		// Apply the "side effects"
+		HeatModifier.consequences.apply(player, current);
 		
 		// If the current value is higher than the target, go down instead of up
 		if(current > target) rate *= -1;
+		
+		// Debugging
+		if(tick++ % 20 == 0)
+			SurvivalInc.logger.info("H: {} (+- {}) --> T: {}", current, rate, target);
 		return current + rate;
 	}
 
@@ -89,7 +122,7 @@ public class HeatModifier implements StatProvider {
 	@Override
 	public float getMinimum()
 	{
-		return 0;
+		return -20F;
 	}
 
 	@Override
@@ -98,10 +131,16 @@ public class HeatModifier implements StatProvider {
 		return 75;
 	}
 	
+	@Override
+	public OverflowHandler getOverflowHandler()
+	{
+		return OverflowHandler.NONE;
+	}
+	
 	public static float applyWetnessCooldown(EntityPlayer player)
 	{
 		StatTracker stats = player.getCapability(StatRegister.CAPABILITY, null);
-		return 1F + (stats.getStat(DefaultStats.WETNESS) / DefaultStats.WETNESS.getMaximum());
+		return 1F + 4 * (stats.getStat(DefaultStats.WETNESS) / DefaultStats.WETNESS.getMaximum());
 	}
 	
 	/**
@@ -142,9 +181,9 @@ public class HeatModifier implements StatProvider {
 		for(BlockPos position : blocks)
 		{
 			Block block = player.world.getBlockState(position).getBlock();
-			if(HeatModifier.instance.heatmap.containsKey(block))
+			if(HeatModifier.blockHeatMap.containsKey(block))
 			{
-				float currentheat = HeatModifier.instance.heatmap.get(block);
+				float currentheat = HeatModifier.blockHeatMap.get(block);
 				float proximity = (float)Math.sqrt(player.getPositionVector().squareDistanceTo(new Vec3d(position)));
 				currentheat *= (float)(ModConfig.HEAT.gaussScaling / (Math.pow(proximity, 2) + ModConfig.HEAT.gaussScaling));
 				if(currentheat > heat) heat = currentheat; // Use only the maximum value
@@ -153,10 +192,28 @@ public class HeatModifier implements StatProvider {
 		
 		return heat;
 	}
-
-	@Override
-	public OverflowHandler getOverflowHandler()
+	
+	private static final double offset = -1.3D, sbase = 5E+9D;
+	
+	public static float whenWearingArmor(EntityPlayer player)
 	{
-		return OverflowHandler.NONE;
+		float buff = 0F;
+		int index = 0;
+		for(ItemStack stack : player.getArmorInventoryList())
+		{
+			if(stack.getItem() instanceof ItemArmor)
+			{
+				ItemArmor item = (ItemArmor)stack.getItem();
+				if(HeatModifier.armorInsulation.containsKey(item.getArmorMaterial()))
+				{
+					buff += (HeatModifier.armorInsulation.get(item.getArmorMaterial()) / 4F) * (float)(sbase / (Math.pow(index + offset, 2) + sbase));
+				}
+			}
+			index++;
+		}
+		
+		if(buff == 0) buff = 1F;
+		if(HeatModifier.instance.tick % 20 == 0) SurvivalInc.logger.info("Armor buff: {}", buff);
+		return buff;
 	}
 }

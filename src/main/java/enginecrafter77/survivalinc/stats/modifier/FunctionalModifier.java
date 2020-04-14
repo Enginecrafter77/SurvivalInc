@@ -1,6 +1,7 @@
 package enginecrafter77.survivalinc.stats.modifier;
 
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class FunctionalModifier<TARGET> implements Modifier<TARGET>
@@ -15,6 +16,18 @@ public class FunctionalModifier<TARGET> implements Modifier<TARGET>
 	public FunctionalModifier(Function<TARGET, Float> function)
 	{
 		this((TARGET target, Float value) -> function.apply(target));
+	}
+	
+	public FunctionalModifier(Consumer<TARGET> function)
+	{
+		this(new BiFunction<TARGET, Float, Float>() {
+			@Override
+			public Float apply(TARGET target, Float value)
+			{
+				function.accept(target);
+				return 0F;
+			}
+		});
 	}
 	
 	@Override
