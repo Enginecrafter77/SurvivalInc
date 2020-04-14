@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import enginecrafter77.survivalinc.stats.StatRegister;
 import enginecrafter77.survivalinc.stats.StatTracker;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -18,17 +19,20 @@ public class RenderHUD extends Gui {
 	public static final RenderHUD instance = new RenderHUD();
 	
 	public final List<StatBar> statbars;
+	
 	protected StatTracker tracker;
 	
 	private RenderHUD()
 	{
-		this.tracker = StatRegister.CAPABILITY.getDefaultInstance();
 		this.statbars = new LinkedList<StatBar>();
+		this.tracker = null;
 	}
 	
 	@SubscribeEvent
 	public void renderOverlay(RenderGameOverlayEvent event)
 	{
+		if(tracker == null) this.tracker = Minecraft.getMinecraft().player.getCapability(StatRegister.CAPABILITY, null);
+		
 		if(event.getType() != ElementType.HOTBAR) return;
 		ScaledResolution resolution = event.getResolution();
 		

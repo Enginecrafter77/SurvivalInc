@@ -1,5 +1,6 @@
 package enginecrafter77.survivalinc.stats.impl;
 
+import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.monster.*;
@@ -8,34 +9,45 @@ import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.init.MobEffects;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
 import net.minecraft.potion.PotionEffect;
+import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import net.minecraftforge.event.entity.living.AnimalTameEvent;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.entity.player.PlayerWakeUpEvent;
-import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
+import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.stats.StatRegister;
 import enginecrafter77.survivalinc.stats.StatTracker;
+import enginecrafter77.survivalinc.stats.modifier.ChanceModifier;
 import enginecrafter77.survivalinc.stats.modifier.ConditionalModifier;
 import enginecrafter77.survivalinc.stats.modifier.FunctionalModifier;
+import enginecrafter77.survivalinc.stats.modifier.ModifierApplicator;
 import enginecrafter77.survivalinc.stats.modifier.OperationType;
 
-@Mod.EventBusSubscriber
 public class SanityModifier {
 	
 	public static final Predicate<EntityPlayer> isOutsideOverworld = (EntityPlayer player) -> Math.abs(player.dimension) == 1;
 	public static final Map<Item, Float> foodSanityMap = new HashMap<Item, Float>();
+	
+	public static ModifierApplicator<EntityPlayer> hallucinations = new ModifierApplicator<EntityPlayer>();
+	public static List<SoundEvent> scarysounds = new ArrayList<SoundEvent>();
 	
 	public static void init()
 	{
@@ -44,6 +56,17 @@ public class SanityModifier {
 		DefaultStats.SANITY.modifiers.add(new FunctionalModifier<EntityPlayer>(SanityModifier::whenNearEntities), OperationType.OFFSET);
 		DefaultStats.SANITY.modifiers.add(new FunctionalModifier<EntityPlayer>(SanityModifier::whenInDark), OperationType.OFFSET);
 		DefaultStats.SANITY.modifiers.add(new FunctionalModifier<EntityPlayer>(SanityModifier::whenWet), OperationType.OFFSET);
+		
+		SanityModifier.hallucinations.singleCatch = true;
+		SanityModifier.hallucinations.add(new ChanceModifier<EntityPlayer>(new FunctionalModifier<EntityPlayer>(SanityModifier::playRandomSounds), 0.2F));
+		SanityModifier.hallucinations.add(new ChanceModifier<EntityPlayer>(new FunctionalModifier<EntityPlayer>(SanityModifier::spawnGuardianParticle), 0.2F));
+		SanityModifier.hallucinations.add(new ChanceModifier<EntityPlayer>(new FunctionalModifier<EntityPlayer>(SanityModifier::applyBlindness), 0.1F));
+		
+		SanityModifier.scarysounds.add(SoundEvents.ENTITY_VILLAGER_AMBIENT);
+		SanityModifier.scarysounds.add(SoundEvents.ENTITY_ENDERMEN_AMBIENT);
+		SanityModifier.scarysounds.add(SoundEvents.ENTITY_ENDERMEN_TELEPORT);
+		SanityModifier.scarysounds.add(SoundEvents.BLOCK_LAVA_AMBIENT);
+		SanityModifier.scarysounds.add(SoundEvents.BLOCK_STONE_STEP);
 		
 		SanityModifier.foodSanityMap.put(Items.CHICKEN, -5F);
 		SanityModifier.foodSanityMap.put(Items.BEEF, -5F);
@@ -64,6 +87,27 @@ public class SanityModifier {
 		SanityModifier.foodSanityMap.put(Items.RABBIT_STEW, 15F);
 		SanityModifier.foodSanityMap.put(Items.MUSHROOM_STEW, 10F);
 		SanityModifier.foodSanityMap.put(Items.BEETROOT_SOUP, 10F);
+	}
+	
+	public static void spawnGuardianParticle(EntityPlayer player)
+	{
+		WorldClient world = (WorldClient)player.world; //EntityEnderman
+		Vec3d eyes = player.getPositionEyes(1F);
+		world.spawnParticle(EnumParticleTypes.MOB_APPEARANCE, eyes.x, eyes.y, eyes.z, 0, 0, 0, null);
+	}
+	
+	public static void playRandomSounds(EntityPlayer player)
+	{
+		WorldClient world = (WorldClient)player.world;
+		BlockPos position = player.getPosition();
+		SoundEvent sound = SanityModifier.scarysounds.get(world.rand.nextInt(SanityModifier.scarysounds.size()));
+		position = position.add(new Vec3i(world.rand.nextInt(10) - 5, world.rand.nextInt(4) - 2, world.rand.nextInt(10) - 5));
+		world.playSound(position, sound, SoundCategory.AMBIENT, 0.5F, 1F, false);
+	}
+	
+	public static void applyBlindness(EntityPlayer player)
+	{
+		player.addPotionEffect(new PotionEffect(MobEffects.BLINDNESS, 100));
 	}
 	
 	public static float whenInDark(EntityPlayer player)
@@ -153,16 +197,23 @@ public class SanityModifier {
 	@SubscribeEvent
 	public static void onPlayerUpdate(LivingUpdateEvent event)
 	{
-		Entity ent = event.getEntity();//EntityWolf
-		if(ent.world.isRemote) return;
-		
+		Entity ent = event.getEntity();		
 		if(ent instanceof EntityPlayer)
 		{
 			EntityPlayer player = (EntityPlayer)ent;
+			if(player.isCreative() || player.isSpectator()) return;
 			
-			if(!player.isCreative() && !player.isSpectator() && player.isPlayerSleeping())
+			StatTracker stat = player.getCapability(StatRegister.CAPABILITY, null);
+			if(player.world.isRemote)
 			{
-				StatTracker stat = player.getCapability(StatRegister.CAPABILITY, null);
+				SurvivalInc.logger.info("Sanity value: " + stat.getStat(DefaultStats.SANITY));
+				if(stat.getStat(DefaultStats.SANITY) < 50F && player.ticksExisted % 20 == 0) // Spawn hallucinations if feasible
+				{
+					SanityModifier.hallucinations.apply(player, stat.getStat(DefaultStats.SANITY));
+				}
+			}
+			else if(player.isPlayerSleeping())
+			{
 				stat.modifyStat(DefaultStats.SANITY, 0.004f);
 				player.addPotionEffect(new PotionEffect(MobEffects.HUNGER, 20, 4, false, false));
 			}
