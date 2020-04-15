@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
-import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.stats.StatRegister;
 import enginecrafter77.survivalinc.stats.StatTracker;
@@ -206,11 +205,8 @@ public class SanityModifier {
 			StatTracker stat = player.getCapability(StatRegister.CAPABILITY, null);
 			if(player.world.isRemote)
 			{
-				SurvivalInc.logger.info("Sanity value: " + stat.getStat(DefaultStats.SANITY));
 				if(stat.getStat(DefaultStats.SANITY) < 50F && player.ticksExisted % 20 == 0) // Spawn hallucinations if feasible
-				{
 					SanityModifier.hallucinations.apply(player, stat.getStat(DefaultStats.SANITY));
-				}
 			}
 			else if(player.isPlayerSleeping())
 			{

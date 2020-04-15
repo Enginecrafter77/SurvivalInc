@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import enginecrafter77.survivalinc.ModDamageSources;
-import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.stats.OverflowHandler;
 import enginecrafter77.survivalinc.stats.StatProvider;
@@ -75,8 +74,6 @@ public class HeatModifier implements StatProvider {
 		HeatModifier.consequences.add(new ThresholdModifier<EntityPlayer>(new FunctionalModifier<EntityPlayer>((EntityPlayer player) -> player.setFire(1)), 110F, ThresholdModifier.HIGHER));
 	}
 	
-	int tick = 0;
-	
 	@Override
 	public float updateValue(EntityPlayer player, float current)
 	{		
@@ -100,10 +97,6 @@ public class HeatModifier implements StatProvider {
 		
 		// If the current value is higher than the target, go down instead of up
 		if(current > target) rate *= -1;
-		
-		// Debugging
-		if(tick++ % 20 == 0)
-			SurvivalInc.logger.info("H: {} (+- {}) --> T: {}", current, rate, target);
 		return current + rate;
 	}
 
@@ -213,7 +206,6 @@ public class HeatModifier implements StatProvider {
 		}
 		
 		if(buff == 0) buff = 1F;
-		if(HeatModifier.instance.tick % 20 == 0) SurvivalInc.logger.info("Armor buff: {}", buff);
 		return buff;
 	}
 }
