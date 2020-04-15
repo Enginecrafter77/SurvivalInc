@@ -46,9 +46,13 @@ public class SeasonController implements IMessageHandler<SeasonData, IMessage> {
 	@SideOnly(Side.CLIENT)
 	public IMessage onMessage(SeasonData message, MessageContext ctx)
 	{
-		// I hope I know what I am doing
-		Minecraft.getMinecraft().world.setData(SeasonData.datakey, message);
-		SurvivalInc.logger.info("Received season data ({}) from server", message.toString());
+		WorldClient clientworld = Minecraft.getMinecraft().world;
+		if(clientworld == null) SurvivalInc.logger.error("Minecraft remote world tracking instance is null. This is NOT a good thing. Skipping season update...");
+		else
+		{
+			clientworld.setData(SeasonData.datakey, message);
+			SurvivalInc.logger.info("Updated client's world season data to {}", message.toString());
+		}
 		return null;
 	}
 	
@@ -71,7 +75,7 @@ public class SeasonController implements IMessageHandler<SeasonData, IMessage> {
 		{
 			SeasonData data = SeasonData.load(event.player.world);
 			SurvivalInc.proxy.net.sendTo(data, (EntityPlayerMP)event.player);
-			SurvivalInc.logger.info("Sending season data [{}] to ",event.player.getDisplayNameString());
+			SurvivalInc.logger.info("Sending season data [{}] to {}", data.toString(), event.player.getDisplayNameString());
 		}
 	}
 	
@@ -103,8 +107,8 @@ public class SeasonController implements IMessageHandler<SeasonData, IMessage> {
 		DimensionType dimension = event.world.provider.getDimensionType();
 		if(!event.world.isRemote && event.phase == TickEvent.Phase.START && dimension == DimensionType.OVERWORLD)
 		{
-			// Is it early morning? It's not exactly 0 because of beds.
-			if(event.world.getWorldTime() % SeasonController.minecraftDayLength == 10)
+			// Is it early morning? Also, before the player really joins, some time passes. Give the player some time to actually receive the update.
+			if(event.world.getWorldTime() % SeasonController.minecraftDayLength == 200)
 			{
 				SurvivalInc.logger.info("Day advance. Event: Side: {}, Phase: {}, Type: {}, Dim: {}", event.side.name(), event.phase.name(), event.type.name(), dimension.name());
 				SeasonData data = SeasonData.load(event.world);
