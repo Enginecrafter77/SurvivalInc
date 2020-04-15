@@ -68,7 +68,7 @@ public class SnowMelter {
 	private Chunk nextChunk(World world, int currentX, int offsetZ)
 	{
 
-		Chunk chunk = world.getChunkFromChunkCoords(currentX, offsetZ);
+		Chunk chunk = world.getChunk(currentX, offsetZ);
 
 		if (chunk.isLoaded())
 		{
@@ -101,7 +101,7 @@ public class SnowMelter {
 		}
 
 		// Grab first chunk
-		Chunk chunk = world.getChunkFromChunkCoords(player.chunkCoordX + (-8 * changeX), player.chunkCoordZ + offsetZ);
+		Chunk chunk = world.getChunk(player.chunkCoordX + (-8 * changeX), player.chunkCoordZ + offsetZ);
 
 		// Go up to 16 chunks in that row
 		int chunkLimit = 16;
@@ -214,21 +214,21 @@ public class SnowMelter {
 		 */
 
 		// Starting chunk.
-		Chunk chunk = world.getChunkFromChunkCoords(startX - 8, startZ - 8);
+		Chunk chunk = world.getChunk(startX - 8, startZ - 8);
 
 		// Northwest corner. Add one to x.
 		for (int x = 0; x < 15; x++)
 		{
 
 			meltSingleChunk(chunk, world);
-			chunk = world.getChunkFromChunkCoords(chunk.x + 1, chunk.z);
+			chunk = world.getChunk(chunk.x + 1, chunk.z);
 		}
 
 		// Northeast corner. Add one to z.
 		for (int z = 0; z < 15; z++)
 		{
 
-			chunk = world.getChunkFromChunkCoords(chunk.x, chunk.z + 1);
+			chunk = world.getChunk(chunk.x, chunk.z + 1);
 			meltSingleChunk(chunk, world);
 		}
 
@@ -236,7 +236,7 @@ public class SnowMelter {
 		for (int x = 0; x < 15; x++)
 		{
 
-			chunk = world.getChunkFromChunkCoords(chunk.x - 1, chunk.z);
+			chunk = world.getChunk(chunk.x - 1, chunk.z);
 			meltSingleChunk(chunk, world);
 		}
 
@@ -244,7 +244,7 @@ public class SnowMelter {
 		for (int z = 0; z < 15; z++)
 		{
 
-			chunk = world.getChunkFromChunkCoords(chunk.x, chunk.z - 1);
+			chunk = world.getChunk(chunk.x, chunk.z - 1);
 			meltSingleChunk(chunk, world);
 		}
 	}

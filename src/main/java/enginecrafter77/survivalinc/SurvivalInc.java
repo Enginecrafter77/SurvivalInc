@@ -64,7 +64,7 @@ public class SurvivalInc {
 	// Create tab for creative mode.
 	public static CreativeTabs mainTab = new CreativeTabs(SurvivalInc.RESOURCE_PREFIX + "mainTab") {
 		@Override
-		public ItemStack getTabIconItem()
+		public ItemStack createIcon()
 		{
 			return new ItemStack(ModItems.CANTEEN.getItem());
 		}
