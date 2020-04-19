@@ -19,7 +19,6 @@ import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.terraingen.BiomeEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
@@ -34,7 +33,6 @@ import java.util.List;
 
 import enginecrafter77.survivalinc.SurvivalInc;
 
-@Mod.EventBusSubscriber
 public class SeasonController implements IMessageHandler<SeasonData, IMessage> {
 	
 	public static final int minecraftDayLength = 24000;

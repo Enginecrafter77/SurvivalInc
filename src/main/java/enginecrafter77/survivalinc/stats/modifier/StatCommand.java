@@ -1,7 +1,7 @@
 package enginecrafter77.survivalinc.stats.modifier;
 
 import enginecrafter77.survivalinc.stats.StatProvider;
-import enginecrafter77.survivalinc.stats.StatRegister;
+import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -33,7 +33,7 @@ public class StatCommand extends CommandBase {
 		if(args.length < 2) throw new CommandException("Insufficient Arguments\nUsage: " + this.getUsage(sender));
 		
 		EntityPlayer player = world.getPlayerEntityByName(args[0]);
-		StatTracker tracker = player.getCapability(StatRegister.CAPABILITY, null);
+		StatTracker tracker = player.getCapability(StatCapability.target, null);
 		
 		switch(args[1])
 		{

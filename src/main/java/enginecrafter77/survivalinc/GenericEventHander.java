@@ -17,7 +17,7 @@ import enginecrafter77.survivalinc.ghost.GhostProvider;
 import enginecrafter77.survivalinc.item.ItemFeatherFan;
 import enginecrafter77.survivalinc.ghost.Ghost;
 import enginecrafter77.survivalinc.net.StatUpdateMessage;
-import enginecrafter77.survivalinc.stats.StatRegister;
+import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatTracker;
 
 /*
@@ -54,7 +54,7 @@ public class GenericEventHander {
 			
 			if(!player.isCreative() && !player.isSpectator())
 			{
-				StatTracker stat = player.getCapability(StatRegister.CAPABILITY, null);
+				StatTracker stat = player.getCapability(StatCapability.target, null);
 				Ghost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
 				stat.update(player);
 				ghost.update(player);

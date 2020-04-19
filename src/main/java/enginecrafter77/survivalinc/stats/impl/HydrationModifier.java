@@ -1,7 +1,7 @@
 package enginecrafter77.survivalinc.stats.impl;
 
 import enginecrafter77.survivalinc.ModDamageSources;
-import enginecrafter77.survivalinc.stats.StatRegister;
+import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import enginecrafter77.survivalinc.stats.modifier.ConditionalModifier;
 import enginecrafter77.survivalinc.stats.modifier.DamagingModifier;
@@ -40,7 +40,7 @@ public class HydrationModifier {
 	
 	public static float naturalDrain(EntityPlayer player, float value)
 	{
-		StatTracker tracker = player.getCapability(StatRegister.CAPABILITY, null);
+		StatTracker tracker = player.getCapability(StatCapability.target, null);
 		float fraction = tracker.getStat(HeatModifier.instance) / HeatModifier.instance.getMaximum();
 		
 		float rate = -0.003F;
@@ -77,7 +77,7 @@ public class HydrationModifier {
 					world.spawnParticle(EnumParticleTypes.WATER_BUBBLE, raytrace.hitVec.x, raytrace.hitVec.y + 0.1, raytrace.hitVec.z, 20, 0.5, 0.1, 0.5, 0.1, null);
 					world.playSound(null, position, SoundEvents.ENTITY_GENERIC_SWIM, SoundCategory.AMBIENT, 0.5f, 1.5f);
 					
-					StatTracker tracker = player.getCapability(StatRegister.CAPABILITY, null);
+					StatTracker tracker = player.getCapability(StatCapability.target, null);
 					tracker.modifyStat(DefaultStats.HYDRATION, 5F);
 				}
 			}

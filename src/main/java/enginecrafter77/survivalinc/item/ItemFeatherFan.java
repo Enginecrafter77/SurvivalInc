@@ -1,7 +1,7 @@
 package enginecrafter77.survivalinc.item;
 
 import enginecrafter77.survivalinc.SurvivalInc;
-import enginecrafter77.survivalinc.stats.StatRegister;
+import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import enginecrafter77.survivalinc.stats.impl.DefaultStats;
 import enginecrafter77.survivalinc.stats.impl.HeatModifier;
@@ -38,7 +38,7 @@ public class ItemFeatherFan extends Item {
 			if(world.isRemote) ((WorldClient)world).playSound(player.getPosition(), WHOOSH, SoundCategory.PLAYERS, 0.2F, 1.25F, false);
 			else
 			{
-				StatTracker stats = player.getCapability(StatRegister.CAPABILITY, null);
+				StatTracker stats = player.getCapability(StatCapability.target, null);
 				stats.modifyStat(HeatModifier.instance, -20F);
 				stats.modifyStat(DefaultStats.WETNESS, -5F);
 				if(player.isBurning()) player.extinguish();

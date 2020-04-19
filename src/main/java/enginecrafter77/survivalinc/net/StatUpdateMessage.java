@@ -1,6 +1,6 @@
 package enginecrafter77.survivalinc.net;
 
-import enginecrafter77.survivalinc.stats.StatRegister;
+import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.nbt.NBTBase;
@@ -16,26 +16,26 @@ public class StatUpdateMessage implements IMessage {
 	
 	public StatUpdateMessage(StatTracker tracker)
 	{
-		this.serializer = StatRegister.CAPABILITY.getStorage();
+		this.serializer = StatCapability.target.getStorage();
 		this.tracker = tracker;
 	}
 	
 	public StatUpdateMessage()
 	{
-		this(StatRegister.CAPABILITY.getDefaultInstance()); 
+		this(StatCapability.target.getDefaultInstance()); 
 	}
 	
 	@Override
 	public void fromBytes(ByteBuf buf)
 	{
 		NBTTagCompound tag = ByteBufUtils.readTag(buf);
-		serializer.readNBT(StatRegister.CAPABILITY, tracker, null, tag);
+		serializer.readNBT(StatCapability.target, tracker, null, tag);
 	}
 
 	@Override
 	public void toBytes(ByteBuf buf)
 	{
-		NBTBase tag = serializer.writeNBT(StatRegister.CAPABILITY, tracker, null);
+		NBTBase tag = serializer.writeNBT(StatCapability.target, tracker, null);
 		ByteBufUtils.writeTag(buf, (NBTTagCompound)tag);
 	}
 }

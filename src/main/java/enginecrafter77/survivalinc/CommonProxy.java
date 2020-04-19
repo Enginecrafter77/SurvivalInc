@@ -14,7 +14,7 @@ import enginecrafter77.survivalinc.season.SeasonCommand;
 import enginecrafter77.survivalinc.season.SeasonController;
 import enginecrafter77.survivalinc.season.SeasonData;
 import enginecrafter77.survivalinc.stats.StatManager;
-import enginecrafter77.survivalinc.stats.StatRegister;
+import enginecrafter77.survivalinc.stats.StatStorage;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import enginecrafter77.survivalinc.stats.impl.DefaultStats;
 import enginecrafter77.survivalinc.stats.impl.HeatModifier;
@@ -42,13 +42,11 @@ public class CommonProxy {
 	{
 		// Register all new items and blocks.
 		MinecraftForge.EVENT_BUS.register(ModItems.class);
-		MinecraftForge.EVENT_BUS.register(GenericEventHander.class);
-		MinecraftForge.EVENT_BUS.register(StatRegister.class);
 		// Register seasons if enabled
 		if(ModConfig.SEASONS.enabled) MinecraftForge.EVENT_BUS.register(SeasonController.class);
 		
 		// Register capabilities.
-		CapabilityManager.INSTANCE.register(StatTracker.class, new StatRegister.Storage(), StatManager::new);
+		CapabilityManager.INSTANCE.register(StatTracker.class, StatStorage.instance, StatManager::new);
 		CapabilityManager.INSTANCE.register(Ghost.class, new GhostStorage(), GhostImpl::new);
 	}
 

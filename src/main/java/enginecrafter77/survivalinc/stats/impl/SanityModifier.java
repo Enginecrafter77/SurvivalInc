@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 import enginecrafter77.survivalinc.config.ModConfig;
-import enginecrafter77.survivalinc.stats.StatRegister;
+import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import enginecrafter77.survivalinc.stats.modifier.ChanceModifier;
 import enginecrafter77.survivalinc.stats.modifier.ConditionalModifier;
@@ -123,7 +123,7 @@ public class SanityModifier {
 	public static float whenWet(EntityPlayer player)
 	{
 		float boundary = (float)ModConfig.SANITY.wetnessAnnoyanceThreshold;
-		StatTracker stats = player.getCapability(StatRegister.CAPABILITY, null);
+		StatTracker stats = player.getCapability(StatCapability.target, null);
 		float wetness = stats.getStat(DefaultStats.WETNESS);
 		float annoyance = (wetness - DefaultStats.WETNESS.getMaximum()) / 10000;
 		annoyance = (boundary / -10000) - annoyance;
@@ -164,7 +164,7 @@ public class SanityModifier {
 		
 		if(event.shouldSetSpawn()) // If the "lying in bed" was successful (the player actually fell asleep)
 		{
-			StatTracker stats = player.getCapability(StatRegister.CAPABILITY, null);
+			StatTracker stats = player.getCapability(StatCapability.target, null);
 			// Replenish 33% of total sanity!
 			stats.modifyStat(DefaultStats.SANITY, DefaultStats.SANITY.getMaximum() / 3F);
 			player.getFoodStats().setFoodLevel(player.getFoodStats().getFoodLevel() - 8);
@@ -186,7 +186,7 @@ public class SanityModifier {
 				
 				// Modify the sanity value
 				EntityPlayer player = (EntityPlayer)ent;
-				StatTracker stats = player.getCapability(StatRegister.CAPABILITY, null);
+				StatTracker stats = player.getCapability(StatCapability.target, null);
 				stats.modifyStat(DefaultStats.SANITY, mod);
 			}
 			catch(NullPointerException exc) {} // Food simply doesn't have sanity mapping
@@ -202,7 +202,7 @@ public class SanityModifier {
 			EntityPlayer player = (EntityPlayer)ent;
 			if(player.isCreative() || player.isSpectator()) return;
 			
-			StatTracker stat = player.getCapability(StatRegister.CAPABILITY, null);
+			StatTracker stat = player.getCapability(StatCapability.target, null);
 			if(player.world.isRemote)
 			{
 				if(stat.getStat(DefaultStats.SANITY) < 50F && player.ticksExisted % 20 == 0) // Spawn hallucinations if feasible
@@ -222,7 +222,7 @@ public class SanityModifier {
 		Entity ent = event.getEntity();
 		if(ent instanceof EntityPlayer && !ent.world.isRemote)
 		{
-			StatTracker stat = ent.getCapability(StatRegister.CAPABILITY, null);
+			StatTracker stat = ent.getCapability(StatCapability.target, null);
 			stat.modifyStat(DefaultStats.SANITY, 5F); // Solid 5 points for taming any animal
 		}
 	}

@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import enginecrafter77.survivalinc.config.ModConfig;
-import enginecrafter77.survivalinc.stats.StatRegister;
+import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import enginecrafter77.survivalinc.stats.modifier.ConditionalModifier;
 import enginecrafter77.survivalinc.stats.modifier.FunctionalModifier;
@@ -109,7 +109,7 @@ public class WetnessModifier {
 			Block headblock = player.world.getBlockState(player.getPosition().up()).getBlock();
 			if(headblock != Blocks.WATER && headblock != Blocks.FLOWING_WATER)
 			{
-				StatTracker stats = player.getCapability(StatRegister.CAPABILITY, null);
+				StatTracker stats = player.getCapability(StatCapability.target, null);
 				if(stats.getStat(DefaultStats.WETNESS) < 40) return 1.25F;
 			}
 			else return 5F;

@@ -24,7 +24,7 @@ import java.util.List;
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.net.EntityItemUpdateMessage;
-import enginecrafter77.survivalinc.stats.StatRegister;
+import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import enginecrafter77.survivalinc.stats.impl.DefaultStats;
 
@@ -48,7 +48,7 @@ public class ItemTowel extends Item {
 	{
 		if(!world.isRemote)
 		{
-			StatTracker tracker = entity.getCapability(StatRegister.CAPABILITY, null);
+			StatTracker tracker = entity.getCapability(StatCapability.target, null);
 			NBTTagCompound tag = stack.getTagCompound();
 			
 			// Wetness equalization

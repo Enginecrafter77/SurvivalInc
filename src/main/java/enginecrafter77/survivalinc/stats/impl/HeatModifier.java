@@ -7,7 +7,7 @@ import enginecrafter77.survivalinc.ModDamageSources;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.stats.OverflowHandler;
 import enginecrafter77.survivalinc.stats.StatProvider;
-import enginecrafter77.survivalinc.stats.StatRegister;
+import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import enginecrafter77.survivalinc.stats.modifier.DamagingModifier;
 import enginecrafter77.survivalinc.stats.modifier.FunctionalModifier;
@@ -132,7 +132,7 @@ public class HeatModifier implements StatProvider {
 	
 	public static float applyWetnessCooldown(EntityPlayer player)
 	{
-		StatTracker stats = player.getCapability(StatRegister.CAPABILITY, null);
+		StatTracker stats = player.getCapability(StatCapability.target, null);
 		return 1F + 4 * (stats.getStat(DefaultStats.WETNESS) / DefaultStats.WETNESS.getMaximum());
 	}
 	

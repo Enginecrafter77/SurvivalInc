@@ -3,7 +3,7 @@ package enginecrafter77.survivalinc.client;
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.net.StatUpdateMessage;
 import enginecrafter77.survivalinc.stats.StatProvider;
-import enginecrafter77.survivalinc.stats.StatRegister;
+import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -20,7 +20,7 @@ public class StatUpdateMessageHandler implements IMessageHandler<StatUpdateMessa
 		if(player == null) SurvivalInc.logger.error("Minecraft remote player entity is null. This is NOT a good thing. Skipping stat update...");
 		else
 		{
-			StatTracker stats = player.getCapability(StatRegister.CAPABILITY, null);
+			StatTracker stats = player.getCapability(StatCapability.target, null);
 			for(StatProvider provider : message.tracker.getRegisteredProviders())
 				stats.setStat(provider, message.tracker.getStat(provider));
 		}

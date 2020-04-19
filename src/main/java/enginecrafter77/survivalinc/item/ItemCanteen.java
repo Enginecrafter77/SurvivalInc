@@ -25,7 +25,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 
 import enginecrafter77.survivalinc.SurvivalInc;
-import enginecrafter77.survivalinc.stats.StatRegister;
+import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import enginecrafter77.survivalinc.stats.impl.DefaultStats;
 
@@ -50,7 +50,7 @@ public class ItemCanteen extends Item {
 		if(entityLiving instanceof EntityPlayer && !world.isRemote)
 		{
 			EntityPlayer player = (EntityPlayer)entityLiving;
-			StatTracker stats = player.getCapability(StatRegister.CAPABILITY, null);
+			StatTracker stats = player.getCapability(StatCapability.target, null);
 			NBTTagCompound nbt = stack.getTagCompound();
 			int stored = nbt.getInteger("stored");
 			nbt.setInteger("stored", stored - 32);

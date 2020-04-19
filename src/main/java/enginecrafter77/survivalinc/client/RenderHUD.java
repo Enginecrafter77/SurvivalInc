@@ -2,7 +2,7 @@ package enginecrafter77.survivalinc.client;
 
 import java.util.LinkedList;
 import java.util.List;
-import enginecrafter77.survivalinc.stats.StatRegister;
+import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -31,7 +31,7 @@ public class RenderHUD extends Gui {
 	@SubscribeEvent
 	public void renderOverlay(RenderGameOverlayEvent event)
 	{
-		if(tracker == null) this.tracker = Minecraft.getMinecraft().player.getCapability(StatRegister.CAPABILITY, null);
+		if(tracker == null) this.tracker = Minecraft.getMinecraft().player.getCapability(StatCapability.target, null);
 		
 		if(event.getType() != ElementType.HOTBAR) return;
 		ScaledResolution resolution = event.getResolution();
