@@ -43,7 +43,7 @@ public class RenderHUD extends Gui {
 			try
 			{
 				bar.draw(tracker, x, resolution.getScaledHeight() - bar.spacing - bar.getTotalHeight());
-				x += bar.width + bar.spacing;
+				x += bar.getTotalWidth() + bar.spacing;
 			}
 			catch(NullPointerException exc)
 			{

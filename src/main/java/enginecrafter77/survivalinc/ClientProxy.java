@@ -1,5 +1,7 @@
 package enginecrafter77.survivalinc;
 
+import java.awt.Color;
+
 import enginecrafter77.survivalinc.client.RenderHUD;
 import enginecrafter77.survivalinc.client.StatBar;
 import enginecrafter77.survivalinc.item.ItemCanteen;
@@ -14,10 +16,10 @@ public class ClientProxy extends CommonProxy {
 	public void postInit(FMLPostInitializationEvent event)
 	{
 		super.postInit(event);
-		RenderHUD.instance.statbars.add(new StatBar(DefaultStats.HYDRATION, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/hydration.png"), ItemCanteen.waterBarColor));
-		RenderHUD.instance.statbars.add(new StatBar(DefaultStats.WETNESS, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/wetness.png"), 0x0047D5));
-		RenderHUD.instance.statbars.add(new StatBar(DefaultStats.SANITY, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/sanity.png"), 0xF6AF25));
-		RenderHUD.instance.statbars.add(new StatBar(HeatModifier.instance, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/heat.png"), 0xE80000));
+		RenderHUD.instance.statbars.add(new StatBar(DefaultStats.HYDRATION, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/hydration.png"), new Color(ItemCanteen.waterBarColor)));
+		RenderHUD.instance.statbars.add(new StatBar(DefaultStats.WETNESS, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/wetness.png"), new Color(0x0047D5)));
+		RenderHUD.instance.statbars.add(new StatBar(DefaultStats.SANITY, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/sanity.png"), new Color(0xF6AF25)));
+		RenderHUD.instance.statbars.add(new StatBar(HeatModifier.instance, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/heat.png"), new Color(0xE80000)));
 		MinecraftForge.EVENT_BUS.register(RenderHUD.instance);
 	}
 }
