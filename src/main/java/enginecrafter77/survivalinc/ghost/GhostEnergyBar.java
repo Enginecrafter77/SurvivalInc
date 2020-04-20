@@ -40,7 +40,7 @@ public class GhostEnergyBar extends Gui implements StatBar {
 			this.setPosition(Axis.HORIZONTAL, resolution.getScaledWidth() / 2 - 91);
 			this.setPosition(Axis.VERTICAL, resolution.getScaledHeight() - 39);
 			
-			int value = Math.round(this.count * tracker.getStat(this.getProvider()) / this.getProvider().getMaximum());
+			float value = this.count * tracker.getStat(this.getProvider()) / this.getProvider().getMaximum(), part;
 			
 			instance.getTextureManager().bindTexture(texture);
 			GlStateManager.enableAlpha();
@@ -50,8 +50,12 @@ public class GhostEnergyBar extends Gui implements StatBar {
 				int offset = this.parameters[0] + (current * 8);
 				Gui.drawModalRectWithCustomSizedTexture(offset, this.parameters[1], 0, 0, 9, this.parameters[3], 9, 18);
 				
-				if(value >= current)
-					Gui.drawModalRectWithCustomSizedTexture(offset, this.parameters[1], 0, 9, 9, this.parameters[3], 9, 18);
+				if(value > 0)
+				{
+					part = value > 1F ? 1F : value;
+					Gui.drawModalRectWithCustomSizedTexture(offset, this.parameters[1], 0, 9, Math.round(part * 9F), this.parameters[3], 9, 18);
+					value -= part;
+				}
 			}
 			GlStateManager.disableAlpha();
 		}
