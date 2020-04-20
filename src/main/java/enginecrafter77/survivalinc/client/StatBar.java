@@ -38,9 +38,18 @@ public class StatBar extends Gui {
 		this.spacing = 2;
 	}
 	
-	public void draw(StatTracker stats, int x, int y)
+	public void draw(StatTracker stats, int x, int y) throws UnsupportedOperationException
 	{
-		this.gauge.draw(x, y, this.getStatProportional(stats));
+		try
+		{
+			this.gauge.draw(x, y, this.getStatProportional(stats));
+		}
+		catch(NullPointerException exc)
+		{
+			UnsupportedOperationException nexc = new UnsupportedOperationException("Server doesn't track stat " + key.getStatID() + ". Some other mod on client's side is overriding default implementation.");
+			nexc.initCause(exc);
+			throw nexc;
+		}
 		
 		// Draw the icon
 		GlStateManager.enableAlpha();
