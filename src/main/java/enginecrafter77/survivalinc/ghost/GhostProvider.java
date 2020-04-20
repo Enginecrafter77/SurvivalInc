@@ -69,7 +69,7 @@ public class GhostProvider implements ICapabilitySerializable<NBTBase> {
 	public static void onPlayerRespawn(PlayerRespawnEvent event)
 	{
 		EntityPlayer player = event.player;
-		if(!(player.world.isRemote || event.isEndConquered()))
+		if(!event.isEndConquered())
 		{
 			Ghost ghost = player.getCapability(GhostProvider.target, null);
 			ghost.setStatus(true);
