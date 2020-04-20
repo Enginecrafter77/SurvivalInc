@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.HashSet;
 
 import enginecrafter77.survivalinc.SurvivalInc;
+import enginecrafter77.survivalinc.ghost.GhostEnergyBar;
 import enginecrafter77.survivalinc.item.ItemCanteen;
 import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatTracker;
@@ -39,15 +40,16 @@ public class RenderHUD extends HashSet<StatRender> {
 		stats.add(new SimpleStatBar(DefaultStats.SANITY, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/sanity.png"), new Color(0xF6AF25)));
 		stats.add(new SimpleStatBar(DefaultStats.WETNESS, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/wetness.png"), new Color(0x0047D5)));
 		RenderHUD.instance.add(stats);
+		RenderHUD.instance.add(new GhostEnergyBar());
 	}
 	
 	@SubscribeEvent
 	public void renderOverlay(RenderGameOverlayEvent event)
 	{
-		if(tracker == null)
-			this.tracker = Minecraft.getMinecraft().player.getCapability(StatCapability.target, null);
+		if(tracker == null) this.tracker = Minecraft.getMinecraft().player.getCapability(StatCapability.target, null);
 		
 		if(event.getType() != ElementType.HOTBAR) return;
+		
 		ScaledResolution resolution = event.getResolution();
 		
 		for(StatRender render : this)
@@ -57,7 +59,10 @@ public class RenderHUD extends HashSet<StatRender> {
 				SurvivalInc.logger.error("Null stat renderer registered inside RenderHUD. Removing to avoid future errors...");
 				this.remove(render);
 			}
-			else render.draw(resolution, tracker);
+			else
+			{
+				render.draw(resolution, tracker);
+			}
 		}
 	}
 }
