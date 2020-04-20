@@ -1,5 +1,7 @@
 package enginecrafter77.survivalinc.ghost;
 
+import enginecrafter77.survivalinc.SurvivalInc;
+import enginecrafter77.survivalinc.net.GhostUpdateMessage;
 import enginecrafter77.survivalinc.stats.StatProvider;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.GameType;
@@ -49,6 +51,7 @@ public class GhostImpl implements Ghost {
 		{
 			this.applyStatus(player, status);
 			this.dirty = false;
+			SurvivalInc.proxy.net.sendToAll(new GhostUpdateMessage(player, status));
 		}
 	}
 }
