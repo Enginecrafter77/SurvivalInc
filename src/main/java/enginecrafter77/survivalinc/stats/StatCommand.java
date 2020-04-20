@@ -1,15 +1,14 @@
-package enginecrafter77.survivalinc.stats.modifier;
+package enginecrafter77.survivalinc.stats;
 
-import enginecrafter77.survivalinc.stats.StatProvider;
-import enginecrafter77.survivalinc.stats.StatCapability;
-import enginecrafter77.survivalinc.stats.StatTracker;
+import java.util.HashSet;
+import java.util.Set;
+
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
-import net.minecraft.world.World;
 
 public class StatCommand extends CommandBase {
 	
@@ -27,18 +26,19 @@ public class StatCommand extends CommandBase {
 	
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
-	{
-		World world = sender.getEntityWorld();
-		
+	{		
 		if(args.length < 2) throw new CommandException("Insufficient Arguments\nUsage: " + this.getUsage(sender));
 		
-		EntityPlayer player = world.getPlayerEntityByName(args[0]);
+		EntityPlayer player = CommandBase.getPlayer(server, sender, args[0]);
 		StatTracker tracker = player.getCapability(StatCapability.target, null);
 		
 		switch(args[1])
 		{
 		case "list":
-			sender.sendMessage(new TextComponentString("Registered stats: " + tracker.getRegisteredProviders().toString()));
+			Set<String> providers = new HashSet<String>();
+			for(StatProvider provider : tracker.getRegisteredProviders())
+				providers.add(provider.getStatID());
+			sender.sendMessage(new TextComponentString("Registered stats: " + providers.toString()));
 			break;
 		case "get":
 		case "set":

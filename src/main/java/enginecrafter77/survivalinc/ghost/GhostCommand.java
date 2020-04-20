@@ -18,7 +18,7 @@ public class GhostCommand extends CommandBase {
 	@Override
 	public String getUsage(ICommandSender sender)
 	{
-		return "/ghost [player] [on|off]";
+		return "/ghost [on|off] [player]";
 	}
 
 	@Override
@@ -26,19 +26,16 @@ public class GhostCommand extends CommandBase {
 	{
 		EntityPlayer player;
 		
-		if(args.length >= 1) player = CommandBase.getPlayer(server, sender, args[0]);
+		if(args.length >= 2) player = CommandBase.getPlayer(server, sender, args[1]);
 		else player = (EntityPlayer)sender;
 		
-		Ghost ghost = player.getCapability(GhostProvider.GHOST_CAP, null);
-		boolean status = !ghost.getStatus();
+		Ghost ghost = player.getCapability(GhostProvider.target, null);
+		boolean status = args.length >= 1 ? args[0].equals("on") : !ghost.getStatus();
 		
-		if(args.length >= 2) status = args[1].equals("on");
-		
-		if(status == ghost.getStatus()) return;
-		
-		server.sendMessage(new TextComponentString(String.format("Transformed %s's into %s", player.getName(), status ? "ghost" : "human")));
-		
+		ghost.setStatus(status);
 		ghost.applyStatus(player, status);
+		
+		sender.sendMessage(new TextComponentString(String.format("Transformed %s into %s", player.getName(), status ? "ghost" : "human")));
 	}
 
 }

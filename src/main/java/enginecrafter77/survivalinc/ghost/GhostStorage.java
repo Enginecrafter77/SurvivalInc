@@ -14,10 +14,9 @@ public class GhostStorage implements IStorage<Ghost> {
 	{
 		NBTTagCompound compound = new NBTTagCompound();
 		compound.setBoolean("status", instance.getStatus());
-		compound.setFloat("energy", instance.getEnergy());
 		return compound;
 	}
-
+	
 	@Override
 	public void readNBT(Capability<Ghost> capability, Ghost instance, EnumFacing side, NBTBase nbt)
 	{
@@ -27,7 +26,6 @@ public class GhostStorage implements IStorage<Ghost> {
 			if(compound.hasKey("status") && compound.hasKey("energy"))
 			{
 				instance.setStatus(compound.getBoolean("status"));
-				instance.setEnergy(compound.getFloat("energy"));
 			}
 		}
 	}

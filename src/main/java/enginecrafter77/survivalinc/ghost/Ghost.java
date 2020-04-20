@@ -11,7 +11,4 @@ public interface Ghost {
 	
 	public StatProvider getEnergyProvider();
 	public void update(EntityPlayer player);
-	
-	public float setEnergy(float energy);
-	public float getEnergy();
 }

@@ -2,10 +2,9 @@ package enginecrafter77.survivalinc;
 
 import enginecrafter77.survivalinc.client.StatUpdateMessageHandler;
 import enginecrafter77.survivalinc.config.ModConfig;
-import enginecrafter77.survivalinc.ghost.Ghost;
 import enginecrafter77.survivalinc.ghost.GhostCommand;
 import enginecrafter77.survivalinc.ghost.GhostImpl;
-import enginecrafter77.survivalinc.ghost.GhostStorage;
+import enginecrafter77.survivalinc.ghost.GhostProvider;
 import enginecrafter77.survivalinc.net.EntityItemUpdateMessage;
 import enginecrafter77.survivalinc.net.EntityItemUpdater;
 import enginecrafter77.survivalinc.net.StatUpdateMessage;
@@ -13,6 +12,7 @@ import enginecrafter77.survivalinc.season.Season;
 import enginecrafter77.survivalinc.season.SeasonCommand;
 import enginecrafter77.survivalinc.season.SeasonController;
 import enginecrafter77.survivalinc.season.SeasonData;
+import enginecrafter77.survivalinc.stats.StatCommand;
 import enginecrafter77.survivalinc.stats.StatManager;
 import enginecrafter77.survivalinc.stats.StatStorage;
 import enginecrafter77.survivalinc.stats.StatTracker;
@@ -21,7 +21,6 @@ import enginecrafter77.survivalinc.stats.impl.HeatModifier;
 import enginecrafter77.survivalinc.stats.impl.HydrationModifier;
 import enginecrafter77.survivalinc.stats.impl.SanityModifier;
 import enginecrafter77.survivalinc.stats.impl.WetnessModifier;
-import enginecrafter77.survivalinc.stats.modifier.StatCommand;
 import net.minecraft.command.CommandHandler;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.MinecraftForge;
@@ -47,7 +46,7 @@ public class CommonProxy {
 		
 		// Register capabilities.
 		CapabilityManager.INSTANCE.register(StatTracker.class, StatStorage.instance, StatManager::new);
-		CapabilityManager.INSTANCE.register(Ghost.class, new GhostStorage(), GhostImpl::new);
+		if(ModConfig.GHOST.enabled) GhostProvider.register();
 	}
 
 	public void init(FMLInitializationEvent event)
