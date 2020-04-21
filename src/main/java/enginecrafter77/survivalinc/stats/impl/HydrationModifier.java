@@ -1,6 +1,5 @@
 package enginecrafter77.survivalinc.stats.impl;
 
-import enginecrafter77.survivalinc.ModDamageSources;
 import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import enginecrafter77.survivalinc.stats.modifier.ConditionalModifier;
@@ -14,6 +13,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.MobEffects;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
@@ -26,12 +26,14 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class HydrationModifier {
 	
+	public static final DamageSource DEHYDRATION = new DamageSource("survivalinc_dehydration").setDamageIsAbsolute().setDamageBypassesArmor();
+	
 	public static void init()
 	{
 		DefaultStats.HYDRATION.modifiers.add(new ConditionalModifier<EntityPlayer>((EntityPlayer player) -> player.dimension == -1, -0.006F), OperationType.OFFSET);
 		DefaultStats.HYDRATION.modifiers.add(new ConditionalModifier<EntityPlayer>((EntityPlayer player) -> player.isInLava(), -0.5F), OperationType.OFFSET);
 		DefaultStats.HYDRATION.modifiers.add(new FunctionalModifier<EntityPlayer>(HydrationModifier::naturalDrain), OperationType.OFFSET);
-		DefaultStats.HYDRATION.modifiers.add(new ThresholdModifier<EntityPlayer>(new DamagingModifier(ModDamageSources.DEHYDRATION, 4F, 0), 5F, ThresholdModifier.LOWER));
+		DefaultStats.HYDRATION.modifiers.add(new ThresholdModifier<EntityPlayer>(new DamagingModifier(DEHYDRATION, 4F, 0), 5F, ThresholdModifier.LOWER));
 		DefaultStats.HYDRATION.modifiers.add(new ThresholdModifier<EntityPlayer>(new PotionEffectModifier(MobEffects.NAUSEA, 5), 15F, ThresholdModifier.LOWER));
 		DefaultStats.HYDRATION.modifiers.add(new ThresholdModifier<EntityPlayer>(new PotionEffectModifier(MobEffects.MINING_FATIGUE, 3), 15F, ThresholdModifier.LOWER));
 		DefaultStats.HYDRATION.modifiers.add(new ThresholdModifier<EntityPlayer>(new PotionEffectModifier(MobEffects.SLOWNESS, 3), 40F, ThresholdModifier.LOWER));

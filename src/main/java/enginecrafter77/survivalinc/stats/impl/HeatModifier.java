@@ -3,7 +3,6 @@ package enginecrafter77.survivalinc.stats.impl;
 import java.util.HashMap;
 import java.util.Map;
 
-import enginecrafter77.survivalinc.ModDamageSources;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.stats.OverflowHandler;
 import enginecrafter77.survivalinc.stats.StatProvider;
@@ -21,6 +20,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
@@ -34,6 +34,10 @@ import net.minecraft.world.biome.Biome;
  */
 public class HeatModifier implements StatProvider {
 	private static final long serialVersionUID = 6260092840749029918L;
+	
+	@Deprecated
+	public static final DamageSource HYPERTHERMIA = new DamageSource("survivalinc_hyperthermia").setDamageIsAbsolute().setDamageBypassesArmor();
+	public static final DamageSource HYPOTHERMIA = new DamageSource("survivalinc_hypothermia").setDamageIsAbsolute().setDamageBypassesArmor();
 	
 	public static final HeatModifier instance = new HeatModifier();
 	
@@ -70,7 +74,7 @@ public class HeatModifier implements StatProvider {
 		
 		HeatModifier.consequences.add(new ThresholdModifier<EntityPlayer>(new PotionEffectModifier(MobEffects.WEAKNESS, 0), 25F, ThresholdModifier.LOWER));
 		HeatModifier.consequences.add(new ThresholdModifier<EntityPlayer>(new PotionEffectModifier(MobEffects.MINING_FATIGUE, 0), 20F, ThresholdModifier.LOWER));
-		HeatModifier.consequences.add(new ThresholdModifier<EntityPlayer>(new DamagingModifier(ModDamageSources.HYPOTHERMIA, 1F, 10), 10F, ThresholdModifier.LOWER));
+		HeatModifier.consequences.add(new ThresholdModifier<EntityPlayer>(new DamagingModifier(HYPOTHERMIA, 1F, 10), 10F, ThresholdModifier.LOWER));
 		HeatModifier.consequences.add(new ThresholdModifier<EntityPlayer>(new FunctionalModifier<EntityPlayer>((EntityPlayer player) -> player.setFire(1)), 110F, ThresholdModifier.HIGHER));
 	}
 	
