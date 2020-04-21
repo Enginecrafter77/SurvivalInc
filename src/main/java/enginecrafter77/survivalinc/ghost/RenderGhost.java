@@ -44,15 +44,19 @@ public class RenderGhost extends RenderLivingBase<EntityPlayer> {
 	{
 		GlStateManager.pushMatrix();
 		GlStateManager.scale(0.8F, 0.8F, 0.8F);
-		GlStateManager.color(1F, 1F, 1F, this.opacity);
-		GlStateManager.enableNormalize();
-		GlStateManager.enableBlend();
-		GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
-		GlStateManager.depthMask(false);
-		super.doRender(entity, x, y + 1, z, entityYaw, partialTicks);
-		GlStateManager.depthMask(true);
-		GlStateManager.disableNormalize();
-		GlStateManager.disableBlend();
+		if(this.opacity < 0.9F)
+		{
+			GlStateManager.color(1F, 1F, 1F, this.opacity);
+			GlStateManager.enableNormalize();
+			GlStateManager.enableBlend();
+			GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
+			GlStateManager.depthMask(false);
+			super.doRender(entity, x, y + 1, z, entityYaw, partialTicks);
+			GlStateManager.depthMask(true);
+			GlStateManager.disableNormalize();
+			GlStateManager.disableBlend();
+		}
+		else super.doRender(entity, x, y + 1, z, entityYaw, partialTicks);
 		GlStateManager.popMatrix();
 	}
 
