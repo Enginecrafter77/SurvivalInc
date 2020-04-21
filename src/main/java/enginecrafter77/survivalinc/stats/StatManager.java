@@ -7,7 +7,7 @@ import java.util.Set;
 
 import net.minecraft.entity.player.EntityPlayer;
 
-public class StatManager extends HashMap<StatProvider, Float> implements StatTracker {
+public class StatManager extends HashMap<StatProvider, StatRecord> implements StatTracker {
 	private static final long serialVersionUID = -878624371786181967L;
 	
 	public static List<StatProvider> providers = new LinkedList<StatProvider>();
@@ -46,21 +46,43 @@ public class StatManager extends HashMap<StatProvider, Float> implements StatTra
 	}
 	
 	@Override
+	public void setRecord(StatProvider stat, StatRecord value)
+	{
+		this.put(stat, value);
+	}
+	
+	@Override
+	public StatRecord getRecord(StatProvider stat)
+	{
+		StatRecord result = this.get(stat);
+		if(result == null)
+		{
+			result = new StatRecordEntry();
+			this.setRecord(stat, result);
+		}
+		return result;
+	}
+	
+	@Override
 	public void modifyStat(StatProvider stat, float amount)
 	{
-		this.setStat(stat, this.getStat(stat) + amount);
+		StatRecord record = this.getRecord(stat);
+		amount = stat.getOverflowHandler().apply(stat, record.getValue() + amount);
+		record.setValue(amount);
 	}
 
 	@Override
 	public void setStat(StatProvider stat, float amount)
 	{
-		this.put(stat, stat.getOverflowHandler().apply(stat, amount));
+		StatRecord record = this.getRecord(stat);
+		amount = stat.getOverflowHandler().apply(stat, amount);
+		record.setValue(amount);
 	}
 	
 	@Override
 	public float getStat(StatProvider stat)
 	{
-		return this.get(stat);
+		return this.getRecord(stat).getValue();
 	}
 	
 	@Override

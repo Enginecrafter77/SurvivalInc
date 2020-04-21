@@ -10,6 +10,9 @@ public interface StatTracker {
 	public StatProvider getProvider(String identifier);
 	public Set<StatProvider> getRegisteredProviders();
 	
+	public void setRecord(StatProvider stat, StatRecord value);
+	public StatRecord getRecord(StatProvider stat);
+	
 	public void modifyStat(StatProvider stat, float amount);
 	public void setStat(StatProvider stat, float amount);
 	public float getStat(StatProvider stat);

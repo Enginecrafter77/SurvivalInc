@@ -17,7 +17,7 @@ public class StatStorage implements IStorage<StatTracker> {
 	{
 		NBTTagCompound compound = new NBTTagCompound();
 		for(StatProvider provider : instance.getRegisteredProviders())
-			compound.setFloat(provider.getStatID(), instance.getStat(provider));
+			compound.setTag(provider.getStatID(), instance.getRecord(provider).serializeNBT());
 		return compound;
 	}
 
@@ -31,9 +31,13 @@ public class StatStorage implements IStorage<StatTracker> {
 			{
 				String id = provider.getStatID();
 				if(compound.hasKey(id))
-					instance.setStat(provider, compound.getFloat(id));
-				else
-					System.err.format("Error: Requested stat %s not defined in saved NBT!\n", id);
+				{
+					NBTTagCompound record = compound.getCompoundTag(id);
+					StatRecordEntry entry = new StatRecordEntry();
+					entry.deserializeNBT(record);
+					instance.setRecord(provider, entry);
+				}
+				else System.err.format("Error: Requested stat %s not defined in saved NBT!\n", id);
 			}
 		}
 	}
