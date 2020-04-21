@@ -126,8 +126,6 @@ public class SimpleStatBar extends Gui implements StatBar {
 		
 		public int width, height;
 		
-		public float previousValue;
-		
 		public DifferentialArrow(StatProvider provider, int width, int height)
 		{
 			this.texturer = Minecraft.getMinecraft().getTextureManager();
@@ -180,9 +178,7 @@ public class SimpleStatBar extends Gui implements StatBar {
 		
 		public float getArrowValue(StatTracker tracker)
 		{
-			float value = tracker.getStat(this.provider);
-			float scale = 10 * (value - this.previousValue);
-			this.previousValue = value;
+			float scale = 10F * tracker.getRecord(this.provider).getLastChange();
 			if(Math.abs(scale) > 1F) scale /= Math.abs(scale); // Always results in 1 or -1
 			return scale;
 		}
