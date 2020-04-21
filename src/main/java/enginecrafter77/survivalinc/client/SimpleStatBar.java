@@ -2,26 +2,32 @@ package enginecrafter77.survivalinc.client;
 
 import java.awt.Color;
 import java.util.EnumMap;
-
+import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatTracker;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class SimpleStatBar extends Gui implements StatBar {	
+public class SimpleStatBar extends Gui implements StatBar {
 	public final StatProvider key;
 	
+	protected final DifferentialArrow arrow;
 	protected final GaugeBar gauge;
+	
 	protected final ResourceLocation texture;
 	protected int texoffx, texoffy, texwidth, texheight;
 	protected int iconheight, spacing;
 	
 	public EnumMap<Axis, Integer> position;
+	
+	public float previousValue;
 	
 	public SimpleStatBar(StatProvider key, ResourceLocation icon, Color color)
 	{
@@ -30,6 +36,9 @@ public class SimpleStatBar extends Gui implements StatBar {
 	
 	public SimpleStatBar(StatProvider key, ResourceLocation texture, int texture_x, int texture_y, Color color)
 	{
+		this.previousValue = 0;
+		
+		this.arrow = new DifferentialArrow(key, 8, 12);		
 		this.gauge = new GaugeBar(8, 32, color);
 		this.texture = texture;
 		this.texoffx = texture_x;
@@ -58,11 +67,16 @@ public class SimpleStatBar extends Gui implements StatBar {
 			throw nexc;
 		}
 		
-		// Draw the icon
-		GlStateManager.enableAlpha();
+		GlStateManager.enableAlpha(); // Enable alpha, we will need it
+		
+		// Draw the stat icon
 		this.gauge.texturer.bindTexture(texture);
 		Gui.drawModalRectWithCustomSizedTexture(this.position.get(Axis.HORIZONTAL), this.position.get(Axis.VERTICAL) + this.gauge.height + spacing, texoffx, texoffy, this.gauge.width, iconheight, texwidth, texheight);
-		GlStateManager.disableAlpha();
+		
+		// Draw the arrow indicating value change TODO add onGeometryChange method to recalculate the position
+		this.arrow.setPosition(Axis.HORIZONTAL, this.position.get(Axis.HORIZONTAL));
+		this.arrow.setPosition(Axis.VERTICAL, this.position.get(Axis.VERTICAL) - this.arrow.height - this.spacing);
+		this.arrow.draw(resolution, stats);
 	}
 	
 	@Override
@@ -100,5 +114,78 @@ public class SimpleStatBar extends Gui implements StatBar {
 		default:
 			return 0;
 		}
+	}
+	
+	public static class DifferentialArrow implements StatRender
+	{
+		public static final ResourceLocation arrowtexture = new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/arrow.png");
+		
+		public final EnumMap<Axis, Integer> position;
+		public final TextureManager texturer;
+		public final StatProvider provider;
+		
+		public int width, height;
+		
+		public float previousValue;
+		
+		public DifferentialArrow(StatProvider provider, int width, int height)
+		{
+			this.texturer = Minecraft.getMinecraft().getTextureManager();
+			this.position = new EnumMap<Axis, Integer>(Axis.class);
+			this.provider = provider;
+			this.height = height;
+			this.width = width;
+		}
+		
+		@Override
+		public void draw(ScaledResolution resolution, StatTracker tracker)
+		{
+			// Draw the arrow
+			this.texturer.bindTexture(arrowtexture);
+			float value = this.getArrowValue(tracker);
+			boolean inverse = value < 0F;
+			value = Math.abs(value);
+			
+			GlStateManager.pushMatrix(); // Create new object by pushing matrix
+			// Offset this object into the desired position + centering offset
+			GlStateManager.translate(this.position.get(Axis.HORIZONTAL) + (this.width / 2), this.position.get(Axis.VERTICAL) + (this.height / 2), 0F);
+			GlStateManager.pushMatrix(); // Create new object by pushing matrix
+			GlStateManager.scale(value, value, 1F); // Scale the arrow
+			if(inverse) GlStateManager.rotate(180F, 0F, 0F, 1F); // Rotate the arrow
+			Gui.drawModalRectWithCustomSizedTexture(-this.width / 2, -this.height / 2, 0, 0, this.width, this.height, 8, 12); // Draw the arrow (center at origin)
+			GlStateManager.popMatrix(); // Render the scaled and rotated arrow
+			GlStateManager.popMatrix(); // Render the offset arrow in place
+			GlStateManager.disableAlpha(); // Disable alpha, just in case
+		}
+
+		@Override
+		public int getDimension(Axis axis)
+		{
+			switch(axis)
+			{
+			case HORIZONTAL:
+				return this.width;
+			case VERTICAL:
+				return this.height;
+			default:
+				return 0;
+			}
+		}
+
+		@Override
+		public void setPosition(Axis axis, int value)
+		{
+			this.position.put(axis, value);
+		}
+		
+		public float getArrowValue(StatTracker tracker)
+		{
+			float value = tracker.getStat(this.provider);
+			float scale = 10 * (value - this.previousValue);
+			this.previousValue = value;
+			if(Math.abs(scale) > 1F) scale /= Math.abs(scale); // Always results in 1 or -1
+			return scale;
+		}
+		
 	}
 }
