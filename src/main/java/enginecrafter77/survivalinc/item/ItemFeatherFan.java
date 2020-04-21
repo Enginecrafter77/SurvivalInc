@@ -7,20 +7,16 @@ import enginecrafter77.survivalinc.stats.impl.DefaultStats;
 import enginecrafter77.survivalinc.stats.impl.HeatModifier;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
 import net.minecraft.world.World;
 
-public class ItemFeatherFan extends Item {
-	
-	public static final SoundEvent WHOOSH = new SoundEvent(new ResourceLocation(SurvivalInc.MOD_ID, "fan_whoosh")).setRegistryName(SurvivalInc.MOD_ID, "fan_whoosh");
-	
+public class ItemFeatherFan extends Item {	
 	public ItemFeatherFan()
 	{
 		this.setRegistryName(SurvivalInc.MOD_ID, "feather_fan");
@@ -35,7 +31,7 @@ public class ItemFeatherFan extends Item {
 	{
 		if(!player.isInWater() && !player.isInLava())
 		{
-			if(world.isRemote) ((WorldClient)world).playSound(player.getPosition(), WHOOSH, SoundCategory.PLAYERS, 0.2F, 1.25F, false);
+			if(world.isRemote) ((WorldClient)world).playSound(player.getPosition(), SoundEvents.ENTITY_PARROT_FLY, SoundCategory.PLAYERS, 0.2F, 1.25F, false);
 			else
 			{
 				StatTracker stats = player.getCapability(StatCapability.target, null);
