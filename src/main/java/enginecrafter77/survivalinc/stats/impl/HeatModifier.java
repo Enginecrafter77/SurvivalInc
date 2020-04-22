@@ -192,12 +192,9 @@ public class HeatModifier implements StatProvider {
 		return heat;
 	}
 	
-	private static final double offset = -1.3D, sbase = 5E+9D;
-	
 	public static float whenWearingArmor(EntityPlayer player)
 	{
-		float buff = 0F;
-		int index = 0;
+		float buff = 1F;
 		for(ItemStack stack : player.getArmorInventoryList())
 		{
 			if(stack.getItem() instanceof ItemArmor)
@@ -205,13 +202,10 @@ public class HeatModifier implements StatProvider {
 				ItemArmor item = (ItemArmor)stack.getItem();
 				if(HeatModifier.armorInsulation.containsKey(item.getArmorMaterial()))
 				{
-					buff += (HeatModifier.armorInsulation.get(item.getArmorMaterial()) / 4F) * (float)(sbase / (Math.pow(index + offset, 2) + sbase));
+					buff *= Math.pow(HeatModifier.armorInsulation.get(item.getArmorMaterial()), 0.25F);
 				}
 			}
-			index++;
 		}
-		
-		if(buff == 0) buff = 1F;
 		return buff;
 	}
 }
