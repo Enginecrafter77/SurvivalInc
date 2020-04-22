@@ -179,7 +179,9 @@ public class SimpleStatBar extends Gui implements StatBar {
 		public float getArrowValue(StatTracker tracker)
 		{
 			float scale = 10F * tracker.getRecord(this.provider).getLastChange();
-			if(Math.abs(scale) > 1F) scale /= Math.abs(scale); // Always results in 1 or -1
+			float dist = Math.abs(scale);
+			if(dist > 1F) scale /= dist; // Always results in 1 or -1
+			if(dist < 0.3F && dist != 0) scale = scale > 0F ? 0.3F : -0.3F;
 			return scale;
 		}
 		
