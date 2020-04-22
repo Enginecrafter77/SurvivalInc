@@ -57,7 +57,7 @@ public class StatManager extends HashMap<StatProvider, StatRecord> implements St
 		StatRecord result = this.get(stat);
 		if(result == null)
 		{
-			result = new StatRecordEntry();
+			result = new StatRecordEntry(); // TODO allow StatProvider to provide their own instance
 			this.setRecord(stat, result);
 		}
 		return result;

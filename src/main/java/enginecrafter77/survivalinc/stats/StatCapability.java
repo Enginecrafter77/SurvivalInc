@@ -18,7 +18,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @Mod.EventBusSubscriber
 public class StatCapability implements ICapabilitySerializable<NBTBase> {
-
+	// TODO add update conditions
 	private static ResourceLocation identificator = new ResourceLocation(SurvivalInc.MOD_ID, "stats");
 	
 	@CapabilityInject(StatTracker.class)

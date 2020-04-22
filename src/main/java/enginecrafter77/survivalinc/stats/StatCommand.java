@@ -10,6 +10,10 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
 
+/**
+ * Command used to control the stats for a player.
+ * @author Enginecrafter77
+ */
 public class StatCommand extends CommandBase {
 	
 	@Override

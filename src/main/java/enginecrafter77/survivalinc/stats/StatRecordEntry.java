@@ -4,7 +4,7 @@ import net.minecraft.nbt.NBTTagCompound;
 
 public class StatRecordEntry implements StatRecord {
 	
-	public float lastChange;
+	public float lastChange; // TODO make private
 	public float value;
 	
 	public StatRecordEntry()
