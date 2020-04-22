@@ -47,7 +47,7 @@ public class ItemCanteen extends Item {
 	@Override
 	public ItemStack onItemUseFinish(ItemStack stack, World world, EntityLivingBase entityLiving)
 	{
-		if(entityLiving instanceof EntityPlayer && !world.isRemote)
+		if(entityLiving instanceof EntityPlayer)
 		{
 			EntityPlayer player = (EntityPlayer)entityLiving;
 			StatTracker stats = player.getCapability(StatCapability.target, null);
@@ -63,7 +63,6 @@ public class ItemCanteen extends Item {
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
 	{
 		ItemStack item = player.getHeldItem(hand);
-		if(world.isRemote) return new ActionResult<ItemStack>(EnumActionResult.PASS, item);
 		NBTTagCompound nbt = item.getTagCompound();
 		
 		// First check if the player just wants to dispose of that water
@@ -105,7 +104,8 @@ public class ItemCanteen extends Item {
 		
 		nbt.setFloat("quality", qiq);
 		nbt.setInteger("stored", stored);
-		((WorldServer)player.world).playSound(null, raytrace.getBlockPos(), SoundEvents.ENTITY_GENERIC_SWIM, SoundCategory.AMBIENT, 0.25F, 1.5F);
+		
+		if(!world.isRemote) ((WorldServer)player.world).playSound(null, raytrace.getBlockPos(), SoundEvents.ENTITY_GENERIC_SWIM, SoundCategory.AMBIENT, 0.25F, 1.5F);
 		
 		return new ActionResult<ItemStack>(EnumActionResult.PASS, item);
 	}

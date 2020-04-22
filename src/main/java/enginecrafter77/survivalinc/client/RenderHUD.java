@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.HashSet;
 
 import enginecrafter77.survivalinc.SurvivalInc;
+import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.ghost.GhostEnergyBar;
 import enginecrafter77.survivalinc.item.ItemCanteen;
 import enginecrafter77.survivalinc.stats.StatCapability;
@@ -25,31 +26,24 @@ public class RenderHUD extends HashSet<StatRender> {
 
 	public static final RenderHUD instance = new RenderHUD();
 	
-	protected StatTracker tracker;
-	
-	private RenderHUD()
-	{
-		this.tracker = null;
-	}
-	
 	public static void register()
 	{
 		SimpleStatContainer stats = new SimpleStatContainer();
 		stats.add(new SimpleStatBar(HeatModifier.instance, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/heat.png"), new Color(0xE80000)));
 		stats.add(new SimpleStatBar(DefaultStats.HYDRATION, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/hydration.png"), new Color(ItemCanteen.waterBarColor)));
 		stats.add(new SimpleStatBar(DefaultStats.SANITY, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/sanity.png"), new Color(0xF6AF25)));
-		stats.add(new SimpleStatBar(DefaultStats.WETNESS, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/wetness.png"), new Color(0x0047D5)));
+		stats.add(new SimpleStatBar(DefaultStats.WETNESS, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/wetness.png"), new Color(0x0047D5)));		
+		if(ModConfig.GHOST.enabled) RenderHUD.instance.add(new GhostEnergyBar());
+		
 		RenderHUD.instance.add(stats);
-		RenderHUD.instance.add(new GhostEnergyBar());
 	}
 	
 	@SubscribeEvent
 	public void renderOverlay(RenderGameOverlayEvent event)
-	{
-		if(tracker == null) this.tracker = Minecraft.getMinecraft().player.getCapability(StatCapability.target, null);
-		
+	{		
 		if(event.getType() != ElementType.HOTBAR) return;
 		
+		StatTracker tracker = Minecraft.getMinecraft().player.getCapability(StatCapability.target, null);
 		ScaledResolution resolution = event.getResolution();
 		
 		for(StatRender render : this)

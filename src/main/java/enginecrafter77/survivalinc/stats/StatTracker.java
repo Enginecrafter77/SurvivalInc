@@ -84,11 +84,9 @@ public interface StatTracker {
 	/**
 	 * Called each server tick to update the stat
 	 * tracker and the records stored about each
-	 * stat. This method is called <b>ONLY</b> on
-	 * <b>SERVER</b> side. This method generally
-	 * involves iterating over the set returned by
-	 * {@link #getRegisteredProviders()}, getting the
-	 * currently stored record value, running the
+	 * stat. This method generally involves iterating
+	 * over the set returned by {@link #getRegisteredProviders()},
+	 * getting the currently stored record value, running the
 	 * {@link StatProvider#updateValue(EntityPlayer, float)}
 	 * with the second parameter equal to the current value,
 	 * applying the target {@link OverflowHandler overflow policy},

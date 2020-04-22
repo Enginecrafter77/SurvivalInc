@@ -3,10 +3,13 @@ package enginecrafter77.survivalinc.stats;
 import java.util.HashSet;
 import java.util.Set;
 
+import enginecrafter77.survivalinc.SurvivalInc;
+import enginecrafter77.survivalinc.net.StatUpdateMessage;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
 
@@ -54,7 +57,8 @@ public class StatCommand extends CommandBase {
 				if(args.length < 4) throw new CommandException("Insufficient Arguments\nUsage: " + this.getUsage(sender));
 				tracker.setStat(provider, Float.parseFloat(args[3]));
 			}
-			else sender.sendMessage(new TextComponentString(provider.getStatID() + ": " + tracker.getStat(provider)));	
+			else sender.sendMessage(new TextComponentString(provider.getStatID() + ": " + tracker.getStat(provider)));
+			SurvivalInc.proxy.net.sendTo(new StatUpdateMessage(tracker), (EntityPlayerMP)player);
 			break;
 		default:
 			return;

@@ -46,30 +46,27 @@ public class ItemTowel extends Item {
 	@Override
 	public ItemStack onItemUseFinish(ItemStack stack, World world, EntityLivingBase entity)
 	{
-		if(!world.isRemote)
+		StatTracker tracker = entity.getCapability(StatCapability.target, null);
+		NBTTagCompound tag = stack.getTagCompound();
+		
+		// Wetness equalization
+		float wetness = tracker.getStat(DefaultStats.WETNESS), stored = tag.getFloat("stored");
+		float absorb = (wetness + stored) / 2F, leave = absorb;
+		
+		SurvivalInc.logger.debug("TOWEL| W: {}, S: {}, A/L: {}", wetness, stored, absorb);
+		
+		if(absorb > this.getCapacity())
 		{
-			StatTracker tracker = entity.getCapability(StatCapability.target, null);
-			NBTTagCompound tag = stack.getTagCompound();
-			
-			// Wetness equalization
-			float wetness = tracker.getStat(DefaultStats.WETNESS), stored = tag.getFloat("stored");
-			float absorb = (wetness + stored) / 2F, leave = absorb;
-			
-			SurvivalInc.logger.debug("TOWEL| W: {}, S: {}, A/L: {}", wetness, stored, absorb);
-			
-			if(absorb > this.getCapacity())
-			{
-				float overflow = absorb - this.getCapacity();
-				absorb -= overflow;
-				leave += overflow;
-				SurvivalInc.logger.debug("TOWEL| \\--> Capacity exceeded");
-			}
-			
-			SurvivalInc.logger.debug("TOWEL| \\--> A: {}, L: {}", absorb, leave);
-			
-			tracker.setStat(DefaultStats.WETNESS, leave);
-			tag.setFloat("stored", absorb);
+			float overflow = absorb - this.getCapacity();
+			absorb -= overflow;
+			leave += overflow;
+			SurvivalInc.logger.debug("TOWEL| \\--> Capacity exceeded");
 		}
+		
+		SurvivalInc.logger.debug("TOWEL| \\--> A: {}, L: {}", absorb, leave);
+		
+		tracker.setStat(DefaultStats.WETNESS, leave);
+		tag.setFloat("stored", absorb);
 		return stack;
 	}
 	
@@ -77,7 +74,6 @@ public class ItemTowel extends Item {
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
 	{
 		ItemStack item = player.getHeldItem(hand);
-		if(world.isRemote) return new ActionResult<ItemStack>(EnumActionResult.PASS, item);
 		// Towel usage is always allowed since the equalization already takes care of the checks
 		player.setActiveHand(hand);
 		return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, item);

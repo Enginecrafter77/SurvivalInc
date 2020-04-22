@@ -34,6 +34,7 @@ public class PotionEffectModifier implements Modifier<EntityPlayer>
 	@Override
 	public boolean shouldTrigger(EntityPlayer player, float level)
 	{
+		if(player.world.isRemote) return false;
 		PotionEffect poteff = player.getActivePotionEffect(effect);
 		return poteff == null || poteff.getDuration() < duration;
 	}

@@ -1,6 +1,5 @@
 package enginecrafter77.survivalinc.season;
 
-import enginecrafter77.survivalinc.SurvivalInc;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -55,7 +54,6 @@ public class SeasonCommand extends CommandBase {
 		
 		if(args[0] != "get")
 		{
-			SurvivalInc.proxy.net.sendToAll(data);
 			MinecraftForge.EVENT_BUS.post(new SeasonUpdateEvent(world, data));
 			data.markDirty();
 		}

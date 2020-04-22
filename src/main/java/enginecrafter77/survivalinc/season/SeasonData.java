@@ -1,15 +1,12 @@
 package enginecrafter77.survivalinc.season;
 
 import enginecrafter77.survivalinc.SurvivalInc;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraft.world.storage.MapStorage;
 import net.minecraft.world.storage.WorldSavedData;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 
-public class SeasonData extends WorldSavedData implements IMessage {
+public class SeasonData extends WorldSavedData {
 	
 	public static final String datakey = SurvivalInc.MOD_ID + "_season";
 	
@@ -45,21 +42,6 @@ public class SeasonData extends WorldSavedData implements IMessage {
 		compound.setInteger("season", this.season.ordinal());
 		compound.setInteger("day", this.day);
 		return compound;
-	}
-	
-	@Override
-	public void fromBytes(ByteBuf buf)
-	{
-		NBTTagCompound tag = ByteBufUtils.readTag(buf);
-		this.readFromNBT(tag);
-	}
-
-	@Override
-	public void toBytes(ByteBuf buf)
-	{
-		NBTTagCompound tag = new NBTTagCompound();
-		this.writeToNBT(tag);
-		ByteBufUtils.writeTag(buf, tag);
 	}
 	
 	@Override

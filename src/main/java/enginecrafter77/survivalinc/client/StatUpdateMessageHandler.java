@@ -2,7 +2,6 @@ package enginecrafter77.survivalinc.client;
 
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.net.StatUpdateMessage;
-import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import net.minecraft.client.Minecraft;
@@ -21,8 +20,8 @@ public class StatUpdateMessageHandler implements IMessageHandler<StatUpdateMessa
 		else
 		{
 			StatTracker stats = player.getCapability(StatCapability.target, null);
-			for(StatProvider provider : message.tracker.getRegisteredProviders())
-				stats.setStat(provider, message.tracker.getStat(provider));
+			StatCapability.target.getStorage().readNBT(StatCapability.target, stats, null, message.trackerdata);
+			SurvivalInc.logger.info("Received stats update message: " + stats.toString());
 		}
 		return null;
 	}

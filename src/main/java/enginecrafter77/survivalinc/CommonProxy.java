@@ -13,7 +13,7 @@ import enginecrafter77.survivalinc.net.StatUpdateMessage;
 import enginecrafter77.survivalinc.season.Season;
 import enginecrafter77.survivalinc.season.SeasonCommand;
 import enginecrafter77.survivalinc.season.SeasonController;
-import enginecrafter77.survivalinc.season.SeasonData;
+import enginecrafter77.survivalinc.season.SeasonUpdateEvent;
 import enginecrafter77.survivalinc.stats.StatCommand;
 import enginecrafter77.survivalinc.stats.StatManager;
 import enginecrafter77.survivalinc.stats.StatStorage;
@@ -44,7 +44,7 @@ public class CommonProxy {
 		// Register all new items and blocks.
 		MinecraftForge.EVENT_BUS.register(ModItems.class);
 		// Register seasons if enabled
-		if(ModConfig.SEASONS.enabled) MinecraftForge.EVENT_BUS.register(SeasonController.class);
+		if(ModConfig.SEASONS.enabled) SeasonController.register();
 		
 		// Register capabilities.
 		CapabilityManager.INSTANCE.register(StatTracker.class, StatStorage.instance, StatManager::new);
@@ -55,7 +55,7 @@ public class CommonProxy {
 	{
 		this.net = NetworkRegistry.INSTANCE.newSimpleChannel(SurvivalInc.MOD_ID);
 		this.net.registerMessage(StatUpdateMessageHandler.class, StatUpdateMessage.class, 0, Side.CLIENT);
-		this.net.registerMessage(SeasonController.class, SeasonData.class, 1, Side.CLIENT);
+		this.net.registerMessage(SeasonController.class, SeasonUpdateEvent.class, 1, Side.CLIENT);
 		this.net.registerMessage(EntityItemUpdater.class, EntityItemUpdateMessage.class, 2, Side.CLIENT);
 		this.net.registerMessage(GhostUpdateMessageHandler.class, GhostUpdateMessage.class, 3, Side.CLIENT);
 		

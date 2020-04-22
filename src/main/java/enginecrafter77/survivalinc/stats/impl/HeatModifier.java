@@ -3,6 +3,7 @@ package enginecrafter77.survivalinc.stats.impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.stats.OverflowHandler;
 import enginecrafter77.survivalinc.stats.StatProvider;
@@ -170,7 +171,7 @@ public class HeatModifier implements StatProvider {
 	 * @param player The player to apply this function to
 	 * @return The addition to the heat stat value
 	 */
-	public static float whenNearHotBlock(EntityPlayer player)
+	public static float whenNearHotBlock(EntityPlayer player, float current)
 	{
 		Vec3i offset = new Vec3i(ModConfig.HEAT.blockScanRange, 1, ModConfig.HEAT.blockScanRange);
 		BlockPos originblock = player.getPosition();
@@ -189,6 +190,9 @@ public class HeatModifier implements StatProvider {
 				if(currentheat > heat) heat = currentheat; // Use only the maximum value
 			}
 		}
+		
+		if(player.world.getWorldTime() % 20 == 0)
+			SurvivalInc.logger.info("Radiant heat: {} (original: {})", heat, current);
 		
 		return heat;
 	}

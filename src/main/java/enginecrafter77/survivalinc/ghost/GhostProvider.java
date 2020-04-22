@@ -3,6 +3,7 @@ package enginecrafter77.survivalinc.ghost;
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.stats.StatManager;
 import enginecrafter77.survivalinc.stats.modifier.ConditionalModifier;
+import enginecrafter77.survivalinc.stats.modifier.FunctionalModifier;
 import enginecrafter77.survivalinc.stats.modifier.OperationType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -97,8 +98,21 @@ public class GhostProvider implements ICapabilitySerializable<NBTBase> {
 	{
 		MinecraftForge.EVENT_BUS.register(GhostProvider.class);
 		CapabilityManager.INSTANCE.register(Ghost.class, new GhostStorage(), GhostImpl::new);
-		GhostEnergy.instance.add(new ConditionalModifier<EntityPlayer>((EntityPlayer player) -> !player.world.isDaytime(), 0.05F), OperationType.OFFSET);
 		GhostEnergy.instance.add(new ConditionalModifier<EntityPlayer>((EntityPlayer player) -> player.isSprinting(), -0.2F), OperationType.OFFSET);
+		GhostEnergy.instance.add(new FunctionalModifier<EntityPlayer>(GhostProvider::duringNight), OperationType.OFFSET);
 		StatManager.providers.add(GhostEnergy.instance);
+	}
+	
+	public static float duringNight(EntityPlayer player)
+	{
+		boolean night;
+		if(player.world.isRemote)
+		{
+			float angle = player.world.getCelestialAngle(1F);
+			night = angle < 0.75F && angle > 0.25F;
+		}
+		else night = !player.world.isDaytime();
+		
+		return night ? 0.05F : 0F;
 	}
 }

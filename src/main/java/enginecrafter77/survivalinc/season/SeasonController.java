@@ -4,8 +4,6 @@ import net.minecraft.block.BlockCrops;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.DimensionType;
@@ -15,7 +13,6 @@ import net.minecraft.world.biome.BiomeHell;
 import net.minecraft.world.biome.BiomeOcean;
 import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.terraingen.BiomeEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.WorldEvent;
@@ -33,22 +30,41 @@ import java.util.List;
 
 import enginecrafter77.survivalinc.SurvivalInc;
 
-public class SeasonController implements IMessageHandler<SeasonData, IMessage> {
+public class SeasonController implements IMessageHandler<SeasonUpdateEvent, IMessage> {
 	
 	public static final int minecraftDayLength = 24000;
 	
 	public static BiomeTempController biomeTemp;
-	public static SnowMelter melter;
 	
+	public static void register()
+	{
+		MinecraftForge.EVENT_BUS.register(SeasonController.class);
+		try
+		{
+			SeasonController.biomeTemp = new BiomeTempController();
+			SeasonController.biomeTemp.excluded.add(BiomeOcean.class);
+			SeasonController.biomeTemp.excluded.add(BiomeHell.class);
+			SeasonController.biomeTemp.excluded.add(BiomeEnd.class);
+		}
+		catch(NoSuchFieldException exc)
+		{
+			RuntimeException nexc = new RuntimeException();
+			nexc.initCause(exc); //ReportedException
+			throw nexc;
+		}
+	}
+	
+	// Process the event and broadcast it on client
 	@Override
 	@SideOnly(Side.CLIENT)
-	public IMessage onMessage(SeasonData message, MessageContext ctx)
+	public IMessage onMessage(SeasonUpdateEvent message, MessageContext ctx)
 	{
-		WorldClient clientworld = Minecraft.getMinecraft().world;
-		if(clientworld == null) SurvivalInc.logger.error("Minecraft remote world tracking instance is null. This is NOT a good thing. Skipping season update...");
+		World world = message.getWorld();
+		if(world == null) SurvivalInc.logger.error("Minecraft remote world tracking instance is null. This is NOT a good thing. Skipping season update...");
 		else
 		{
-			clientworld.setData(SeasonData.datakey, message);
+			world.setData(SeasonData.datakey, message.data);
+			MinecraftForge.EVENT_BUS.post(message);
 			SurvivalInc.logger.info("Updated client's world season data to {}", message.toString());
 		}
 		return null;
@@ -71,37 +87,21 @@ public class SeasonController implements IMessageHandler<SeasonData, IMessage> {
 	{
 		if(!event.player.world.isRemote)
 		{
-			SeasonData data = SeasonData.load(event.player.world);
-			SurvivalInc.proxy.net.sendTo(data, (EntityPlayerMP)event.player);
-			SurvivalInc.logger.info("Synchronizing client's ({}) season data: {}", event.player.getDisplayNameString(), data.toString());
+			SeasonUpdateEvent update = new SeasonUpdateEvent(event.player.world);
+			SurvivalInc.logger.info("Synchronizing client's ({}) season data: {}", event.player.getDisplayNameString(), update.data.toString());
+			SurvivalInc.proxy.net.sendTo(update, (EntityPlayerMP)event.player);
 		}
 	}
 	
+	// Apply the season data on world load
 	@SubscribeEvent
 	public static void onWorldLoad(WorldEvent.Load event)
 	{
-		if(!event.getWorld().isRemote) // We only want to affect the server
-		{
-			try
-			{
-				SeasonController.melter = new SnowMelter();
-				SeasonController.biomeTemp = new BiomeTempController();
-				SeasonController.biomeTemp.excluded.add(BiomeOcean.class);
-				SeasonController.biomeTemp.excluded.add(BiomeHell.class);
-				SeasonController.biomeTemp.excluded.add(BiomeEnd.class);
-				
-				SeasonData data = SeasonData.load(event.getWorld());
-				SeasonController.biomeTemp.applySeason(data);
-			}
-			catch(NoSuchFieldException exc)
-			{
-				RuntimeException nexc = new RuntimeException();
-				nexc.initCause(exc); //ReportedException
-				throw nexc;
-			}
-		}
+		SeasonData data = SeasonData.load(event.getWorld());
+		MinecraftForge.EVENT_BUS.post(new SeasonUpdateEvent(event.getWorld(), data));
 	}
 	
+	// Used to fire SeasonUpdateEvent when 
 	@SubscribeEvent
 	public static void onUpdate(TickEvent.WorldTickEvent event)
 	{
@@ -115,16 +115,27 @@ public class SeasonController implements IMessageHandler<SeasonData, IMessage> {
 				SeasonData data = SeasonData.load(event.world);
 				data.update(event.world);
 				
-				MinecraftForge.EVENT_BUS.post(new SeasonUpdateEvent(event.world, data));
-				SurvivalInc.proxy.net.sendToAll(data); // Send new season data to all clients
+				MinecraftForge.EVENT_BUS.post(new SeasonUpdateEvent(event.world, data)); // Broadcast the event on server side
 				
 				data.markDirty();
 			}
 		}
 	}
 	
+	// Capture the season update event and share it with clients
 	@SubscribeEvent
-	public static void onSeasonUpdate(SeasonUpdateEvent event)
+	public static void relayToClients(SeasonUpdateEvent event)
+	{		
+		if(!event.getWorld().isRemote)
+		{
+			SurvivalInc.logger.info("Broadcasting season data to clients");
+			SurvivalInc.proxy.net.sendToAll(event); // Send new event to client side
+		}
+	}
+	
+	// Capture the season update event and apply biome temperatures
+	@SubscribeEvent
+	public static void applySeasonData(SeasonUpdateEvent event)
 	{
 		WorldInfo info = event.getWorld().getWorldInfo();
 		biomeTemp.applySeason(event.data);
@@ -134,26 +145,7 @@ public class SeasonController implements IMessageHandler<SeasonData, IMessage> {
 		if(randWeather < event.getSeason().rainfallchance && info.isRaining())
 			info.setRaining(true);
 		
-		SurvivalInc.logger.info(event.data.toString());
-	}
-	
-	@SubscribeEvent
-	public static void onChunkWalkIn(EntityEvent.EnteringChunk event)
-	{
-		Entity ent = event.getEntity();
-		if(ent instanceof EntityPlayer && !ent.world.isRemote)
-		{
-			EntityPlayer player = (EntityPlayer)ent;
-			SeasonData data = SeasonData.load(player.world);
-			
-			// Is it summer? Then let's try to remove some snow and ice.
-			if(data.season == Season.SUMMER && player.dimension == 0)
-			{
-				int chunkCoordX = event.getNewChunkX();
-				int chunkCoordZ = event.getNewChunkZ();
-				melter.meltCompletely(chunkCoordX, chunkCoordZ, player.world);
-			}
-		}
+		SurvivalInc.logger.info("Season update ({}) applied.", event.data.toString());
 	}
 
 	// Add bonus harvest drops from crops in the Autumn.

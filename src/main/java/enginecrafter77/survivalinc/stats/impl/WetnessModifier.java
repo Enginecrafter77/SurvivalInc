@@ -91,9 +91,12 @@ public class WetnessModifier {
 	
 	public static float causeDripping(EntityPlayer player, float current)
 	{
-		WorldServer serverworld = (WorldServer)player.world;
-		float particle_amount = 20 * (current / DefaultStats.WETNESS.getMaximum());
-		serverworld.spawnParticle(EnumParticleTypes.DRIP_WATER, player.posX, player.posY, player.posZ, Math.round((float)Math.floor(particle_amount)), 0.25, 0.5, 0.25, 0.1, null);
+		if(!player.world.isRemote)
+		{
+			WorldServer serverworld = (WorldServer)player.world;
+			float particle_amount = 20 * (current / DefaultStats.WETNESS.getMaximum());
+			serverworld.spawnParticle(EnumParticleTypes.DRIP_WATER, player.posX, player.posY, player.posZ, Math.round((float)Math.floor(particle_amount)), 0.25, 0.5, 0.25, 0.1, null);
+		}
 		return current;
 	}
 	

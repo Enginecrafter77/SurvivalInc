@@ -21,7 +21,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import net.minecraftforge.event.entity.living.AnimalTameEvent;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
-import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.entity.player.PlayerWakeUpEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -50,17 +49,19 @@ public class SanityModifier {
 	
 	public static void init()
 	{
-		DefaultStats.SANITY.modifiers.add(new ConditionalModifier<EntityPlayer>((EntityPlayer player) -> !player.world.isDaytime() && !player.isPlayerSleeping(), -0.0015F), OperationType.OFFSET);
+		DefaultStats.SANITY.modifiers.add(new ConditionalModifier<EntityPlayer>((EntityPlayer player) -> player.isPlayerSleeping(), 0.004F), OperationType.OFFSET);
 		DefaultStats.SANITY.modifiers.add(new ConditionalModifier<EntityPlayer>(SanityModifier.isOutsideOverworld, -0.004F), OperationType.OFFSET);
 		DefaultStats.SANITY.modifiers.add(new FunctionalModifier<EntityPlayer>(SanityModifier::whenNearEntities), OperationType.OFFSET);
+		DefaultStats.SANITY.modifiers.add(new FunctionalModifier<EntityPlayer>(SanityModifier::duringNight), OperationType.OFFSET);
 		DefaultStats.SANITY.modifiers.add(new FunctionalModifier<EntityPlayer>(SanityModifier::whenInDark), OperationType.OFFSET);
 		DefaultStats.SANITY.modifiers.add(new FunctionalModifier<EntityPlayer>(SanityModifier::whenWet), OperationType.OFFSET);
+		DefaultStats.SANITY.modifiers.add(new FunctionalModifier<EntityPlayer>(SanityModifier::onLowSanity));
 		
 		SanityModifier.hallucinations.singleCatch = true;
 		SanityModifier.hallucinations.add(new ChanceModifier<EntityPlayer>(new FunctionalModifier<EntityPlayer>(SanityModifier::playRandomSounds), 0.2F));
 		SanityModifier.hallucinations.add(new ChanceModifier<EntityPlayer>(new FunctionalModifier<EntityPlayer>(SanityModifier::spawnGuardianParticle), 0.2F));
 		SanityModifier.hallucinations.add(new ChanceModifier<EntityPlayer>(new FunctionalModifier<EntityPlayer>(SanityModifier::applyBlindness), 0.1F));
-		
+		//ItemClock
 		SanityModifier.scarysounds.add(SoundEvents.ENTITY_VILLAGER_AMBIENT);
 		SanityModifier.scarysounds.add(SoundEvents.ENTITY_ENDERMEN_AMBIENT);
 		SanityModifier.scarysounds.add(SoundEvents.ENTITY_ENDERMEN_TELEPORT);
@@ -86,6 +87,19 @@ public class SanityModifier {
 		SanityModifier.foodSanityMap.put(Items.RABBIT_STEW, 15F);
 		SanityModifier.foodSanityMap.put(Items.MUSHROOM_STEW, 10F);
 		SanityModifier.foodSanityMap.put(Items.BEETROOT_SOUP, 10F);
+	}
+	
+	public static float duringNight(EntityPlayer player)
+	{
+		boolean night;
+		if(player.world.isRemote)
+		{
+			float angle = player.world.getCelestialAngle(1F);
+			night = angle < 0.75F && angle > 0.25F;
+		}
+		else night = !player.world.isDaytime();
+		
+		return night ? -0.0015F : 0F;
 	}
 	
 	public static void spawnGuardianParticle(EntityPlayer player)
@@ -156,12 +170,20 @@ public class SanityModifier {
 		return mod;
 	}
 	
+	public static float onLowSanity(EntityPlayer player, float level)
+	{
+		if(player.world.isRemote)
+		{
+			if(level < 50F && player.ticksExisted % 20 == 0) // Spawn hallucinations if feasible
+				SanityModifier.hallucinations.apply(player, level);
+		}
+		return level;
+	}
+	
 	@SubscribeEvent
 	public static void onPlayerWakeUp(PlayerWakeUpEvent event)
 	{
-		EntityPlayer player = event.getEntityPlayer();
-		if(player.world.isRemote) return;
-		
+		EntityPlayer player = event.getEntityPlayer();		
 		if(event.shouldSetSpawn()) // If the "lying in bed" was successful (the player actually fell asleep)
 		{
 			StatTracker stats = player.getCapability(StatCapability.target, null);
@@ -174,9 +196,7 @@ public class SanityModifier {
 	@SubscribeEvent
 	public static void onConsumeItem(LivingEntityUseItemEvent.Tick event)
 	{
-		Entity ent = event.getEntity();
-		if(ent.world.isRemote) return; // Sorry, we don't operate on client side here.
-		
+		Entity ent = event.getEntity();		
 		if(ent instanceof EntityPlayer && event.getDuration() == 1)
 		{
 			try
@@ -194,33 +214,10 @@ public class SanityModifier {
 	}
 	
 	@SubscribeEvent
-	public static void onPlayerUpdate(LivingUpdateEvent event)
-	{
-		Entity ent = event.getEntity();		
-		if(ent instanceof EntityPlayer)
-		{
-			EntityPlayer player = (EntityPlayer)ent;
-			if(player.isCreative() || player.isSpectator()) return;
-			
-			StatTracker stat = player.getCapability(StatCapability.target, null);
-			if(player.world.isRemote)
-			{
-				if(stat.getStat(DefaultStats.SANITY) < 50F && player.ticksExisted % 20 == 0) // Spawn hallucinations if feasible
-					SanityModifier.hallucinations.apply(player, stat.getStat(DefaultStats.SANITY));
-			}
-			else if(player.isPlayerSleeping())
-			{
-				stat.modifyStat(DefaultStats.SANITY, 0.004f);
-				player.addPotionEffect(new PotionEffect(MobEffects.HUNGER, 20, 4, false, false));
-			}
-		}
-	}
-	
-	@SubscribeEvent
 	public static void onTame(AnimalTameEvent event)
 	{
 		Entity ent = event.getEntity();
-		if(ent instanceof EntityPlayer && !ent.world.isRemote)
+		if(ent instanceof EntityPlayer)
 		{
 			StatTracker stat = ent.getCapability(StatCapability.target, null);
 			stat.modifyStat(DefaultStats.SANITY, 5F); // Solid 5 points for taming any animal

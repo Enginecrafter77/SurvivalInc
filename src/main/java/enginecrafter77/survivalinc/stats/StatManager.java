@@ -91,4 +91,21 @@ public class StatManager extends HashMap<StatProvider, StatRecord> implements St
 	{
 		return this.keySet();
 	}
+	
+	@Override
+	public String toString()
+	{
+		StringBuilder builder = new StringBuilder();
+		builder.append('[');
+		for(Entry<StatProvider, StatRecord> entry : this.entrySet())
+		{
+			builder.append(entry.getKey().getStatID());
+			builder.append('=');
+			builder.append(entry.getValue().getValue());
+			builder.append(", ");
+		}
+		builder.delete(builder.length() - 2, builder.length());
+		builder.append(']');
+		return builder.toString();
+	}
 }

@@ -24,7 +24,7 @@ public class DamagingModifier implements Modifier<EntityPlayer> {
 	@Override
 	public boolean shouldTrigger(EntityPlayer target, float level)
 	{
-		return cooldown == 0 || target.ticksExisted % cooldown == 0;
+		return !target.world.isRemote && (cooldown == 0 || target.ticksExisted % cooldown == 0);
 	}
 
 	@Override
