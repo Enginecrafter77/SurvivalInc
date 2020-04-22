@@ -1,6 +1,7 @@
 package enginecrafter77.survivalinc.stats.impl;
 
 import enginecrafter77.survivalinc.stats.StatCapability;
+import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import enginecrafter77.survivalinc.stats.modifier.ConditionalModifier;
 import enginecrafter77.survivalinc.stats.modifier.DamagingModifier;
@@ -42,21 +43,11 @@ public class HydrationModifier {
 	
 	public static float naturalDrain(EntityPlayer player, float value)
 	{
+		StatProvider heat = HeatModifier.instance;
 		StatTracker tracker = player.getCapability(StatCapability.target, null);
-		float fraction = tracker.getStat(HeatModifier.instance) / HeatModifier.instance.getMaximum();
-		
-		float rate = -0.003F;
-		
-		// Cap the chance to 1/2
-		float chance = fraction < 0.5F ? fraction : 0.5F;
-		
-		if(player.world.rand.nextFloat() < chance)
-		{
-			if(fraction > 0.5F) rate *= 10 * (fraction + 0.5F);
-			return rate;
-		}
-		
-		return 0F;
+		float drain = -0.0005F;
+		if(((tracker.getStat(heat) - heat.getMinimum()) / (heat.getMaximum() - heat.getMinimum())) > 0.75F) drain *= 4F;
+		return drain;
 	}
 	
 	@SubscribeEvent
