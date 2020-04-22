@@ -73,7 +73,7 @@ public class SeasonController implements IMessageHandler<SeasonData, IMessage> {
 		{
 			SeasonData data = SeasonData.load(event.player.world);
 			SurvivalInc.proxy.net.sendTo(data, (EntityPlayerMP)event.player);
-			SurvivalInc.logger.info("Sending season data [{}] to {}", data.toString(), event.player.getDisplayNameString());
+			SurvivalInc.logger.info("Synchronizing client's ({}) season data: {}", event.player.getDisplayNameString(), data.toString());
 		}
 	}
 	
@@ -82,13 +82,16 @@ public class SeasonController implements IMessageHandler<SeasonData, IMessage> {
 	{
 		if(!event.getWorld().isRemote) // We only want to affect the server
 		{
-			SeasonController.melter = new SnowMelter();
 			try
 			{
+				SeasonController.melter = new SnowMelter();
 				SeasonController.biomeTemp = new BiomeTempController();
 				SeasonController.biomeTemp.excluded.add(BiomeOcean.class);
 				SeasonController.biomeTemp.excluded.add(BiomeHell.class);
 				SeasonController.biomeTemp.excluded.add(BiomeEnd.class);
+				
+				SeasonData data = SeasonData.load(event.getWorld());
+				SeasonController.biomeTemp.applySeason(data);
 			}
 			catch(NoSuchFieldException exc)
 			{
