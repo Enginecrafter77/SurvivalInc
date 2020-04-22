@@ -49,18 +49,6 @@ public interface StatProvider extends Serializable {
 	public float getMinimum();
 	
 	/**
-	 * Returns the default value for the stat. That means
-	 * when a stat tracker has no value assigned for this
-	 * StatProvider, it uses the value returned by this method.
-	 * In other words, the value of the stat when the player
-	 * starts a new world.
-	 * @return The value assigned to the stat if the stat previously had no assigned value.
-	 * @see #getMaximum()
-	 * @see #getMinumum()
-	 */
-	public float getDefault();
-	
-	/**
 	 * Returns the {@link OverflowHandler} to be used by the stat.
 	 * This overflow handler is (or should) be used by {@link StatTracker}
 	 * implementations to check whether the stat does comply with the
@@ -69,4 +57,18 @@ public interface StatProvider extends Serializable {
 	 * @return The overflow handler specifying the overflow policy of this provider
 	 */
 	public OverflowHandler getOverflowHandler();
+	
+	/**
+	 * Creates a new record for the stat provider.
+	 * This method is called each time this stat
+	 * provider is registered inside a {@link StatManager}.
+	 * This method allows for custom implementations
+	 * to specify their own StatRecords that will be
+	 * used to store their stats. This method replaces
+	 * the legacy method <tt>getDefault</tt>, as this
+	 * method can be used for the same purpose of setting
+	 * default values when new record is created.
+	 * @return A new instance of stat record.
+	 */
+	public StatRecord createNewRecord();
 }

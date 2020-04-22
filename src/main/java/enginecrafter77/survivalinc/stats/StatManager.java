@@ -23,7 +23,7 @@ public class StatManager extends HashMap<StatProvider, StatRecord> implements St
 	{
 		if(this.getProvider(provider.getStatID()) != null)
 			throw new IllegalStateException("Provider " + provider.getClass().getCanonicalName() + " already registered!");
-		this.setStat(provider, provider.getDefault());
+		this.setRecord(provider, provider.createNewRecord());
 	}
 	
 	@Override
@@ -54,13 +54,7 @@ public class StatManager extends HashMap<StatProvider, StatRecord> implements St
 	@Override
 	public StatRecord getRecord(StatProvider stat)
 	{
-		StatRecord result = this.get(stat);
-		if(result == null)
-		{
-			result = new StatRecordEntry(); // TODO allow StatProvider to provide their own instance
-			this.setRecord(stat, result);
-		}
-		return result;
+		return this.get(stat);
 	}
 	
 	@Override

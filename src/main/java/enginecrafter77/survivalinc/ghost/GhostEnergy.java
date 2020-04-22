@@ -2,6 +2,8 @@ package enginecrafter77.survivalinc.ghost;
 
 import enginecrafter77.survivalinc.stats.OverflowHandler;
 import enginecrafter77.survivalinc.stats.StatProvider;
+import enginecrafter77.survivalinc.stats.StatRecord;
+import enginecrafter77.survivalinc.stats.StatRecordEntry;
 import enginecrafter77.survivalinc.stats.modifier.ModifierApplicator;
 import net.minecraft.entity.player.EntityPlayer;
 
@@ -38,9 +40,9 @@ public class GhostEnergy extends ModifierApplicator<EntityPlayer> implements Sta
 	}
 
 	@Override
-	public float getDefault()
+	public StatRecord createNewRecord()
 	{
-		return this.getMinimum();
+		return new StatRecordEntry();
 	}
 
 	@Override

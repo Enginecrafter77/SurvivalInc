@@ -2,6 +2,8 @@ package enginecrafter77.survivalinc.stats.impl;
 
 import enginecrafter77.survivalinc.stats.OverflowHandler;
 import enginecrafter77.survivalinc.stats.StatProvider;
+import enginecrafter77.survivalinc.stats.StatRecord;
+import enginecrafter77.survivalinc.stats.StatRecordEntry;
 import enginecrafter77.survivalinc.stats.modifier.ModifierApplicator;
 import enginecrafter77.survivalinc.config.ModConfig;
 import net.minecraft.entity.player.EntityPlayer;
@@ -55,9 +57,9 @@ public enum DefaultStats implements StatProvider {
 	}
 	
 	@Override
-	public float getDefault()
+	public StatRecord createNewRecord()
 	{
-		return this.def;
+		return new StatRecordEntry(this.def);
 	}
 
 	@Override
