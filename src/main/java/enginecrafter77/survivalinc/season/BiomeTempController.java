@@ -29,12 +29,6 @@ public class BiomeTempController extends HashMap<Biome, Float> {
 		this.originals = new HashMap<Biome, Float>();
 		this.excluded = new HashSet<Class<? extends Biome>>();
 		
-		// Store the original biome temperatures
-		for(Biome biome : ForgeRegistries.BIOMES.getValuesCollection())
-		{
-			originals.put(biome, biome.getDefaultTemperature());
-		}
-		
 		// Reflectively locate the target field
 		Field field = null;
 		for(String name : possiblenames)
@@ -70,7 +64,12 @@ public class BiomeTempController extends HashMap<Biome, Float> {
 	
 	public void resetTemperature(Biome biome)
 	{
-		this.setTemperature(biome, this.originals.get(biome));
+		// If the map doesn't contain the biome entry, it means it hasn't been affected yet,
+		// and so it already has the wanted default value.
+		if(this.originals.containsKey(biome))
+		{
+			this.setTemperature(biome, this.originals.get(biome));
+		}
 	}
 
 	/**
@@ -84,6 +83,10 @@ public class BiomeTempController extends HashMap<Biome, Float> {
 		for(Biome biome : ForgeRegistries.BIOMES.getValuesCollection())
 		{
 			if(excluded.contains(biome.getClass())) continue;
+			
+			// A little check to fix compatibility with mods that add biomes during runtime
+			if(!this.originals.containsKey(biome))
+				this.originals.put(biome, biome.getDefaultTemperature());
 			
 			float original = this.originals.get(biome);
 			original += data.season.getTemperatureOffset(data.day);

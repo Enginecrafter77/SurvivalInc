@@ -44,7 +44,7 @@ public class CommonProxy {
 		// Register all new items and blocks.
 		MinecraftForge.EVENT_BUS.register(ModItems.class);
 		// Register seasons if enabled
-		if(ModConfig.SEASONS.enabled) SeasonController.register();
+		if(ModConfig.SEASONS.enabled) MinecraftForge.EVENT_BUS.register(SeasonController.class);
 		
 		// Register capabilities.
 		CapabilityManager.INSTANCE.register(StatTracker.class, StatStorage.instance, StatManager::new);

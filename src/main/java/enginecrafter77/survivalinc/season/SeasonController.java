@@ -36,24 +36,6 @@ public class SeasonController implements IMessageHandler<SeasonUpdateEvent, IMes
 	
 	public static BiomeTempController biomeTemp;
 	
-	public static void register()
-	{
-		MinecraftForge.EVENT_BUS.register(SeasonController.class);
-		try
-		{
-			SeasonController.biomeTemp = new BiomeTempController();
-			SeasonController.biomeTemp.excluded.add(BiomeOcean.class);
-			SeasonController.biomeTemp.excluded.add(BiomeHell.class);
-			SeasonController.biomeTemp.excluded.add(BiomeEnd.class);
-		}
-		catch(NoSuchFieldException exc)
-		{
-			RuntimeException nexc = new RuntimeException();
-			nexc.initCause(exc); //ReportedException
-			throw nexc;
-		}
-	}
-	
 	// Process the event and broadcast it on client
 	@Override
 	@SideOnly(Side.CLIENT)
@@ -97,6 +79,20 @@ public class SeasonController implements IMessageHandler<SeasonUpdateEvent, IMes
 	@SubscribeEvent
 	public static void onWorldLoad(WorldEvent.Load event)
 	{
+		try
+		{
+			SeasonController.biomeTemp = new BiomeTempController();
+			SeasonController.biomeTemp.excluded.add(BiomeOcean.class);
+			SeasonController.biomeTemp.excluded.add(BiomeHell.class);
+			SeasonController.biomeTemp.excluded.add(BiomeEnd.class);
+		}
+		catch(NoSuchFieldException exc)
+		{
+			RuntimeException nexc = new RuntimeException();
+			nexc.initCause(exc); //ReportedException
+			throw nexc;
+		}
+		
 		SeasonData data = SeasonData.load(event.getWorld());
 		MinecraftForge.EVENT_BUS.post(new SeasonUpdateEvent(event.getWorld(), data));
 	}
