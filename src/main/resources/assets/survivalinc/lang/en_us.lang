@@ -1,4 +1,3 @@
-# Conveniently in alphabetical order.
 # Items
 item.water_canteen.name=Water Canteen
 item.feather_fan.name=Feather Fan
@@ -12,9 +11,6 @@ death.attack.survivalinc_dehydration=%1$s's organs have died desperately searchi
 death.attack.survivalinc_hyperthermia=%1$s has standed by their bonfire a little too long
 death.attack.survivalinc_hypothermia=%1$s forgot to pack a bunch of clothing
 
-# Sounds
-survivalinc.subtitle.fan_whoosh=Whoosh
-
 # Client config
 survivalinc.client=Client
 survivalinc.client.tooltip=Client-Only Settings
@@ -26,8 +22,18 @@ survivalinc.heat=Heat
 survivalinc.heat.tooltip=Settings regarding Body Heat mechanics
 config.survivalinc:heat.enable=Enable Heat
 config.survivalinc:heat.enable.tooltip=Determines if the heat mechanics should take part in the game.
-config.survivalinc:heat.scale=Heat Scale
-config.survivalinc:heat.scale.tooltip=The scaling value applied to all modifiers.
+config.survivalinc:heat.blockScanRange=Block Scan Range
+config.survivalinc:heat.blockScanRange.tooltip=The maximum distance to detect heat emmiting blocks from
+config.survivalinc:heat.caveTemperature=Cave Temperature
+config.survivalinc:heat.caveTemperature.tooltip=The ambient temperature of caves
+config.survivalinc:heat.distributionVector=Distribution Vector
+config.survivalinc:heat.distributionVector.tooltip=The conductivity distribution vector. Describes how much conductivity each armor piece contributes to the total.
+config.survivalinc:heat.gaussScaling=Proximity Scaling
+config.survivalinc:heat.gaussScaling.tooltip=A value indicating the smoothness of radiant heat transition.
+config.survivalinc:heat.tempCoefficient=Temperature Coefficient
+config.survivalinc:heat.tempCoefficient.tooltip=The number used to convert biome temperatures to Survival Inc scale. Commonly used value is the Schoperation's constant (78.0)
+config.survivalinc:heat.wetnessExchangeMultiplier=Wetness Multiplier
+config.survivalinc:heat.wetnessExchangeMultiplier.tooltip=The multiplier applied to the wetness fraction used to calculate heat exchange modifier.
 config.survivalinc:heat.exchangeFactor=Heat Exchange Factor
 config.survivalinc:heat.exchangeFactor.tooltip=How quickly you can heat up when you are in the desert? (units/tick)
 
@@ -36,34 +42,58 @@ survivalinc.hydration=Hydration
 survivalinc.hydration.tooltip=Settings regarding Hydration mechanics
 config.survivalinc:hydration.enable=Enable Hydration
 config.survivalinc:hydration.enable.tooltip=Determines if the hydration mechanics should take part in the game.
-config.survivalinc:hydration.scale=Hydration Scale
-config.survivalinc:hydration.scale.tooltip=The scaling value applied to all modifiers.
+config.survivalinc:hydration.drinkAmount=Sip Volume
+config.survivalinc:hydration.drinkAmount.tooltip=The amount of hydration recovered with each sip from water puddle
+config.survivalinc:hydration.sweatingMultiplier=Sweating Multiplier
+config.survivalinc:hydration.sweatingMultiplier.tooltip=The multiplier applied to passive drain when the sweating threshold heat is crossed
+config.survivalinc:hydration.sweatingThreshold=Sweating Threshold
+config.survivalinc:hydration.sweatingThreshold.tooltip=The minimal amount of heat that causes increased sweating
+config.survivalinc:hydration.passiveDrain=Passive Drain
+config.survivalinc:hydration.passiveDrain.tooltip=The rate at which hydration passively decreases
 
 # Sanity config
 survivalinc.sanity=Sanity
 survivalinc.sanity.tooltip=Settings regarding Mental Sanity mechanics
 config.survivalinc:sanity.enable=Enable Sanity
 config.survivalinc:sanity.enable.tooltip=Determines if the sanity mechanics should take part in the game.
-config.survivalinc:sanity.scale=Sanity Scale
-config.survivalinc:sanity.scale.tooltip=The scaling value applied to all modifiers.
 config.survivalinc:sanity.wetnessAnnoyanceThreshold=Wetness Annoyance
 config.survivalinc:sanity.wetnessAnnoyanceThreshold.tooltip=The minimal level of wetness that starts to be annoying to the character, thus losing sanity.
 config.survivalinc:sanity.comfortLightLevel=Comfort Light Level
 config.survivalinc:sanity.comfortLightLevel.tooltip=The lowest sanity-neutral light level.
 config.survivalinc:sanity.darkSpookFactorBase=Dark Spookiness Base
 config.survivalinc:sanity.darkSpookFactorBase.tooltip=The rate at which light level of 0 takes your sanity per tick.
+config.survivalinc:sanity.animalTameBoost=Animal Tame Boost
+config.survivalinc:sanity.animalTameBoost.tooltip=The amount of sanity added by taming an animal
+config.survivalinc:sanity.friendlyMobBonus=Friendly Mob Bonus
+config.survivalinc:sanity.friendlyMobBonus.tooltip=The amount of sanity added each tick by standing near friendly entity
+config.survivalinc:sanity.hostileMobModifier=Hostile Mob Modifier
+config.survivalinc:sanity.hostileMobModifier.tooltip=The amount of sanity taken each tick by standing near hostile entity 
+config.survivalinc:sanity.nighttimeDrain=Night Time Drain
+config.survivalinc:sanity.nighttimeDrain.tooltip=The amount passively drain during night
+config.survivalinc:sanity.sleepRestoration=Sleep Restoration
+config.survivalinc:sanity.sleepRestoration.tooltip=The fraction of maximum value of sanity recovered by sleeping
+config.survivalinc:sanity.tamedMobMultiplier=Tamed Multiplier
+config.survivalinc:sanity.tamedMobMultiplier.tooltip=The multiplier of Friendly Mob Bonus when the entity is also tamed
+config.survivalinc:sanity.hallucinationThreshold=Hallucination Threshold
+config.survivalinc:sanity.hallucinationThreshold.tooltip=The lowest value of sanity beyond which hallucinations may occur.
 
 # Wetness config
 survivalinc.wetness=Wetness
 survivalinc.wetness.tooltip=Settings regarding Wetness mechanics
 config.survivalinc:wetness.enable=Enable Wetness
 config.survivalinc:wetness.enable.tooltip=Determines if the wetness mechanics should take part in the game.
-config.survivalinc:wetness.scale=Wetness Scale
-config.survivalinc:wetness.scale.tooltip=The scaling value applied to all modifiers.
 config.survivalinc:wetness.minimalWalkSpeed=Minimal Walk Speed
 config.survivalinc:wetness.minimalWalkSpeed.tooltip=The maximum slowdown debuff that can be applied (fraction of the original speed)
 config.survivalinc:wetness.slowdownThreshold=Slowdown Threshold
 config.survivalinc:wetness.slowdownThreshold.tooltip=The percentage of wetness that should start weighing the player down
+config.survivalinc:wetness.sunlightMultiplier=Sunlight Multiplier
+config.survivalinc:wetness.sunlightMultiplier.tooltip=The multiplier applied to passive drying rate when the player is exposed to sunlight
+config.survivalinc:wetness.towelCapacity=Towel Capacity
+config.survivalinc:wetness.towelCapacity.tooltip=The capacity of towel in % of the player's wetness
+config.survivalinc:wetness.towelDryRate=Towel Dry Rate
+config.survivalinc:wetness.towelDryRate.tooltip=The rate at which towels dry when placed on top of operating furnace
+config.survivalinc:wetness.passiveDryRate=Passive Drying Rate
+config.survivalinc:wetness.passiveDryRate.tooltip=The rate at which wetness passively decreases
 
 # Season config
 survivalinc.seasons=Seasons

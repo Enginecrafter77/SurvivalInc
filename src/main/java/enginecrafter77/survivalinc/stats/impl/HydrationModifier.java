@@ -44,12 +44,12 @@ public class HydrationModifier {
 	
 	public static float naturalDrain(EntityPlayer player, float value)
 	{
-		float drain = -0.0005F;
+		float drain = -(float)ModConfig.HYDRATION.passiveDrain;
 		if(ModConfig.HEAT.enabled)
 		{
 			StatProvider heat = HeatModifier.instance;
 			StatTracker tracker = player.getCapability(StatCapability.target, null);
-			if(((tracker.getStat(heat) - heat.getMinimum()) / (heat.getMaximum() - heat.getMinimum())) > 0.75F) drain *= 4F;
+			if(((tracker.getStat(heat) - heat.getMinimum()) / (heat.getMaximum() - heat.getMinimum())) > ModConfig.HYDRATION.sweatingThreshold) drain *= ModConfig.HYDRATION.sweatingMultiplier;
 		}
 		return drain;
 	}
@@ -70,7 +70,7 @@ public class HydrationModifier {
 				if(player.world.getBlockState(position).getMaterial() == Material.WATER)
 				{
 					StatTracker tracker = player.getCapability(StatCapability.target, null);
-					tracker.modifyStat(DefaultStats.HYDRATION, 5F);
+					tracker.modifyStat(DefaultStats.HYDRATION, (float)ModConfig.HYDRATION.drinkAmount);
 					
 					if(!player.world.isRemote)
 					{

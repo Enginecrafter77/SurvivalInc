@@ -9,6 +9,14 @@ public class WetnessConfig {
 	@Config.RequiresMcRestart
 	public boolean enabled = true;
 	
+	@Config.LangKey("config.survivalinc:wetness.passiveDryRate")
+	@Config.RangeDouble(min = 0)
+	public double passiveDryRate = 0.005;
+	
+	@Config.LangKey("config.survivalinc:wetness.sunlightMultiplier")
+	@Config.RangeDouble(min = 0)
+	public double sunlightMultiplier = 2;
+	
 	@Config.LangKey("config.survivalinc:wetness.minimalWalkSpeed")
 	@Config.RangeDouble(min = 0, max = 1)
 	public double minimalWalkSpeed = 0.25;

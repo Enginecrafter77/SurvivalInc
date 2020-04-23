@@ -46,7 +46,7 @@ public class HeatModifier implements StatProvider {
 	public static final HeatModifier instance = new HeatModifier();
 	
 	public static Map<Block, Float> blockHeatMap = new HashMap<Block, Float>();
-	public static ArmorModifier armorInsulation = new ArmorModifier(new float[] {0.2F, 0.35F, 0.3F, 0.15F});
+	public static ArmorModifier armorInsulation = new ArmorModifier();
 	public static ModifierApplicator<EntityPlayer> targettemp = new ModifierApplicator<EntityPlayer>();
 	public static ModifierApplicator<EntityPlayer> exchangerate = new ModifierApplicator<EntityPlayer>();
 	public static ModifierApplicator<EntityPlayer> consequences = new ModifierApplicator<EntityPlayer>();
@@ -86,7 +86,7 @@ public class HeatModifier implements StatProvider {
 	public float updateValue(EntityPlayer player, float current)
 	{		
 		float target;
-		if(player.posY < player.world.getSeaLevel()) target = 0.7F; // Cave
+		if(player.posY < player.world.getSeaLevel()) target = (float)ModConfig.HEAT.caveTemperature; // Cave
 		else
 		{
 			Biome biome = player.world.getBiome(player.getPosition());
@@ -94,7 +94,7 @@ public class HeatModifier implements StatProvider {
 			if(target < -0.2F) target = -0.2F;
 			if(target > 1.5F) target = 1.5F;
 		}
-		target = targettemp.apply(player, target * 78); // 78 = Schoperation's body heat constant
+		target = targettemp.apply(player, target * (float)ModConfig.HEAT.tempCoefficient);
 		
 		float difference = Math.abs(target - current);
 		float rate = difference * (float)ModConfig.HEAT.heatExchangeFactor;
@@ -141,7 +141,7 @@ public class HeatModifier implements StatProvider {
 	public static float applyWetnessCooldown(EntityPlayer player)
 	{
 		StatTracker stats = player.getCapability(StatCapability.target, null);
-		return 1F + 4 * (stats.getStat(DefaultStats.WETNESS) / DefaultStats.WETNESS.getMaximum());
+		return 1F + (float)ModConfig.HEAT.wetnessExchangeMultiplier * (stats.getStat(DefaultStats.WETNESS) / DefaultStats.WETNESS.getMaximum());
 	}
 	
 	/**
@@ -235,6 +235,30 @@ public class HeatModifier implements StatProvider {
 		{
 			this.materialmap = new HashMap<ItemArmor.ArmorMaterial, Float[]>();
 			this.conductivityDistribution = conductivityDistribution;
+		}
+		
+		/**
+		 * Constructs new ArmorModifier using the configured distribution vector.
+		 * @see #conductivityDistribution
+		 * @param conductivityDistribution The conductivity distribution vector
+		 */
+		public ArmorModifier()
+		{
+			this.materialmap = new HashMap<ItemArmor.ArmorMaterial, Float[]>();
+			
+			float sum = 0;
+			this.conductivityDistribution = new float[ArmorModifier.armorPieces];
+			for(int index = 0; index < ArmorModifier.armorPieces; index++)
+			{
+				sum += (this.conductivityDistribution[index] = (float)ModConfig.HEAT.distributionVector[index]);
+			}
+			
+			// Normalize the vector if it's not normal already
+			if(sum != 1)
+			{
+				for(int index = 0; index < ArmorModifier.armorPieces; index++)
+					this.conductivityDistribution[index] /= sum;
+			}
 		}
 		
 		/**

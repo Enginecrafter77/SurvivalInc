@@ -119,8 +119,8 @@ public class WetnessModifier {
 	
 	public static float naturalDrying(EntityPlayer player)
 	{
-		float rate = -0.005F;
-		if(player.world.isDaytime() && player.world.canBlockSeeSky(player.getPosition())) rate *= 2;
+		float rate = -(float)ModConfig.WETNESS.passiveDryRate;
+		if(player.world.isDaytime() && player.world.canBlockSeeSky(player.getPosition())) rate *= ModConfig.WETNESS.sunlightMultiplier;
 		return rate;
 	}
 	

@@ -21,4 +21,19 @@ public class HeatConfig {
 	@Config.RangeInt(min = 0)
 	public double blockScanRange = 4;
 	
+	@Config.LangKey("config.survivalinc:heat.distributionVector")
+	@Config.RangeDouble(min = 0, max = Double.MAX_VALUE / 4D)
+	public double[] distributionVector = {0.2, 0.35, 0.3, 0.15};
+	
+	@Config.LangKey("config.survivalinc:heat.caveTemperature")
+	@Config.RangeDouble(min = 0)
+	public double caveTemperature = 0.7F;
+	
+	@Config.LangKey("config.survivalinc:heat.tempCoefficient")
+	@Config.RangeDouble(min = 0)
+	public double tempCoefficient = 78; // 78 = Schoperation's constant
+	
+	@Config.LangKey("config.survivalinc:heat.wetnessExchangeMultiplier")
+	@Config.RangeDouble(min = 0)
+	public double wetnessExchangeMultiplier = 4;
 }

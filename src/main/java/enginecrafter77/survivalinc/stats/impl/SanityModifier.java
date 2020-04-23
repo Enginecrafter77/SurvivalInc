@@ -100,7 +100,7 @@ public class SanityModifier {
 		}
 		else night = !player.world.isDaytime();
 		
-		return night ? -0.0015F : 0F;
+		return night ? -(float)ModConfig.SANITY.nighttimeDrain : 0F;
 	}
 	
 	public static void spawnGuardianParticle(EntityPlayer player)
@@ -160,22 +160,22 @@ public class SanityModifier {
 			{
 				EntityTameable pet = (EntityTameable)creature;
 				// 4x bonus for tamed creatures. Having pets has it's perks :D
-				float bonus = pet.isTamed() ? 4 : 1;
-				mod += 0.006F * bonus;
+				float bonus = pet.isTamed() ? (float)ModConfig.SANITY.tamedMobMultiplier : 1;
+				mod += ModConfig.SANITY.friendlyMobBonus * bonus;
 			}
 			else if(creature instanceof EntityAnimal)
-				mod += 0.004F;
+				mod += ModConfig.SANITY.friendlyMobBonus;
 			else if(creature instanceof EntityMob)
-				mod -= 0.003F;
+				mod -= ModConfig.SANITY.hostileMobModifier;
 		}
 		return mod;
 	}
 	
 	public static float onLowSanity(EntityPlayer player, float level)
 	{
-		if(player.world.isRemote)
+		if(player.world.isRemote) // Only do so on client side
 		{
-			if(level < 50F && player.ticksExisted % 20 == 0) // Spawn hallucinations if feasible
+			if(level < (DefaultStats.SANITY.getMaximum() * ModConfig.SANITY.hallucinationThreshold) && player.ticksExisted % 20 == 0) // Spawn hallucinations if feasible
 				SanityModifier.hallucinations.apply(player, level);
 		}
 		return level;
@@ -188,8 +188,7 @@ public class SanityModifier {
 		if(event.shouldSetSpawn()) // If the "lying in bed" was successful (the player actually fell asleep)
 		{
 			StatTracker stats = player.getCapability(StatCapability.target, null);
-			// Replenish 33% of total sanity!
-			stats.modifyStat(DefaultStats.SANITY, DefaultStats.SANITY.getMaximum() / 3F);
+			stats.modifyStat(DefaultStats.SANITY, DefaultStats.SANITY.getMaximum() * (float)ModConfig.SANITY.sleepResoration);
 			player.getFoodStats().setFoodLevel(player.getFoodStats().getFoodLevel() - 8);
 		}
 	}
@@ -221,7 +220,7 @@ public class SanityModifier {
 		if(ent instanceof EntityPlayer)
 		{
 			StatTracker stat = ent.getCapability(StatCapability.target, null);
-			stat.modifyStat(DefaultStats.SANITY, 5F); // Solid 5 points for taming any animal
+			stat.modifyStat(DefaultStats.SANITY, (float)ModConfig.SANITY.animalTameBoost); // Solid 5 points for taming any animal
 		}
 	}
 }

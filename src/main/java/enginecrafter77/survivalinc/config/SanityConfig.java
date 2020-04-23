@@ -21,4 +21,31 @@ public class SanityConfig {
 	@Config.RangeInt(min = 0, max = 15)
 	public int comfortLightLevel = 7;
 	
+	@Config.LangKey("config.survivalinc:sanity.nighttimeDrain")
+	@Config.RangeDouble(min = 1E-3)
+	public double nighttimeDrain = 0.0075;
+	
+	@Config.LangKey("config.survivalinc:sanity.friendlyMobBonus")
+	@Config.RangeDouble(min = 1E-3)
+	public double friendlyMobBonus = 0.006;
+	
+	@Config.LangKey("config.survivalinc:sanity.hostileMobModifier")
+	@Config.RangeDouble(min = 1E-3)
+	public double hostileMobModifier = 0.003;
+	
+	@Config.LangKey("config.survivalinc:sanity.tamedMobMultiplier")
+	@Config.RangeDouble(min = 0)
+	public double tamedMobMultiplier = 4;
+	
+	@Config.LangKey("config.survivalinc:sanity.animalTameBoost")
+	@Config.RangeDouble(min = 0)
+	public double animalTameBoost = 4;
+	
+	@Config.LangKey("config.survivalinc:sanity.sleepRestoration")
+	@Config.RangeDouble(min = 0, max = 1)
+	public double sleepResoration = 0.3;
+	
+	@Config.LangKey("config.survivalinc:sanity.hallucinationThreshold")
+	@Config.RangeDouble(min = 0, max = 1)
+	public double hallucinationThreshold = 0.4;
 }
