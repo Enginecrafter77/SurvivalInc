@@ -1,5 +1,6 @@
 package enginecrafter77.survivalinc.stats.impl;
 
+import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatTracker;
@@ -43,10 +44,13 @@ public class HydrationModifier {
 	
 	public static float naturalDrain(EntityPlayer player, float value)
 	{
-		StatProvider heat = HeatModifier.instance;
-		StatTracker tracker = player.getCapability(StatCapability.target, null);
 		float drain = -0.0005F;
-		if(((tracker.getStat(heat) - heat.getMinimum()) / (heat.getMaximum() - heat.getMinimum())) > 0.75F) drain *= 4F;
+		if(ModConfig.HEAT.enabled)
+		{
+			StatProvider heat = HeatModifier.instance;
+			StatTracker tracker = player.getCapability(StatCapability.target, null);
+			if(((tracker.getStat(heat) - heat.getMinimum()) / (heat.getMaximum() - heat.getMinimum())) > 0.75F) drain *= 4F;
+		}
 		return drain;
 	}
 	

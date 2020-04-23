@@ -73,7 +73,7 @@ public class HeatModifier implements StatProvider {
 		
 		HeatModifier.targettemp.add(new FunctionalModifier<EntityPlayer>(HeatModifier::whenNearHotBlock), OperationType.OFFSET);
 		
-		HeatModifier.exchangerate.add(new FunctionalModifier<EntityPlayer>(HeatModifier::applyWetnessCooldown), OperationType.SCALE);
+		if(ModConfig.WETNESS.enabled) HeatModifier.exchangerate.add(new FunctionalModifier<EntityPlayer>(HeatModifier::applyWetnessCooldown), OperationType.SCALE);
 		HeatModifier.exchangerate.add(HeatModifier.armorInsulation, OperationType.SCALE);
 		
 		HeatModifier.consequences.add(new ThresholdModifier<EntityPlayer>(new PotionEffectModifier(MobEffects.WEAKNESS, 0), 25F, ThresholdModifier.LOWER));
