@@ -20,7 +20,7 @@ public class WetnessConfig {
 	
 	@Config.LangKey("config.survivalinc:wetness.slowdownThreshold")
 	@Config.RangeDouble(min = 0, max = 100)
-	public double slowdownThreshold = 75;
+	public double slowdownThreshold = 60;
 	
 	@Config.LangKey("config.survivalinc:wetness.towelCapacity")
 	@Config.RangeDouble(min = 0)

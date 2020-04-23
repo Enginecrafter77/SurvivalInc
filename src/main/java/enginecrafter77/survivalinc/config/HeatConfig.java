@@ -16,7 +16,7 @@ public class HeatConfig {
 	
 	@Config.LangKey("config.survivalinc:heat.exchangeFactor")
 	@Config.RangeDouble(min = 0, max = 1)
-	public double heatExchangeFactor = 0.0003;
+	public double heatExchangeFactor = 0.002;
 	
 	@Config.LangKey("config.survivalinc:heat.gaussScaling")
 	@Config.RangeDouble(min = 0)

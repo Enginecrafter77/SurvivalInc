@@ -6,6 +6,8 @@ import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 @Config(modid = SurvivalInc.MOD_ID, name = SurvivalInc.MOD_ID, category = "")
 public class ModConfig {
@@ -13,6 +15,7 @@ public class ModConfig {
 	// The values in the config file. Add on more as needed.
 	// Sub-categories
 	@Config.Name("client")
+	@SideOnly(Side.CLIENT)
 	public static final ClientConfig CLIENT = new ClientConfig();
 	
 	@Config.Name("heat")
