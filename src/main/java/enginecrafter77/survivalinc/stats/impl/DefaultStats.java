@@ -5,31 +5,27 @@ import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatRecord;
 import enginecrafter77.survivalinc.stats.StatRecordEntry;
 import enginecrafter77.survivalinc.stats.modifier.ModifierApplicator;
-import enginecrafter77.survivalinc.config.ModConfig;
 import net.minecraft.entity.player.EntityPlayer;
 
 public enum DefaultStats implements StatProvider {
-	HYDRATION(ModConfig.HYDRATION.scale, 0, 100),
-	WETNESS(ModConfig.WETNESS.scale, 0, 100, 0F),
-	SANITY(ModConfig.SANITY.scale, 0, 100);
-	
-	public final float scale;
+	WETNESS(0, 100, 0F),
+	HYDRATION(0, 100),
+	SANITY(0, 100);
 	
 	public final ModifierApplicator<EntityPlayer> modifiers;
 	private float max, min, def;
 	
-	private DefaultStats(double scale, float min, float max, float def)
+	private DefaultStats(float min, float max, float def)
 	{
 		this.modifiers = new ModifierApplicator<EntityPlayer>();
-		this.scale = (float)scale;
 		this.min = min;
 		this.max = max;
 		this.def = def;
 	}
 	
-	private DefaultStats(double scale, float min, float max)
+	private DefaultStats(float min, float max)
 	{
-		this(scale, min, max, max * 0.75F);
+		this(min, max, max * 0.75F);
 	}
 	
 	@Override

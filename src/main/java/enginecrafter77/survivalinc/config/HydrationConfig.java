@@ -9,9 +9,4 @@ public class HydrationConfig {
 	@Config.RequiresMcRestart
 	public boolean enabled = true;
 	
-	@Config.LangKey("config.survivalinc:hydration.scale")
-	@Config.RequiresMcRestart
-	@Config.RangeDouble(min = 0.1, max = 3.0)
-	public double scale = 1.0;
-	
 }

@@ -9,11 +9,6 @@ public class SanityConfig {
 	@Config.RequiresMcRestart
 	public boolean enabled = true;
 	
-	@Config.LangKey("config.survivalinc:sanity.scale")
-	@Config.RequiresMcRestart
-	@Config.RangeDouble(min = 0.1, max = 3.0)
-	public double scale = 1.0;
-	
 	@Config.LangKey("config.survivalinc:sanity.wetnessAnnoyanceThreshold")
 	@Config.RangeDouble(min = 0, max = 100)
 	public double wetnessAnnoyanceThreshold = 50;
