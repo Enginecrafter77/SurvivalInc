@@ -1,5 +1,6 @@
 package enginecrafter77.survivalinc.stats;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -95,17 +96,9 @@ public class StatManager extends HashMap<StatProvider, StatRecord> implements St
 	@Override
 	public String toString()
 	{
-		StringBuilder builder = new StringBuilder();
-		builder.append('[');
+		List<String> list = new ArrayList<String>(this.size());
 		for(Entry<StatProvider, StatRecord> entry : this.entrySet())
-		{
-			builder.append(entry.getKey().getStatID());
-			builder.append('=');
-			builder.append(entry.getValue().getValue());
-			builder.append(", ");
-		}
-		builder.delete(builder.length() - 2, builder.length());
-		builder.append(']');
-		return builder.toString();
+			list.add(String.format("%s=%f", entry.getKey().getStatID(), entry.getValue().getValue()));
+		return list.toString();
 	}
 }

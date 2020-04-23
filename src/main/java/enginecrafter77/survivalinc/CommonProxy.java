@@ -3,7 +3,6 @@ package enginecrafter77.survivalinc;
 import enginecrafter77.survivalinc.client.StatUpdateMessageHandler;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.ghost.GhostCommand;
-import enginecrafter77.survivalinc.ghost.GhostImpl;
 import enginecrafter77.survivalinc.ghost.GhostProvider;
 import enginecrafter77.survivalinc.net.EntityItemUpdateMessage;
 import enginecrafter77.survivalinc.net.EntityItemUpdater;
@@ -41,14 +40,15 @@ public class CommonProxy {
 	
 	public void preInit(FMLPreInitializationEvent event)
 	{
-		// Register all new items and blocks.
-		MinecraftForge.EVENT_BUS.register(ModItems.class);
 		// Register seasons if enabled
 		if(ModConfig.SEASONS.enabled) MinecraftForge.EVENT_BUS.register(SeasonController.class);
+		if(ModConfig.GHOST.enabled) GhostProvider.register();
 		
 		// Register capabilities.
 		CapabilityManager.INSTANCE.register(StatTracker.class, StatStorage.instance, StatManager::new);
-		if(ModConfig.GHOST.enabled) GhostProvider.register();
+		
+		// Register all new items and blocks.
+		MinecraftForge.EVENT_BUS.register(ModItems.class);
 	}
 
 	public void init(FMLInitializationEvent event)
@@ -84,11 +84,6 @@ public class CommonProxy {
 			StatManager.providers.add(DefaultStats.WETNESS);
 			MinecraftForge.EVENT_BUS.register(WetnessModifier.class);
 			WetnessModifier.init();
-		}
-		
-		if(ModConfig.GHOST.enabled)
-		{
-			MinecraftForge.EVENT_BUS.register(GhostImpl.class);
 		}
 		
 		if(ModConfig.SEASONS.enabled) Season.initSeasons();

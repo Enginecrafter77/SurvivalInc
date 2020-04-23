@@ -1,19 +1,12 @@
 package enginecrafter77.survivalinc.client;
 
-import java.awt.Color;
 import java.util.HashSet;
 
 import enginecrafter77.survivalinc.SurvivalInc;
-import enginecrafter77.survivalinc.config.ModConfig;
-import enginecrafter77.survivalinc.ghost.GhostEnergyBar;
-import enginecrafter77.survivalinc.item.ItemCanteen;
 import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatTracker;
-import enginecrafter77.survivalinc.stats.impl.DefaultStats;
-import enginecrafter77.survivalinc.stats.impl.HeatModifier;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -25,18 +18,6 @@ public class RenderHUD extends HashSet<StatRender> {
 	private static final long serialVersionUID = -3636268515627373812L;
 
 	public static final RenderHUD instance = new RenderHUD();
-	
-	public static void register()
-	{
-		SimpleStatContainer stats = new SimpleStatContainer();
-		stats.add(new SimpleStatBar(HeatModifier.instance, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/heat.png"), new Color(0xE80000)));
-		stats.add(new SimpleStatBar(DefaultStats.HYDRATION, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/hydration.png"), new Color(ItemCanteen.waterBarColor)));
-		stats.add(new SimpleStatBar(DefaultStats.SANITY, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/sanity.png"), new Color(0xF6AF25)));
-		stats.add(new SimpleStatBar(DefaultStats.WETNESS, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/wetness.png"), new Color(0x0047D5)));		
-		if(ModConfig.GHOST.enabled) RenderHUD.instance.add(new GhostEnergyBar());
-		
-		RenderHUD.instance.add(stats);
-	}
 	
 	@SubscribeEvent
 	public void renderOverlay(RenderGameOverlayEvent event)
