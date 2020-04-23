@@ -20,7 +20,7 @@ public class SurvivalInc {
 	// Basic mod constants.
 	public static final String MOD_ID = "survivalinc";
 	public static final String MOD_NAME = "Survival Inc.";
-	public static final String VERSION = "0.3.2";
+	public static final String VERSION = "=VERSION=";
 	public static final String MCVERSION = "1.12";
 	public static final String DEPENDENCIES = "required-after:forge@[14.23.1.2611,)";
 	public static final String RESOURCE_PREFIX = MOD_ID + ":";
