@@ -31,7 +31,7 @@ public class HeatConfig {
 	
 	@Config.LangKey("config.survivalinc:heat.tempCoefficient")
 	@Config.RangeDouble(min = 0)
-	public double tempCoefficient = 78; // 78 = Schoperation's constant
+	public double tempCoefficient = 60; // 78 = Schoperation's constant
 	
 	@Config.LangKey("config.survivalinc:heat.wetnessExchangeMultiplier")
 	@Config.RangeDouble(min = 0)
