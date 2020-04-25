@@ -1,0 +1,20 @@
+{
+	"forge-maker": 1,
+	"variants": {
+		"inventory": {
+			"model": "survivalinc:meltingsnow_2"
+		},
+		"meltphase=0": {
+			"model": "survivalinc:meltingsnow_0"
+		},
+		"meltphase=1": {
+			"model": "survivalinc:meltingsnow_1"
+		},
+		"meltphase=2":{
+			"model": "survivalinc:meltingsnow_2"
+		},
+		"meltphase=3": {
+			"model": "survivalinc:meltingsnow_3"
+		}
+	}
+}
