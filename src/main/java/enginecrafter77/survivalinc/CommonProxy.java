@@ -47,9 +47,6 @@ public class CommonProxy {
 		
 		// Register capabilities.
 		CapabilityManager.INSTANCE.register(StatTracker.class, StatStorage.instance, StatManager::new);
-		
-		// Register all new items and blocks.
-		MinecraftForge.EVENT_BUS.register(ModItems.class);
 	}
 
 	public void init(FMLInitializationEvent event)
