@@ -33,7 +33,7 @@ public class BlockMeltingSnow extends Block {
 	
 	public BlockMeltingSnow()
 	{
-		super(Material.SNOW);//BlockSnow
+		super(Material.SNOW);
 		this.setRegistryName(new ResourceLocation(SurvivalInc.MOD_ID, "melting_snow"));
 		this.setDefaultState(this.blockState.getBaseState().withProperty(MELTPHASE, Integer.valueOf(0)));
 		this.setCreativeTab(SurvivalInc.mainTab);
@@ -56,7 +56,7 @@ public class BlockMeltingSnow extends Block {
 	@Override
 	public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos)
 	{
-		return this.getBoundingBox(blockState, worldIn, pos);
+		return null;
 	}
 	
 	@Override

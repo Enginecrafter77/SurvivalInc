@@ -1,20 +1,32 @@
 {
-	"forge-maker": 1,
+	"forge_marker": 1,
 	"variants": {
 		"inventory": {
-			"model": "survivalinc:meltingsnow_2"
+			"model": "snow_height2",
+			"textures": {
+				"texture": "survivalinc:blocks/meltingsnow_1"
+			}
 		},
 		"meltphase=0": {
-			"model": "survivalinc:meltingsnow_0"
+			"model": "snow_height2"
 		},
 		"meltphase=1": {
-			"model": "survivalinc:meltingsnow_1"
+			"model": "snow_height2",
+			"textures": {
+				"texture": "survivalinc:blocks/meltingsnow_1"
+			}
 		},
-		"meltphase=2":{
-			"model": "survivalinc:meltingsnow_2"
+		"meltphase=2": {
+			"model": "snow_height2",
+			"textures": {
+				"texture": "survivalinc:blocks/meltingsnow_2"
+			}
 		},
 		"meltphase=3": {
-			"model": "survivalinc:meltingsnow_3"
+			"model": "snow_height2",
+			"textures": {
+				"texture": "survivalinc:blocks/meltingsnow_3"
+			}
 		}
 	}
 }
