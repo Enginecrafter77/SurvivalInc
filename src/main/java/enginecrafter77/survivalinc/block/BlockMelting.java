@@ -2,7 +2,6 @@ package enginecrafter77.survivalinc.block;
 
 import java.util.Random;
 
-import enginecrafter77.survivalinc.SurvivalInc;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
@@ -42,13 +41,14 @@ public class BlockMelting extends Block {
 	@Override
 	public void updateTick(World world, BlockPos position, IBlockState state, Random rng)
 	{
+		world.profiler.startSection("melting");
 		int phase = state.getValue(MELTPHASE) + 1;
-		SurvivalInc.logger.info("Triggering snow melt. Current level: {}", phase);
 		if(MELTPHASE.getAllowedValues().contains(phase))
 		{
 			state = state.withProperty(MELTPHASE, phase);
 			world.setBlockState(position, state, 3);
 		}
 		else world.setBlockToAir(position);
+		world.profiler.endSection();
 	}
 }

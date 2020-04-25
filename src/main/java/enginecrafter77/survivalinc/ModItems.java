@@ -1,6 +1,7 @@
 package enginecrafter77.survivalinc;
 
 import enginecrafter77.survivalinc.item.*;
+
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
@@ -16,6 +17,7 @@ public enum ModItems {
 	
 	CANTEEN(new ItemCanteen(), "canteen"),
 	FEATHER_FAN(new ItemFeatherFan(), "feather_fan"),
+	SNOW_MELTER(new ItemSnowMelter(), "snow_melter"),
 	TOWEL(new ItemTowel(), "towel_dry", "towel_wet");
 	
 	public final Item target;
