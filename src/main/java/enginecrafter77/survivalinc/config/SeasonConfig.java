@@ -1,5 +1,6 @@
 package enginecrafter77.survivalinc.config;
 
+import enginecrafter77.survivalinc.season.SnowMeltingController;
 import net.minecraftforge.common.config.Config;
 
 @Config.LangKey("config.survivalinc:seasons")
@@ -24,4 +25,8 @@ public class SeasonConfig {
 	@Config.LangKey("config.survivalinc:seasons.autumnLength")
 	@Config.RequiresMcRestart
 	public int autumnLength = 14;
+	
+	@Config.LangKey("config.survivalinc:seasons.meltController")
+	@Config.RequiresMcRestart
+	public SnowMeltingController meltController = SnowMeltingController.SIMPLE;
 }

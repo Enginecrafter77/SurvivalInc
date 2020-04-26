@@ -41,6 +41,14 @@ public class SeasonUpdateEvent extends WorldEvent implements IMessage {
 		this.data = new SeasonData();
 	}
 	
+	/**
+	 * @return True if the season was changed, or false if only the day has been advanced. 
+	 */
+	public boolean hasSeasonAdvanced()
+	{
+		return data.day == 0;
+	}
+	
 	public Season getSeason()
 	{
 		return data.season;

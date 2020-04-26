@@ -9,6 +9,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import enginecrafter77.survivalinc.SurvivalInc;
+
 /**
  * This stores the original biome temperatures, modifying the base temps if
  * necessary. It also deals with changing the temperature of each biome
@@ -54,6 +56,7 @@ public class BiomeTempController extends HashMap<Biome, Float> {
 	{
 		try
 		{
+			SurvivalInc.logger.info("Setting base temperature of biome {} to {}", biome.getBiomeName(), temperature);
 			target.setFloat(biome, temperature);
 		}
 		catch(ReflectiveOperationException exc)

@@ -42,7 +42,12 @@ public class CommonProxy {
 	public void preInit(FMLPreInitializationEvent event)
 	{
 		// Register seasons if enabled
-		if(ModConfig.SEASONS.enabled) MinecraftForge.EVENT_BUS.register(SeasonController.class);
+		if(ModConfig.SEASONS.enabled)
+		{
+			MinecraftForge.EVENT_BUS.register(SeasonController.class);
+			// Register the snow melting controller
+			MinecraftForge.EVENT_BUS.register(ModConfig.SEASONS.meltController);
+		}
 		if(ModConfig.GHOST.enabled) GhostProvider.register();
 		
 		// Register capabilities.
