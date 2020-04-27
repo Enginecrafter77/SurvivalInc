@@ -10,7 +10,6 @@ import enginecrafter77.survivalinc.net.GhostUpdateMessage;
 import enginecrafter77.survivalinc.net.GhostUpdateMessageHandler;
 import enginecrafter77.survivalinc.net.StatUpdateMessage;
 import enginecrafter77.survivalinc.net.WaterDrinkMessage;
-import enginecrafter77.survivalinc.season.Season;
 import enginecrafter77.survivalinc.season.SeasonCommand;
 import enginecrafter77.survivalinc.season.SeasonController;
 import enginecrafter77.survivalinc.season.SeasonUpdateEvent;
@@ -44,7 +43,7 @@ public class CommonProxy {
 		// Register seasons if enabled
 		if(ModConfig.SEASONS.enabled)
 		{
-			MinecraftForge.EVENT_BUS.register(SeasonController.class);
+			MinecraftForge.EVENT_BUS.register(SeasonController.instance);
 			// Register the snow melting controller
 			MinecraftForge.EVENT_BUS.register(ModConfig.SEASONS.meltController);
 		}
@@ -58,7 +57,7 @@ public class CommonProxy {
 	{
 		this.net = NetworkRegistry.INSTANCE.newSimpleChannel(SurvivalInc.MOD_ID);
 		this.net.registerMessage(StatUpdateMessageHandler.class, StatUpdateMessage.class, 0, Side.CLIENT);
-		this.net.registerMessage(SeasonController.class, SeasonUpdateEvent.class, 1, Side.CLIENT);
+		this.net.registerMessage(SeasonController.instance, SeasonUpdateEvent.class, 1, Side.CLIENT);
 		this.net.registerMessage(EntityItemUpdater.class, EntityItemUpdateMessage.class, 2, Side.CLIENT);
 		this.net.registerMessage(GhostUpdateMessageHandler.class, GhostUpdateMessage.class, 3, Side.CLIENT);
 		this.net.registerMessage(HydrationModifier.class, WaterDrinkMessage.class, 4, Side.SERVER);
@@ -89,8 +88,6 @@ public class CommonProxy {
 			MinecraftForge.EVENT_BUS.register(WetnessModifier.class);
 			WetnessModifier.init();
 		}
-		
-		if(ModConfig.SEASONS.enabled) Season.initSeasons();
 	}
 	
 	public void postInit(FMLPostInitializationEvent event) {}

@@ -82,18 +82,21 @@ public class BiomeTempController extends HashMap<Biome, Float> {
 	 * @param daysIntoSeason
 	 */
 	public void applySeason(SeasonData data)
-	{
+	{		
+		float offset = data.season.getTemperatureOffset(data.day);
 		for(Biome biome : ForgeRegistries.BIOMES.getValuesCollection())
 		{
 			if(excluded.contains(biome.getClass())) continue;
 			
 			// A little check to fix compatibility with mods that add biomes during runtime
 			if(!this.originals.containsKey(biome))
+			{
+				SurvivalInc.logger.info("Biome {} has not saved it's original value. Mapping to {}.", biome.getBiomeName(), biome.getDefaultTemperature());
 				this.originals.put(biome, biome.getDefaultTemperature());
+			}
 			
 			float original = this.originals.get(biome);
-			original += data.season.getTemperatureOffset(data.day);
-			this.setTemperature(biome, original);
+			this.setTemperature(biome, original + offset);
 		}
 	}
 }

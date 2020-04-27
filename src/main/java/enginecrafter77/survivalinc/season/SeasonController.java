@@ -34,7 +34,26 @@ public class SeasonController implements IMessageHandler<SeasonUpdateEvent, IMes
 	
 	public static final int minecraftDayLength = 24000;
 	
-	public static BiomeTempController biomeTemp;
+	public static final SeasonController instance = new SeasonController();
+	
+	public BiomeTempController biomeTemp;
+	
+	private SeasonController()
+	{
+		try
+		{
+			this.biomeTemp = new BiomeTempController();
+			this.biomeTemp.excluded.add(BiomeOcean.class);
+			this.biomeTemp.excluded.add(BiomeHell.class);
+			this.biomeTemp.excluded.add(BiomeEnd.class);
+		}
+		catch(NoSuchFieldException exc)
+		{
+			RuntimeException nexc = new RuntimeException();
+			nexc.initCause(exc); //ReportedException
+			throw nexc;
+		}
+	}
 	
 	// Process the event and broadcast it on client
 	@Override
@@ -54,18 +73,26 @@ public class SeasonController implements IMessageHandler<SeasonUpdateEvent, IMes
 	
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
-	public static void biomeGrass(BiomeEvent.GetGrassColor event)
+	public void biomeGrass(BiomeEvent.GetGrassColor event)
 	{
-		// Yes I know what I am doing when using MC.getMC()
-		WorldClient world = Minecraft.getMinecraft().world;
-		SeasonData data = SeasonData.load(world);
+		float deftemp = event.getBiome().getDefaultTemperature();
+		int color = 0;
 		
-		if(data.season.grasscolor != 0)
-			event.setNewColor(data.season.grasscolor);
+		if(deftemp < Season.WINTER.temperature) color = Season.WINTER.grasscolor;
+		else if(deftemp > Season.SUMMER.temperature) color = Season.SUMMER.grasscolor;
+		else
+		{
+			// Yes I know what I am doing when using MC.getMC()
+			WorldClient world = Minecraft.getMinecraft().world;
+			SeasonData data = SeasonData.load(world);
+			color = data.season.grasscolor;
+		}
+		
+		if(color != 0) event.setNewColor(color);
 	}
 	
 	@SubscribeEvent
-	public static void onPlayerLogsIn(PlayerEvent.PlayerLoggedInEvent event)
+	public void onPlayerLogsIn(PlayerEvent.PlayerLoggedInEvent event)
 	{
 		if(!event.player.world.isRemote)
 		{
@@ -77,29 +104,15 @@ public class SeasonController implements IMessageHandler<SeasonUpdateEvent, IMes
 	
 	// Apply the season data on world load
 	@SubscribeEvent
-	public static void onWorldLoad(WorldEvent.Load event)
-	{
-		try
-		{
-			SeasonController.biomeTemp = new BiomeTempController();
-			SeasonController.biomeTemp.excluded.add(BiomeOcean.class);
-			SeasonController.biomeTemp.excluded.add(BiomeHell.class);
-			SeasonController.biomeTemp.excluded.add(BiomeEnd.class);
-		}
-		catch(NoSuchFieldException exc)
-		{
-			RuntimeException nexc = new RuntimeException();
-			nexc.initCause(exc); //ReportedException
-			throw nexc;
-		}
-		
+	public void register(WorldEvent.Load event)
+	{		
 		SeasonData data = SeasonData.load(event.getWorld());
 		MinecraftForge.EVENT_BUS.post(new SeasonUpdateEvent(event.getWorld(), data));
 	}
 	
 	// Used to fire SeasonUpdateEvent when 
 	@SubscribeEvent
-	public static void onUpdate(TickEvent.WorldTickEvent event)
+	public void onUpdate(TickEvent.WorldTickEvent event)
 	{
 		DimensionType dimension = event.world.provider.getDimensionType();
 		if(!event.world.isRemote && event.phase == TickEvent.Phase.START && dimension == DimensionType.OVERWORLD)
@@ -120,7 +133,7 @@ public class SeasonController implements IMessageHandler<SeasonUpdateEvent, IMes
 	
 	// Capture the season update event and share it with clients
 	@SubscribeEvent
-	public static void relayToClients(SeasonUpdateEvent event)
+	public void relayToClients(SeasonUpdateEvent event)
 	{		
 		if(!event.getWorld().isRemote)
 		{
@@ -131,10 +144,10 @@ public class SeasonController implements IMessageHandler<SeasonUpdateEvent, IMes
 	
 	// Capture the season update event and apply biome temperatures
 	@SubscribeEvent
-	public static void applySeasonData(SeasonUpdateEvent event)
+	public void applySeasonData(SeasonUpdateEvent event)
 	{
 		WorldInfo info = event.getWorld().getWorldInfo();
-		biomeTemp.applySeason(event.data);
+		this.biomeTemp.applySeason(event.data);
 		
 		// Determine the weather. The season is the main factor.
 		float randWeather = (float) Math.random();
@@ -146,7 +159,7 @@ public class SeasonController implements IMessageHandler<SeasonUpdateEvent, IMes
 
 	// Add bonus harvest drops from crops in the Autumn.
 	@SubscribeEvent
-	public static void onCropHarvest(BlockEvent.HarvestDropsEvent event)
+	public void onCropHarvest(BlockEvent.HarvestDropsEvent event)
 	{
 		World world = event.getWorld();
 		IBlockState state = event.getState();
@@ -168,7 +181,7 @@ public class SeasonController implements IMessageHandler<SeasonUpdateEvent, IMes
 
 	// Make nothing grow in winter, and more grow in summer
 	@SubscribeEvent
-	public static void affectGrowth(BlockEvent.CropGrowEvent.Pre event)
+	public void affectGrowth(BlockEvent.CropGrowEvent.Pre event)
 	{		
 		World world = event.getWorld();
 		if(world.isRemote) return; // We don't want to check client side

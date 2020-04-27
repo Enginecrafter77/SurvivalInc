@@ -3,8 +3,8 @@ package enginecrafter77.survivalinc.block;
 import java.util.Random;
 
 import enginecrafter77.survivalinc.SurvivalInc;
-import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
@@ -16,7 +16,7 @@ public class BlockMeltingSnow extends BlockMelting {
 	
 	public BlockMeltingSnow()
 	{
-		super(Material.SNOW);
+		super(Blocks.SNOW_LAYER, Blocks.AIR);
 		this.setRegistryName(new ResourceLocation(SurvivalInc.MOD_ID, "melting_snow"));
 		this.setDefaultState(this.blockState.getBaseState().withProperty(MELTPHASE, Integer.valueOf(0)));
 		this.setTranslationKey("melting_snow");

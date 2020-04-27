@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Random;
 
 import enginecrafter77.survivalinc.ModBlocks;
+import enginecrafter77.survivalinc.SurvivalInc;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
@@ -78,23 +79,19 @@ public enum SnowMeltingController {
 		World world = event.getWorld();
 		if(world.isRemote) return; // We don't serve clients here
 		
-		SeasonData data = SeasonData.load(world);
+		WorldServer serverworld = (WorldServer)world;
+		ChunkProviderServer provider = serverworld.getChunkProvider();
+		Collection<Chunk> chunks = provider.getLoadedChunks();
 		
-		// Test if the procedure is allowed
-		if(data.season != Season.WINTER)
-		{
-			WorldServer serverworld = (WorldServer)world;
-			ChunkProviderServer provider = serverworld.getChunkProvider();
-			Collection<Chunk> chunks = provider.getLoadedChunks();
-			
-			world.profiler.startSection("worldfilter");
-			for(Chunk current : chunks)
-				this.processChunk(current);
-			world.profiler.endSection();
-		}
+		SurvivalInc.logger.info("Preparing to process {} chunks...", chunks.size());
+		long time = System.currentTimeMillis();
+		for(Chunk current : chunks)
+			this.processChunk(current);
+		time = System.currentTimeMillis() - time;
+		SurvivalInc.logger.info("Processed {} chunks in {} ms", chunks.size(), time);
 	}
 	
-	//@SubscribeEvent
+	@SubscribeEvent
 	public void onChunkLoad(ChunkEvent.Load event)
 	{
 		if(this == NONE) return; // In the NONE mode, we do nothing...
@@ -104,7 +101,7 @@ public enum SnowMeltingController {
 		SeasonData data = SeasonData.load(event.getWorld());
 		if(data.season != Season.WINTER)
 		{
-			//this.processChunk(event.getChunk());
+			this.processChunk(event.getChunk());
 		}
 	}
 	

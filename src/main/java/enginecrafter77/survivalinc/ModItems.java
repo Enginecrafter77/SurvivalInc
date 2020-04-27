@@ -17,8 +17,8 @@ public enum ModItems {
 	
 	CANTEEN(new ItemCanteen(), "canteen"),
 	FEATHER_FAN(new ItemFeatherFan(), "feather_fan"),
-	SNOW_MELTER(new ItemSnowMelter(), "snow_melter"),
-	TOWEL(new ItemTowel(), "towel_dry", "towel_wet");
+	TOWEL(new ItemTowel(), "towel_dry", "towel_wet"),
+	THERMOMETER(new ItemThermometer(), "thermometer");
 	
 	public final Item target;
 	public final String[] models;
