@@ -13,6 +13,7 @@ import enginecrafter77.survivalinc.stats.impl.DefaultStats;
 import enginecrafter77.survivalinc.stats.impl.HeatModifier;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
@@ -24,6 +25,12 @@ public class ClientProxy extends CommonProxy {
 		MinecraftForge.EVENT_BUS.register(RenderHUD.instance);
 		
 		if(ModConfig.GHOST.enabled) MinecraftForge.EVENT_BUS.register(new RenderGhost());
+	}
+	
+	@Override
+	public void init(FMLInitializationEvent event)
+	{
+		super.init(event);
 	}
 	
 	@Override
