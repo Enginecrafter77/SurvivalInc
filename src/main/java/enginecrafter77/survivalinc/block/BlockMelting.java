@@ -10,17 +10,19 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.chunk.Chunk;
 
 public class BlockMelting extends Block {
 	public static final PropertyInteger MELTPHASE = PropertyInteger.create("meltphase", 0, 3);
 	
+	public static final float FREEZING_TEMPERATURE = 0.15F;
+	
 	public final Block from, to;
 	
-	public BlockMelting(Block from, Block to)
+	public BlockMelting(Block from, Block to, boolean autotick)
 	{
 		super(from.getDefaultState().getMaterial());
-		this.setTickRandomly(true);
-		
+		this.setTickRandomly(autotick);
 		this.from = from;
 		this.to = to;
 	}
@@ -48,8 +50,7 @@ public class BlockMelting extends Block {
 	{
 		world.profiler.startSection("melting");
 		
-		Biome biome = world.getBiome(position);
-		boolean melts = biome.getTemperature(position) > 0;
+		boolean melts = !BlockMelting.isFreezingAt(world, position);
 		int phase = state.getValue(MELTPHASE) + (melts ? 1 : -1);
 		if(MELTPHASE.getAllowedValues().contains(phase))
 		{
@@ -63,5 +64,17 @@ public class BlockMelting extends Block {
 		}
 		
 		world.profiler.endSection();
+	}
+	
+	public static boolean isFreezingAt(World world, BlockPos position)
+	{
+		return world.getBiome(position).getTemperature(position) <= BlockMelting.FREEZING_TEMPERATURE;
+	}
+	
+	public static boolean isFreezingAt(Chunk chunk, BlockPos position)
+	{
+		World world = chunk.getWorld();
+		Biome biome = chunk.getBiome(position, world.getBiomeProvider());
+		return biome.getTemperature(chunk.getPos().getBlock(position.getX(), position.getY(), position.getZ())) <= BlockMelting.FREEZING_TEMPERATURE;
 	}
 }

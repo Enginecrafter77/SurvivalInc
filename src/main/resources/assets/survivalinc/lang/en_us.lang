@@ -100,14 +100,12 @@ survivalinc.seasons=Seasons
 survivalinc.seasons.tooltip=Settings regarding season behavior
 config.survivalinc:seasons.enable=Enable Seasons
 config.survivalinc:seasons.enable.tooltip=Should seasonal mechanics be included in the game?
-config.survivalinc:seasons.winterLength=Winter Length
-config.survivalinc:seasons.winterLength.tooltip=Length of Winter in Minecraft days. Set to 0 to skip this season.
-config.survivalinc:seasons.springLength=Spring Length
-config.survivalinc:seasons.springLength.tooltip=Length of Spring in Minecraft days. Set to 0 to skip this season.
-config.survivalinc:seasons.summerLength=Summer Length
-config.survivalinc:seasons.summerLength.tooltip=Length of Summer in Minecraft days. Set to 0 to skip this season.
-config.survivalinc:seasons.autumnLength=Autumn Length
-config.survivalinc:seasons.autumnLength.tooltip=Length of Autumn in Minecraft days. Set to 0 to skip this season.
+config.survivalinc:seasons.durations=Durations
+config.survivalinc:seasons.durations.tooltip=The length of the individual seasons in minecraft days (1 day = 24000 ticks). Order of values: [WINTER, SPRING, SUMMER, AUTUMN]
+config.survivalinc:seasons.temperatures=Temperatures
+config.survivalinc:seasons.temperatures.tooltip=The temperature offset of the individual seasons, applied to each biome temperature. Order of values: [WINTER, SPRING, SUMMER, AUTUMN]
+config.survivalinc:seasons.meltController=Melt Controller
+config.survivalinc:seasons.meltController.tooltip=The melting controller to be used. See the wiki for explanation.
 
 # Ghost config
 survivalinc.ghost=Ghost

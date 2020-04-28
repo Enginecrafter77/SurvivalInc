@@ -76,19 +76,21 @@ public class SeasonController implements IMessageHandler<SeasonUpdateEvent, IMes
 	public void biomeGrass(BiomeEvent.GetGrassColor event)
 	{
 		float deftemp = event.getBiome().getDefaultTemperature();
-		int color = 0;
 		
-		if(deftemp < Season.WINTER.temperature) color = Season.WINTER.grasscolor;
-		else if(deftemp > Season.SUMMER.temperature) color = Season.SUMMER.grasscolor;
+		// If the current biome is permafrost
+		if((deftemp + Season.SUMMER.temperature) < 0F)
+			event.setNewColor(Season.WINTER.grasscolor);
+		else if((deftemp + Season.WINTER.temperature) > 1F)
+			event.setNewColor(Season.SUMMER.grasscolor);
 		else
 		{
-			// Yes I know what I am doing when using MC.getMC()
 			WorldClient world = Minecraft.getMinecraft().world;
 			SeasonData data = SeasonData.load(world);
-			color = data.season.grasscolor;
+			
+			if(data.season.grasscolor != 0)
+				event.setNewColor(data.season.grasscolor);
 		}
 		
-		if(color != 0) event.setNewColor(color);
 	}
 	
 	@SubscribeEvent

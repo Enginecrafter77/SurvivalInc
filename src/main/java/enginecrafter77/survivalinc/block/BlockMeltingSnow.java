@@ -14,10 +14,10 @@ import net.minecraft.world.IBlockAccess;
 
 public class BlockMeltingSnow extends BlockMelting {
 	
-	public BlockMeltingSnow()
+	public BlockMeltingSnow(boolean autotick)
 	{
-		super(Blocks.SNOW_LAYER, Blocks.AIR);
-		this.setRegistryName(new ResourceLocation(SurvivalInc.MOD_ID, "melting_snow"));
+		super(Blocks.SNOW_LAYER, Blocks.AIR, autotick);
+		this.setRegistryName(new ResourceLocation(SurvivalInc.MOD_ID, autotick ? "melting_snow" : "lazy_melting_snow"));
 		this.setDefaultState(this.blockState.getBaseState().withProperty(MELTPHASE, Integer.valueOf(0)));
 		this.setTranslationKey("melting_snow");
 	}

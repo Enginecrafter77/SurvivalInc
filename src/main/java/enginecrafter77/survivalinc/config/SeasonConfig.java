@@ -10,21 +10,13 @@ public class SeasonConfig {
 	@Config.RequiresMcRestart
 	public boolean enabled = true;
 
-	@Config.LangKey("config.survivalinc:seasons.winterLength")
+	@Config.LangKey("config.survivalinc:seasons.durations")
 	@Config.RequiresMcRestart
-	public int winterLength = 14;
-
-	@Config.LangKey("config.survivalinc:seasons.springLength")
+	public int[] durations = {14, 14, 14, 14};
+	
+	@Config.LangKey("config.survivalinc:seasons.lengths")
 	@Config.RequiresMcRestart
-	public int springLength = 14;
-
-	@Config.LangKey("config.survivalinc:seasons.summerLength")
-	@Config.RequiresMcRestart
-	public int summerLength = 14;
-
-	@Config.LangKey("config.survivalinc:seasons.autumnLength")
-	@Config.RequiresMcRestart
-	public int autumnLength = 14;
+	public double[] temperatures = {-0.25F, 0.1F, 0.3F, -0.05F};
 	
 	@Config.LangKey("config.survivalinc:seasons.meltController")
 	@Config.RequiresMcRestart

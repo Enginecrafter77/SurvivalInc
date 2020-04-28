@@ -5,6 +5,8 @@ import java.util.Random;
 
 import enginecrafter77.survivalinc.ModBlocks;
 import enginecrafter77.survivalinc.SurvivalInc;
+import enginecrafter77.survivalinc.block.BlockMelting;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
@@ -12,31 +14,62 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.ChunkProviderServer;
+import net.minecraftforge.common.config.Config;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public enum SnowMeltingController {
 	
+	@Config.LangKey("config.survivalinc:seasons.meltController.fancy")
 	FANCY(new MeltingController() {
 		@Override
 		public IBlockState applyToBlock(Chunk chunk, BlockPos position, IBlockState source)
 		{
-			return ModBlocks.MELTING_SNOW.get().getDefaultState();
+			if(source.getBlock() == Blocks.SNOW_LAYER && !BlockMelting.isFreezingAt(chunk, position))
+				return ModBlocks.MELTING_SNOW.get().getDefaultState();
+			else return null;
 		}
 	}, true),
+	LAZY(new MeltingController() {
+		@Override
+		public IBlockState applyToBlock(Chunk chunk, BlockPos position, IBlockState source)
+		{
+			Block cblock = source.getBlock();
+			World world = chunk.getWorld();
+			Random rng = world.rand;
+			if(cblock == Blocks.SNOW_LAYER && !BlockMelting.isFreezingAt(chunk, position))
+			{
+				return ModBlocks.LAZY_MELTING_SNOW.get().getDefaultState();
+			}
+			else if(cblock == ModBlocks.LAZY_MELTING_SNOW.get() && rng.nextFloat() < 0.9F) // 90% chance to trigger melting
+			{
+				cblock.updateTick(world, chunk.getPos().getBlock(position.getX(), position.getY(), position.getZ()), source, rng);
+				chunk.markDirty();
+			}
+			return null;
+		}
+	}, false),
 	SIMPLE(new MeltingController() {
 		@Override
 		public IBlockState applyToBlock(Chunk chunk, BlockPos position, IBlockState source)
 		{
-			Random rng = chunk.getWorld().rand;
-			return rng.nextBoolean() ? Blocks.AIR.getDefaultState() : source;
+			if(source.getBlock() == Blocks.SNOW_LAYER && !BlockMelting.isFreezingAt(chunk, position))
+			{
+				Random rng = chunk.getWorld().rand;
+				return rng.nextBoolean() ? Blocks.AIR.getDefaultState() : source;
+			}
+			else return null;
 		}
 	}, false),
-	ALL_IN(new MeltingController() {
+	BURST(new MeltingController() {
 		@Override
 		public IBlockState applyToBlock(Chunk chunk, BlockPos position, IBlockState source)
 		{
-			return Blocks.AIR.getDefaultState();
+			if(source.getBlock() == Blocks.SNOW_LAYER && !BlockMelting.isFreezingAt(chunk, position))
+			{
+				return Blocks.AIR.getDefaultState();
+			}
+			return null;
 		}
 	}, true),
 	NONE(null, false);
@@ -60,13 +93,9 @@ public enum SnowMeltingController {
 		for(BlockPos.MutableBlockPos base : itr)
 		{
 			BlockPos position = chunk.getPrecipitationHeight(base);
-			
 			IBlockState state = chunk.getBlockState(position);
-			if(state.getBlock() == Blocks.SNOW_LAYER)
-			{
-				IBlockState target = this.controller.applyToBlock(chunk, position, state);
-				if(target != state) chunk.setBlockState(position, target);
-			}
+			IBlockState target = this.controller.applyToBlock(chunk, position, state);
+			if(target != null) chunk.setBlockState(position, target);
 		}
 	}
 	

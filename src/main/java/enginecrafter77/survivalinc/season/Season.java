@@ -3,10 +3,10 @@ package enginecrafter77.survivalinc.season;
 import enginecrafter77.survivalinc.config.ModConfig;
 
 public enum Season {
-	WINTER(ModConfig.SEASONS.winterLength, -0.25F, 0.6f, 0x5BAE92),
-	SPRING(ModConfig.SEASONS.springLength, 0.1F, 0.7f, 0x000000),
-	SUMMER(ModConfig.SEASONS.summerLength, 0.3F, 0.3f, 0xCAE24E),
-	AUTUMN(ModConfig.SEASONS.autumnLength, -0.05F, 0.4f, 0xD47E00);
+	WINTER(0.6f, 0x5BAE92),
+	SPRING(0.7f, 0x000000),
+	SUMMER(0.3f, 0xCAE24E),
+	AUTUMN(0.4f, 0xD47E00);
 	
 	/** The length of the season in minecraft days */
 	public final int length;
@@ -20,12 +20,12 @@ public enum Season {
 	/** The color of grass during this season */
 	public final int grasscolor;
 	
-	private Season(int length, float temperature, float rainfallchance, int grasscolor)
+	private Season(float rainfallchance, int grasscolor)
 	{
+		this.temperature = (float)ModConfig.SEASONS.temperatures[this.ordinal()];
+		this.length = ModConfig.SEASONS.durations[this.ordinal()];
 		this.rainfallchance = rainfallchance;
-		this.temperature = temperature;
 		this.grasscolor = grasscolor;
-		this.length = length;
 	}
 	
 	/**

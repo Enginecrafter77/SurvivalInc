@@ -16,7 +16,8 @@ import net.minecraftforge.registries.IForgeRegistry;
 
 @Mod.EventBusSubscriber
 public enum ModBlocks implements Supplier<Block> {
-	MELTING_SNOW(new BlockMeltingSnow());
+	MELTING_SNOW(new BlockMeltingSnow(true)),
+	LAZY_MELTING_SNOW(new BlockMeltingSnow(false));
 	
 	private final Block instance;
 	
