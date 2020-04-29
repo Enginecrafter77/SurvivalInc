@@ -13,6 +13,7 @@ import enginecrafter77.survivalinc.net.WaterDrinkMessage;
 import enginecrafter77.survivalinc.season.SeasonCommand;
 import enginecrafter77.survivalinc.season.SeasonController;
 import enginecrafter77.survivalinc.season.SeasonUpdateEvent;
+import enginecrafter77.survivalinc.season.melting.MeltingController;
 import enginecrafter77.survivalinc.stats.StatCommand;
 import enginecrafter77.survivalinc.stats.StatManager;
 import enginecrafter77.survivalinc.stats.StatStorage;
@@ -46,6 +47,7 @@ public class CommonProxy {
 			MinecraftForge.EVENT_BUS.register(SeasonController.instance);
 			// Register the snow melting controller
 			MinecraftForge.EVENT_BUS.register(ModConfig.SEASONS.meltController);
+			MeltingController.registerTransformers();
 		}
 		if(ModConfig.GHOST.enabled) GhostProvider.register();
 		
