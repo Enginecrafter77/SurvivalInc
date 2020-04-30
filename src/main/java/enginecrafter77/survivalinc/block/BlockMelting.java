@@ -2,6 +2,7 @@ package enginecrafter77.survivalinc.block;
 
 import java.util.Random;
 
+import enginecrafter77.survivalinc.config.ModConfig;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyInteger;
@@ -19,10 +20,9 @@ public class BlockMelting extends Block {
 	
 	public final Block from, to;
 	
-	public BlockMelting(Block from, Block to, boolean autotick)
+	public BlockMelting(Block from, Block to)
 	{
 		super(from.getDefaultState().getMaterial());
-		this.setTickRandomly(autotick);
 		this.from = from;
 		this.to = to;
 	}
@@ -43,6 +43,12 @@ public class BlockMelting extends Block {
 	public IBlockState getStateFromMeta(int meta)
 	{
 		return this.getDefaultState().withProperty(MELTPHASE, meta);
+	}
+	
+	@Override
+	public boolean getTickRandomly()
+	{
+		return ModConfig.SEASONS.meltController.allowRandomTicks();
 	}
 
 	@Override

@@ -45,8 +45,6 @@ public class CommonProxy {
 		if(ModConfig.SEASONS.enabled)
 		{
 			MinecraftForge.EVENT_BUS.register(SeasonController.instance);
-			// Register the snow melting controller
-			MinecraftForge.EVENT_BUS.register(ModConfig.SEASONS.meltController);
 			MeltingController.registerTransformers();
 		}
 		if(ModConfig.GHOST.enabled) GhostProvider.register();
@@ -92,7 +90,14 @@ public class CommonProxy {
 		}
 	}
 	
-	public void postInit(FMLPostInitializationEvent event) {}
+	public void postInit(FMLPostInitializationEvent event)
+	{
+		if(ModConfig.SEASONS.enabled && ModConfig.SEASONS.meltController.isValid())
+		{
+			MeltingController.compile(ModConfig.SEASONS.meltController);
+			MinecraftForge.EVENT_BUS.register(MeltingController.class);
+		}
+	}
 
 	public void serverStarting(FMLServerStartingEvent event)
 	{

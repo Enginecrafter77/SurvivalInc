@@ -1,9 +1,11 @@
 package enginecrafter77.survivalinc.season.melting;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
+import java.util.Set;
+import java.util.function.Function;
 
 import enginecrafter77.survivalinc.ModBlocks;
 import enginecrafter77.survivalinc.SurvivalInc;
@@ -11,9 +13,6 @@ import enginecrafter77.survivalinc.block.BlockMelting;
 import enginecrafter77.survivalinc.season.Season;
 import enginecrafter77.survivalinc.season.SeasonData;
 import enginecrafter77.survivalinc.season.SeasonUpdateEvent;
-import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -24,56 +23,46 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public enum MeltingController {
 	
-	FANCY(true),
-	LAZY(false),
-	SIMPLE(false),
-	BURST(true),
-	NONE(false);
+	FANCY((MelterEntry entry) -> new SimpleMeltingTransformer(entry.block, entry.level).setSurfaceRelative(entry.surfaceRelative)),
+	LAZY((MelterEntry entry) -> new LazyMeltingTransformer(entry.block, entry.level).setSurfaceRelative(entry.surfaceRelative)),
+	SIMPLE((MelterEntry entry) -> new SimpleChunkFilter(entry.block.from, entry.block.to, entry.level).setSurfaceRelative(entry.surfaceRelative)),
+	NONE(null);
 	
-	private final List<BlockTransformer> transformers;
-	private final boolean advanceonly;
+	public static final Set<MelterEntry> meltmap = new HashSet<MelterEntry>();
+	private static List<ChunkFilter> transformers;
 	
-	private MeltingController(boolean advanceonly)
+	private final Function<MelterEntry, ChunkFilter> factory;
+	
+	private MeltingController(Function<MelterEntry, ChunkFilter> factory)
 	{
-		this.transformers = new LinkedList<BlockTransformer>();
-		this.advanceonly = advanceonly;
+		this.factory = factory;
+	}
+	
+	public boolean isValid()
+	{
+		return this != NONE;
+	}
+	
+	public boolean allowRandomTicks()
+	{
+		return this == FANCY;
 	}
 	
 	public static void registerTransformers()
 	{
-		MeltingController.registerTransformation(Blocks.SNOW_LAYER, (BlockMelting)ModBlocks.MELTING_SNOW.get(), (BlockMelting)ModBlocks.LAZY_MELTING_SNOW.get());
+		MeltingController.meltmap.add(new MelterEntry((BlockMelting)ModBlocks.MELTING_SNOW.get(), 0, true)); // 0 + true = precipitation height
 	}
 	
-	public static void registerTransformation(Block from, BlockMelting active, BlockMelting lazy)
+	public static void compile(MeltingController controller)
 	{
-		MeltingController.FANCY.registerTransformer(new SimpleMeltingTransformer(from, active));
-		MeltingController.LAZY.registerTransformer(new SimpleMeltingTransformer(from, lazy));
-		MeltingController.SIMPLE.registerTransformer(new SimpleMeltingTransformer(from, active.to, 0.9F));
-		MeltingController.BURST.registerTransformer(new SimpleMeltingTransformer(from, active.to));
-		
-		MeltingController.LAZY.registerTransformer(new BlockTransformer() {
-			@Override
-			public IBlockState applyToBlock(Chunk chunk, BlockPos position, IBlockState source)
-			{
-				Block cblock = source.getBlock();
-				World world = chunk.getWorld();
-				Random rng = world.rand;
-				if(cblock == lazy && rng.nextFloat() < 0.9F) // 90% chance to trigger melting
-				{
-					cblock.updateTick(world, chunk.getPos().getBlock(position.getX(), position.getY(), position.getZ()), source, rng);
-					chunk.markDirty();
-				}
-				return source;
-			}
-		});
+		MeltingController.transformers = new LinkedList<ChunkFilter>();
+		for(MelterEntry entry : MeltingController.meltmap)
+		{
+			MeltingController.transformers.add(controller.factory.apply(entry));
+		}
 	}
 	
-	public void registerTransformer(BlockTransformer transformer)
-	{
-		this.transformers.add(transformer);
-	}
-	
-	public void processChunk(Chunk chunk)
+	public static void processChunk(Chunk chunk)
 	{
 		BlockPos begin = new BlockPos(0, 0, 0);
 		BlockPos end = new BlockPos(15, 0, 15);
@@ -82,21 +71,17 @@ public enum MeltingController {
 		
 		for(BlockPos.MutableBlockPos base : itr)
 		{
-			BlockPos position = chunk.getPrecipitationHeight(base);
-			IBlockState state = chunk.getBlockState(position);
-			IBlockState target = state;
-			for(BlockTransformer transformer : this.transformers)
-				target = transformer.applyToBlock(chunk, position, target);
-			if(state != target) chunk.setBlockState(position, target);
+			for(ChunkFilter transformer : MeltingController.transformers)
+			{				
+				BlockPos position = transformer.offsetPosition(chunk, base);
+				transformer.applyToChunk(chunk, position);
+			}
 		}
 	}
 	
 	@SubscribeEvent
-	public void onSeasonUpdate(SeasonUpdateEvent event)
+	public static void onSeasonUpdate(SeasonUpdateEvent event)
 	{
-		if(this == NONE) return; // In the NONE mode, we do nothing...
-		if(this.advanceonly && !event.hasSeasonAdvanced()) return; // If the season hasn't advanced yet this preset requires it, exit
-		
 		World world = event.getWorld();
 		if(world.isRemote) return; // We don't serve clients here
 		
@@ -107,22 +92,34 @@ public enum MeltingController {
 		SurvivalInc.logger.info("Preparing to process {} chunks...", chunks.size());
 		long time = System.currentTimeMillis();
 		for(Chunk current : chunks)
-			this.processChunk(current);
+			MeltingController.processChunk(current);
 		time = System.currentTimeMillis() - time;
 		SurvivalInc.logger.info("Processed {} chunks in {} ms", chunks.size(), time);
 	}
 	
 	@SubscribeEvent
-	public void onChunkLoad(ChunkEvent.Load event)
-	{
-		if(this == NONE) return; // In the NONE mode, we do nothing...
-		
+	public static void onChunkLoad(ChunkEvent.Load event)
+	{		
 		if(event.getWorld().isRemote) return; // We don't serve clients here
 		
 		SeasonData data = SeasonData.load(event.getWorld());
 		if(data.season != Season.WINTER)
 		{
-			this.processChunk(event.getChunk());
+			MeltingController.processChunk(event.getChunk());
+		}
+	}
+	
+	public static class MelterEntry
+	{
+		public final boolean surfaceRelative;
+		public final BlockMelting block;
+		public final int level;
+		
+		public MelterEntry(BlockMelting block, int level, boolean surfaceRelative)
+		{
+			this.surfaceRelative = surfaceRelative;
+			this.block = block;
+			this.level = level;
 		}
 	}
 	
