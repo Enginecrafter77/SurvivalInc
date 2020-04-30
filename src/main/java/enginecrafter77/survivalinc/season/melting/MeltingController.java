@@ -99,6 +99,7 @@ public enum MeltingController {
 	public static void registerTransformers()
 	{
 		MeltingController.meltmap.add(new MelterEntry((BlockMelting)ModBlocks.MELTING_SNOW.get(), 0, true)); // 0 + true = precipitation height
+		MeltingController.meltmap.add(new MelterEntry((BlockMelting)ModBlocks.MELTING_ICE.get(), -1, true)); // -1 + true = ground
 	}
 	
 	/**

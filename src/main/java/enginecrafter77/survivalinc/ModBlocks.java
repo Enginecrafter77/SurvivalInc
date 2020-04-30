@@ -2,7 +2,8 @@ package enginecrafter77.survivalinc;
 
 import java.util.function.Supplier;
 
-import enginecrafter77.survivalinc.block.BlockMeltingSnow;
+import enginecrafter77.survivalinc.block.*;
+
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
@@ -16,7 +17,8 @@ import net.minecraftforge.registries.IForgeRegistry;
 
 @Mod.EventBusSubscriber
 public enum ModBlocks implements Supplier<Block> {
-	MELTING_SNOW(new BlockMeltingSnow());
+	MELTING_SNOW(new BlockMeltingSnow()),
+	MELTING_ICE(new BlockMeltingIce());
 	
 	private final Block instance;
 	

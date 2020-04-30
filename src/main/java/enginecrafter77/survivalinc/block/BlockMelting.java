@@ -25,6 +25,8 @@ public class BlockMelting extends Block {
 		super(from.getDefaultState().getMaterial());
 		this.from = from;
 		this.to = to;
+		
+		this.setDefaultState(this.blockState.getBaseState().withProperty(MELTPHASE, Integer.valueOf(0)));
 	}
 	
 	@Override

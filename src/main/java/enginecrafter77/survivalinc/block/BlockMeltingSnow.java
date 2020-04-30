@@ -14,7 +14,6 @@ public class BlockMeltingSnow extends BlockMelting {
 	{
 		super(Blocks.SNOW_LAYER, Blocks.AIR);
 		this.setRegistryName(new ResourceLocation(SurvivalInc.MOD_ID, "melting_snow"));
-		this.setDefaultState(this.blockState.getBaseState().withProperty(MELTPHASE, Integer.valueOf(0)));
 		this.setTranslationKey("melting_snow");
 	}
 	
