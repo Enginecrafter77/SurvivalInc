@@ -56,7 +56,7 @@ public class BiomeTempController extends HashMap<Biome, Float> {
 	{
 		try
 		{
-			SurvivalInc.logger.info("Setting base temperature of biome {} to {}", biome.getBiomeName(), temperature);
+			SurvivalInc.logger.info("Setting base temperature of biome {} to {}", biome.getRegistryName().toString(), temperature);
 			target.setFloat(biome, temperature);
 		}
 		catch(ReflectiveOperationException exc)
@@ -91,7 +91,7 @@ public class BiomeTempController extends HashMap<Biome, Float> {
 			// A little check to fix compatibility with mods that add biomes during runtime
 			if(!this.originals.containsKey(biome))
 			{
-				SurvivalInc.logger.info("Biome {} has not saved it's original value. Mapping to {}.", biome.getBiomeName(), biome.getDefaultTemperature());
+				SurvivalInc.logger.info("Biome {} has not saved it's original value. Mapping to {}.", biome.getRegistryName().toString(), biome.getDefaultTemperature());
 				this.originals.put(biome, biome.getDefaultTemperature());
 			}
 			

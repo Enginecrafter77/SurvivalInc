@@ -9,6 +9,7 @@ import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.ghost.GhostEnergyBar;
 import enginecrafter77.survivalinc.ghost.RenderGhost;
 import enginecrafter77.survivalinc.item.ItemCanteen;
+import enginecrafter77.survivalinc.season.LeafColorer;
 import enginecrafter77.survivalinc.stats.impl.DefaultStats;
 import enginecrafter77.survivalinc.stats.impl.HeatModifier;
 import net.minecraft.util.ResourceLocation;
@@ -25,6 +26,7 @@ public class ClientProxy extends CommonProxy {
 		MinecraftForge.EVENT_BUS.register(RenderHUD.instance);
 		
 		if(ModConfig.GHOST.enabled) MinecraftForge.EVENT_BUS.register(new RenderGhost());
+		if(ModConfig.SEASONS.enabled) MinecraftForge.EVENT_BUS.register(LeafColorer.class);
 	}
 	
 	@Override
