@@ -14,11 +14,11 @@ public class SeasonConfig {
 	@Config.RequiresMcRestart
 	public int[] durations = {14, 14, 14, 14};
 	
-	@Config.LangKey("config.survivalinc:seasons.lengths")
+	@Config.LangKey("config.survivalinc:seasons.temperatures")
 	@Config.RequiresMcRestart
 	public double[] temperatures = {-0.25F, 0.1F, 0.3F, -0.05F};
 	
 	@Config.LangKey("config.survivalinc:seasons.meltController")
 	@Config.RequiresMcRestart
-	public MeltingController meltController = MeltingController.SIMPLE;
+	public MeltingController meltController = MeltingController.FANCY;
 }

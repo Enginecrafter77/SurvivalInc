@@ -1,3 +1,7 @@
+# Blocks
+tile.melting_snow.name=Melting Snow
+tile.melting_ice.name=Melting Ice
+
 # Items
 item.water_canteen.name=Water Canteen
 item.feather_fan.name=Feather Fan
@@ -16,6 +20,10 @@ survivalinc.client=Client
 survivalinc.client.tooltip=Client-Only Settings
 config.survivalinc:client.barTransparency=Bar Transparency
 config.survivalinc:client.barTransparency.tooltip=The transparency of the HUD
+config.survivalinc:client.statBarPosition=HUD Position
+config.survivalinc:client.statBarPosition.tooltip=The position of the HUD, represented by an expression. The expression can use mathematical symbols, as well as 2 defined variables: $w and $h, representing scaled width and height respectively.
+config.survivalinc:client.autumnLeafColor=Autumn Foliage Color
+config.survivalinc:client.autumnLeafColor.tooltip=The color multiplier applied to each RGB component of the original foliage color during autumn
 
 # Heat config
 survivalinc.heat=Heat
