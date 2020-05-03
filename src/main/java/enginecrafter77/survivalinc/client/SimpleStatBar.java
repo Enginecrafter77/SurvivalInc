@@ -15,19 +15,14 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class SimpleStatBar extends Gui implements StatBar {
+public class SimpleStatBar extends GaugeBar implements StatBar {
 	public final StatProvider key;
 	
 	protected final DifferentialArrow arrow;
-	protected final GaugeBar gauge;
 	
 	protected final ResourceLocation texture;
 	protected int texoffx, texoffy, texwidth, texheight;
 	protected int iconheight, spacing;
-	
-	public EnumMap<Axis, Integer> position;
-	
-	public float previousValue;
 	
 	public SimpleStatBar(StatProvider key, ResourceLocation icon, Color color)
 	{
@@ -36,10 +31,9 @@ public class SimpleStatBar extends Gui implements StatBar {
 	
 	public SimpleStatBar(StatProvider key, ResourceLocation texture, int texture_x, int texture_y, Color color)
 	{
-		this.previousValue = 0;
+		super(8, 32, color);
 		
-		this.arrow = new DifferentialArrow(key, 8, 12);		
-		this.gauge = new GaugeBar(8, 32, color);
+		this.arrow = new DifferentialArrow(key, 8, 12);
 		this.texture = texture;
 		this.texoffx = texture_x;
 		this.texoffy = texture_y;
@@ -49,45 +43,37 @@ public class SimpleStatBar extends Gui implements StatBar {
 		this.texwidth = 8;
 		this.iconheight = 12;
 		this.spacing = 2;
-		
-		this.position = new EnumMap<Axis, Integer>(Axis.class);
+	}
+	
+	@Override
+	protected float getProportion(StatTracker tracker)
+	{
+		return (tracker.getStat(key) - key.getMinimum()) / (key.getMaximum() - key.getMinimum());
 	}
 	
 	@Override
 	public void draw(ScaledResolution resolution, StatTracker stats) throws UnsupportedOperationException
 	{
-		try
-		{
-			this.gauge.draw(this.position.get(Axis.HORIZONTAL), this.position.get(Axis.VERTICAL), this.getStatProportional(stats));
-		}
-		catch(NullPointerException exc)
-		{
-			UnsupportedOperationException nexc = new UnsupportedOperationException("Server doesn't track stat " + key.getStatID() + ". Some other mod on client's side is overriding default implementation.");
-			nexc.initCause(exc);
-			throw nexc;
-		}
+		super.draw(resolution, stats);
 		
 		GlStateManager.enableAlpha(); // Enable alpha, we will need it
-		
 		// Draw the stat icon
-		this.gauge.texturer.bindTexture(texture);
-		Gui.drawModalRectWithCustomSizedTexture(this.position.get(Axis.HORIZONTAL), this.position.get(Axis.VERTICAL) + this.gauge.height + spacing, texoffx, texoffy, this.gauge.width, iconheight, texwidth, texheight);
-		
-		// Draw the arrow indicating value change TODO add onGeometryChange method to recalculate the position
-		this.arrow.setPosition(Axis.HORIZONTAL, this.position.get(Axis.HORIZONTAL));
-		this.arrow.setPosition(Axis.VERTICAL, this.position.get(Axis.VERTICAL) - this.arrow.height - this.spacing);
+		this.texturer.bindTexture(texture);
+		Gui.drawModalRectWithCustomSizedTexture(this.position.get(Axis.HORIZONTAL), this.position.get(Axis.VERTICAL) + this.height + spacing, texoffx, texoffy, this.width, iconheight, texwidth, texheight);
+		// Draw the arrow indicating value
 		this.arrow.draw(resolution, stats);
+		GlStateManager.disableAlpha(); // Disable alpha, just in case
 	}
 	
 	@Override
 	public void setPosition(Axis axis, int position)
 	{
 		this.position.put(axis, position);
-	}
-	
-	public float getStatProportional(StatTracker tracker) throws NullPointerException
-	{
-		return (tracker.getStat(key) - key.getMinimum()) / (key.getMaximum() - key.getMinimum());
+		
+		if(axis == Axis.VERTICAL)
+			position -= (this.arrow.height + this.spacing);
+		
+		this.arrow.setPosition(axis, position);
 	}
 
 	@Override
@@ -105,15 +91,10 @@ public class SimpleStatBar extends Gui implements StatBar {
 	@Override
 	public int getDimension(Axis axis)
 	{
-		switch(axis)
-		{
-		case HORIZONTAL:
-			return this.gauge.width;
-		case VERTICAL:
-			return this.gauge.height + spacing + iconheight;
-		default:
-			return 0;
-		}
+		int value = super.getDimension(axis);
+		if(axis == Axis.VERTICAL)
+			value += spacing + iconheight;
+		return value;
 	}
 	
 	public static class DifferentialArrow implements StatRender
@@ -153,7 +134,6 @@ public class SimpleStatBar extends Gui implements StatBar {
 			Gui.drawModalRectWithCustomSizedTexture(-this.width / 2, -this.height / 2, 0, 0, this.width, this.height, 8, 12); // Draw the arrow (center at origin)
 			GlStateManager.popMatrix(); // Render the scaled and rotated arrow
 			GlStateManager.popMatrix(); // Render the offset arrow in place
-			GlStateManager.disableAlpha(); // Disable alpha, just in case
 		}
 
 		@Override
