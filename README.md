@@ -82,6 +82,12 @@ We have provided a whole-new API for interacting with the stats using a centrali
 As such, you may use Survival Inc. mod for developing whole new stats. For better overview
 of the API, see the wiki (our monkeys are currently working very hard on it).
 
+## Legal (Jokes Aside)
+The name of the project is a unique name made up by Enginecrafter77. The name was chosen for the survival
+nature of the mod's influence on the main game. Any possible match with a real company with name "Survival Inc.",
+or a similar-enough name is purely coincidental, and certainly not intended to break trademark law or any
+other laws available to be misused.
+
 ## Special Thanks
 Special Thanks to the following people (for contributing a noticeable proportions of the mod):
  * Schoperation for the original mod
