@@ -19,7 +19,7 @@ public class SanityConfig {
 	
 	@Config.LangKey("config.survivalinc:sanity.comfortLightLevel")
 	@Config.RangeInt(min = 0, max = 15)
-	public int comfortLightLevel = 7;
+	public int comfortLightLevel = 4;
 	
 	@Config.LangKey("config.survivalinc:sanity.nighttimeDrain")
 	@Config.RangeDouble(min = 1E-3)
@@ -39,7 +39,7 @@ public class SanityConfig {
 	
 	@Config.LangKey("config.survivalinc:sanity.animalTameBoost")
 	@Config.RangeDouble(min = 0)
-	public double animalTameBoost = 4;
+	public double animalTameBoost = 20;
 	
 	@Config.LangKey("config.survivalinc:sanity.sleepRestoration")
 	@Config.RangeDouble(min = 0, max = 1)
