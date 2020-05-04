@@ -3,6 +3,7 @@ package enginecrafter77.survivalinc.block;
 import java.util.Random;
 
 import enginecrafter77.survivalinc.SurvivalInc;
+import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -22,6 +23,9 @@ public class BlockMeltingIce extends BlockMelting {
 		super(Blocks.ICE, Blocks.WATER);
 		this.setRegistryName(new ResourceLocation(SurvivalInc.MOD_ID, "melting_ice"));
 		this.setTranslationKey("melting_ice");
+		this.setSoundType(SoundType.GLASS);
+		this.setLightOpacity(3);
+		this.setHardness(0.5F);
 	}
 	
 	@Override

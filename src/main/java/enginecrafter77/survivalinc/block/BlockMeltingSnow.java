@@ -1,6 +1,7 @@
 package enginecrafter77.survivalinc.block;
 
 import enginecrafter77.survivalinc.SurvivalInc;
+import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.ResourceLocation;
@@ -15,6 +16,9 @@ public class BlockMeltingSnow extends BlockMelting {
 		super(Blocks.SNOW_LAYER, Blocks.AIR);
 		this.setRegistryName(new ResourceLocation(SurvivalInc.MOD_ID, "melting_snow"));
 		this.setTranslationKey("melting_snow");
+		this.setSoundType(SoundType.SNOW);
+		this.setLightOpacity(0);
+		this.setHardness(0.1F);
 	}
 	
 	@Override
