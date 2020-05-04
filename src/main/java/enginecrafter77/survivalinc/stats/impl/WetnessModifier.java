@@ -18,7 +18,6 @@ import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.fml.common.Mod;
 
 /*
  * This is where the magic of changing one's wetness occurs. You'll most likely be here.
@@ -26,9 +25,11 @@ import net.minecraftforge.fml.common.Mod;
  * This is also the first mechanic I implemented, so some old code will most likely be here.
  * The newest is temperature, so that'll look more functional.
  * 	-Schoperation
+ * 
+ * Although this class has been rewritten from the ground up, I still wanted to
+ * keep the schoperation's comment above. I find it funny.
  */
 
-@Mod.EventBusSubscriber
 public class WetnessModifier {
 	public static Map<Block, Float> humiditymap;
 	
