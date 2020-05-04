@@ -1,6 +1,5 @@
 package enginecrafter77.survivalinc;
 
-import enginecrafter77.survivalinc.client.StatUpdateMessageHandler;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.ghost.GhostCommand;
 import enginecrafter77.survivalinc.ghost.GhostProvider;
@@ -8,7 +7,8 @@ import enginecrafter77.survivalinc.net.EntityItemUpdateMessage;
 import enginecrafter77.survivalinc.net.EntityItemUpdater;
 import enginecrafter77.survivalinc.net.GhostUpdateMessage;
 import enginecrafter77.survivalinc.net.GhostUpdateMessageHandler;
-import enginecrafter77.survivalinc.net.StatUpdateMessage;
+import enginecrafter77.survivalinc.net.StatSyncMessage;
+import enginecrafter77.survivalinc.net.StatSyncHandler;
 import enginecrafter77.survivalinc.net.WaterDrinkMessage;
 import enginecrafter77.survivalinc.season.SeasonCommand;
 import enginecrafter77.survivalinc.season.SeasonController;
@@ -56,7 +56,7 @@ public class CommonProxy {
 	public void init(FMLInitializationEvent event)
 	{
 		this.net = NetworkRegistry.INSTANCE.newSimpleChannel(SurvivalInc.MOD_ID);
-		this.net.registerMessage(StatUpdateMessageHandler.class, StatUpdateMessage.class, 0, Side.CLIENT);
+		this.net.registerMessage(StatSyncHandler.class, StatSyncMessage.class, 0, Side.CLIENT);
 		this.net.registerMessage(SeasonController.instance, SeasonUpdateEvent.class, 1, Side.CLIENT);
 		this.net.registerMessage(EntityItemUpdater.class, EntityItemUpdateMessage.class, 2, Side.CLIENT);
 		this.net.registerMessage(GhostUpdateMessageHandler.class, GhostUpdateMessage.class, 3, Side.CLIENT);

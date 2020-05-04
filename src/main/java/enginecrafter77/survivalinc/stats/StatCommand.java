@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import enginecrafter77.survivalinc.SurvivalInc;
-import enginecrafter77.survivalinc.net.StatUpdateMessage;
+import enginecrafter77.survivalinc.net.StatSyncMessage;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -58,7 +58,7 @@ public class StatCommand extends CommandBase {
 				tracker.setStat(provider, Float.parseFloat(args[3]));
 			}
 			else sender.sendMessage(new TextComponentString(provider.getStatID() + ": " + tracker.getStat(provider)));
-			SurvivalInc.proxy.net.sendTo(new StatUpdateMessage(tracker), (EntityPlayerMP)player);
+			SurvivalInc.proxy.net.sendTo(new StatSyncMessage(tracker), (EntityPlayerMP)player);
 			break;
 		default:
 			return;

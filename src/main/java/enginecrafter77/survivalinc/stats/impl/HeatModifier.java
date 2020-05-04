@@ -3,7 +3,6 @@ package enginecrafter77.survivalinc.stats.impl;
 import java.util.HashMap;
 import java.util.Map;
 
-import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.stats.OverflowHandler;
 import enginecrafter77.survivalinc.stats.StatProvider;
@@ -190,9 +189,6 @@ public class HeatModifier implements StatProvider {
 				if(currentheat > heat) heat = currentheat; // Use only the maximum value
 			}
 		}
-		
-		if(player.world.getWorldTime() % 20 == 0)
-			SurvivalInc.logger.info("Radiant heat: {} (original: {})", heat, current);
 		
 		return heat;
 	}

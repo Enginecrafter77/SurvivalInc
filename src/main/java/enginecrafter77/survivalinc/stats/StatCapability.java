@@ -1,7 +1,7 @@
 package enginecrafter77.survivalinc.stats;
 
 import enginecrafter77.survivalinc.SurvivalInc;
-import enginecrafter77.survivalinc.net.StatUpdateMessage;
+import enginecrafter77.survivalinc.net.StatSyncMessage;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -16,7 +16,6 @@ import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
-import net.minecraftforge.fml.relauncher.Side;
 
 @Mod.EventBusSubscriber
 public class StatCapability implements ICapabilitySerializable<NBTBase> {
@@ -71,7 +70,7 @@ public class StatCapability implements ICapabilitySerializable<NBTBase> {
 		if(!event.player.world.isRemote)
 		{
 			StatTracker stat = event.player.getCapability(StatCapability.target, null);
-			SurvivalInc.proxy.net.sendTo(new StatUpdateMessage(stat), (EntityPlayerMP)event.player);
+			SurvivalInc.proxy.net.sendTo(new StatSyncMessage(stat), (EntityPlayerMP)event.player);
 		}
 	}
 	
@@ -79,7 +78,6 @@ public class StatCapability implements ICapabilitySerializable<NBTBase> {
 	public static void onPlayerUpdate(LivingUpdateEvent event)
 	{
 		Entity ent = event.getEntity();
-		//if(ent.world.isRemote) return;
 		
 		if(ent instanceof EntityPlayer)
 		{
@@ -89,16 +87,10 @@ public class StatCapability implements ICapabilitySerializable<NBTBase> {
 				StatTracker stat = player.getCapability(StatCapability.target, null);
 				stat.update(player);
 				
-				if(player.world.getWorldTime() % 20 == 0)
-				{
-					Side side = player.world.isRemote ? Side.CLIENT : Side.SERVER;
-					SurvivalInc.logger.info("Status update info for {}: {}", side.name(), stat.toString());
-				}
-				
 				if(!player.world.isRemote && player.world.getWorldTime() % 200 == 0)
 				{
 					// Send update
-					SurvivalInc.proxy.net.sendTo(new StatUpdateMessage(stat), (EntityPlayerMP)player);
+					SurvivalInc.proxy.net.sendTo(new StatSyncMessage(stat), (EntityPlayerMP)player);
 				}
 			}
 		}

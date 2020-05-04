@@ -8,6 +8,12 @@ import java.util.Set;
 
 import net.minecraft.entity.player.EntityPlayer;
 
+/**
+ * StatManager is the default implementation of StatTracker.
+ * It features all the basic facilities and principles recommended
+ * by StatTracker definition.
+ * @author Enginecrafter77
+ */
 public class StatManager extends HashMap<StatProvider, StatRecord> implements StatTracker {
 	private static final long serialVersionUID = -878624371786181967L;
 	
