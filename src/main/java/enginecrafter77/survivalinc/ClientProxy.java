@@ -23,7 +23,7 @@ public class ClientProxy extends CommonProxy {
 	{
 		super.preInit(event);		
 		if(ModConfig.GHOST.enabled) MinecraftForge.EVENT_BUS.register(new RenderGhost());
-		if(ModConfig.SEASONS.enabled) MinecraftForge.EVENT_BUS.register(LeafColorer.class);
+		if(ModConfig.SEASONS.enabled) MinecraftForge.EVENT_BUS.register(LeafColorer.instance);
 	}
 	
 	@Override
