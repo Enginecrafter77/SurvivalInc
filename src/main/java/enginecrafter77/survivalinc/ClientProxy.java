@@ -21,8 +21,8 @@ public class ClientProxy extends CommonProxy {
 	@Override
 	public void preInit(FMLPreInitializationEvent event)
 	{
-		super.preInit(event);		
-		if(ModConfig.GHOST.enabled) MinecraftForge.EVENT_BUS.register(new RenderGhost());
+		super.preInit(event);
+		
 		if(ModConfig.SEASONS.enabled) MinecraftForge.EVENT_BUS.register(LeafColorer.instance);
 	}
 	
@@ -44,5 +44,6 @@ public class ClientProxy extends CommonProxy {
 		super.postInit(event);
 		
 		if(!RenderHUD.instance.isEmpty()) MinecraftForge.EVENT_BUS.register(RenderHUD.instance);
+		if(ModConfig.GHOST.enabled) MinecraftForge.EVENT_BUS.register(new RenderGhost());
 	}
 }
