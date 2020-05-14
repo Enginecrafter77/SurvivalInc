@@ -54,6 +54,8 @@ public class SimpleStatBar extends GaugeBar implements StatBar {
 	@Override
 	public void draw(ScaledResolution resolution, StatTracker stats) throws UnsupportedOperationException
 	{
+		if(!this.key.isAcitve(Minecraft.getMinecraft().player)) return;
+		
 		super.draw(resolution, stats);
 		
 		GlStateManager.enableAlpha(); // Enable alpha, we will need it

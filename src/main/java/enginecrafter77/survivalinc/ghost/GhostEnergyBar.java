@@ -34,31 +34,30 @@ public class GhostEnergyBar extends Gui implements StatBar {
 	public void draw(ScaledResolution resolution, StatTracker tracker)
 	{
 		Minecraft instance = Minecraft.getMinecraft();
-		Ghost ghost = instance.player.getCapability(GhostProvider.target, null);
-		if(ghost.getStatus())
+		
+		if(!GhostEnergy.instance.isAcitve(instance.player)) return;
+		
+		this.setPosition(Axis.HORIZONTAL, resolution.getScaledWidth() / 2 - 91);
+		this.setPosition(Axis.VERTICAL, resolution.getScaledHeight() - 39);
+		
+		float value = this.count * tracker.getStat(this.getProvider()) / this.getProvider().getMaximum(), part;
+		
+		instance.getTextureManager().bindTexture(texture);
+		GlStateManager.enableAlpha();
+		
+		for(int current = 0; current < this.count; current++)
 		{
-			this.setPosition(Axis.HORIZONTAL, resolution.getScaledWidth() / 2 - 91);
-			this.setPosition(Axis.VERTICAL, resolution.getScaledHeight() - 39);
+			int offset = this.parameters[0] + (current * 8);
+			Gui.drawModalRectWithCustomSizedTexture(offset, this.parameters[1], 0, 0, 9, this.parameters[3], 9, 18);
 			
-			float value = this.count * tracker.getStat(this.getProvider()) / this.getProvider().getMaximum(), part;
-			
-			instance.getTextureManager().bindTexture(texture);
-			GlStateManager.enableAlpha();
-			
-			for(int current = 0; current < this.count; current++)
+			if(value > 0)
 			{
-				int offset = this.parameters[0] + (current * 8);
-				Gui.drawModalRectWithCustomSizedTexture(offset, this.parameters[1], 0, 0, 9, this.parameters[3], 9, 18);
-				
-				if(value > 0)
-				{
-					part = value > 1F ? 1F : value;
-					Gui.drawModalRectWithCustomSizedTexture(offset, this.parameters[1], 0, 9, Math.round(part * 9F), this.parameters[3], 9, 18);
-					value -= part;
-				}
+				part = value > 1F ? 1F : value;
+				Gui.drawModalRectWithCustomSizedTexture(offset, this.parameters[1], 0, 9, Math.round(part * 9F), this.parameters[3], 9, 18);
+				value -= part;
 			}
-			GlStateManager.disableAlpha();
 		}
+		GlStateManager.disableAlpha();
 	}
 
 	@Override

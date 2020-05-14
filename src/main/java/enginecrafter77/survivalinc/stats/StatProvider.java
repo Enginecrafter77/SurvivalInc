@@ -71,4 +71,15 @@ public interface StatProvider extends Serializable {
 	 * @return A new instance of stat record.
 	 */
 	public StatRecord createNewRecord();
+	
+	/**
+	 * Used to indicate whether a stat is active
+	 * for the given player. Inactive stats are
+	 * not ticked (their {@link #updateValue(EntityPlayer, float)}
+	 * method is not called), and they are not rendered
+	 * in the {@link enginecrafter77.survivalinc.client.RenderHUD HUD}.
+	 * @param player The player being examined
+	 * @return True if the stat is relevant, false otherwise
+	 */
+	public boolean isAcitve(EntityPlayer player);
 }

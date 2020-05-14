@@ -90,7 +90,12 @@ public class StatManager extends HashMap<StatProvider, StatRecord> implements St
 	public void update(EntityPlayer player)
 	{
 		for(StatProvider provider : this.keySet())
-			this.setStat(provider, provider.updateValue(player, this.getStat(provider)));
+		{
+			if(provider.isAcitve(player))
+			{
+				this.setStat(provider, provider.updateValue(player, this.getStat(provider)));
+			}
+		}
 	}
 
 	@Override

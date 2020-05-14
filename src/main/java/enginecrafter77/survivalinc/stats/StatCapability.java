@@ -19,7 +19,6 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 
 @Mod.EventBusSubscriber
 public class StatCapability implements ICapabilitySerializable<NBTBase> {
-	// TODO add update conditions
 	private static ResourceLocation identificator = new ResourceLocation(SurvivalInc.MOD_ID, "stats");
 	
 	@CapabilityInject(StatTracker.class)
@@ -82,16 +81,13 @@ public class StatCapability implements ICapabilitySerializable<NBTBase> {
 		if(ent instanceof EntityPlayer)
 		{
 			EntityPlayer player = (EntityPlayer)ent;
-			if(!player.isCreative() && !player.isSpectator())
+			StatTracker stat = player.getCapability(StatCapability.target, null);
+			stat.update(player);
+			
+			if(!player.world.isRemote && player.world.getWorldTime() % 200 == 0)
 			{
-				StatTracker stat = player.getCapability(StatCapability.target, null);
-				stat.update(player);
-				
-				if(!player.world.isRemote && player.world.getWorldTime() % 200 == 0)
-				{
-					// Send update
-					SurvivalInc.proxy.net.sendTo(new StatSyncMessage(stat), (EntityPlayerMP)player);
-				}
+				// Send update
+				SurvivalInc.proxy.net.sendTo(new StatSyncMessage(stat), (EntityPlayerMP)player);
 			}
 		}
 	}

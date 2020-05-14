@@ -137,6 +137,12 @@ public class HeatModifier implements StatProvider {
 		return OverflowHandler.CAP;
 	}
 	
+	@Override
+	public boolean isAcitve(EntityPlayer player)
+	{
+		return !(player.isCreative() || player.isSpectator());
+	}
+	
 	public static float applyWetnessCooldown(EntityPlayer player)
 	{
 		StatTracker stats = player.getCapability(StatCapability.target, null);

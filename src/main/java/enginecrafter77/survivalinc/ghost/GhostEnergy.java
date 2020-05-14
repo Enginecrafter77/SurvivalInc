@@ -51,4 +51,10 @@ public class GhostEnergy extends ModifierApplicator<EntityPlayer> implements Sta
 		return OverflowHandler.CAP;
 	}
 
+	@Override
+	public boolean isAcitve(EntityPlayer player)
+	{
+		Ghost ghost = player.getCapability(GhostProvider.target, null);
+		return ghost.getStatus();
+	}
 }

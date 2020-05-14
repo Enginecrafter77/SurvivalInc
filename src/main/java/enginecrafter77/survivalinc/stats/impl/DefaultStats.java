@@ -63,4 +63,10 @@ public enum DefaultStats implements StatProvider {
 	{
 		return OverflowHandler.CAP;
 	}
+
+	@Override
+	public boolean isAcitve(EntityPlayer player)
+	{
+		return !(player.isCreative() || player.isSpectator());
+	}
 }
