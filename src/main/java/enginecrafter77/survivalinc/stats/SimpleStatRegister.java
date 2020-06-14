@@ -9,19 +9,19 @@ import java.util.Set;
 import net.minecraft.entity.player.EntityPlayer;
 
 /**
- * StatManager is the default implementation of StatTracker.
+ * SimpleStatRegister is the default implementation of StatTracker.
  * It features all the basic facilities and principles recommended
  * by StatTracker definition.
  * @author Enginecrafter77
  */
-public class StatManager extends HashMap<StatProvider, StatRecord> implements StatTracker {
+public class SimpleStatRegister extends HashMap<StatProvider, StatRecord> implements StatTracker {
 	private static final long serialVersionUID = -878624371786181967L;
 	
 	public static List<StatProvider> providers = new LinkedList<StatProvider>();
 	
-	public StatManager()
+	public SimpleStatRegister()
 	{
-		for(StatProvider provider : StatManager.providers)
+		for(StatProvider provider : SimpleStatRegister.providers)
 			this.registerProvider(provider);
 	}
 	

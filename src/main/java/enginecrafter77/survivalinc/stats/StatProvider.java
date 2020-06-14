@@ -60,8 +60,8 @@ public interface StatProvider extends Serializable {
 	
 	/**
 	 * Creates a new record for the stat provider.
-	 * This method is called each time this stat
-	 * provider is registered inside a {@link StatManager}.
+	 * This method is used to create a new record
+	 * about the stat this interface tries to describe.
 	 * This method allows for custom implementations
 	 * to specify their own StatRecords that will be
 	 * used to store their stats. This method replaces

@@ -1,7 +1,7 @@
 package enginecrafter77.survivalinc.ghost;
 
 import enginecrafter77.survivalinc.SurvivalInc;
-import enginecrafter77.survivalinc.stats.StatManager;
+import enginecrafter77.survivalinc.stats.SimpleStatRegister;
 import enginecrafter77.survivalinc.stats.modifier.ConditionalModifier;
 import enginecrafter77.survivalinc.stats.modifier.FunctionalModifier;
 import enginecrafter77.survivalinc.stats.modifier.OperationType;
@@ -100,7 +100,7 @@ public class GhostProvider implements ICapabilitySerializable<NBTBase> {
 		CapabilityManager.INSTANCE.register(Ghost.class, new GhostStorage(), GhostImpl::new);
 		GhostEnergy.instance.add(new ConditionalModifier<EntityPlayer>((EntityPlayer player) -> player.isSprinting(), -0.2F), OperationType.OFFSET);
 		GhostEnergy.instance.add(new FunctionalModifier<EntityPlayer>(GhostProvider::duringNight), OperationType.OFFSET);
-		StatManager.providers.add(GhostEnergy.instance);
+		SimpleStatRegister.providers.add(GhostEnergy.instance);
 	}
 	
 	public static float duringNight(EntityPlayer player)

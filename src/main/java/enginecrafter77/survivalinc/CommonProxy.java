@@ -15,7 +15,7 @@ import enginecrafter77.survivalinc.season.SeasonController;
 import enginecrafter77.survivalinc.season.SeasonUpdateEvent;
 import enginecrafter77.survivalinc.season.melting.MeltingController;
 import enginecrafter77.survivalinc.stats.StatCommand;
-import enginecrafter77.survivalinc.stats.StatManager;
+import enginecrafter77.survivalinc.stats.SimpleStatRegister;
 import enginecrafter77.survivalinc.stats.StatStorage;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import enginecrafter77.survivalinc.stats.impl.DefaultStats;
@@ -50,7 +50,7 @@ public class CommonProxy {
 		if(ModConfig.GHOST.enabled) GhostProvider.register();
 		
 		// Register capabilities.
-		CapabilityManager.INSTANCE.register(StatTracker.class, StatStorage.instance, StatManager::new);
+		CapabilityManager.INSTANCE.register(StatTracker.class, StatStorage.instance, SimpleStatRegister::new);
 	}
 
 	public void init(FMLInitializationEvent event)
@@ -64,27 +64,27 @@ public class CommonProxy {
 		
 		if(ModConfig.HEAT.enabled)
 		{
-			StatManager.providers.add(HeatModifier.instance);
+			SimpleStatRegister.providers.add(HeatModifier.instance);
 			HeatModifier.instance.init();
 		}
 		
 		if(ModConfig.HYDRATION.enabled)
 		{
-			StatManager.providers.add(DefaultStats.HYDRATION);
+			SimpleStatRegister.providers.add(DefaultStats.HYDRATION);
 			MinecraftForge.EVENT_BUS.register(HydrationModifier.class);
 			HydrationModifier.init();
 		}
 		
 		if(ModConfig.SANITY.enabled)
 		{
-			StatManager.providers.add(DefaultStats.SANITY);
+			SimpleStatRegister.providers.add(DefaultStats.SANITY);
 			MinecraftForge.EVENT_BUS.register(SanityModifier.class);
 			SanityModifier.init();
 		}
 		
 		if(ModConfig.WETNESS.enabled)
 		{
-			StatManager.providers.add(DefaultStats.WETNESS);
+			SimpleStatRegister.providers.add(DefaultStats.WETNESS);
 			MinecraftForge.EVENT_BUS.register(WetnessModifier.class);
 			WetnessModifier.init();
 		}
