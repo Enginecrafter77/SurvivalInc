@@ -1,8 +1,5 @@
 package enginecrafter77.survivalinc.stats;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.net.StatSyncMessage;
 import net.minecraft.command.CommandBase;
@@ -22,46 +19,47 @@ public class StatCommand extends CommandBase {
 	@Override
 	public String getName()
 	{
-		return "playerstat";
+		return "stat";
 	}
 
 	@Override
 	public String getUsage(ICommandSender sender)
 	{
-		return "/playerstat <player> <get|set|list> [stat] [value]";
+		return "/stat <player> [list|<get|set> [stat] [value]]";
 	}
 	
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
 	{		
-		if(args.length < 2) throw new CommandException("Insufficient Arguments\nUsage: " + this.getUsage(sender));
+		if(args.length < 1) throw new CommandException("Insufficient Arguments\nUsage: " + this.getUsage(sender));
 		
 		EntityPlayer player = CommandBase.getPlayer(server, sender, args[0]);
 		StatTracker tracker = player.getCapability(StatCapability.target, null);
 		
-		switch(args[1])
+		if(args.length < 2 || args[1].equals("list"))
 		{
-		case "list":
-			Set<String> providers = new HashSet<String>();
+			StringBuilder builder = new StringBuilder();
+			builder.append(player.getDisplayNameString() + "'s stats:");
 			for(StatProvider provider : tracker.getRegisteredProviders())
-				providers.add(provider.getStatID());
-			sender.sendMessage(new TextComponentString("Registered stats: " + providers.toString()));
-			break;
-		case "get":
-		case "set":
+			{
+				builder.append(String.format("\n \u00A7a%s\u00A7r: %s", provider.getStatID(), tracker.getRecord(provider).toString()));
+			}
+			sender.sendMessage(new TextComponentString(builder.toString()));
+		}
+		else
+		{
 			if(args.length < 3) throw new CommandException("Insufficient Arguments\nUsage: " + this.getUsage(sender));
+			
 			StatProvider provider = tracker.getProvider(args[2]);
 			if(provider == null) throw new CommandException("Stat " + args[2] + " does not exist!");
+			
 			if(args[1].equals("set"))
 			{
 				if(args.length < 4) throw new CommandException("Insufficient Arguments\nUsage: " + this.getUsage(sender));
 				tracker.setStat(provider, Float.parseFloat(args[3]));
+				SurvivalInc.proxy.net.sendTo(new StatSyncMessage(tracker), (EntityPlayerMP)player);
 			}
 			else sender.sendMessage(new TextComponentString(provider.getStatID() + ": " + tracker.getStat(provider)));
-			SurvivalInc.proxy.net.sendTo(new StatSyncMessage(tracker), (EntityPlayerMP)player);
-			break;
-		default:
-			return;
 		}
 	}
 	

@@ -70,4 +70,10 @@ public class StatRecordEntry implements StatRecord {
 		this.value = nbt.getFloat("value");
 	}
 	
+	@Override
+	public String toString()
+	{
+		return Float.toString(this.value);
+	}
+	
 }
