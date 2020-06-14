@@ -1,50 +1,46 @@
 package enginecrafter77.survivalinc.stats.impl;
 
-import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.shader.ShaderGroup;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.monster.*;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.MobEffects;
-import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
-import net.minecraft.potion.PotionEffect;
-import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
+import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.living.AnimalTameEvent;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.event.entity.player.PlayerWakeUpEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
+import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatTracker;
-import enginecrafter77.survivalinc.stats.modifier.ChanceModifier;
 import enginecrafter77.survivalinc.stats.modifier.ConditionalModifier;
 import enginecrafter77.survivalinc.stats.modifier.FunctionalModifier;
-import enginecrafter77.survivalinc.stats.modifier.ModifierApplicator;
 import enginecrafter77.survivalinc.stats.modifier.OperationType;
 
 public class SanityModifier {
 	
+	public static final ResourceLocation distortshader = new ResourceLocation(SurvivalInc.MOD_ID, "shaders/distort.json");
+	public static final SoundEvent staticbuzz = new SoundEvent(new ResourceLocation(SurvivalInc.MOD_ID, "staticbuzz"));
+	
 	public static final Predicate<EntityPlayer> isOutsideOverworld = (EntityPlayer player) -> Math.abs(player.dimension) == 1;
 	public static final Map<Item, Float> foodSanityMap = new HashMap<Item, Float>();
-	
-	public static ModifierApplicator<EntityPlayer> hallucinations = new ModifierApplicator<EntityPlayer>();
-	public static List<SoundEvent> scarysounds = new ArrayList<SoundEvent>();
 	
 	public static void init()
 	{
@@ -55,19 +51,7 @@ public class SanityModifier {
 		DefaultStats.SANITY.modifiers.add(new FunctionalModifier<EntityPlayer>(SanityModifier::whenNearEntities), OperationType.OFFSET);
 		DefaultStats.SANITY.modifiers.add(new FunctionalModifier<EntityPlayer>(SanityModifier::duringNight), OperationType.OFFSET);
 		DefaultStats.SANITY.modifiers.add(new FunctionalModifier<EntityPlayer>(SanityModifier::whenInDark), OperationType.OFFSET);
-		DefaultStats.SANITY.modifiers.add(new FunctionalModifier<EntityPlayer>(SanityModifier::onLowSanity));
-		
-		//TODO remove (will be completely reworked in Sanity Overhaul)
-		SanityModifier.hallucinations.singleCatch = true;
-		SanityModifier.hallucinations.add(new ChanceModifier<EntityPlayer>(new FunctionalModifier<EntityPlayer>(SanityModifier::playRandomSounds), 0.2F));
-		SanityModifier.hallucinations.add(new ChanceModifier<EntityPlayer>(new FunctionalModifier<EntityPlayer>(SanityModifier::spawnGuardianParticle), 0.2F));
-		SanityModifier.hallucinations.add(new ChanceModifier<EntityPlayer>(new FunctionalModifier<EntityPlayer>(SanityModifier::applyBlindness), 0.1F));
-		
-		SanityModifier.scarysounds.add(SoundEvents.ENTITY_VILLAGER_AMBIENT);
-		SanityModifier.scarysounds.add(SoundEvents.ENTITY_ENDERMEN_AMBIENT);
-		SanityModifier.scarysounds.add(SoundEvents.ENTITY_ENDERMEN_TELEPORT);
-		SanityModifier.scarysounds.add(SoundEvents.BLOCK_LAVA_AMBIENT);
-		SanityModifier.scarysounds.add(SoundEvents.BLOCK_STONE_STEP);
+		DefaultStats.SANITY.modifiers.add(new FunctionalModifier<EntityPlayer>(SanityModifier::playStaticNoise), OperationType.NOOP);
 		
 		// Compile food value list
 		for(String entry : ModConfig.SANITY.foodSanityMap)
@@ -77,6 +61,31 @@ public class SanityModifier {
 			Float value = Float.parseFloat(entry.substring(separator + 1));
 			SanityModifier.foodSanityMap.put(target, value);
 		}
+	}
+	
+	public static float playStaticNoise(EntityPlayer player, float current)
+	{		
+		float threshold = (float)ModConfig.SANITY.hallucinationThreshold * DefaultStats.SANITY.getMaximum();
+		if(player.world.isRemote && player.world.getWorldTime() % 160 == 0)
+		{
+			if(player.world.rand.nextFloat() < 0.25F && current < threshold)
+			{
+				// 1F - current / threshold => this calculation is used to increase the volume for "more insane" players, up to 100% original volume (applied at sanity 0)
+				player.world.playSound(player.posX, player.posY, player.posZ, staticbuzz, SoundCategory.AMBIENT, 1F - current / threshold, 1, false);
+				Minecraft.getMinecraft().entityRenderer.loadShader(distortshader);
+			}
+			else
+			{
+				// Check if the current shader is our shader, and if so, stop using it.
+				ShaderGroup shader = Minecraft.getMinecraft().entityRenderer.getShaderGroup();
+				if(shader != null && shader.getShaderGroupName().equals(distortshader.toString()))
+				{
+					Minecraft.getMinecraft().entityRenderer.stopUseShader();
+				}
+			}
+		}
+		
+		return 0F;
 	}
 	
 	public static float duringNight(EntityPlayer player)
@@ -90,27 +99,6 @@ public class SanityModifier {
 		else night = !player.world.isDaytime();
 		
 		return night ? -(float)ModConfig.SANITY.nighttimeDrain : 0F;
-	}
-	
-	public static void spawnGuardianParticle(EntityPlayer player)
-	{
-		WorldClient world = (WorldClient)player.world; //EntityEnderman
-		Vec3d eyes = player.getPositionEyes(1F);
-		world.spawnParticle(EnumParticleTypes.MOB_APPEARANCE, eyes.x, eyes.y, eyes.z, 0, 0, 0, null);
-	}
-	
-	public static void playRandomSounds(EntityPlayer player)
-	{
-		WorldClient world = (WorldClient)player.world;
-		BlockPos position = player.getPosition();
-		SoundEvent sound = SanityModifier.scarysounds.get(world.rand.nextInt(SanityModifier.scarysounds.size()));
-		position = position.add(new Vec3i(world.rand.nextInt(10) - 5, world.rand.nextInt(4) - 2, world.rand.nextInt(10) - 5));
-		world.playSound(position, sound, SoundCategory.AMBIENT, 0.5F, 1F, false);
-	}
-	
-	public static void applyBlindness(EntityPlayer player)
-	{
-		player.addPotionEffect(new PotionEffect(MobEffects.BLINDNESS, 100));
 	}
 	
 	public static float whenInDark(EntityPlayer player)
@@ -160,14 +148,10 @@ public class SanityModifier {
 		return mod;
 	}
 	
-	public static float onLowSanity(EntityPlayer player, float level)
+	@SubscribeEvent
+	public static void registerSounds(RegistryEvent.Register<SoundEvent> event)
 	{
-		if(player.world.isRemote) // Only do so on client side
-		{
-			if(level < (DefaultStats.SANITY.getMaximum() * ModConfig.SANITY.hallucinationThreshold) && player.ticksExisted % 20 == 0) // Spawn hallucinations if feasible
-				SanityModifier.hallucinations.apply(player, level);
-		}
-		return level;
+		event.getRegistry().register(SanityModifier.staticbuzz);
 	}
 	
 	@SubscribeEvent

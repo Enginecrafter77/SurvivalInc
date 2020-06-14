@@ -15,6 +15,9 @@ death.attack.survivalinc_dehydration=%1$s's organs have died desperately searchi
 death.attack.survivalinc_hyperthermia=%1$s has standed by their bonfire a little too long
 death.attack.survivalinc_hypothermia=%1$s forgot to pack a bunch of clothing
 
+# Sound subtitles
+survivalinc.subtitle.staticbuzz=Creepy Static Noise
+
 # Client config
 survivalinc.client=Client
 survivalinc.client.tooltip=Client-Only Settings

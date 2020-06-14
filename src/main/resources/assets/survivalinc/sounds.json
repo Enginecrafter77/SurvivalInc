@@ -1,0 +1,12 @@
+{
+	"staticbuzz": {
+		"category": "ambience",
+		"subtitle": "survivalinc.subtitle.staticbuzz",
+		"sounds": [
+			{
+				"name": "survivalinc:staticbuzz",
+				"stream": "true"
+			}
+		]
+	}
+}
