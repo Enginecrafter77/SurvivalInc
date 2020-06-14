@@ -7,7 +7,6 @@ import net.minecraft.entity.monster.*;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
 import net.minecraft.init.MobEffects;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
@@ -58,36 +57,26 @@ public class SanityModifier {
 		DefaultStats.SANITY.modifiers.add(new FunctionalModifier<EntityPlayer>(SanityModifier::whenInDark), OperationType.OFFSET);
 		DefaultStats.SANITY.modifiers.add(new FunctionalModifier<EntityPlayer>(SanityModifier::onLowSanity));
 		
+		//TODO remove (will be completely reworked in Sanity Overhaul)
 		SanityModifier.hallucinations.singleCatch = true;
 		SanityModifier.hallucinations.add(new ChanceModifier<EntityPlayer>(new FunctionalModifier<EntityPlayer>(SanityModifier::playRandomSounds), 0.2F));
 		SanityModifier.hallucinations.add(new ChanceModifier<EntityPlayer>(new FunctionalModifier<EntityPlayer>(SanityModifier::spawnGuardianParticle), 0.2F));
 		SanityModifier.hallucinations.add(new ChanceModifier<EntityPlayer>(new FunctionalModifier<EntityPlayer>(SanityModifier::applyBlindness), 0.1F));
-		//ItemClock
+		
 		SanityModifier.scarysounds.add(SoundEvents.ENTITY_VILLAGER_AMBIENT);
 		SanityModifier.scarysounds.add(SoundEvents.ENTITY_ENDERMEN_AMBIENT);
 		SanityModifier.scarysounds.add(SoundEvents.ENTITY_ENDERMEN_TELEPORT);
 		SanityModifier.scarysounds.add(SoundEvents.BLOCK_LAVA_AMBIENT);
 		SanityModifier.scarysounds.add(SoundEvents.BLOCK_STONE_STEP);
 		
-		SanityModifier.foodSanityMap.put(Items.CHICKEN, -5F);
-		SanityModifier.foodSanityMap.put(Items.BEEF, -5F);
-		SanityModifier.foodSanityMap.put(Items.RABBIT, -5F);
-		SanityModifier.foodSanityMap.put(Items.MUTTON, -5F);
-		SanityModifier.foodSanityMap.put(Items.PORKCHOP, -5F);
-		SanityModifier.foodSanityMap.put(Items.FISH, -5F);
-		SanityModifier.foodSanityMap.put(Items.ROTTEN_FLESH, -10F);
-		SanityModifier.foodSanityMap.put(Items.SPIDER_EYE, -15F);
-		SanityModifier.foodSanityMap.put(Items.COOKED_CHICKEN, 2F);
-		SanityModifier.foodSanityMap.put(Items.COOKED_BEEF, 2F);
-		SanityModifier.foodSanityMap.put(Items.COOKED_RABBIT, 2F);
-		SanityModifier.foodSanityMap.put(Items.COOKED_MUTTON, 2F);
-		SanityModifier.foodSanityMap.put(Items.COOKED_PORKCHOP, 2F);
-		SanityModifier.foodSanityMap.put(Items.COOKED_FISH, 2F);
-		SanityModifier.foodSanityMap.put(Items.PUMPKIN_PIE, 15F);
-		SanityModifier.foodSanityMap.put(Items.COOKIE, 2F);
-		SanityModifier.foodSanityMap.put(Items.RABBIT_STEW, 15F);
-		SanityModifier.foodSanityMap.put(Items.MUSHROOM_STEW, 10F);
-		SanityModifier.foodSanityMap.put(Items.BEETROOT_SOUP, 10F);
+		// Compile food value list
+		for(String entry : ModConfig.SANITY.foodSanityMap)
+		{
+			int separator = entry.lastIndexOf(' ');
+			Item target = Item.getByNameOrId(entry.substring(0, separator));
+			Float value = Float.parseFloat(entry.substring(separator + 1));
+			SanityModifier.foodSanityMap.put(target, value);
+		}
 	}
 	
 	public static float duringNight(EntityPlayer player)

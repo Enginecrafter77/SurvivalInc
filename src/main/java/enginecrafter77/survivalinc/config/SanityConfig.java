@@ -48,4 +48,28 @@ public class SanityConfig {
 	@Config.LangKey("config.survivalinc:sanity.hallucinationThreshold")
 	@Config.RangeDouble(min = 0, max = 1)
 	public double hallucinationThreshold = 0.4;
+	
+	@Config.LangKey("config.survivalinc:sanity.foodMap")
+	@Config.RequiresMcRestart
+	public String[] foodSanityMap = {
+			"minecraft:chicken -5",
+			"minecraft:beef -5",
+			"minecraft:rabbit -5",
+			"minecraft:mutton -5",
+			"minecraft:porkchop -5",
+			"minecraft:fish -5",
+			"minecraft:rotten_flesh -10",
+			"minecraft:spider_eye -15",
+			"minecraft:cooked_chicken 2",
+			"minecraft:cooked_beef 2",
+			"minecraft:cooked_rabbit 2",
+			"minecraft:cooked_mutton 2",
+			"minecraft:cooked_porkchop 2",
+			"minecraft:cooked_fish 2",
+			"minecraft:pumpkin_pie 10",
+			"minecraft:rabbit_stew 6",
+			"minecraft:mushroom_stew 6",
+			"minecraft:beetroot_soup 5.75",
+			"minecraft:cookie 7.5"
+	};
 }
