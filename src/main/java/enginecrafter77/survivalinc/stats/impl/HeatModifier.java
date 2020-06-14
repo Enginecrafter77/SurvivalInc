@@ -19,7 +19,6 @@ import enginecrafter77.survivalinc.stats.modifier.PotionEffectModifier;
 import enginecrafter77.survivalinc.stats.modifier.ThresholdModifier;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
@@ -54,22 +53,7 @@ public class HeatModifier implements StatProvider {
 	private HeatModifier() {}
 	
 	public void init()
-	{
-		// Block temperature map
-		HeatModifier.blockHeatMap.put(Blocks.LAVA, 400F);
-		HeatModifier.blockHeatMap.put(Blocks.FLOWING_LAVA, 350F);
-		HeatModifier.blockHeatMap.put(Blocks.MAGMA, 300F);
-		HeatModifier.blockHeatMap.put(Blocks.FIRE, 200F);
-		HeatModifier.blockHeatMap.put(Blocks.LIT_FURNACE, 80F);
-		HeatModifier.blockHeatMap.put(Blocks.LIT_PUMPKIN, 10F);
-		
-		// Armor heat isolation
-		HeatModifier.armorInsulation.addArmorType(ItemArmor.ArmorMaterial.LEATHER, 0.3F);
-		HeatModifier.armorInsulation.addArmorType(ItemArmor.ArmorMaterial.CHAIN, 1.1F);
-		HeatModifier.armorInsulation.addArmorType(ItemArmor.ArmorMaterial.IRON, 1.2F);
-		HeatModifier.armorInsulation.addArmorType(ItemArmor.ArmorMaterial.GOLD, 1.5F);
-		HeatModifier.armorInsulation.addArmorType(ItemArmor.ArmorMaterial.DIAMOND, 2.25F);
-		
+	{		
 		HeatModifier.targettemp.add(new FunctionalModifier<EntityPlayer>(HeatModifier::whenNearHotBlock), OperationType.OFFSET);
 		
 		if(ModConfig.WETNESS.enabled) HeatModifier.exchangerate.add(new FunctionalModifier<EntityPlayer>(HeatModifier::applyWetnessCooldown), OperationType.SCALE);
@@ -79,6 +63,25 @@ public class HeatModifier implements StatProvider {
 		HeatModifier.consequences.add(new ThresholdModifier<EntityPlayer>(new PotionEffectModifier(MobEffects.MINING_FATIGUE, 0), 20F, ThresholdModifier.LOWER));
 		HeatModifier.consequences.add(new ThresholdModifier<EntityPlayer>(new DamagingModifier(HYPOTHERMIA, 1F, 10), 10F, ThresholdModifier.LOWER));
 		HeatModifier.consequences.add(new ThresholdModifier<EntityPlayer>(new FunctionalModifier<EntityPlayer>((EntityPlayer player) -> player.setFire(1)), 110F, ThresholdModifier.HIGHER));
+		
+		// Shit, these repeated parsers will surely get me a bad codefactor.io mark.
+		// Block temperature map
+		for(String entry : ModConfig.HEAT.blockHeatMap)
+		{
+			int separator = entry.lastIndexOf(' ');
+			Block target = Block.getBlockFromName(entry.substring(0, separator));
+			Float value = Float.parseFloat(entry.substring(separator + 1));
+			HeatModifier.blockHeatMap.put(target, value);
+		}
+		
+		// Armor heat isolation
+		for(String entry : ModConfig.HEAT.armorMaterialConductivity)
+		{
+			int separator = entry.lastIndexOf(' ');
+			ItemArmor.ArmorMaterial target = ItemArmor.ArmorMaterial.valueOf(entry.substring(0, separator).toUpperCase());
+			Float value = Float.parseFloat(entry.substring(separator + 1));
+			HeatModifier.armorInsulation.addArmorType(target, value);
+		}
 	}
 	
 	@Override

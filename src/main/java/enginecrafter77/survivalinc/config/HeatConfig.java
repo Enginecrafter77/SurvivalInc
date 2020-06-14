@@ -36,4 +36,25 @@ public class HeatConfig {
 	@Config.LangKey("config.survivalinc:heat.wetnessExchangeMultiplier")
 	@Config.RangeDouble(min = 0)
 	public double wetnessExchangeMultiplier = 4;
+	
+	@Config.LangKey("config.survivalinc:heat.blockHeatMap")
+	@Config.RequiresMcRestart
+	public String[] blockHeatMap = {
+			"minecraft:lava 400",
+			"minecraft:flowing_lava 350",
+			"minecraft:magma 300",
+			"minecraft:fire 200",
+			"minecraft:lit_furnace 100",
+			"minecraft:lit_pumpkin 80"
+	};
+	
+	@Config.LangKey("config.survivalinc:heat.armorMaterialConductivity")
+	@Config.RequiresMcRestart
+	public String[] armorMaterialConductivity = {
+			"leather 0.3",
+			"chain 1.1",
+			"iron 1.2",
+			"gold 1.5",
+			"diamond 2.25"
+	};
 }

@@ -47,6 +47,10 @@ config.survivalinc:heat.wetnessExchangeMultiplier=Wetness Multiplier
 config.survivalinc:heat.wetnessExchangeMultiplier.tooltip=The multiplier applied to the wetness fraction used to calculate heat exchange modifier.
 config.survivalinc:heat.exchangeFactor=Heat Exchange Factor
 config.survivalinc:heat.exchangeFactor.tooltip=How quickly you can heat up when you are in the desert? (units/tick)
+config.survivalinc:heat.blockHeatMap=Block Heat Map
+config.survivalinc:heat.blockHeatMap.tooltip=A list of block registry names and their radiant heat, separated by a single space character.
+config.survivalinc:heat.armorMaterialConductivity=Armor Conductivity
+config.survivalinc:heat.armorMaterialConductivity.tooltip=The conductivity of individual armor materials. Each entry contains name of armor material (enum), and their associated conductivity multiplier.
 
 # Hydration config
 survivalinc.hydration=Hydration
@@ -87,6 +91,8 @@ config.survivalinc:sanity.tamedMobMultiplier=Tamed Multiplier
 config.survivalinc:sanity.tamedMobMultiplier.tooltip=The multiplier of Friendly Mob Bonus when the entity is also tamed
 config.survivalinc:sanity.hallucinationThreshold=Hallucination Threshold
 config.survivalinc:sanity.hallucinationThreshold.tooltip=The lowest value of sanity beyond which hallucinations may occur.
+config.survivalinc:sanity.foodMap=Food Bonus Map
+config.survivalinc:sanity.foodMap.tooltip=The map of food items and their respective sanity bonuses. The target item's value is added to the current sanity when the item is consumed.
 
 # Wetness config
 survivalinc.wetness=Wetness
