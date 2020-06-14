@@ -8,6 +8,7 @@ import net.minecraft.entity.monster.*;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
@@ -28,6 +29,7 @@ import java.util.function.Predicate;
 
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
+import enginecrafter77.survivalinc.net.StatSyncMessage;
 import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import enginecrafter77.survivalinc.stats.modifier.ConditionalModifier;
@@ -105,7 +107,19 @@ public class SanityModifier {
 	{
 		// If we are not in overworld, skip this function
 		if(isOutsideOverworld.test(player)) return 0F;
-		int lightlevel = player.world.getLight(player.getPosition());
+		
+		// Determine the position
+		BlockPos position = player.getPosition();
+		if(player.world.isRemote)
+		{
+			// Workaround to avoid client reporting light level 0
+			Entity viewer = Minecraft.getMinecraft().getRenderViewEntity();
+			position = new BlockPos(viewer.posX, viewer.getEntityBoundingBox().minY, viewer.posZ);
+		}
+		
+		// Determine the light level at the target position
+		int lightlevel = player.world.getChunk(position).getLightSubtracted(position, 0);
+		
 		// If there is enough light, steve/alex is happy
 		if(lightlevel >= ModConfig.SANITY.comfortLightLevel) return 0F;
 		float darknesslevel = (float)(ModConfig.SANITY.comfortLightLevel - lightlevel) / (float)ModConfig.SANITY.comfortLightLevel;
@@ -157,11 +171,12 @@ public class SanityModifier {
 	@SubscribeEvent
 	public static void onPlayerWakeUp(PlayerWakeUpEvent event)
 	{
-		EntityPlayer player = event.getEntityPlayer();		
+		EntityPlayer player = event.getEntityPlayer();
 		if(event.shouldSetSpawn()) // If the "lying in bed" was successful (the player actually fell asleep)
 		{
 			StatTracker stats = player.getCapability(StatCapability.target, null);
 			stats.modifyStat(DefaultStats.SANITY, DefaultStats.SANITY.getMaximum() * (float)ModConfig.SANITY.sleepResoration);
+			SurvivalInc.proxy.net.sendTo(new StatSyncMessage(stats), (EntityPlayerMP)player);
 			player.getFoodStats().setFoodLevel(player.getFoodStats().getFoodLevel() - 8);
 		}
 	}
