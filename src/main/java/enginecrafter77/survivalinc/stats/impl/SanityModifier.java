@@ -21,6 +21,9 @@ import net.minecraftforge.event.entity.living.AnimalTameEvent;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.event.entity.player.PlayerWakeUpEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.HashMap;
 import java.util.List;
@@ -160,6 +163,18 @@ public class SanityModifier {
 				mod -= ModConfig.SANITY.hostileMobModifier;
 		}
 		return mod;
+	}
+	
+	@SubscribeEvent
+	@SideOnly(Side.CLIENT)
+	public static void onClientWorldTick(TickEvent.ClientTickEvent event)
+	{
+		Minecraft client = Minecraft.getMinecraft();
+		ShaderGroup shader = client.entityRenderer.getShaderGroup();
+		if(shader != null && client.world.getWorldTime() % 160 == 0 && !DefaultStats.SANITY.isAcitve(client.player) && shader.getShaderGroupName().equals(distortshader.toString()))
+		{
+			client.entityRenderer.stopUseShader();
+		}
 	}
 	
 	@SubscribeEvent
