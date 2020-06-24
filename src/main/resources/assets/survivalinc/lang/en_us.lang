@@ -51,6 +51,10 @@ config.survivalinc:heat.blockHeatMap=Block Heat Map
 config.survivalinc:heat.blockHeatMap.tooltip=A list of block registry names and their radiant heat, separated by a single space character.
 config.survivalinc:heat.armorMaterialConductivity=Armor Conductivity
 config.survivalinc:heat.armorMaterialConductivity.tooltip=The conductivity of individual armor materials. Each entry contains name of armor material (enum), and their associated conductivity multiplier.
+config.survivalinc:heat.fireDuration=Fire Duration
+config.survivalinc:heat.fireDuration.tooltip=When the player passes certain temperature, they catch on fire. Fire duration is the additional time in seconds this fire lasts after returning to normal. Setting this to 0 disables catching on fire, and uses Hyperthermia damage instead.
+config.survivalinc:heat.damageAmount=Condition Damage
+config.survivalinc:heat.damageAmount.tooltip=The damage applied each "hit" on the player by hypothermia and optionally hyperthermia.
 
 # Hydration config
 survivalinc.hydration=Hydration

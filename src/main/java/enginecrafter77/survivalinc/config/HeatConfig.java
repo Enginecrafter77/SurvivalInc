@@ -37,6 +37,14 @@ public class HeatConfig {
 	@Config.RangeDouble(min = 0)
 	public double wetnessExchangeMultiplier = 4;
 	
+	@Config.LangKey("config.survivalinc:heat.fireDuration")
+	@Config.RangeInt(min = 0)
+	public int fireDuration = 1;
+	
+	@Config.LangKey("config.survivalinc:heat.damageAmount")
+	@Config.RangeDouble(min = 0)
+	public double damageAmount = 1D;
+	
 	@Config.LangKey("config.survivalinc:heat.blockHeatMap")
 	@Config.RequiresMcRestart
 	public String[] blockHeatMap = {

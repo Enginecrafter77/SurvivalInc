@@ -37,7 +37,6 @@ import net.minecraft.world.biome.Biome;
 public class HeatModifier implements StatProvider {
 	private static final long serialVersionUID = 6260092840749029918L;
 	
-	@Deprecated
 	public static final DamageSource HYPERTHERMIA = new DamageSource("survivalinc_hyperthermia").setDamageIsAbsolute().setDamageBypassesArmor();
 	public static final DamageSource HYPOTHERMIA = new DamageSource("survivalinc_hypothermia").setDamageIsAbsolute().setDamageBypassesArmor();
 	
@@ -61,8 +60,8 @@ public class HeatModifier implements StatProvider {
 		
 		HeatModifier.consequences.add(new ThresholdModifier<EntityPlayer>(new PotionEffectModifier(MobEffects.WEAKNESS, 0), 25F, ThresholdModifier.LOWER));
 		HeatModifier.consequences.add(new ThresholdModifier<EntityPlayer>(new PotionEffectModifier(MobEffects.MINING_FATIGUE, 0), 20F, ThresholdModifier.LOWER));
-		HeatModifier.consequences.add(new ThresholdModifier<EntityPlayer>(new DamagingModifier(HYPOTHERMIA, 1F, 10), 10F, ThresholdModifier.LOWER));
-		HeatModifier.consequences.add(new ThresholdModifier<EntityPlayer>(new FunctionalModifier<EntityPlayer>((EntityPlayer player) -> player.setFire(1)), 110F, ThresholdModifier.HIGHER));
+		HeatModifier.consequences.add(new ThresholdModifier<EntityPlayer>(new DamagingModifier(HYPOTHERMIA, (float)ModConfig.HEAT.damageAmount, 10), 10F, ThresholdModifier.LOWER));
+		HeatModifier.consequences.add(new ThresholdModifier<EntityPlayer>(new FunctionalModifier<EntityPlayer>(HeatModifier::onHighTemperature), 110F, ThresholdModifier.HIGHER));
 		
 		// Shit, these repeated parsers will surely get me a bad codefactor.io mark.
 		// Block temperature map
@@ -144,6 +143,18 @@ public class HeatModifier implements StatProvider {
 	public boolean isAcitve(EntityPlayer player)
 	{
 		return !(player.isCreative() || player.isSpectator());
+	}
+	
+	public static void onHighTemperature(EntityPlayer player)
+	{
+		if(ModConfig.HEAT.fireDuration > 0)
+		{
+			player.setFire(1);
+		}
+		else
+		{
+			player.attackEntityFrom(HYPERTHERMIA, (float)ModConfig.HEAT.damageAmount);
+		}
 	}
 	
 	public static float applyWetnessCooldown(EntityPlayer player)
