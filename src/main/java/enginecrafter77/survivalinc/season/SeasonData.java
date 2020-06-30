@@ -1,6 +1,7 @@
 package enginecrafter77.survivalinc.season;
 
 import enginecrafter77.survivalinc.SurvivalInc;
+import enginecrafter77.survivalinc.config.ModConfig;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraft.world.storage.MapStorage;
@@ -24,8 +25,17 @@ public class SeasonData extends WorldSavedData {
 	public SeasonData(String id)
 	{
 		super(id);
-		this.season = Season.SPRING; // Start in spring
-		this.day = 0;
+		/*
+		 * Values set here are the default values.
+		 * These are either overwritten by #readFromNBT
+		 * or in case there is no NBT data present (e.g
+		 * new world is created or the mod is installed
+		 * for the first time in a world), then these
+		 * data persist. Essentially, these values indicate
+		 * the season and day the player starts in.
+		 */
+		this.season = ModConfig.SEASONS.startingSeason;
+		this.day = ModConfig.SEASONS.startingDay;
 	}
 
 	@Override
@@ -61,12 +71,19 @@ public class SeasonData extends WorldSavedData {
 		}
 	}
 
-	// Easy loading (Do SchopWorldData data = SchopWorldData.load(world);)
+	/**
+	 * A simple season data loading wrapper.
+	 * This wrapper takes care of loading
+	 * the seasonal data, and if none are
+	 * present, creates new instance with
+	 * default values.
+	 * @param world The world to get the data from
+	 * @return Seasonal data present in the world
+	 */
 	public static SeasonData load(World world)
 	{
 		MapStorage storage = world.getMapStorage();
 		SeasonData data = (SeasonData)storage.getOrLoadData(SeasonData.class, SeasonData.datakey);
-		// Does it not exist?
 		if(data == null)
 		{
 			SurvivalInc.logger.warn("No season data found in world.");

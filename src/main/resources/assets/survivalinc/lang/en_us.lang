@@ -127,6 +127,10 @@ config.survivalinc:seasons.temperatures=Temperatures
 config.survivalinc:seasons.temperatures.tooltip=The temperature offset of the individual seasons, applied to each biome temperature. Order of values: [WINTER, SPRING, SUMMER, AUTUMN]
 config.survivalinc:seasons.meltController=Melt Controller
 config.survivalinc:seasons.meltController.tooltip=The melting controller to be used. See the wiki for explanation.
+config.survivalinc:seasons.startingSeason=Starting Season
+config.survivalinc:seasons.startingSeason.tooltip=The season the player spawns in in a new world.
+config.survivalinc:seasons.startingDay=Starting Day
+config.survivalinc:seasons.startingDay.tooltip=The day in the season player spawns in in a new world.
 
 # Ghost config
 survivalinc.ghost=Ghost
