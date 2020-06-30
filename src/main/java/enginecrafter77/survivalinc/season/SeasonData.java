@@ -54,7 +54,7 @@ public class SeasonData extends WorldSavedData {
 	{
 		this.day++;
 		
-		if(day > season.length)
+		if(day > season.getLength())
 		{
 			this.season = season.getFollowing(1);
 			this.day = 0;

@@ -78,9 +78,9 @@ public class SeasonController implements IMessageHandler<SeasonUpdateEvent, IMes
 		float deftemp = event.getBiome().getDefaultTemperature();
 		
 		// If the current biome is permafrost
-		if((deftemp + Season.SUMMER.temperature) < 0F)
+		if((deftemp + Season.SUMMER.getPeakTemperatureOffset()) < 0F)
 			event.setNewColor(Season.WINTER.grasscolor);
-		else if((deftemp + Season.WINTER.temperature) > 1F)
+		else if((deftemp + Season.WINTER.getPeakTemperatureOffset()) > 1F)
 			event.setNewColor(Season.SUMMER.grasscolor);
 		else
 		{
