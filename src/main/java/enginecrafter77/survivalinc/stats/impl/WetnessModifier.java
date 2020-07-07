@@ -2,6 +2,7 @@ package enginecrafter77.survivalinc.stats.impl;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 
 import enginecrafter77.survivalinc.config.ModConfig;
@@ -9,6 +10,8 @@ import enginecrafter77.survivalinc.stats.modifier.ConditionalModifier;
 import enginecrafter77.survivalinc.stats.modifier.FunctionalModifier;
 import enginecrafter77.survivalinc.stats.modifier.OperationType;
 import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
@@ -17,7 +20,6 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
-import net.minecraft.world.WorldServer;
 
 /*
  * This is where the magic of changing one's wetness occurs. You'll most likely be here.
@@ -91,13 +93,26 @@ public class WetnessModifier {
 		return current;
 	}
 	
+	/**
+	 * Causes client-side dripping effect
+	 * @param player The player to apply for
+	 * @param current The current level of wetness
+	 * @return The new level of wetness (irrelevant in this case)
+	 */
 	public static float causeDripping(EntityPlayer player, float current)
 	{
-		if(!player.world.isRemote)
+		if(player.world.isRemote)
 		{
-			WorldServer serverworld = (WorldServer)player.world;
-			float particle_amount = 20 * (current / DefaultStats.WETNESS.getMaximum());
-			serverworld.spawnParticle(EnumParticleTypes.DRIP_WATER, player.posX, player.posY, player.posZ, Math.round((float)Math.floor(particle_amount)), 0.25, 0.5, 0.25, 0.1, null);
+			WorldClient world = Minecraft.getMinecraft().world;
+			Random rng = world.rand;
+			float coefficient = (current / DefaultStats.WETNESS.getMaximum());
+			if(rng.nextFloat() < coefficient)
+			{
+				for(int index = 0; index < 4; index++)
+				{
+					world.spawnParticle(EnumParticleTypes.DRIP_WATER, player.posX + (rng.nextFloat() * 0.5 - 0.25), player.posY + (rng.nextFloat() * 1 + 0.25), player.posZ + (rng.nextFloat() * 0.5 - 0.25), player.motionX, -0.5, player.motionZ, null);
+				}
+			}
 		}
 		return current;
 	}
@@ -106,11 +121,7 @@ public class WetnessModifier {
 	{
 		if(player.isInWater())
 		{
-			/*
-			 * Hey now, the player could just be in one block of water at
-			 * their feet. If so, just go to 40% wetness Or somewhere around there.
-			 * We'll check if water is in the player's face. If so, 100%. If not, 40%.
-			 */
+			// If the player is not fully submerged into water, cap the wetness to 40%
 			Block headblock = player.world.getBlockState(player.getPosition().up()).getBlock();
 			if(headblock != Blocks.WATER && headblock != Blocks.FLOWING_WATER)
 			{
