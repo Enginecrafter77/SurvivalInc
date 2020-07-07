@@ -69,23 +69,31 @@ public class SanityModifier {
 	}
 	
 	public static float playStaticNoise(EntityPlayer player, float current)
-	{		
+	{
 		float threshold = (float)ModConfig.SANITY.hallucinationThreshold * DefaultStats.SANITY.getMaximum();
 		if(player.world.isRemote && player.world.getWorldTime() % 160 == 0)
 		{
+			/**
+			 * This effect should only apply to the client player.
+			 * Other player entities on client-side world should
+			 * not be evaluated.
+			 */
+			Minecraft client = Minecraft.getMinecraft();
+			if(player != client.player) return 0F;
+			
 			if(player.world.rand.nextFloat() < 0.25F && current < threshold)
 			{
 				// 1F - current / threshold => this calculation is used to increase the volume for "more insane" players, up to 100% original volume (applied at sanity 0)
 				player.world.playSound(player.posX, player.posY, player.posZ, staticbuzz, SoundCategory.AMBIENT, 1F - current / threshold, 1, false);
-				Minecraft.getMinecraft().entityRenderer.loadShader(distortshader);
+				client.entityRenderer.loadShader(distortshader);
 			}
 			else
 			{
 				// Check if the current shader is our shader, and if so, stop using it.
-				ShaderGroup shader = Minecraft.getMinecraft().entityRenderer.getShaderGroup();
+				ShaderGroup shader = client.entityRenderer.getShaderGroup();
 				if(shader != null && shader.getShaderGroupName().equals(distortshader.toString()))
 				{
-					Minecraft.getMinecraft().entityRenderer.stopUseShader();
+					client.entityRenderer.stopUseShader();
 				}
 			}
 		}
