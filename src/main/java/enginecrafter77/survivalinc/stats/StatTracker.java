@@ -96,4 +96,11 @@ public interface StatTracker {
 	 * @param player The player to apply the update to
 	 */
 	public void update(EntityPlayer player);
+	
+	/**
+	 * Returns the last change in value to the specified stat.
+	 * @param stat The stat to get last change for
+	 * @return The change in the specified stat last tick
+	 */
+	public float getLastChange(StatProvider stat);
 }

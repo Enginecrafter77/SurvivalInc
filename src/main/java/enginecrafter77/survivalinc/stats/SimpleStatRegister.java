@@ -17,11 +17,32 @@ import net.minecraft.entity.player.EntityPlayer;
 public class SimpleStatRegister extends HashMap<StatProvider, StatRecord> implements StatTracker {
 	private static final long serialVersionUID = -878624371786181967L;
 	
+	/**
+	 * A shared list which holds all {@link StatProvider} instances that
+	 * should be registered in each new SimpleStatRegister instance.
+	 */
 	public static List<StatProvider> providers = new LinkedList<StatProvider>();
 	
+	/** A map storing the last change to each stat */
+	private final HashMap<StatProvider, Float> changelog;
+	
+	/**
+	 * Creates a new SimpleStatProvider instance
+	 * using the providers specified in {@link #providers}
+	 */
 	public SimpleStatRegister()
 	{
-		for(StatProvider provider : SimpleStatRegister.providers)
+		this(SimpleStatRegister.providers);
+	}
+	
+	/**
+	 * Creates a new SimpleStatProvider instance tracking
+	 * the specified providers.
+	 */
+	public SimpleStatRegister(Iterable<StatProvider> providers)
+	{
+		this.changelog = new HashMap<StatProvider, Float>();
+		for(StatProvider provider : providers)
 			this.registerProvider(provider);
 	}
 	
@@ -31,6 +52,7 @@ public class SimpleStatRegister extends HashMap<StatProvider, StatRecord> implem
 		if(this.getProvider(provider.getStatID()) != null)
 			throw new IllegalStateException("Provider " + provider.getClass().getCanonicalName() + " already registered!");
 		this.setRecord(provider, provider.createNewRecord());
+		this.changelog.put(provider, 0F);
 	}
 	
 	@Override
@@ -93,9 +115,19 @@ public class SimpleStatRegister extends HashMap<StatProvider, StatRecord> implem
 		{
 			if(provider.isAcitve(player))
 			{
-				this.setStat(provider, provider.updateValue(player, this.getStat(provider)));
+				StatRecord record = this.getRecord(provider);
+				float value = record.getValue();
+				float newvalue = provider.getOverflowHandler().apply(provider, provider.updateValue(player, value));
+				this.changelog.put(provider, newvalue - value);
+				record.setValue(newvalue);
 			}
 		}
+	}
+	
+	@Override
+	public float getLastChange(StatProvider stat)
+	{
+		return this.changelog.get(stat);
 	}
 
 	@Override
