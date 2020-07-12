@@ -3,6 +3,7 @@ package enginecrafter77.survivalinc.stats;
 import java.io.Serializable;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.ResourceLocation;
 
 /**
  * StatProvider describes how a specific stat should behave.
@@ -28,9 +29,12 @@ public interface StatProvider extends Serializable {
 	public float updateValue(EntityPlayer target, float current);
 	
 	/**
-	 * @return A (unique) string identifying this stat.
+	 * Returns a {@link ResourceLocation} based
+	 * stat identifier. This is used to avoid stat
+	 * name conflicts among different mods.
+	 * @return A ResourceLocation-based stat ID
 	 */
-	public String getStatID();
+	public ResourceLocation getStatID();
 	
 	/**
 	 * @return The maximum value this stat might get to

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.ResourceLocation;
 
 /**
  * SimpleStatRegister is the default implementation of StatTracker.
@@ -64,7 +65,7 @@ public class SimpleStatRegister extends HashMap<StatProvider, StatRecord> implem
 	}
 	
 	@Override
-	public StatProvider getProvider(String identifier)
+	public StatProvider getProvider(ResourceLocation identifier)
 	{
 		for(StatProvider provider : this.keySet())
 		{

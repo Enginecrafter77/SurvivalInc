@@ -2,9 +2,11 @@ package enginecrafter77.survivalinc.stats.impl;
 
 import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatRecord;
+import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import enginecrafter77.survivalinc.stats.modifier.ModifierApplicator;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.ResourceLocation;
 
 public enum DefaultStats implements StatProvider {
 	WETNESS(0, 100, 0F),
@@ -12,11 +14,13 @@ public enum DefaultStats implements StatProvider {
 	SANITY(0, 100);
 	
 	public final ModifierApplicator<EntityPlayer> modifiers;
+	public final ResourceLocation id;
 	private float max, min, def;
 	
 	private DefaultStats(float min, float max, float def)
 	{
 		this.modifiers = new ModifierApplicator<EntityPlayer>();
+		this.id = new ResourceLocation(SurvivalInc.MOD_ID, this.name().toLowerCase());
 		this.min = min;
 		this.max = max;
 		this.def = def;
@@ -34,9 +38,9 @@ public enum DefaultStats implements StatProvider {
 	}
 	
 	@Override
-	public String getStatID()
+	public ResourceLocation getStatID()
 	{
-		return this.name().toLowerCase();
+		return this.id;
 	}
 
 	@Override

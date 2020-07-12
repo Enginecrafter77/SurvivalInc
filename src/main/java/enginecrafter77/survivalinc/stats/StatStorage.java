@@ -24,7 +24,7 @@ public class StatStorage implements IStorage<StatTracker> {
 	{
 		NBTTagCompound compound = new NBTTagCompound();
 		for(StatProvider provider : instance.getRegisteredProviders())
-			compound.setTag(provider.getStatID(), instance.getRecord(provider).serializeNBT());
+			compound.setTag(provider.getStatID().toString(), instance.getRecord(provider).serializeNBT());
 		return compound;
 	}
 
@@ -36,7 +36,7 @@ public class StatStorage implements IStorage<StatTracker> {
 			NBTTagCompound compound = (NBTTagCompound)nbt;
 			for(StatProvider provider : instance.getRegisteredProviders())
 			{
-				String id = provider.getStatID();
+				String id = provider.getStatID().toString();
 				if(compound.hasKey(id))
 				{
 					NBTTagCompound entry = compound.getCompoundTag(id);

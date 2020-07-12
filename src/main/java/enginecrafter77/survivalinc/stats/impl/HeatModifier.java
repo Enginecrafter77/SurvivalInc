@@ -3,6 +3,7 @@ package enginecrafter77.survivalinc.stats.impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatRecord;
@@ -22,6 +23,7 @@ import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
@@ -40,6 +42,7 @@ public class HeatModifier implements StatProvider {
 	public static final DamageSource HYPOTHERMIA = new DamageSource("survivalinc_hypothermia").setDamageIsAbsolute().setDamageBypassesArmor();
 	
 	public static final HeatModifier instance = new HeatModifier();
+	public static final ResourceLocation identifier = new ResourceLocation(SurvivalInc.MOD_ID, "heat");
 	
 	public static Map<Block, Float> blockHeatMap = new HashMap<Block, Float>();
 	public static ArmorModifier armorInsulation = new ArmorModifier();
@@ -112,9 +115,9 @@ public class HeatModifier implements StatProvider {
 	}
 
 	@Override
-	public String getStatID()
+	public ResourceLocation getStatID()
 	{
-		return "heat";
+		return HeatModifier.identifier;
 	}
 
 	@Override

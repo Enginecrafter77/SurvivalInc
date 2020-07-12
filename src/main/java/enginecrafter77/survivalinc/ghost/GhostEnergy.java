@@ -3,13 +3,16 @@ package enginecrafter77.survivalinc.ghost;
 import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatRecord;
 import enginecrafter77.survivalinc.stats.impl.DefaultStats;
+import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import enginecrafter77.survivalinc.stats.modifier.ModifierApplicator;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.ResourceLocation;
 
 public class GhostEnergy extends ModifierApplicator<EntityPlayer> implements StatProvider {
 	private static final long serialVersionUID = -2088047893866334112L;
 	
+	public static final ResourceLocation identifier = new ResourceLocation(SurvivalInc.MOD_ID, "ghostenergy");
 	public static final GhostEnergy instance = new GhostEnergy();
 	
 	private GhostEnergy() {}
@@ -21,9 +24,9 @@ public class GhostEnergy extends ModifierApplicator<EntityPlayer> implements Sta
 	}
 
 	@Override
-	public String getStatID()
+	public ResourceLocation getStatID()
 	{
-		return "ghostenergy";
+		return GhostEnergy.identifier;
 	}
 
 	@Override

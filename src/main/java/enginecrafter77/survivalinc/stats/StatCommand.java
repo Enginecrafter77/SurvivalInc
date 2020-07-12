@@ -8,7 +8,11 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 
 /**
  * Command used to control the stats for a player.
@@ -38,20 +42,23 @@ public class StatCommand extends CommandBase {
 		
 		if(args.length < 2 || args[1].equals("list"))
 		{
-			StringBuilder builder = new StringBuilder();
-			builder.append(player.getDisplayNameString() + "'s stats:");
+			ITextComponent component = new TextComponentString(player.getDisplayNameString() + "'s stats:");
 			for(StatProvider provider : tracker.getRegisteredProviders())
 			{
-				builder.append(String.format("\n \u00A7a%s\u00A7r: %s", provider.getStatID(), tracker.getRecord(provider).toString()));
+				component.appendText("\n");
+				component.appendSibling(new TextComponentTranslation(String.format("%s stat.%s.name", TextFormatting.GREEN, provider.getStatID().toString())));
+				component.appendText("(" + TextFormatting.YELLOW + provider.getStatID().toString() + TextFormatting.RESET + ")");
+				component.appendText(": " + tracker.getStat(provider));
 			}
-			sender.sendMessage(new TextComponentString(builder.toString()));
+			sender.sendMessage(component);
 		}
 		else
 		{
 			if(args.length < 3) throw new CommandException("Insufficient Arguments\nUsage: " + this.getUsage(sender));
 			
-			StatProvider provider = tracker.getProvider(args[2]);
-			if(provider == null) throw new CommandException("Stat " + args[2] + " does not exist!");
+			ResourceLocation res = new ResourceLocation(args[2]);
+			StatProvider provider = tracker.getProvider(res);
+			if(provider == null) throw new CommandException("Stat " + res.toString() + " does not exist!");
 			
 			if(args[1].equals("set"))
 			{

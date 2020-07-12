@@ -3,6 +3,7 @@ package enginecrafter77.survivalinc.stats;
 import java.util.Set;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.ResourceLocation;
 
 /**
  * StatTracker is a class that keeps {@link StatRecord records}
@@ -36,7 +37,7 @@ public interface StatTracker {
 	 * @param identifier The {@link StatProvider#getStatID()} return value of the searched stat
 	 * @return The target stat provider, or null if not found.
 	 */
-	public StatProvider getProvider(String identifier);
+	public StatProvider getProvider(ResourceLocation identifier);
 	
 	/**
 	 * @return The set of all registered providers in this tracker.
