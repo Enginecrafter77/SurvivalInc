@@ -7,7 +7,7 @@ import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.stats.OverflowHandler;
 import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatRecord;
-import enginecrafter77.survivalinc.stats.StatRecordEntry;
+import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import enginecrafter77.survivalinc.stats.modifier.DamagingModifier;
@@ -130,7 +130,7 @@ public class HeatModifier implements StatProvider {
 	@Override
 	public StatRecord createNewRecord()
 	{
-		return new StatRecordEntry(80F);
+		return new SimpleStatRecord(80F);
 	}
 	
 	@Override

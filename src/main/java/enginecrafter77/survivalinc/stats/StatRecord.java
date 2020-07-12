@@ -22,13 +22,6 @@ public interface StatRecord extends INBTSerializable<NBTTagCompound> {
 	public void setValue(float value);
 	
 	/**
-	 * Returns the last change caused by the last update.
-	 * This can be used to get a general idea of the value trend.
-	 * @return The last change caused by {@link StatProvider#updateValue(net.minecraft.entity.player.EntityPlayer, float)}
-	 */
-	public float getLastChange();
-	
-	/**
 	 * Returns the value kept by the record
 	 * @return The value kept by the record
 	 */

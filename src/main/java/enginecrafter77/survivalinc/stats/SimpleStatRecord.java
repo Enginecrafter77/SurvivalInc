@@ -3,19 +3,12 @@ package enginecrafter77.survivalinc.stats;
 import net.minecraft.nbt.NBTTagCompound;
 
 /**
- * A simple StatRecord implementation, with the
- * ability to track changes occurring to the
- * record entry.
+ * A simple instance of stat record, which
+ * is used to store the information about
+ * stat's value, represented as float.
  * @author Enginecrafter77
  */
-public class StatRecordEntry implements StatRecord {
-	
-	/**
-	 * The last change that occurred during update to the value.
-	 * Positive values indicate that the value grew, while negative
-	 * values indicate that the value shrunk.
-	 */
-	private float lastChange;
+public class SimpleStatRecord implements StatRecord {
 	
 	/** The value stored in the record entry */
 	protected float value;
@@ -23,16 +16,15 @@ public class StatRecordEntry implements StatRecord {
 	/**
 	 * Constructs StatRecordEntry with default value of <i>value</i>
 	 */
-	public StatRecordEntry(float value)
+	public SimpleStatRecord(float value)
 	{
-		this.lastChange = 0;
 		this.value = value;
 	}
 	
 	/**
 	 * Constructs StatRecordEntry with default value of 0
 	 */
-	public StatRecordEntry()
+	public SimpleStatRecord()
 	{
 		this(0F);
 	}
@@ -40,14 +32,7 @@ public class StatRecordEntry implements StatRecord {
 	@Override
 	public void setValue(float value)
 	{
-		this.lastChange = value - this.value;
 		this.value = value;
-	}
-
-	@Override
-	public float getLastChange()
-	{
-		return this.lastChange;
 	}
 
 	@Override

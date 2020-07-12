@@ -39,10 +39,10 @@ public class StatStorage implements IStorage<StatTracker> {
 				String id = provider.getStatID();
 				if(compound.hasKey(id))
 				{
-					NBTTagCompound record = compound.getCompoundTag(id);
-					StatRecordEntry entry = new StatRecordEntry();
-					entry.deserializeNBT(record);
-					instance.setRecord(provider, entry);
+					NBTTagCompound entry = compound.getCompoundTag(id);
+					StatRecord record = provider.createNewRecord();
+					record.deserializeNBT(entry);
+					instance.setRecord(provider, record);
 				}
 				else System.err.format("Error: Requested stat %s not defined in saved NBT!\n", id);
 			}
