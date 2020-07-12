@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import enginecrafter77.survivalinc.config.ModConfig;
-import enginecrafter77.survivalinc.stats.OverflowHandler;
 import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatRecord;
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
@@ -106,7 +105,10 @@ public class HeatModifier implements StatProvider {
 		
 		// If the current value is higher than the target, go down instead of up
 		if(current > target) rate *= -1;
-		return current + rate;
+		// Checkout the rate to the value
+		current += rate;
+		
+		return DefaultStats.capValue(this, current);
 	}
 
 	@Override
@@ -131,12 +133,6 @@ public class HeatModifier implements StatProvider {
 	public StatRecord createNewRecord()
 	{
 		return new SimpleStatRecord(80F);
-	}
-	
-	@Override
-	public OverflowHandler getOverflowHandler()
-	{
-		return OverflowHandler.CAP;
 	}
 	
 	@Override

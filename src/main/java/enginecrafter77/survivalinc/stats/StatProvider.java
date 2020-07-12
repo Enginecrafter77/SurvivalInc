@@ -49,16 +49,6 @@ public interface StatProvider extends Serializable {
 	public float getMinimum();
 	
 	/**
-	 * Returns the {@link OverflowHandler} to be used by the stat.
-	 * This overflow handler is (or should) be used by {@link StatTracker}
-	 * implementations to check whether the stat does comply with the
-	 * overflow policy of the provider. This generally includes checking
-	 * against values returned by {@link #getMinimum()} and {@link #getMaximum()}.
-	 * @return The overflow handler specifying the overflow policy of this provider
-	 */
-	public OverflowHandler getOverflowHandler();
-	
-	/**
 	 * Creates a new record for the stat provider.
 	 * This method is used to create a new record
 	 * about the stat this interface tries to describe.

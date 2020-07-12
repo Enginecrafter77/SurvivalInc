@@ -1,6 +1,5 @@
 package enginecrafter77.survivalinc.stats.impl;
 
-import enginecrafter77.survivalinc.stats.OverflowHandler;
 import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatRecord;
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
@@ -31,7 +30,7 @@ public enum DefaultStats implements StatProvider {
 	@Override
 	public float updateValue(EntityPlayer target, float current)
 	{
-		return modifiers.apply(target, current);
+		return DefaultStats.capValue(this, modifiers.apply(target, current));
 	}
 	
 	@Override
@@ -59,14 +58,15 @@ public enum DefaultStats implements StatProvider {
 	}
 
 	@Override
-	public OverflowHandler getOverflowHandler()
-	{
-		return OverflowHandler.CAP;
-	}
-
-	@Override
 	public boolean isAcitve(EntityPlayer player)
 	{
 		return !(player.isCreative() || player.isSpectator());
+	}
+	
+	public static float capValue(StatProvider provider, float current)
+	{
+		if(current > provider.getMaximum()) current = provider.getMaximum();
+		if(current < provider.getMinimum()) current = provider.getMinimum();
+		return current;
 	}
 }

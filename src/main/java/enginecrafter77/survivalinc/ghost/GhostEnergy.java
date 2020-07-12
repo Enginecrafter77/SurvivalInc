@@ -1,8 +1,8 @@
 package enginecrafter77.survivalinc.ghost;
 
-import enginecrafter77.survivalinc.stats.OverflowHandler;
 import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatRecord;
+import enginecrafter77.survivalinc.stats.impl.DefaultStats;
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import enginecrafter77.survivalinc.stats.modifier.ModifierApplicator;
 import net.minecraft.entity.player.EntityPlayer;
@@ -17,8 +17,7 @@ public class GhostEnergy extends ModifierApplicator<EntityPlayer> implements Sta
 	@Override
 	public float updateValue(EntityPlayer target, float current)
 	{
-		current = this.apply(target, current);
-		return this.getOverflowHandler().apply(this, current);
+		return DefaultStats.capValue(this, this.apply(target, current));
 	}
 
 	@Override
@@ -43,12 +42,6 @@ public class GhostEnergy extends ModifierApplicator<EntityPlayer> implements Sta
 	public StatRecord createNewRecord()
 	{
 		return new SimpleStatRecord();
-	}
-
-	@Override
-	public OverflowHandler getOverflowHandler()
-	{
-		return OverflowHandler.CAP;
 	}
 
 	@Override

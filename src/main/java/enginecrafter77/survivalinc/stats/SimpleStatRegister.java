@@ -90,16 +90,14 @@ public class SimpleStatRegister extends HashMap<StatProvider, StatRecord> implem
 	public void modifyStat(StatProvider stat, float amount)
 	{
 		StatRecord record = this.getRecord(stat);
-		amount = stat.getOverflowHandler().apply(stat, record.getValue() + amount);
+		amount += record.getValue();
 		record.setValue(amount);
 	}
 
 	@Override
 	public void setStat(StatProvider stat, float amount)
 	{
-		StatRecord record = this.getRecord(stat);
-		amount = stat.getOverflowHandler().apply(stat, amount);
-		record.setValue(amount);
+		this.getRecord(stat).setValue(amount);
 	}
 	
 	@Override
@@ -117,7 +115,7 @@ public class SimpleStatRegister extends HashMap<StatProvider, StatRecord> implem
 			{
 				StatRecord record = this.getRecord(provider);
 				float value = record.getValue();
-				float newvalue = provider.getOverflowHandler().apply(provider, provider.updateValue(player, value));
+				float newvalue = provider.updateValue(player, value);
 				this.changelog.put(provider, newvalue - value);
 				record.setValue(newvalue);
 			}
