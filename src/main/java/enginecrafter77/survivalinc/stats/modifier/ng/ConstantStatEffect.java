@@ -3,7 +3,6 @@ package enginecrafter77.survivalinc.stats.modifier.ng;
 import java.util.function.BiFunction;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraftforge.fml.relauncher.Side;
 
 public class ConstantStatEffect implements StatEffect {
 
@@ -20,12 +19,6 @@ public class ConstantStatEffect implements StatEffect {
 	public float apply(EntityPlayer player, float current)
 	{
 		return this.operation.apply(current, this.argument);
-	}
-
-	@Override
-	public Side sideOnly()
-	{
-		return null;
 	}
 	
 	public enum Operation implements BiFunction<Float, Float, Float> {

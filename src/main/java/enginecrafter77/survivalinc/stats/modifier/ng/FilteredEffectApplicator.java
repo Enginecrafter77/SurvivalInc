@@ -3,8 +3,6 @@ package enginecrafter77.survivalinc.stats.modifier.ng;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
-import java.util.function.BiPredicate;
-import java.util.function.Predicate;
 
 import net.minecraft.entity.player.EntityPlayer;
 
@@ -39,7 +37,7 @@ public class FilteredEffectApplicator extends EffectApplicator {
 	{
 		for(EffectFilter test : this.registry.get(effect))
 		{
-			if(!test.test(player, value))
+			if(!test.isApplicableFor(player, value))
 			{
 				return value;
 			}
@@ -54,30 +52,9 @@ public class FilteredEffectApplicator extends EffectApplicator {
 		return this.registry.keySet();
 	}
 	
-	public static class EffectFilter implements BiPredicate<EntityPlayer, Float>
+	public static interface EffectFilter
 	{
-		public BiPredicate<EntityPlayer, Float> delegate;
-		
-		public EffectFilter(BiPredicate<EntityPlayer, Float> delegate)
-		{
-			this.delegate = delegate;
-		}
-		
-		public EffectFilter(Predicate<Float> check)
-		{
-			this.delegate = (EntityPlayer player, Float value) -> check.test(value);
-		}
-		
-		@Override
-		public boolean test(EntityPlayer t, Float u)
-		{
-			return this.delegate.test(t, u);
-		}
-		
-		public EffectFilter invert()
-		{
-			return new EffectFilter((EntityPlayer player, Float value) -> !this.delegate.test(player, value));
-		}
+		public boolean isApplicableFor(EntityPlayer player, float value);
 	}
 
 }

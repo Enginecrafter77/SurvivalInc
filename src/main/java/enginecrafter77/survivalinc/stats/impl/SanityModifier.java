@@ -34,8 +34,9 @@ import enginecrafter77.survivalinc.net.StatSyncMessage;
 import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import enginecrafter77.survivalinc.stats.modifier.ng.ConstantStatEffect;
-import enginecrafter77.survivalinc.stats.modifier.ng.FilteredEffectApplicator;
 import enginecrafter77.survivalinc.stats.modifier.ng.FunctionalEffect;
+import enginecrafter77.survivalinc.stats.modifier.ng.SideEffectFilter;
+import enginecrafter77.survivalinc.stats.modifier.ng.FunctionalEffectFilter;
 
 public class SanityModifier {
 	
@@ -49,11 +50,11 @@ public class SanityModifier {
 		//if(ModConfig.WETNESS.enabled) DefaultStats.SANITY.modifiers.add(new FunctionalModifier<EntityPlayer>(SanityModifier::whenWet), OperationType.OFFSET);
 		if(ModConfig.WETNESS.enabled) DefaultStats.SANITY.effects.addEffect(new FunctionalEffect(SanityModifier::whenWet));
 		
-		DefaultStats.SANITY.effects.addEffect(new ConstantStatEffect(ConstantStatEffect.Operation.OFFSET, 0.004F), new FilteredEffectApplicator.EffectFilter((EntityPlayer player, Float value) -> player.isPlayerSleeping()));
+		DefaultStats.SANITY.effects.addEffect(new ConstantStatEffect(ConstantStatEffect.Operation.OFFSET, 0.004F), new FunctionalEffectFilter((EntityPlayer player, Float value) -> player.isPlayerSleeping()));
 		DefaultStats.SANITY.effects.addEffect(new FunctionalEffect(SanityModifier::whenNearEntities));
 		DefaultStats.SANITY.effects.addEffect(new FunctionalEffect(SanityModifier::duringNight));
 		DefaultStats.SANITY.effects.addEffect(new FunctionalEffect(SanityModifier::whenInDark), HydrationModifier.isOutsideOverworld.invert());
-		//DefaultStats.SANITY.effects.addEffect(new FunctionalEffect(SanityModifier::playStaticNoise).setSideOnly(Side.CLIENT));
+		DefaultStats.SANITY.effects.addEffect(new FunctionalEffect(SanityModifier::playStaticNoise), new SideEffectFilter(Side.CLIENT));
 		
 		// Compile food value list
 		for(String entry : ModConfig.SANITY.foodSanityMap)

@@ -10,9 +10,10 @@ import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import enginecrafter77.survivalinc.stats.modifier.ng.ConstantStatEffect;
 import enginecrafter77.survivalinc.stats.modifier.ng.DamageStatEffect;
-import enginecrafter77.survivalinc.stats.modifier.ng.FilteredEffectApplicator;
 import enginecrafter77.survivalinc.stats.modifier.ng.FunctionalEffect;
+import enginecrafter77.survivalinc.stats.modifier.ng.FunctionalEffectFilter;
 import enginecrafter77.survivalinc.stats.modifier.ng.PotionStatEffect;
+import enginecrafter77.survivalinc.stats.modifier.ng.SideEffectFilter;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -31,23 +32,24 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.relauncher.Side;
 
 public class HydrationModifier implements IMessageHandler<WaterDrinkMessage, IMessage> {
 	
 	public static final DamageSource DEHYDRATION = new DamageSource("survivalinc_dehydration").setDamageIsAbsolute().setDamageBypassesArmor();
 	
-	public static FilteredEffectApplicator.EffectFilter isOutsideOverworld = new FilteredEffectApplicator.EffectFilter((EntityPlayer player, Float value) -> Math.abs(player.dimension) == 1);
+	public static FunctionalEffectFilter isOutsideOverworld = new FunctionalEffectFilter((EntityPlayer player, Float value) -> Math.abs(player.dimension) == 1);
 	
 	public static void init()
 	{
-		FilteredEffectApplicator.EffectFilter nasfat = new FilteredEffectApplicator.EffectFilter(Range.lessThan(15F));
+		FunctionalEffectFilter nasfat = new FunctionalEffectFilter(Range.lessThan(15F));
 		DefaultStats.HYDRATION.effects.addEffect(new ConstantStatEffect(ConstantStatEffect.Operation.OFFSET, -0.006F), HydrationModifier.isOutsideOverworld);
-		DefaultStats.HYDRATION.effects.addEffect(new ConstantStatEffect(ConstantStatEffect.Operation.OFFSET, -0.5F), new FilteredEffectApplicator.EffectFilter((EntityPlayer player, Float value) -> player.isInLava()));
-		DefaultStats.HYDRATION.effects.addEffect(new DamageStatEffect(HydrationModifier.DEHYDRATION, 4F, 0), new FilteredEffectApplicator.EffectFilter(Range.lessThan(5F)));
-		DefaultStats.HYDRATION.effects.addEffect(new PotionStatEffect(MobEffects.SLOWNESS, 5), new FilteredEffectApplicator.EffectFilter(Range.lessThan(40F)));
-		DefaultStats.HYDRATION.effects.addEffect(new PotionStatEffect(MobEffects.WEAKNESS, 5), new FilteredEffectApplicator.EffectFilter(Range.lessThan(40F)));
-		DefaultStats.HYDRATION.effects.addEffect(new PotionStatEffect(MobEffects.MINING_FATIGUE, 5), nasfat);
-		DefaultStats.HYDRATION.effects.addEffect(new PotionStatEffect(MobEffects.NAUSEA, 5), nasfat);
+		DefaultStats.HYDRATION.effects.addEffect(new ConstantStatEffect(ConstantStatEffect.Operation.OFFSET, -0.5F), new FunctionalEffectFilter((EntityPlayer player, Float value) -> player.isInLava()));
+		DefaultStats.HYDRATION.effects.addEffect(new DamageStatEffect(HydrationModifier.DEHYDRATION, 4F, 0), new FunctionalEffectFilter(Range.lessThan(5F)), new SideEffectFilter(Side.SERVER));
+		DefaultStats.HYDRATION.effects.addEffect(new PotionStatEffect(MobEffects.SLOWNESS, 5), new FunctionalEffectFilter(Range.lessThan(40F)), new SideEffectFilter(Side.SERVER));
+		DefaultStats.HYDRATION.effects.addEffect(new PotionStatEffect(MobEffects.WEAKNESS, 5), new FunctionalEffectFilter(Range.lessThan(40F)), new SideEffectFilter(Side.SERVER));
+		DefaultStats.HYDRATION.effects.addEffect(new PotionStatEffect(MobEffects.MINING_FATIGUE, 5), nasfat, new SideEffectFilter(Side.SERVER));
+		DefaultStats.HYDRATION.effects.addEffect(new PotionStatEffect(MobEffects.NAUSEA, 5), nasfat, new SideEffectFilter(Side.SERVER));
 		DefaultStats.HYDRATION.effects.addEffect(new FunctionalEffect(HydrationModifier::naturalDrain));
 	}
 	

@@ -2,7 +2,6 @@ package enginecrafter77.survivalinc.stats.modifier.ng;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.DamageSource;
-import net.minecraftforge.fml.relauncher.Side;
 
 public class DamageStatEffect implements StatEffect {
 	
@@ -30,11 +29,5 @@ public class DamageStatEffect implements StatEffect {
 			target.attackEntityFrom(source, amount);
 		}
 		return current;
-	}
-
-	@Override
-	public Side sideOnly()
-	{
-		return Side.SERVER;
 	}
 }

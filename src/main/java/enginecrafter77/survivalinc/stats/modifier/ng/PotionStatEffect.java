@@ -3,7 +3,6 @@ package enginecrafter77.survivalinc.stats.modifier.ng;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
-import net.minecraftforge.fml.relauncher.Side;
 
 /**
  * Potion effect modifier is designed as a demo implementation
@@ -41,11 +40,5 @@ public class PotionStatEffect implements StatEffect
 			player.addPotionEffect(new PotionEffect(effect, duration * 2, amplifier, false, this.visible));
 		}
 		return current;
-	}
-
-	@Override
-	public Side sideOnly()
-	{
-		return Side.SERVER;
 	}
 }

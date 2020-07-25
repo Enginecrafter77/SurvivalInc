@@ -5,8 +5,6 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
 
 public abstract class EffectApplicator implements StatEffect {
 	
@@ -55,12 +53,6 @@ public abstract class EffectApplicator implements StatEffect {
 		}
 	}
 	
-	protected boolean checkSide(World world, StatEffect effect)
-	{
-		Side side = effect.sideOnly();
-		return side == null || (side.isClient() == world.isRemote);
-	}
-	
 	protected float applyEffect(StatEffect effect, EntityPlayer player, float current)
 	{
 		return effect.apply(player, current);
@@ -72,17 +64,8 @@ public abstract class EffectApplicator implements StatEffect {
 		Collection<StatEffect> effects = this.nextRound();
 		for(StatEffect effect : effects)
 		{
-			if(this.checkSide(player.world, effect))
-			{
-				current = this.applyEffect(effect, player, current);
-			}
+			current = this.applyEffect(effect, player, current);
 		}
 		return current;
-	}
-
-	@Override
-	public Side sideOnly()
-	{
-		return null;
 	}
 }

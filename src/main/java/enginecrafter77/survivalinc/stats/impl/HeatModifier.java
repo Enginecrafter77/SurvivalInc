@@ -15,7 +15,9 @@ import enginecrafter77.survivalinc.stats.StatTracker;
 import enginecrafter77.survivalinc.stats.modifier.ng.StatEffect;
 import enginecrafter77.survivalinc.stats.modifier.ng.DamageStatEffect;
 import enginecrafter77.survivalinc.stats.modifier.ng.FunctionalEffect;
+import enginecrafter77.survivalinc.stats.modifier.ng.FunctionalEffectFilter;
 import enginecrafter77.survivalinc.stats.modifier.ng.PotionStatEffect;
+import enginecrafter77.survivalinc.stats.modifier.ng.SideEffectFilter;
 import enginecrafter77.survivalinc.stats.modifier.ng.SimpleEffectApplicator;
 import enginecrafter77.survivalinc.stats.modifier.ng.FilteredEffectApplicator;
 import net.minecraft.block.Block;
@@ -63,10 +65,10 @@ public class HeatModifier implements StatProvider {
 		if(ModConfig.WETNESS.enabled) HeatModifier.exchangerate.add(new FunctionalEffect(HeatModifier::applyWetnessCooldown));
 		HeatModifier.exchangerate.add(HeatModifier.armorInsulation);
 		
-		HeatModifier.consequences.addEffect(new PotionStatEffect(MobEffects.WEAKNESS, 0), new FilteredEffectApplicator.EffectFilter(Range.lessThan(25F)));
-		HeatModifier.consequences.addEffect(new PotionStatEffect(MobEffects.MINING_FATIGUE, 0), new FilteredEffectApplicator.EffectFilter(Range.lessThan(20F)));
-		HeatModifier.consequences.addEffect(new DamageStatEffect(HYPOTHERMIA, (float)ModConfig.HEAT.damageAmount, 10), new FilteredEffectApplicator.EffectFilter(Range.lessThan(10F)));
-		HeatModifier.consequences.addEffect(new FunctionalEffect(HeatModifier::onHighTemperature), new FilteredEffectApplicator.EffectFilter(Range.greaterThan(110F)));
+		HeatModifier.consequences.addEffect(new PotionStatEffect(MobEffects.WEAKNESS, 0), new FunctionalEffectFilter(Range.lessThan(25F)), new SideEffectFilter(Side.SERVER));
+		HeatModifier.consequences.addEffect(new PotionStatEffect(MobEffects.MINING_FATIGUE, 0), new FunctionalEffectFilter(Range.lessThan(20F)), new SideEffectFilter(Side.SERVER));
+		HeatModifier.consequences.addEffect(new DamageStatEffect(HYPOTHERMIA, (float)ModConfig.HEAT.damageAmount, 10), new FunctionalEffectFilter(Range.lessThan(10F)), new SideEffectFilter(Side.SERVER));
+		HeatModifier.consequences.addEffect(new FunctionalEffect(HeatModifier::onHighTemperature), new FunctionalEffectFilter(Range.greaterThan(110F)), new SideEffectFilter(Side.SERVER));
 		
 		// Shit, these repeated parsers will surely get me a bad codefactor.io mark.
 		// Block temperature map
@@ -316,11 +318,5 @@ public class HeatModifier implements StatProvider {
 			}
 			return current * buff;
 		}
-
-		@Override
-		public Side sideOnly()
-		{
-			return null;
-		}	
 	}
 }
