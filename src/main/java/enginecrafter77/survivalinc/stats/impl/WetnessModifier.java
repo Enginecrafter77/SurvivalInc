@@ -6,10 +6,10 @@ import java.util.Random;
 import java.util.UUID;
 
 import enginecrafter77.survivalinc.config.ModConfig;
-import enginecrafter77.survivalinc.stats.modifier.ng.ConstantStatEffect;
-import enginecrafter77.survivalinc.stats.modifier.ng.FunctionalEffect;
-import enginecrafter77.survivalinc.stats.modifier.ng.SideEffectFilter;
-import enginecrafter77.survivalinc.stats.modifier.ng.FunctionalEffectFilter;
+import enginecrafter77.survivalinc.stats.effect.ConstantStatEffect;
+import enginecrafter77.survivalinc.stats.effect.FunctionalEffect;
+import enginecrafter77.survivalinc.stats.effect.FunctionalEffectFilter;
+import enginecrafter77.survivalinc.stats.effect.SideEffectFilter;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;

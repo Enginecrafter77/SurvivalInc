@@ -1,4 +1,4 @@
-package enginecrafter77.survivalinc.stats.modifier.ng;
+package enginecrafter77.survivalinc.stats.effect;
 
 import net.minecraft.entity.player.EntityPlayer;
 

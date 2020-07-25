@@ -2,10 +2,10 @@ package enginecrafter77.survivalinc.ghost;
 
 import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatRecord;
+import enginecrafter77.survivalinc.stats.effect.FilteredEffectApplicator;
 import enginecrafter77.survivalinc.stats.impl.DefaultStats;
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
-import enginecrafter77.survivalinc.stats.modifier.ng.FilteredEffectApplicator;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 

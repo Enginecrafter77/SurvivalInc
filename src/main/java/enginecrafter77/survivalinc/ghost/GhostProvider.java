@@ -2,9 +2,9 @@ package enginecrafter77.survivalinc.ghost;
 
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.stats.SimpleStatRegister;
-import enginecrafter77.survivalinc.stats.modifier.ng.ConstantStatEffect;
-import enginecrafter77.survivalinc.stats.modifier.ng.FunctionalEffect;
-import enginecrafter77.survivalinc.stats.modifier.ng.FunctionalEffectFilter;
+import enginecrafter77.survivalinc.stats.effect.ConstantStatEffect;
+import enginecrafter77.survivalinc.stats.effect.FunctionalEffect;
+import enginecrafter77.survivalinc.stats.effect.FunctionalEffectFilter;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTBase;

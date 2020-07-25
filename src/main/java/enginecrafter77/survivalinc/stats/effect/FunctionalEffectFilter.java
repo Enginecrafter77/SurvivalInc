@@ -1,9 +1,9 @@
-package enginecrafter77.survivalinc.stats.modifier.ng;
+package enginecrafter77.survivalinc.stats.effect;
 
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
-import enginecrafter77.survivalinc.stats.modifier.ng.FilteredEffectApplicator.EffectFilter;
+import enginecrafter77.survivalinc.stats.effect.FilteredEffectApplicator.EffectFilter;
 import net.minecraft.entity.player.EntityPlayer;
 
 public class FunctionalEffectFilter implements EffectFilter

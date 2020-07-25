@@ -1,4 +1,4 @@
-package enginecrafter77.survivalinc.stats.modifier.ng;
+package enginecrafter77.survivalinc.stats.effect;
 
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;

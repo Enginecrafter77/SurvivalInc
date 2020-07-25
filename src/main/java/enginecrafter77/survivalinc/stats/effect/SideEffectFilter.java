@@ -1,6 +1,6 @@
-package enginecrafter77.survivalinc.stats.modifier.ng;
+package enginecrafter77.survivalinc.stats.effect;
 
-import enginecrafter77.survivalinc.stats.modifier.ng.FilteredEffectApplicator.EffectFilter;
+import enginecrafter77.survivalinc.stats.effect.FilteredEffectApplicator.EffectFilter;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.relauncher.Side;
 
