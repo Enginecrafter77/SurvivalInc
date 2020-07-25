@@ -2,9 +2,9 @@ package enginecrafter77.survivalinc.ghost;
 
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.stats.SimpleStatRegister;
-import enginecrafter77.survivalinc.stats.modifier.ConditionalModifier;
-import enginecrafter77.survivalinc.stats.modifier.FunctionalModifier;
-import enginecrafter77.survivalinc.stats.modifier.OperationType;
+import enginecrafter77.survivalinc.stats.modifier.ng.ConstantStatEffect;
+import enginecrafter77.survivalinc.stats.modifier.ng.FunctionalEffect;
+import enginecrafter77.survivalinc.stats.modifier.ng.FunctionalEffectFilter;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTBase;
@@ -98,12 +98,12 @@ public class GhostProvider implements ICapabilitySerializable<NBTBase> {
 	{
 		MinecraftForge.EVENT_BUS.register(GhostProvider.class);
 		CapabilityManager.INSTANCE.register(Ghost.class, new GhostStorage(), GhostImpl::new);
-		GhostEnergy.instance.add(new ConditionalModifier<EntityPlayer>((EntityPlayer player) -> player.isSprinting(), -0.2F), OperationType.OFFSET);
-		GhostEnergy.instance.add(new FunctionalModifier<EntityPlayer>(GhostProvider::duringNight), OperationType.OFFSET);
+		GhostEnergy.instance.applicator.addEffect(new ConstantStatEffect(ConstantStatEffect.Operation.OFFSET, -0.2F), new FunctionalEffectFilter((EntityPlayer player, Float value) -> player.isSprinting()));
+		GhostEnergy.instance.applicator.addEffect(new FunctionalEffect(GhostProvider::duringNight));
 		SimpleStatRegister.providers.add(GhostEnergy.instance);
 	}
 	
-	public static float duringNight(EntityPlayer player)
+	public static float duringNight(EntityPlayer player, float value)
 	{
 		boolean night;
 		if(player.world.isRemote)
@@ -113,6 +113,7 @@ public class GhostProvider implements ICapabilitySerializable<NBTBase> {
 		}
 		else night = !player.world.isDaytime();
 		
-		return night ? 0.05F : 0F;
+		if(night) value += 0.05F;
+		return value;
 	}
 }

@@ -5,22 +5,27 @@ import enginecrafter77.survivalinc.stats.StatRecord;
 import enginecrafter77.survivalinc.stats.impl.DefaultStats;
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
-import enginecrafter77.survivalinc.stats.modifier.ModifierApplicator;
+import enginecrafter77.survivalinc.stats.modifier.ng.FilteredEffectApplicator;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 
-public class GhostEnergy extends ModifierApplicator<EntityPlayer> implements StatProvider {
+public class GhostEnergy implements StatProvider {
 	private static final long serialVersionUID = -2088047893866334112L;
 	
 	public static final ResourceLocation identifier = new ResourceLocation(SurvivalInc.MOD_ID, "ghostenergy");
 	public static final GhostEnergy instance = new GhostEnergy();
 	
-	private GhostEnergy() {}
+	public final FilteredEffectApplicator applicator;
+	
+	private GhostEnergy()
+	{
+		this.applicator = new FilteredEffectApplicator();
+	}
 	
 	@Override
 	public float updateValue(EntityPlayer target, float current)
 	{
-		return DefaultStats.capValue(this, this.apply(target, current));
+		return DefaultStats.capValue(this, this.applicator.apply(target, current));
 	}
 
 	@Override
