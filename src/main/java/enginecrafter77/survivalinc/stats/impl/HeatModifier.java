@@ -16,8 +16,8 @@ import enginecrafter77.survivalinc.stats.modifier.ng.StatEffect;
 import enginecrafter77.survivalinc.stats.modifier.ng.DamageStatEffect;
 import enginecrafter77.survivalinc.stats.modifier.ng.FunctionalEffect;
 import enginecrafter77.survivalinc.stats.modifier.ng.PotionStatEffect;
-import enginecrafter77.survivalinc.stats.modifier.ng.RoundRobinApplicator;
-import enginecrafter77.survivalinc.stats.modifier.ng.EffectFilterWrapper;
+import enginecrafter77.survivalinc.stats.modifier.ng.SimpleEffectApplicator;
+import enginecrafter77.survivalinc.stats.modifier.ng.FilteredEffectApplicator;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.MobEffects;
@@ -49,9 +49,9 @@ public class HeatModifier implements StatProvider {
 	public static Map<Block, Float> blockHeatMap = new HashMap<Block, Float>();
 	public static ArmorModifier armorInsulation = new ArmorModifier();
 	
-	public static RoundRobinApplicator targettemp = new RoundRobinApplicator();
-	public static RoundRobinApplicator exchangerate = new RoundRobinApplicator();
-	public static RoundRobinApplicator consequences = new RoundRobinApplicator();
+	public static SimpleEffectApplicator targettemp = new SimpleEffectApplicator();
+	public static SimpleEffectApplicator exchangerate = new SimpleEffectApplicator();
+	public static FilteredEffectApplicator consequences = new FilteredEffectApplicator();
 	
 	// Make it a singleton
 	private HeatModifier() {}
@@ -63,10 +63,10 @@ public class HeatModifier implements StatProvider {
 		if(ModConfig.WETNESS.enabled) HeatModifier.exchangerate.add(new FunctionalEffect(HeatModifier::applyWetnessCooldown));
 		HeatModifier.exchangerate.add(HeatModifier.armorInsulation);
 		
-		HeatModifier.consequences.add(new EffectFilterWrapper(new PotionStatEffect(MobEffects.WEAKNESS, 0)).inRange(Range.lessThan(25F)));
-		HeatModifier.consequences.add(new EffectFilterWrapper(new PotionStatEffect(MobEffects.MINING_FATIGUE, 0)).inRange(Range.lessThan(20F)));
-		HeatModifier.consequences.add(new EffectFilterWrapper(new DamageStatEffect(HYPOTHERMIA, (float)ModConfig.HEAT.damageAmount, 10)).inRange(Range.lessThan(10F)));
-		HeatModifier.consequences.add(new EffectFilterWrapper(new FunctionalEffect(HeatModifier::onHighTemperature)).inRange(Range.greaterThan(110F)));
+		HeatModifier.consequences.addEffect(new PotionStatEffect(MobEffects.WEAKNESS, 0), new FilteredEffectApplicator.EffectFilter(Range.lessThan(25F)));
+		HeatModifier.consequences.addEffect(new PotionStatEffect(MobEffects.MINING_FATIGUE, 0), new FilteredEffectApplicator.EffectFilter(Range.lessThan(20F)));
+		HeatModifier.consequences.addEffect(new DamageStatEffect(HYPOTHERMIA, (float)ModConfig.HEAT.damageAmount, 10), new FilteredEffectApplicator.EffectFilter(Range.lessThan(10F)));
+		HeatModifier.consequences.addEffect(new FunctionalEffect(HeatModifier::onHighTemperature), new FilteredEffectApplicator.EffectFilter(Range.greaterThan(110F)));
 		
 		// Shit, these repeated parsers will surely get me a bad codefactor.io mark.
 		// Block temperature map
