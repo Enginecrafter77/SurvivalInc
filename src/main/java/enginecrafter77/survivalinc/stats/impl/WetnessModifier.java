@@ -6,10 +6,12 @@ import java.util.Random;
 import java.util.UUID;
 
 import enginecrafter77.survivalinc.config.ModConfig;
-import enginecrafter77.survivalinc.stats.modifier.ConditionalModifier;
-import enginecrafter77.survivalinc.stats.modifier.FunctionalModifier;
-import enginecrafter77.survivalinc.stats.modifier.OperationType;
+import enginecrafter77.survivalinc.stats.modifier.ng.ConstantStatEffect;
+import enginecrafter77.survivalinc.stats.modifier.ng.FunctionalEffect;
+import enginecrafter77.survivalinc.stats.modifier.ng.SideEffectFilter;
+import enginecrafter77.survivalinc.stats.modifier.ng.FunctionalEffectFilter;
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -20,6 +22,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
+import net.minecraftforge.fml.relauncher.Side;
 
 /*
  * This is where the magic of changing one's wetness occurs. You'll most likely be here.
@@ -39,14 +42,16 @@ public class WetnessModifier {
 	
 	public static void init()
 	{
-		DefaultStats.WETNESS.modifiers.add(new ConditionalModifier<EntityPlayer>((EntityPlayer player) -> player.world.isRainingAt(player.getPosition().up()), 0.01F), OperationType.OFFSET);
-		DefaultStats.WETNESS.modifiers.add(new ConditionalModifier<EntityPlayer>((EntityPlayer player) -> player.dimension == -1, -0.08F), OperationType.OFFSET);
-		DefaultStats.WETNESS.modifiers.add(new ConditionalModifier<EntityPlayer>((EntityPlayer player) -> player.isBurning(), -0.8F), OperationType.OFFSET);
-		DefaultStats.WETNESS.modifiers.add(new FunctionalModifier<EntityPlayer>(WetnessModifier::scanSurroundings), OperationType.OFFSET);
-		DefaultStats.WETNESS.modifiers.add(new FunctionalModifier<EntityPlayer>(WetnessModifier::naturalDrying), OperationType.OFFSET);
-		DefaultStats.WETNESS.modifiers.add(new FunctionalModifier<EntityPlayer>(WetnessModifier::whenInWater), OperationType.OFFSET);
-		DefaultStats.WETNESS.modifiers.add(new FunctionalModifier<EntityPlayer>(WetnessModifier::causeDripping));
-		DefaultStats.WETNESS.modifiers.add(new FunctionalModifier<EntityPlayer>(WetnessModifier::slowDown));
+		DefaultStats.WETNESS.effects.addEffect(new ConstantStatEffect(ConstantStatEffect.Operation.OFFSET, 0.01F), new FunctionalEffectFilter((EntityPlayer player, Float value) -> player.world.isRainingAt(player.getPosition().up())));
+		DefaultStats.WETNESS.effects.addEffect(new ConstantStatEffect(ConstantStatEffect.Operation.OFFSET, -0.08F), HydrationModifier.isOutsideOverworld);
+		DefaultStats.WETNESS.effects.addEffect(new ConstantStatEffect(ConstantStatEffect.Operation.OFFSET, -0.8F), new FunctionalEffectFilter((EntityPlayer player, Float value) -> player.isBurning()));
+		
+		DefaultStats.WETNESS.effects.addEffect(new FunctionalEffect(WetnessModifier::scanSurroundings));
+		DefaultStats.WETNESS.effects.addEffect(new FunctionalEffect(WetnessModifier::naturalDrying));
+		DefaultStats.WETNESS.effects.addEffect(new FunctionalEffect(WetnessModifier::whenInWater));
+		
+		DefaultStats.WETNESS.effects.addEffect(new FunctionalEffect(WetnessModifier::causeDripping), new SideEffectFilter(Side.CLIENT));
+		DefaultStats.WETNESS.effects.addEffect(new FunctionalEffect(WetnessModifier::slowDown), new SideEffectFilter(Side.SERVER));
 		
 		WetnessModifier.humiditymap = new HashMap<Block, Float>();
 		WetnessModifier.humiditymap.put(Blocks.FIRE, -0.5F);
@@ -58,38 +63,34 @@ public class WetnessModifier {
 	
 	public static float slowDown(EntityPlayer player, float current)
 	{
-		// We only want to run this on server side
-		if(!player.world.isRemote)
+		float max = DefaultStats.WETNESS.getMaximum();
+		float threshold = (float)ModConfig.WETNESS.slowdownThreshold / 100F;
+		
+		// This is the math part. I am way less worried about impact of this. Mmmm math...
+		float mod = 0F;
+		if(current > (threshold * max))
 		{
-			float max = DefaultStats.WETNESS.getMaximum();
-			float threshold = (float)ModConfig.WETNESS.slowdownThreshold / 100F;
-			
-			// This is the math part. I am way less worried about impact of this. Mmmm math...
-			float mod = 0F;
-			if(current > (threshold * max))
-			{
-				/*
-				 * We want to achieve following scenario:
-				 * 	When the wetness is just at the slowdown threshold, apply zero slowdown (closest 0)
-				 * 	As the wetness is rising, slow the player down in linear manner (which implies using direct relationship function)
-				 * 	When the wetness is at maximum, the value should be just above -1 (to avoid total nullification of the speed)
-				 * After some experimentation and calculations, I came up with this little equation:
-				 * 	      1 - g           g - 1
-				 * 	y = ---------- x + t -------
-				 * 	     m(t - 1)         t - 1
-				 * It may seem a little bit complicated, but you would get to that anyways if you would try to solve it.
-				 */
-				float correction = (float)ModConfig.WETNESS.minimalWalkSpeed;
-				float inclination = (1 - correction) / (max * (threshold - 1)); // The inclination of the graph, aka the A
-				float offset = threshold * ((correction - 1) / (threshold - 1)); // The offset of the graph, aka the B
-				mod += inclination * current + offset; // Direct relationship formula
-			}
-			
-			// Ugh I really hate this code. It's damn ineffective. So much list IO to handle every single tick.
-			IAttributeInstance inst = player.getAttributeMap().getAttributeInstance(SharedMonsterAttributes.MOVEMENT_SPEED);
-			inst.removeModifier(WetnessModifier.wetnessSlowdown);
-			inst.applyModifier(new AttributeModifier(WetnessModifier.wetnessSlowdown, "wetnessSlowdown", mod, 1).setSaved(false));
+			/*
+			 * We want to achieve following scenario:
+			 * 	When the wetness is just at the slowdown threshold, apply zero slowdown (closest 0)
+			 * 	As the wetness is rising, slow the player down in linear manner (which implies using direct relationship function)
+			 * 	When the wetness is at maximum, the value should be just above -1 (to avoid total nullification of the speed)
+			 * After some experimentation and calculations, I came up with this little equation:
+			 * 	      1 - g           g - 1
+			 * 	y = ---------- x + t -------
+			 * 	     m(t - 1)         t - 1
+			 * It may seem a little bit complicated, but you would get to that anyways if you would try to solve it.
+			 */
+			float correction = (float)ModConfig.WETNESS.minimalWalkSpeed;
+			float inclination = (1 - correction) / (max * (threshold - 1)); // The inclination of the graph, aka the A
+			float offset = threshold * ((correction - 1) / (threshold - 1)); // The offset of the graph, aka the B
+			mod += inclination * current + offset; // Direct relationship formula
 		}
+		
+		// Ugh I really hate this code. It's damn ineffective. So much list IO to handle every single tick.
+		IAttributeInstance inst = player.getAttributeMap().getAttributeInstance(SharedMonsterAttributes.MOVEMENT_SPEED);
+		inst.removeModifier(WetnessModifier.wetnessSlowdown);
+		inst.applyModifier(new AttributeModifier(WetnessModifier.wetnessSlowdown, "wetnessSlowdown", mod, 1).setSaved(false));
 		return current;
 	}
 	
@@ -101,17 +102,14 @@ public class WetnessModifier {
 	 */
 	public static float causeDripping(EntityPlayer player, float current)
 	{
-		if(player.world.isRemote)
+		WorldClient world = Minecraft.getMinecraft().world;
+		Random rng = world.rand;
+		float coefficient = (current / DefaultStats.WETNESS.getMaximum());
+		if(rng.nextFloat() < coefficient)
 		{
-			WorldClient world = Minecraft.getMinecraft().world;
-			Random rng = world.rand;
-			float coefficient = (current / DefaultStats.WETNESS.getMaximum());
-			if(rng.nextFloat() < coefficient)
+			for(int index = 0; index < 4; index++)
 			{
-				for(int index = 0; index < 4; index++)
-				{
-					world.spawnParticle(EnumParticleTypes.DRIP_WATER, player.posX + (rng.nextFloat() * 0.5 - 0.25), player.posY + (rng.nextFloat() * 1 + 0.25), player.posZ + (rng.nextFloat() * 0.5 - 0.25), player.motionX, -0.5, player.motionZ, null);
-				}
+				world.spawnParticle(EnumParticleTypes.DRIP_WATER, player.posX + (rng.nextFloat() * 0.5 - 0.25), player.posY + (rng.nextFloat() * 1 + 0.25), player.posZ + (rng.nextFloat() * 0.5 - 0.25), player.motionX, -0.5, player.motionZ, null);
 			}
 		}
 		return current;
@@ -121,28 +119,29 @@ public class WetnessModifier {
 	{
 		if(player.isInWater())
 		{
-			// If the player is not fully submerged into water, cap the wetness to 40%
-			Block headblock = player.world.getBlockState(player.getPosition().up()).getBlock();
-			if(headblock != Blocks.WATER && headblock != Blocks.FLOWING_WATER)
-			{
-				if(value < 40F) return 1.25F;
-			}
-			else return 5F;
+			Material headBlockMaterial = player.world.getBlockState(new BlockPos(player).up()).getMaterial();
+			if(headBlockMaterial == Material.WATER) value += 5F;
+			else if(value < 0.4F * DefaultStats.WETNESS.getMaximum()) value += 1.25F;
 		}
-		return 0F;
+		
+		return value;
 	}
 	
-	public static float naturalDrying(EntityPlayer player)
+	public static float naturalDrying(EntityPlayer player, float value)
 	{
-		float rate = -(float)ModConfig.WETNESS.passiveDryRate;
-		if(player.world.isDaytime() && player.world.canBlockSeeSky(player.getPosition())) rate *= ModConfig.WETNESS.sunlightMultiplier;
-		return rate;
+		if(!player.isWet())
+		{
+			float rate = (float)ModConfig.WETNESS.passiveDryRate;
+			if(player.world.isDaytime() && player.world.canBlockSeeSky(player.getPosition())) rate *= ModConfig.WETNESS.sunlightMultiplier;
+			value -= rate;
+		}
+		return value;
 	}
 	
-	public static float scanSurroundings(EntityPlayer player)
+	public static float scanSurroundings(EntityPlayer player, float value)
 	{
 		Vec3i offset = new Vec3i(2, 1, 2);
-		BlockPos origin = player.getPosition();
+		BlockPos origin = new BlockPos(player);
 		
 		Iterable<BlockPos> blocks = BlockPos.getAllInBox(origin.subtract(offset), origin.add(offset));
 		
@@ -153,11 +152,11 @@ public class WetnessModifier {
 			if(WetnessModifier.humiditymap.containsKey(block))
 			{
 				float basewetness = WetnessModifier.humiditymap.get(block);
-				float proximity = (float)Math.sqrt(origin.distanceSq(position));
+				float proximity = (float)Math.sqrt(position.distanceSq(player.posX, player.posY, player.posZ));
 				diff += basewetness / proximity;
 			}
 		}
 		if(player.isWet()) diff /= 2F;
-		return diff;
+		return value + diff;
 	}
 }
