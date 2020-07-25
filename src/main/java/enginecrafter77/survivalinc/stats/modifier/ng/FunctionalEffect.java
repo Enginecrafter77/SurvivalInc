@@ -1,9 +1,8 @@
 package enginecrafter77.survivalinc.stats.modifier.ng;
 
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Function;
-
 import net.minecraft.entity.player.EntityPlayer;
 
 public class FunctionalEffect implements StatEffect {
@@ -15,19 +14,26 @@ public class FunctionalEffect implements StatEffect {
 		this.target = target;
 	}
 	
-	public FunctionalEffect(Function<EntityPlayer, Float> target)
+	public FunctionalEffect(BiConsumer<EntityPlayer, Float> target)
 	{
-		this((EntityPlayer player, Float current) -> target.apply(player));
+		this(new BiFunction<EntityPlayer, Float, Float>() {
+			@Override
+			public Float apply(EntityPlayer player, Float value)
+			{
+				target.accept(player, value);
+				return value;
+			}
+		});
 	}
 	
 	public FunctionalEffect(Consumer<EntityPlayer> target)
 	{
 		this(new BiFunction<EntityPlayer, Float, Float>() {
 			@Override
-			public Float apply(EntityPlayer t, Float u)
+			public Float apply(EntityPlayer player, Float value)
 			{
-				target.accept(t);
-				return u;
+				target.accept(player);
+				return value;
 			}
 		});
 	}

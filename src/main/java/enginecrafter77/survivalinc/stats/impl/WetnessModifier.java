@@ -61,7 +61,7 @@ public class WetnessModifier {
 		WetnessModifier.humiditymap.put(Blocks.MAGMA, -0.4F);
 	}
 	
-	public static float slowDown(EntityPlayer player, float current)
+	public static void slowDown(EntityPlayer player, float current)
 	{
 		float max = DefaultStats.WETNESS.getMaximum();
 		float threshold = (float)ModConfig.WETNESS.slowdownThreshold / 100F;
@@ -91,16 +91,14 @@ public class WetnessModifier {
 		IAttributeInstance inst = player.getAttributeMap().getAttributeInstance(SharedMonsterAttributes.MOVEMENT_SPEED);
 		inst.removeModifier(WetnessModifier.wetnessSlowdown);
 		inst.applyModifier(new AttributeModifier(WetnessModifier.wetnessSlowdown, "wetnessSlowdown", mod, 1).setSaved(false));
-		return current;
 	}
 	
 	/**
 	 * Causes client-side dripping effect
 	 * @param player The player to apply for
 	 * @param current The current level of wetness
-	 * @return The new level of wetness (irrelevant in this case)
 	 */
-	public static float causeDripping(EntityPlayer player, float current)
+	public static void causeDripping(EntityPlayer player, float current)
 	{
 		WorldClient world = Minecraft.getMinecraft().world;
 		Random rng = world.rand;
@@ -112,7 +110,6 @@ public class WetnessModifier {
 				world.spawnParticle(EnumParticleTypes.DRIP_WATER, player.posX + (rng.nextFloat() * 0.5 - 0.25), player.posY + (rng.nextFloat() * 1 + 0.25), player.posZ + (rng.nextFloat() * 0.5 - 0.25), player.motionX, -0.5, player.motionZ, null);
 			}
 		}
-		return current;
 	}
 	
 	public static float whenInWater(EntityPlayer player, float value)

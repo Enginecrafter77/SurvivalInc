@@ -66,7 +66,7 @@ public class SanityModifier {
 		}
 	}
 	
-	public static float playStaticNoise(EntityPlayer player, float current)
+	public static void playStaticNoise(EntityPlayer player, float current)
 	{
 		float threshold = (float)ModConfig.SANITY.hallucinationThreshold * DefaultStats.SANITY.getMaximum();
 		if(player.world.getWorldTime() % 160 == 0)
@@ -77,7 +77,7 @@ public class SanityModifier {
 			 * not be evaluated.
 			 */
 			Minecraft client = Minecraft.getMinecraft();
-			if(player != client.player) return 0F;
+			if(player != client.player) return;
 			
 			if(player.world.rand.nextFloat() < 0.25F && current < threshold)
 			{
@@ -95,8 +95,6 @@ public class SanityModifier {
 				}
 			}
 		}
-		
-		return current;
 	}
 	
 	public static float duringNight(EntityPlayer player, float value)
