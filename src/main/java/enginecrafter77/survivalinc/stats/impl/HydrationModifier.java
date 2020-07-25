@@ -1,17 +1,18 @@
 package enginecrafter77.survivalinc.stats.impl;
 
+import com.google.common.collect.Range;
+
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.net.WaterDrinkMessage;
 import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatTracker;
-import enginecrafter77.survivalinc.stats.modifier.ConditionalModifier;
-import enginecrafter77.survivalinc.stats.modifier.DamagingModifier;
-import enginecrafter77.survivalinc.stats.modifier.FunctionalModifier;
-import enginecrafter77.survivalinc.stats.modifier.OperationType;
-import enginecrafter77.survivalinc.stats.modifier.PotionEffectModifier;
-import enginecrafter77.survivalinc.stats.modifier.ThresholdModifier;
+import enginecrafter77.survivalinc.stats.modifier.ng.ConstantStatEffect;
+import enginecrafter77.survivalinc.stats.modifier.ng.DamageStatEffect;
+import enginecrafter77.survivalinc.stats.modifier.ng.FilteredEffectApplicator;
+import enginecrafter77.survivalinc.stats.modifier.ng.FunctionalEffect;
+import enginecrafter77.survivalinc.stats.modifier.ng.PotionStatEffect;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -35,16 +36,21 @@ public class HydrationModifier implements IMessageHandler<WaterDrinkMessage, IMe
 	
 	public static final DamageSource DEHYDRATION = new DamageSource("survivalinc_dehydration").setDamageIsAbsolute().setDamageBypassesArmor();
 	
+	public static final FilteredEffectApplicator effects = new FilteredEffectApplicator();
+	
 	public static void init()
 	{
-		DefaultStats.HYDRATION.modifiers.add(new ConditionalModifier<EntityPlayer>((EntityPlayer player) -> player.dimension == -1, -0.006F), OperationType.OFFSET);
-		DefaultStats.HYDRATION.modifiers.add(new ConditionalModifier<EntityPlayer>((EntityPlayer player) -> player.isInLava(), -0.5F), OperationType.OFFSET);
-		DefaultStats.HYDRATION.modifiers.add(new FunctionalModifier<EntityPlayer>(HydrationModifier::naturalDrain), OperationType.OFFSET);
-		DefaultStats.HYDRATION.modifiers.add(new ThresholdModifier<EntityPlayer>(new DamagingModifier(DEHYDRATION, 4F, 0), 5F, ThresholdModifier.LOWER));
-		DefaultStats.HYDRATION.modifiers.add(new ThresholdModifier<EntityPlayer>(new PotionEffectModifier(MobEffects.NAUSEA, 5), 15F, ThresholdModifier.LOWER));
-		DefaultStats.HYDRATION.modifiers.add(new ThresholdModifier<EntityPlayer>(new PotionEffectModifier(MobEffects.MINING_FATIGUE, 3), 15F, ThresholdModifier.LOWER));
-		DefaultStats.HYDRATION.modifiers.add(new ThresholdModifier<EntityPlayer>(new PotionEffectModifier(MobEffects.SLOWNESS, 3), 40F, ThresholdModifier.LOWER));
-		DefaultStats.HYDRATION.modifiers.add(new ThresholdModifier<EntityPlayer>(new PotionEffectModifier(MobEffects.WEAKNESS, 2), 40F, ThresholdModifier.LOWER));
+		FilteredEffectApplicator.EffectFilter nasfat = new FilteredEffectApplicator.EffectFilter(Range.lessThan(15F));
+		HydrationModifier.effects.addEffect(new ConstantStatEffect(ConstantStatEffect.Operation.OFFSET, -0.006F), new FilteredEffectApplicator.EffectFilter((EntityPlayer player, Float value) -> Math.abs(player.dimension) == 1));
+		HydrationModifier.effects.addEffect(new ConstantStatEffect(ConstantStatEffect.Operation.OFFSET, -0.5F), new FilteredEffectApplicator.EffectFilter((EntityPlayer player, Float value) -> player.isInLava()));
+		HydrationModifier.effects.addEffect(new DamageStatEffect(HydrationModifier.DEHYDRATION, 4F, 0), new FilteredEffectApplicator.EffectFilter(Range.lessThan(5F)));
+		HydrationModifier.effects.addEffect(new PotionStatEffect(MobEffects.SLOWNESS, 5), new FilteredEffectApplicator.EffectFilter(Range.lessThan(40F)));
+		HydrationModifier.effects.addEffect(new PotionStatEffect(MobEffects.WEAKNESS, 5), new FilteredEffectApplicator.EffectFilter(Range.lessThan(40F)));
+		HydrationModifier.effects.addEffect(new PotionStatEffect(MobEffects.MINING_FATIGUE, 5), nasfat);
+		HydrationModifier.effects.addEffect(new PotionStatEffect(MobEffects.NAUSEA, 5), nasfat);
+		
+		DefaultStats.HYDRATION.effects.add(new FunctionalEffect(HydrationModifier::naturalDrain));
+		DefaultStats.HYDRATION.effects.add(effects);
 	}
 	
 	public static float naturalDrain(EntityPlayer player, float value)
@@ -56,7 +62,7 @@ public class HydrationModifier implements IMessageHandler<WaterDrinkMessage, IMe
 			StatTracker tracker = player.getCapability(StatCapability.target, null);
 			if(((tracker.getStat(heat) - heat.getMinimum()) / (heat.getMaximum() - heat.getMinimum())) > ModConfig.HYDRATION.sweatingThreshold) drain *= ModConfig.HYDRATION.sweatingMultiplier;
 		}
-		return drain;
+		return value + drain;
 	}
 	
 	/**
