@@ -3,13 +3,19 @@ package enginecrafter77.survivalinc.stats.effect;
 import net.minecraft.entity.player.EntityPlayer;
 
 /**
- * StatEffect is the base of all applicable effect.
- * StatEffect basically describes the change to stat
- * which should occur when certain conditions are met.
- * StatEffects are often used to calculate the changes
- * to stats, rather than modifying them directly.
+ * StatEffect is the base class of
+ * the StatEffect API. StatEffect
+ * describes a procedure which acts
+ * based on the amount of a certain
+ * stat, potentially rewriting it.
+ * The StatEffect is usually used to
+ * compute the change to a stat value,
+ * although common usages also include
+ * only acting upon the current value,
+ * and returning it unchanged.
  * @author Enginecrafter77
  */
+@FunctionalInterface
 public interface StatEffect {
 	
 	/**

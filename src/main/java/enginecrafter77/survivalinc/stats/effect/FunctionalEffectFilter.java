@@ -6,8 +6,15 @@ import java.util.function.Predicate;
 import enginecrafter77.survivalinc.stats.effect.FilteredEffectApplicator.EffectFilter;
 import net.minecraft.entity.player.EntityPlayer;
 
-public class FunctionalEffectFilter implements EffectFilter
-{
+/**
+ * Much like {@link FunctionalEffect}, this class uses
+ * lambdas to implement a simple {@link EffectFilter}.
+ * Moreover, this interface provides a {@link #invert()}
+ * method.
+ * @author Enginecrafter77
+ */
+public class FunctionalEffectFilter implements EffectFilter {
+	/** The function this effect filter delegates to */
 	public BiPredicate<EntityPlayer, Float> delegate;
 	
 	public FunctionalEffectFilter(BiPredicate<EntityPlayer, Float> delegate)
@@ -26,6 +33,9 @@ public class FunctionalEffectFilter implements EffectFilter
 		return this.delegate.test(player, value);
 	}
 	
+	/**
+	 * @return An EffectFilter returning exactly the opposite values for each matching inputs
+	 */
 	public EffectFilter invert()
 	{
 		return new FunctionalEffectFilter((EntityPlayer player, Float value) -> !this.delegate.test(player, value));
