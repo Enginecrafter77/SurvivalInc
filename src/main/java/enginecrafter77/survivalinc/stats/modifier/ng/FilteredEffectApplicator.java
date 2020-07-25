@@ -72,7 +72,12 @@ public class FilteredEffectApplicator extends EffectApplicator {
 		public boolean test(EntityPlayer t, Float u)
 		{
 			return this.delegate.test(t, u);
-		}	
+		}
+		
+		public EffectFilter invert()
+		{
+			return new EffectFilter((EntityPlayer player, Float value) -> !this.delegate.test(player, value));
+		}
 	}
 
 }

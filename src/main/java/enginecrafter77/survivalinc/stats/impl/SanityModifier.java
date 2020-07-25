@@ -28,35 +28,32 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Predicate;
-
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.net.StatSyncMessage;
 import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatTracker;
-import enginecrafter77.survivalinc.stats.modifier.ConditionalModifier;
-import enginecrafter77.survivalinc.stats.modifier.FunctionalModifier;
-import enginecrafter77.survivalinc.stats.modifier.OperationType;
+import enginecrafter77.survivalinc.stats.modifier.ng.ConstantStatEffect;
+import enginecrafter77.survivalinc.stats.modifier.ng.FilteredEffectApplicator;
+import enginecrafter77.survivalinc.stats.modifier.ng.FunctionalEffect;
 
 public class SanityModifier {
 	
 	public static final ResourceLocation distortshader = new ResourceLocation(SurvivalInc.MOD_ID, "shaders/distort.json");
 	public static final SoundEvent staticbuzz = new SoundEvent(new ResourceLocation(SurvivalInc.MOD_ID, "staticbuzz"));
 	
-	public static final Predicate<EntityPlayer> isOutsideOverworld = (EntityPlayer player) -> Math.abs(player.dimension) == 1;
 	public static final Map<Item, Float> foodSanityMap = new HashMap<Item, Float>();
 	
 	public static void init()
 	{
-		if(ModConfig.WETNESS.enabled) DefaultStats.SANITY.modifiers.add(new FunctionalModifier<EntityPlayer>(SanityModifier::whenWet), OperationType.OFFSET);
+		//if(ModConfig.WETNESS.enabled) DefaultStats.SANITY.modifiers.add(new FunctionalModifier<EntityPlayer>(SanityModifier::whenWet), OperationType.OFFSET);
+		if(ModConfig.WETNESS.enabled) DefaultStats.SANITY.effects.addEffect(new FunctionalEffect(SanityModifier::whenWet));
 		
-		DefaultStats.SANITY.modifiers.add(new ConditionalModifier<EntityPlayer>((EntityPlayer player) -> player.isPlayerSleeping(), 0.004F), OperationType.OFFSET);
-		DefaultStats.SANITY.modifiers.add(new ConditionalModifier<EntityPlayer>(SanityModifier.isOutsideOverworld, -0.004F), OperationType.OFFSET);
-		DefaultStats.SANITY.modifiers.add(new FunctionalModifier<EntityPlayer>(SanityModifier::whenNearEntities), OperationType.OFFSET);
-		DefaultStats.SANITY.modifiers.add(new FunctionalModifier<EntityPlayer>(SanityModifier::duringNight), OperationType.OFFSET);
-		DefaultStats.SANITY.modifiers.add(new FunctionalModifier<EntityPlayer>(SanityModifier::whenInDark), OperationType.OFFSET);
-		DefaultStats.SANITY.modifiers.add(new FunctionalModifier<EntityPlayer>(SanityModifier::playStaticNoise), OperationType.NOOP);
+		DefaultStats.SANITY.effects.addEffect(new ConstantStatEffect(ConstantStatEffect.Operation.OFFSET, 0.004F), new FilteredEffectApplicator.EffectFilter((EntityPlayer player, Float value) -> player.isPlayerSleeping()));
+		DefaultStats.SANITY.effects.addEffect(new FunctionalEffect(SanityModifier::whenNearEntities));
+		DefaultStats.SANITY.effects.addEffect(new FunctionalEffect(SanityModifier::duringNight));
+		DefaultStats.SANITY.effects.addEffect(new FunctionalEffect(SanityModifier::whenInDark), HydrationModifier.isOutsideOverworld.invert());
+		//DefaultStats.SANITY.effects.addEffect(new FunctionalEffect(SanityModifier::playStaticNoise).setSideOnly(Side.CLIENT));
 		
 		// Compile food value list
 		for(String entry : ModConfig.SANITY.foodSanityMap)
@@ -71,7 +68,7 @@ public class SanityModifier {
 	public static float playStaticNoise(EntityPlayer player, float current)
 	{
 		float threshold = (float)ModConfig.SANITY.hallucinationThreshold * DefaultStats.SANITY.getMaximum();
-		if(player.world.isRemote && player.world.getWorldTime() % 160 == 0)
+		if(player.world.getWorldTime() % 160 == 0)
 		{
 			/**
 			 * This effect should only apply to the client player.
@@ -98,10 +95,10 @@ public class SanityModifier {
 			}
 		}
 		
-		return 0F;
+		return current;
 	}
 	
-	public static float duringNight(EntityPlayer player)
+	public static float duringNight(EntityPlayer player, float value)
 	{
 		boolean night;
 		if(player.world.isRemote)
@@ -111,14 +108,12 @@ public class SanityModifier {
 		}
 		else night = !player.world.isDaytime();
 		
-		return night ? -(float)ModConfig.SANITY.nighttimeDrain : 0F;
+		if(night) value -= (float)ModConfig.SANITY.nighttimeDrain;
+		return value;
 	}
 	
-	public static float whenInDark(EntityPlayer player)
+	public static int determineLightLevel(EntityPlayer player)
 	{
-		// If we are not in overworld, skip this function
-		if(isOutsideOverworld.test(player)) return 0F;
-		
 		// Determine the position
 		BlockPos position = player.getPosition();
 		if(player.world.isRemote)
@@ -129,25 +124,35 @@ public class SanityModifier {
 		}
 		
 		// Determine the light level at the target position
-		int lightlevel = player.world.getChunk(position).getLightSubtracted(position, 0);
-		
-		// If there is enough light, steve/alex is happy
-		if(lightlevel >= ModConfig.SANITY.comfortLightLevel) return 0F;
-		float darknesslevel = (float)(ModConfig.SANITY.comfortLightLevel - lightlevel) / (float)ModConfig.SANITY.comfortLightLevel;
-		return (float)ModConfig.SANITY.darkSpookFactorBase * -darknesslevel;
+		return player.world.getChunk(position).getLightSubtracted(position, 0);
 	}
 	
-	public static float whenWet(EntityPlayer player)
+	public static float whenInDark(EntityPlayer player, float value)
+	{
+		int lightlevel = SanityModifier.determineLightLevel(player);
+		
+		// If there is not enough light, steve/alex feels anxious
+		if(lightlevel < ModConfig.SANITY.comfortLightLevel)
+		{
+			float darknesslevel = (float)(ModConfig.SANITY.comfortLightLevel - lightlevel) / (float)ModConfig.SANITY.comfortLightLevel;
+			value += (float)ModConfig.SANITY.darkSpookFactorBase * -darknesslevel;
+		}
+		return value;
+	}
+	
+	public static float whenWet(EntityPlayer player, float value)
 	{
 		float boundary = (float)ModConfig.SANITY.wetnessAnnoyanceThreshold;
 		StatTracker stats = player.getCapability(StatCapability.target, null);
 		float wetness = stats.getStat(DefaultStats.WETNESS);
 		float annoyance = (wetness - DefaultStats.WETNESS.getMaximum()) / 10000;
 		annoyance = (boundary / -10000) - annoyance;
-		return wetness < boundary ? 0F : annoyance;
+		
+		if(wetness >= boundary) value -= annoyance;
+		return value;
 	}
 	
-	public static float whenNearEntities(EntityPlayer player)
+	public static float whenNearEntities(EntityPlayer player, float value)
 	{
 		BlockPos origin = player.getPosition();
 		Vec3i offset = new Vec3i(3, 3, 3);
@@ -155,7 +160,6 @@ public class SanityModifier {
 		AxisAlignedBB box = new AxisAlignedBB(origin.subtract(offset), origin.add(offset));
 		List<EntityCreature> entities = player.world.getEntitiesWithinAABB(EntityCreature.class, box);
 		
-		float mod = 0;
 		for(EntityCreature creature : entities)
 		{
 			if(creature instanceof EntityTameable)
@@ -163,14 +167,14 @@ public class SanityModifier {
 				EntityTameable pet = (EntityTameable)creature;
 				// 4x bonus for tamed creatures. Having pets has it's perks :D
 				float bonus = pet.isTamed() ? (float)ModConfig.SANITY.tamedMobMultiplier : 1;
-				mod += ModConfig.SANITY.friendlyMobBonus * bonus;
+				value += ModConfig.SANITY.friendlyMobBonus * bonus;
 			}
 			else if(creature instanceof EntityAnimal)
-				mod += ModConfig.SANITY.friendlyMobBonus;
+				value += ModConfig.SANITY.friendlyMobBonus;
 			else if(creature instanceof EntityMob)
-				mod -= ModConfig.SANITY.hostileMobModifier;
+				value -= ModConfig.SANITY.hostileMobModifier;
 		}
-		return mod;
+		return value;
 	}
 	
 	@SubscribeEvent

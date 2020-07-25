@@ -36,21 +36,19 @@ public class HydrationModifier implements IMessageHandler<WaterDrinkMessage, IMe
 	
 	public static final DamageSource DEHYDRATION = new DamageSource("survivalinc_dehydration").setDamageIsAbsolute().setDamageBypassesArmor();
 	
-	public static final FilteredEffectApplicator effects = new FilteredEffectApplicator();
+	public static FilteredEffectApplicator.EffectFilter isOutsideOverworld = new FilteredEffectApplicator.EffectFilter((EntityPlayer player, Float value) -> Math.abs(player.dimension) == 1);
 	
 	public static void init()
 	{
 		FilteredEffectApplicator.EffectFilter nasfat = new FilteredEffectApplicator.EffectFilter(Range.lessThan(15F));
-		HydrationModifier.effects.addEffect(new ConstantStatEffect(ConstantStatEffect.Operation.OFFSET, -0.006F), new FilteredEffectApplicator.EffectFilter((EntityPlayer player, Float value) -> Math.abs(player.dimension) == 1));
-		HydrationModifier.effects.addEffect(new ConstantStatEffect(ConstantStatEffect.Operation.OFFSET, -0.5F), new FilteredEffectApplicator.EffectFilter((EntityPlayer player, Float value) -> player.isInLava()));
-		HydrationModifier.effects.addEffect(new DamageStatEffect(HydrationModifier.DEHYDRATION, 4F, 0), new FilteredEffectApplicator.EffectFilter(Range.lessThan(5F)));
-		HydrationModifier.effects.addEffect(new PotionStatEffect(MobEffects.SLOWNESS, 5), new FilteredEffectApplicator.EffectFilter(Range.lessThan(40F)));
-		HydrationModifier.effects.addEffect(new PotionStatEffect(MobEffects.WEAKNESS, 5), new FilteredEffectApplicator.EffectFilter(Range.lessThan(40F)));
-		HydrationModifier.effects.addEffect(new PotionStatEffect(MobEffects.MINING_FATIGUE, 5), nasfat);
-		HydrationModifier.effects.addEffect(new PotionStatEffect(MobEffects.NAUSEA, 5), nasfat);
-		
-		DefaultStats.HYDRATION.effects.add(new FunctionalEffect(HydrationModifier::naturalDrain));
-		DefaultStats.HYDRATION.effects.add(effects);
+		DefaultStats.HYDRATION.effects.addEffect(new ConstantStatEffect(ConstantStatEffect.Operation.OFFSET, -0.006F), HydrationModifier.isOutsideOverworld);
+		DefaultStats.HYDRATION.effects.addEffect(new ConstantStatEffect(ConstantStatEffect.Operation.OFFSET, -0.5F), new FilteredEffectApplicator.EffectFilter((EntityPlayer player, Float value) -> player.isInLava()));
+		DefaultStats.HYDRATION.effects.addEffect(new DamageStatEffect(HydrationModifier.DEHYDRATION, 4F, 0), new FilteredEffectApplicator.EffectFilter(Range.lessThan(5F)));
+		DefaultStats.HYDRATION.effects.addEffect(new PotionStatEffect(MobEffects.SLOWNESS, 5), new FilteredEffectApplicator.EffectFilter(Range.lessThan(40F)));
+		DefaultStats.HYDRATION.effects.addEffect(new PotionStatEffect(MobEffects.WEAKNESS, 5), new FilteredEffectApplicator.EffectFilter(Range.lessThan(40F)));
+		DefaultStats.HYDRATION.effects.addEffect(new PotionStatEffect(MobEffects.MINING_FATIGUE, 5), nasfat);
+		DefaultStats.HYDRATION.effects.addEffect(new PotionStatEffect(MobEffects.NAUSEA, 5), nasfat);
+		DefaultStats.HYDRATION.effects.addEffect(new FunctionalEffect(HydrationModifier::naturalDrain));
 	}
 	
 	public static float naturalDrain(EntityPlayer player, float value)
