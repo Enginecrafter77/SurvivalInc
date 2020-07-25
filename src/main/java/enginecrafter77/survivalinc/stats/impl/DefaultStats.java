@@ -4,9 +4,7 @@ import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatRecord;
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
-import enginecrafter77.survivalinc.stats.modifier.ModifierApplicator;
 import enginecrafter77.survivalinc.stats.modifier.ng.FilteredEffectApplicator;
-import enginecrafter77.survivalinc.stats.modifier.ng.SimpleEffectApplicator;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 
@@ -15,15 +13,12 @@ public enum DefaultStats implements StatProvider {
 	HYDRATION(0, 100),
 	SANITY(0, 100);
 	
-	@Deprecated
-	public final ModifierApplicator<EntityPlayer> modifiers;
 	public final FilteredEffectApplicator effects;
 	public final ResourceLocation id;
 	private float max, min, def;
 	
 	private DefaultStats(float min, float max, float def)
 	{
-		this.modifiers = new ModifierApplicator<EntityPlayer>();
 		this.effects = new FilteredEffectApplicator();
 		this.id = new ResourceLocation(SurvivalInc.MOD_ID, this.name().toLowerCase());
 		this.min = min;
