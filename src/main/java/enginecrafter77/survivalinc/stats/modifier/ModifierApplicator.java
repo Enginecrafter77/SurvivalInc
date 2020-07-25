@@ -18,6 +18,7 @@ import java.util.Map;
  * @author Enginecrafter77
  * @param <TYPE> The type this applicator works with
  */
+@Deprecated
 public class ModifierApplicator<TYPE> implements Modifier<TYPE> {
 	/**
 	 * Determines if this applicator should give up after

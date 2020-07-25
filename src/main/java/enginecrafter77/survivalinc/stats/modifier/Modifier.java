@@ -9,6 +9,7 @@ package enginecrafter77.survivalinc.stats.modifier;
  * @author Enginecrafter77
  * @param <TARGET> The target this modifier applies to
  */
+@Deprecated
 public interface Modifier<TARGET> {
 	/**
 	 * Determines if this modifier is applicable to the given

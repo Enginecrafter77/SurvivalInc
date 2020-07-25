@@ -1,5 +1,6 @@
 package enginecrafter77.survivalinc.stats.modifier;
 
+@Deprecated
 public class ThresholdModifier<TYPE> implements Modifier<TYPE> {
 	
 	public static final int LOWER = -1;

@@ -1,8 +1,9 @@
-package enginecrafter77.survivalinc.stats.modifier;
+package enginecrafter77.survivalinc.stats.modifier.ng;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
+import net.minecraftforge.fml.relauncher.Side;
 
 /**
  * Potion effect modifier is designed as a demo implementation
@@ -10,8 +11,7 @@ import net.minecraft.potion.PotionEffect;
  * implementation, ready to be used in the code where feasible.
  * @author Enginecrafter77
  */
-@Deprecated
-public class PotionEffectModifier implements Modifier<EntityPlayer>
+public class PotionStatEffect implements StatEffect
 {
 	/** The duration after which the potion effect (when applicable) is reset to double this time */
 	public static final int duration = 100;
@@ -25,25 +25,27 @@ public class PotionEffectModifier implements Modifier<EntityPlayer>
 	/** Determines whether the potion particles will be visible */
 	public boolean visible;
 	
-	public PotionEffectModifier(Potion effect, int amplifier)
+	public PotionStatEffect(Potion effect, int amplifier)
 	{
 		this.amplifier = amplifier;
 		this.effect = effect;
 		this.visible = false;
 	}
-	
+
 	@Override
-	public boolean shouldTrigger(EntityPlayer player, float level)
+	public float apply(EntityPlayer player, float current)
 	{
-		if(player.world.isRemote) return false;
 		PotionEffect poteff = player.getActivePotionEffect(effect);
-		return poteff == null || poteff.getDuration() < duration;
+		if(poteff == null || poteff.getDuration() < duration)
+		{
+			player.addPotionEffect(new PotionEffect(effect, duration * 2, amplifier, false, this.visible));
+		}
+		return current;
 	}
 
 	@Override
-	public float apply(EntityPlayer target, float current)
+	public Side sideOnly()
 	{
-		target.addPotionEffect(new PotionEffect(effect, duration * 2, amplifier, false, this.visible));
-		return 0;
+		return Side.SERVER;
 	}
 }

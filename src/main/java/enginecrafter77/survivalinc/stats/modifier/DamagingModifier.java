@@ -3,6 +3,7 @@ package enginecrafter77.survivalinc.stats.modifier;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.DamageSource;
 
+@Deprecated
 public class DamagingModifier implements Modifier<EntityPlayer> {
 	
 	protected final DamageSource source;

@@ -2,6 +2,7 @@ package enginecrafter77.survivalinc.stats.modifier;
 
 import java.util.function.BiFunction;
 
+@Deprecated
 public enum OperationType implements BiFunction<Float, Float, Float> {
 	
 	OFFSET((Float current, Float mod) -> current + mod),

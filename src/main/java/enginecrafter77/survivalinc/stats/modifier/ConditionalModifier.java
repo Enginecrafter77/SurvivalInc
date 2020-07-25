@@ -2,6 +2,7 @@ package enginecrafter77.survivalinc.stats.modifier;
 
 import java.util.function.Predicate;
 
+@Deprecated
 public class ConditionalModifier<TARGET> implements Modifier<TARGET>
 {
 	private final Predicate<TARGET> test;

@@ -2,6 +2,7 @@ package enginecrafter77.survivalinc.stats.modifier;
 
 import java.util.Random;
 
+@Deprecated
 public class ChanceModifier<TYPE> implements Modifier<TYPE> {
 	
 	public final Modifier<TYPE> action;

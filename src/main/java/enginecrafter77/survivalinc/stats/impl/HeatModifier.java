@@ -3,6 +3,8 @@ package enginecrafter77.survivalinc.stats.impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.common.collect.Range;
+
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.stats.StatProvider;
@@ -10,13 +12,12 @@ import enginecrafter77.survivalinc.stats.StatRecord;
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatTracker;
-import enginecrafter77.survivalinc.stats.modifier.DamagingModifier;
-import enginecrafter77.survivalinc.stats.modifier.FunctionalModifier;
-import enginecrafter77.survivalinc.stats.modifier.Modifier;
-import enginecrafter77.survivalinc.stats.modifier.ModifierApplicator;
-import enginecrafter77.survivalinc.stats.modifier.OperationType;
-import enginecrafter77.survivalinc.stats.modifier.PotionEffectModifier;
-import enginecrafter77.survivalinc.stats.modifier.ThresholdModifier;
+import enginecrafter77.survivalinc.stats.modifier.ng.StatEffect;
+import enginecrafter77.survivalinc.stats.modifier.ng.DamageStatEffect;
+import enginecrafter77.survivalinc.stats.modifier.ng.FunctionalEffect;
+import enginecrafter77.survivalinc.stats.modifier.ng.PotionStatEffect;
+import enginecrafter77.survivalinc.stats.modifier.ng.RoundRobinApplicator;
+import enginecrafter77.survivalinc.stats.modifier.ng.EffectFilterWrapper;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.MobEffects;
@@ -28,6 +29,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.biome.Biome;
+import net.minecraftforge.fml.relauncher.Side;
 
 /**
  * The class that handles heat radiation and
@@ -46,24 +48,25 @@ public class HeatModifier implements StatProvider {
 	
 	public static Map<Block, Float> blockHeatMap = new HashMap<Block, Float>();
 	public static ArmorModifier armorInsulation = new ArmorModifier();
-	public static ModifierApplicator<EntityPlayer> targettemp = new ModifierApplicator<EntityPlayer>();
-	public static ModifierApplicator<EntityPlayer> exchangerate = new ModifierApplicator<EntityPlayer>();
-	public static ModifierApplicator<EntityPlayer> consequences = new ModifierApplicator<EntityPlayer>();
+	
+	public static RoundRobinApplicator targettemp = new RoundRobinApplicator();
+	public static RoundRobinApplicator exchangerate = new RoundRobinApplicator();
+	public static RoundRobinApplicator consequences = new RoundRobinApplicator();
 	
 	// Make it a singleton
 	private HeatModifier() {}
 	
 	public void init()
-	{		
-		HeatModifier.targettemp.add(new FunctionalModifier<EntityPlayer>(HeatModifier::whenNearHotBlock), OperationType.OFFSET);
+	{
+		HeatModifier.targettemp.add(new FunctionalEffect(HeatModifier::whenNearHotBlock));
 		
-		if(ModConfig.WETNESS.enabled) HeatModifier.exchangerate.add(new FunctionalModifier<EntityPlayer>(HeatModifier::applyWetnessCooldown), OperationType.SCALE);
-		HeatModifier.exchangerate.add(HeatModifier.armorInsulation, OperationType.SCALE);
+		if(ModConfig.WETNESS.enabled) HeatModifier.exchangerate.add(new FunctionalEffect(HeatModifier::applyWetnessCooldown));
+		HeatModifier.exchangerate.add(HeatModifier.armorInsulation);
 		
-		HeatModifier.consequences.add(new ThresholdModifier<EntityPlayer>(new PotionEffectModifier(MobEffects.WEAKNESS, 0), 25F, ThresholdModifier.LOWER));
-		HeatModifier.consequences.add(new ThresholdModifier<EntityPlayer>(new PotionEffectModifier(MobEffects.MINING_FATIGUE, 0), 20F, ThresholdModifier.LOWER));
-		HeatModifier.consequences.add(new ThresholdModifier<EntityPlayer>(new DamagingModifier(HYPOTHERMIA, (float)ModConfig.HEAT.damageAmount, 10), 10F, ThresholdModifier.LOWER));
-		HeatModifier.consequences.add(new ThresholdModifier<EntityPlayer>(new FunctionalModifier<EntityPlayer>(HeatModifier::onHighTemperature), 110F, ThresholdModifier.HIGHER));
+		HeatModifier.consequences.add(new EffectFilterWrapper(new PotionStatEffect(MobEffects.WEAKNESS, 0)).inRange(Range.lessThan(25F)));
+		HeatModifier.consequences.add(new EffectFilterWrapper(new PotionStatEffect(MobEffects.MINING_FATIGUE, 0)).inRange(Range.lessThan(20F)));
+		HeatModifier.consequences.add(new EffectFilterWrapper(new DamageStatEffect(HYPOTHERMIA, (float)ModConfig.HEAT.damageAmount, 10)).inRange(Range.lessThan(10F)));
+		HeatModifier.consequences.add(new EffectFilterWrapper(new FunctionalEffect(HeatModifier::onHighTemperature)).inRange(Range.greaterThan(110F)));
 		
 		// Shit, these repeated parsers will surely get me a bad codefactor.io mark.
 		// Block temperature map
@@ -156,10 +159,10 @@ public class HeatModifier implements StatProvider {
 		}
 	}
 	
-	public static float applyWetnessCooldown(EntityPlayer player)
+	public static float applyWetnessCooldown(EntityPlayer player, float current)
 	{
 		StatTracker stats = player.getCapability(StatCapability.target, null);
-		return 1F + (float)ModConfig.HEAT.wetnessExchangeMultiplier * (stats.getStat(DefaultStats.WETNESS) / DefaultStats.WETNESS.getMaximum());
+		return current * (1F + (float)ModConfig.HEAT.wetnessExchangeMultiplier * (stats.getStat(DefaultStats.WETNESS) / DefaultStats.WETNESS.getMaximum()));
 	}
 	
 	/**
@@ -209,7 +212,7 @@ public class HeatModifier implements StatProvider {
 			}
 		}
 		
-		return heat;
+		return current + heat;
 	}
 	
 	/**
@@ -223,7 +226,7 @@ public class HeatModifier implements StatProvider {
 	 * @see #addArmorType(net.minecraft.item.ItemArmor.ArmorMaterial, float)
 	 * @author Enginecrafter77
 	 */
-	public static class ArmorModifier implements Modifier<EntityPlayer>
+	public static class ArmorModifier implements StatEffect
 	{
 		/** The number of armor slots */
 		protected static final int armorPieces = 4;
@@ -297,12 +300,6 @@ public class HeatModifier implements StatProvider {
 		}
 		
 		@Override
-		public boolean shouldTrigger(EntityPlayer target, float level)
-		{
-			return true;
-		}
-		
-		@Override
 		public float apply(EntityPlayer target, float current)
 		{
 			float buff = 1F;
@@ -317,7 +314,13 @@ public class HeatModifier implements StatProvider {
 				}
 				index++;
 			}
-			return buff;
+			return current * buff;
+		}
+
+		@Override
+		public Side sideOnly()
+		{
+			return null;
 		}	
 	}
 }

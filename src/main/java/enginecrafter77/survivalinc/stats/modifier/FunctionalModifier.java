@@ -4,6 +4,7 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+@Deprecated
 public class FunctionalModifier<TARGET> implements Modifier<TARGET>
 {	
 	protected final BiFunction<TARGET, Float, Float> function;
