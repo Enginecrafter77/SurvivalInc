@@ -10,6 +10,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
@@ -19,6 +20,13 @@ import net.minecraft.util.text.TextFormatting;
  * @author Enginecrafter77
  */
 public class StatCommand extends CommandBase {
+	
+	private final Style statNameStyle;
+	
+	public StatCommand()
+	{
+		this.statNameStyle = new Style().setColor(TextFormatting.GREEN);
+	}
 	
 	@Override
 	public String getName()
@@ -45,8 +53,8 @@ public class StatCommand extends CommandBase {
 			ITextComponent component = new TextComponentString(player.getDisplayNameString() + "'s stats:");
 			for(StatProvider provider : tracker.getRegisteredProviders())
 			{
-				component.appendText("\n");
-				component.appendSibling(new TextComponentTranslation(String.format("%s stat.%s.name", TextFormatting.GREEN, provider.getStatID().toString())));
+				component.appendText("\n ");
+				component.appendSibling(new TextComponentTranslation(String.format("stat.%s.name", provider.getStatID().toString())).setStyle(this.statNameStyle));
 				component.appendText("(" + TextFormatting.YELLOW + provider.getStatID().toString() + TextFormatting.RESET + ")");
 				component.appendText(": " + tracker.getStat(provider));
 			}

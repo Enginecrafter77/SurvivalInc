@@ -18,6 +18,13 @@ death.attack.survivalinc_hypothermia=%1$s forgot to pack a bunch of clothing
 # Sound subtitles
 survivalinc.subtitle.staticbuzz=Creepy Static Noise
 
+# Stat Display Names
+stat.survivalinc:heat.name=Body Heat
+stat.survivalinc:hydration.name=Hydration
+stat.survivalinc:wetness.name=Wetness
+stat.survivalinc:sanity.name=Sanity
+stat.survivalinc:ghostenergy.name=Ghost Energy
+
 # Client config
 survivalinc.client=Client
 survivalinc.client.tooltip=Client-Only Settings

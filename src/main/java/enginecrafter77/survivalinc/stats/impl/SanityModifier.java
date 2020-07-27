@@ -111,24 +111,9 @@ public class SanityModifier {
 		return value;
 	}
 	
-	public static int determineLightLevel(EntityPlayer player)
-	{
-		// Determine the position
-		BlockPos position = player.getPosition();
-		if(player.world.isRemote)
-		{
-			// Workaround to avoid client reporting light level 0
-			Entity viewer = Minecraft.getMinecraft().getRenderViewEntity();
-			position = new BlockPos(viewer.posX, viewer.getEntityBoundingBox().minY, viewer.posZ);
-		}
-		
-		// Determine the light level at the target position
-		return player.world.getChunk(position).getLightSubtracted(position, 0);
-	}
-	
 	public static float whenInDark(EntityPlayer player, float value)
 	{
-		int lightlevel = SanityModifier.determineLightLevel(player);
+		int lightlevel = player.world.getLight(new BlockPos(player));
 		
 		// If there is not enough light, steve/alex feels anxious
 		if(lightlevel < ModConfig.SANITY.comfortLightLevel)
