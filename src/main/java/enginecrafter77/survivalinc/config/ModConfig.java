@@ -12,6 +12,9 @@ public class ModConfig {
 
 	// The values in the config file. Add on more as needed.
 	// Sub-categories
+	@Config.Name("general")
+	public static final GeneralConfig GENERAL = new GeneralConfig();
+	
 	@Config.Name("client")
 	public static final ClientConfig CLIENT = new ClientConfig();
 	

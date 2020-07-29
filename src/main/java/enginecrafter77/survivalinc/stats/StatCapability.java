@@ -1,6 +1,7 @@
 package enginecrafter77.survivalinc.stats;
 
 import enginecrafter77.survivalinc.SurvivalInc;
+import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.net.StatSyncMessage;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -65,11 +66,10 @@ public class StatCapability implements ICapabilitySerializable<NBTBase> {
 	@SubscribeEvent
 	public static void onPlayerLogsIn(PlayerEvent.PlayerLoggedInEvent event)
 	{
-		// Do this only on server side
+		// Do this only on server side; Client will only receive the data
 		if(!event.player.world.isRemote)
 		{
-			StatTracker stat = event.player.getCapability(StatCapability.target, null);
-			SurvivalInc.proxy.net.sendTo(new StatSyncMessage(stat), (EntityPlayerMP)event.player);
+			SurvivalInc.proxy.net.sendTo(new StatSyncMessage(event.player.world), (EntityPlayerMP)event.player);
 		}
 	}
 	
@@ -84,10 +84,10 @@ public class StatCapability implements ICapabilitySerializable<NBTBase> {
 			StatTracker stat = player.getCapability(StatCapability.target, null);
 			stat.update(player);
 			
-			if(!player.world.isRemote && player.world.getWorldTime() % 200 == 0)
+			if(!player.world.isRemote && player.world.getWorldTime() % ModConfig.GENERAL.serverSyncDelay == 0)
 			{
-				// Send update
-				SurvivalInc.proxy.net.sendTo(new StatSyncMessage(stat), (EntityPlayerMP)player);
+				// Send update to all players about the currently processed player's stats
+				SurvivalInc.proxy.net.sendToAll(new StatSyncMessage(player));
 			}
 		}
 	}

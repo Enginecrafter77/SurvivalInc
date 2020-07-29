@@ -6,7 +6,6 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
@@ -72,7 +71,7 @@ public class StatCommand extends CommandBase {
 			{
 				if(args.length < 4) throw new CommandException("Insufficient Arguments\nUsage: " + this.getUsage(sender));
 				tracker.setStat(provider, Float.parseFloat(args[3]));
-				SurvivalInc.proxy.net.sendTo(new StatSyncMessage(tracker), (EntityPlayerMP)player);
+				SurvivalInc.proxy.net.sendToAll(new StatSyncMessage(player));
 			}
 			else sender.sendMessage(new TextComponentString(provider.getStatID() + ": " + tracker.getStat(provider)));
 		}

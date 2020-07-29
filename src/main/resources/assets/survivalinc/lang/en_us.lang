@@ -25,6 +25,12 @@ stat.survivalinc:wetness.name=Wetness
 stat.survivalinc:sanity.name=Sanity
 stat.survivalinc:ghostenergy.name=Ghost Energy
 
+# General config
+survivalinc.general=General
+survivalinc.general.tooltip=General Settings
+config.survivalinc:general.serverSyncDelay=Server Sync Delay
+config.survivalinc:general.serverSyncDelay.tooltip=The delay between server-client sync in minecraft ticks (1t = 1/20s)
+
 # Client config
 survivalinc.client=Client
 survivalinc.client.tooltip=Client-Only Settings

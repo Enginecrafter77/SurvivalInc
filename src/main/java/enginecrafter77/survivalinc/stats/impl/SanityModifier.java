@@ -8,7 +8,6 @@ import net.minecraft.entity.monster.*;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
@@ -187,7 +186,7 @@ public class SanityModifier {
 		{
 			StatTracker stats = player.getCapability(StatCapability.target, null);
 			stats.modifyStat(DefaultStats.SANITY, DefaultStats.SANITY.getMaximum() * (float)ModConfig.SANITY.sleepResoration);
-			SurvivalInc.proxy.net.sendTo(new StatSyncMessage(stats), (EntityPlayerMP)player);
+			SurvivalInc.proxy.net.sendToAll(new StatSyncMessage(player));
 			player.getFoodStats().setFoodLevel(player.getFoodStats().getFoodLevel() - 8);
 		}
 	}
