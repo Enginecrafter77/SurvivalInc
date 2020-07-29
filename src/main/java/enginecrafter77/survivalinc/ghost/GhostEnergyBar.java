@@ -35,7 +35,7 @@ public class GhostEnergyBar extends Gui implements StatBar {
 	{
 		Minecraft instance = Minecraft.getMinecraft();
 		
-		if(!GhostEnergy.instance.isAcitve(instance.player)) return;
+		if(!GhostProvider.instance.isAcitve(instance.player)) return;
 		
 		this.setPosition(Axis.HORIZONTAL, resolution.getScaledWidth() / 2 - 91);
 		this.setPosition(Axis.VERTICAL, resolution.getScaledHeight() - 39);
@@ -75,7 +75,7 @@ public class GhostEnergyBar extends Gui implements StatBar {
 	@Override
 	public StatProvider getProvider()
 	{
-		return GhostEnergy.instance;
+		return GhostProvider.instance;
 	}
 
 	@Override

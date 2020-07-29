@@ -65,11 +65,11 @@ public class RenderGhost extends RenderLivingBase<EntityPlayer> {
 	{
 		EntityPlayer player = event.getEntityPlayer();
 		StatTracker tracker = player.getCapability(StatCapability.target, null);
-		Ghost ghost = player.getCapability(GhostProvider.target, null);
+		GhostEnergyRecord record = (GhostEnergyRecord)tracker.getRecord(GhostProvider.instance);
 		
-		if(ghost.getStatus())
+		if(record.isActive())
 		{
-			this.opacity = tracker.getStat(ghost.getEnergyProvider()) / ghost.getEnergyProvider().getMaximum();
+			this.opacity = record.getValue() / GhostProvider.instance.getMaximum();
 			this.doRender(player, event.getX(), event.getY(), event.getZ(), player.renderYawOffset, event.getPartialRenderTick());
 			event.setCanceled(true);
 		}

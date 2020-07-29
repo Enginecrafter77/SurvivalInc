@@ -1,69 +1,72 @@
 package enginecrafter77.survivalinc.ghost;
 
-import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.stats.SimpleStatRegister;
+import enginecrafter77.survivalinc.stats.StatCapability;
+import enginecrafter77.survivalinc.stats.StatProvider;
+import enginecrafter77.survivalinc.stats.StatRecord;
+import enginecrafter77.survivalinc.stats.StatTracker;
 import enginecrafter77.survivalinc.stats.effect.ConstantStatEffect;
+import enginecrafter77.survivalinc.stats.effect.FilteredEffectApplicator;
 import enginecrafter77.survivalinc.stats.effect.FunctionalEffect;
 import enginecrafter77.survivalinc.stats.effect.FunctionalEffectFilter;
-import net.minecraft.entity.Entity;
+import enginecrafter77.survivalinc.stats.impl.DefaultStats;
+import enginecrafter77.survivalinc.SurvivalInc;
+import enginecrafter77.survivalinc.net.StatSyncMessage;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityInject;
-import net.minecraftforge.common.capabilities.CapabilityManager;
-import net.minecraftforge.common.capabilities.ICapabilitySerializable;
-import net.minecraftforge.event.AttachCapabilitiesEvent;
-import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 
-// Provides ghost mechanic to the player.
-public class GhostProvider implements ICapabilitySerializable<NBTBase> {
-
-	private static final ResourceLocation identifier = new ResourceLocation(SurvivalInc.MOD_ID, "ghost");
+public class GhostProvider implements StatProvider {
+	private static final long serialVersionUID = -2088047893866334112L;
 	
-	@CapabilityInject(Ghost.class)
-	public static final Capability<Ghost> target = null;
+	public static final ResourceLocation identifier = new ResourceLocation(SurvivalInc.MOD_ID, "ghostenergy");
+	public static final GhostProvider instance = new GhostProvider();
 	
-	private final Ghost instance;
-
-	public GhostProvider()
+	public final FilteredEffectApplicator applicator;
+	
+	private GhostProvider()
 	{
-		this.instance = target.getDefaultInstance();
+		this.applicator = new FilteredEffectApplicator();
 	}
 	
 	@Override
-	public boolean hasCapability(Capability<?> capability, EnumFacing facing)
-	{
-		return capability == target;
+	public float updateValue(EntityPlayer target, float current)
+	{		
+		return DefaultStats.capValue(this, this.applicator.apply(target, current));
 	}
 
 	@Override
-	public <T> T getCapability(Capability<T> capability, EnumFacing facing)
+	public ResourceLocation getStatID()
 	{
-		return capability == target ? target.<T> cast(this.instance) : null;
+		return GhostProvider.identifier;
 	}
 
 	@Override
-	public NBTBase serializeNBT()
+	public float getMaximum()
 	{
-		return target.getStorage().writeNBT(target, this.instance, null);
+		return 100F;
 	}
 
 	@Override
-	public void deserializeNBT(NBTBase nbt)
+	public float getMinimum()
 	{
-		target.getStorage().readNBT(target, this.instance, null, nbt);
+		return 0F;
 	}
-	
-	@SubscribeEvent
-	public static void attachCapability(AttachCapabilitiesEvent<Entity> event)
+
+	@Override
+	public StatRecord createNewRecord()
 	{
-		if(!(event.getObject() instanceof EntityPlayer)) return;
-		event.addCapability(identifier, new GhostProvider());
+		return new GhostEnergyRecord();
+	}
+
+	@Override
+	public boolean isAcitve(EntityPlayer player)
+	{
+		StatTracker ghost = player.getCapability(StatCapability.target, null);
+		GhostEnergyRecord stat = (GhostEnergyRecord)ghost.getRecord(this);
+		return stat.isActive();
 	}
 	
 	@SubscribeEvent
@@ -72,35 +75,20 @@ public class GhostProvider implements ICapabilitySerializable<NBTBase> {
 		EntityPlayer player = event.player;
 		if(!event.isEndConquered())
 		{
-			Ghost ghost = player.getCapability(GhostProvider.target, null);
-			ghost.setStatus(true);
-		}
-	}
-	
-	@SubscribeEvent
-	public static void onPlayerUpdate(LivingUpdateEvent event)
-	{
-		Entity ent = event.getEntity();
-		if(ent.world.isRemote) return;
-		
-		if(ent instanceof EntityPlayer)
-		{
-			EntityPlayer player = (EntityPlayer)ent;
-			if(!player.isCreative() && !player.isSpectator())
-			{
-				Ghost ghost = player.getCapability(GhostProvider.target, null);
-				ghost.update(player);
-			}
+			StatTracker tracker = player.getCapability(StatCapability.target, null);
+			GhostEnergyRecord record = (GhostEnergyRecord)tracker.getRecord(GhostProvider.instance);
+			record.setActive(true);
+			
+			SurvivalInc.proxy.net.sendToAll(new StatSyncMessage(player));
 		}
 	}
 	
 	public static void register()
 	{
 		MinecraftForge.EVENT_BUS.register(GhostProvider.class);
-		CapabilityManager.INSTANCE.register(Ghost.class, new GhostStorage(), GhostImpl::new);
-		GhostEnergy.instance.applicator.addEffect(new ConstantStatEffect(ConstantStatEffect.Operation.OFFSET, -0.2F), new FunctionalEffectFilter((EntityPlayer player, Float value) -> player.isSprinting()));
-		GhostEnergy.instance.applicator.addEffect(new FunctionalEffect(GhostProvider::duringNight));
-		SimpleStatRegister.providers.add(GhostEnergy.instance);
+		GhostProvider.instance.applicator.addEffect(new ConstantStatEffect(ConstantStatEffect.Operation.OFFSET, -0.2F), new FunctionalEffectFilter((EntityPlayer player, Float value) -> player.isSprinting()));
+		GhostProvider.instance.applicator.addEffect(new FunctionalEffect(GhostProvider::duringNight));
+		SimpleStatRegister.providers.add(GhostProvider.instance);
 	}
 	
 	public static float duringNight(EntityPlayer player, float value)
