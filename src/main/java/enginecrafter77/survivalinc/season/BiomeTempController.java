@@ -16,9 +16,7 @@ import enginecrafter77.survivalinc.SurvivalInc;
  * necessary. It also deals with changing the temperature of each biome
  * according to the season, and where we are in the season.
  */
-public class BiomeTempController extends HashMap<Biome, Float> {
-	private static final long serialVersionUID = 4090434007816386553L;	
-	
+public class BiomeTempController {
 	private static final String[] possiblenames = new String[]{"field_76750_F", "temperature"};
 	
 	public final Map<Biome, Float> originals;
@@ -46,13 +44,11 @@ public class BiomeTempController extends HashMap<Biome, Float> {
 			}
 		}
 		
-		if(field == null)
-			throw new NoSuchFieldException("Temperature field not found in Biome.class");
-		else
-			this.target = field;
+		if(field == null) throw new NoSuchFieldException("Temperature field not found in Biome.class");
+		else this.target = field;
 	}
 	
-	public void setTemperature(Biome biome, float temperature)
+	protected void setTemperature(Biome biome, float temperature)
 	{
 		try
 		{
@@ -65,7 +61,7 @@ public class BiomeTempController extends HashMap<Biome, Float> {
 		}
 	}
 	
-	public void resetTemperature(Biome biome)
+	protected void resetTemperature(Biome biome)
 	{
 		// If the map doesn't contain the biome entry, it means it hasn't been affected yet,
 		// and so it already has the wanted default value.
@@ -74,7 +70,21 @@ public class BiomeTempController extends HashMap<Biome, Float> {
 			this.setTemperature(biome, this.originals.get(biome));
 		}
 	}
-
+	
+	/**
+	 * A method used to calculate a new base temperature
+	 * for the given biome type. Override this method
+	 * if you want to use a different type of calculation.
+	 * @param biome The biome to calculate new base temperature for
+	 * @param data The current season data
+	 * @param offset The calculated {@link Season#getTemperatureOffset(int) standard universal temperature offset}
+	 * @return A new base temperature for the provided biome
+	 */
+	public float calculateNewBiomeTemperature(Biome biome, SeasonData data, float offset)
+	{
+		return this.originals.get(biome) + offset;
+	}
+	
 	/**
 	 * This actually changes the biome temperatures every morning... Using reflection!
 	 * Yeah it's very hacky, hackish, whatever you wanna call it, but it works!
@@ -95,8 +105,7 @@ public class BiomeTempController extends HashMap<Biome, Float> {
 				this.originals.put(biome, biome.getDefaultTemperature());
 			}
 			
-			float original = this.originals.get(biome);
-			this.setTemperature(biome, original + offset);
+			this.setTemperature(biome, this.calculateNewBiomeTemperature(biome, data, offset));
 		}
 	}
 }
