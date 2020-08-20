@@ -1,5 +1,6 @@
 package enginecrafter77.survivalinc;
 
+import enginecrafter77.survivalinc.block.BlockMelting;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.ghost.GhostCommand;
 import enginecrafter77.survivalinc.ghost.GhostProvider;
@@ -12,6 +13,7 @@ import enginecrafter77.survivalinc.season.SeasonCommand;
 import enginecrafter77.survivalinc.season.SeasonController;
 import enginecrafter77.survivalinc.season.SeasonUpdateEvent;
 import enginecrafter77.survivalinc.season.melting.MeltingController;
+import enginecrafter77.survivalinc.season.melting.MeltingController.MelterEntry;
 import enginecrafter77.survivalinc.stats.StatCommand;
 import enginecrafter77.survivalinc.stats.SimpleStatRegister;
 import enginecrafter77.survivalinc.stats.StatStorage;
@@ -43,7 +45,9 @@ public class CommonProxy {
 		if(ModConfig.SEASONS.enabled)
 		{
 			MinecraftForge.EVENT_BUS.register(SeasonController.instance);
-			MeltingController.registerTransformers();
+			
+			MeltingController.meltmap.add(new MelterEntry((BlockMelting)ModBlocks.MELTING_SNOW.get()).level(1, true)); // 1 = block above ground
+			MeltingController.meltmap.add(new MelterEntry((BlockMelting)ModBlocks.MELTING_ICE.get()).level(0, true)); // 0 = ground
 		}
 		if(ModConfig.GHOST.enabled) GhostProvider.register();
 		

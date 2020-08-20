@@ -1,13 +1,16 @@
 package enginecrafter77.survivalinc.season.melting;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
-import enginecrafter77.survivalinc.ModBlocks;
+import com.google.common.collect.ImmutableSet;
+
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.block.BlockMelting;
 import enginecrafter77.survivalinc.season.Season;
@@ -20,6 +23,7 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.ChunkProviderServer;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraft.block.state.IBlockState;
 
 /**
  * Controls the strategy employed to melt down the blocks
@@ -31,11 +35,11 @@ public enum MeltingController {
 	
 	/**
 	 * The fancy controller relies on random update ticks applied to {@link BlockMelting}.
-	 * It's chunk filter basically replaces every block of type {@link BlockMelting#from}
+	 * It's chunk filter basically replaces every block of type {@link BlockMelting#predecessor}
 	 * with the melting block's own type. Then, it does nothing and relies on the BlockMelting
 	 * to tick itself.
 	 */
-	FANCY((MelterEntry entry) -> new SimpleMeltingTransformer(entry.block, entry.level).setSurfaceRelative(entry.surfaceRelative)),
+	FANCY((BlockMelting block) -> new MeltingTransformer(block)),
 	
 	/**
 	 * The lazy controller is very similar to the fancy controller with a single exception.
@@ -44,14 +48,20 @@ public enum MeltingController {
 	 * a {@link SeasonUpdateEvent} is fired (which is roughly every day). This allows for less-dynamic
 	 * but also way less laggy way of melting the meltable blocks.
 	 */
-	LAZY((MelterEntry entry) -> new LazyMeltingTransformer(entry.block, entry.level).setSurfaceRelative(entry.surfaceRelative)),
+	LAZY((BlockMelting block) -> new LazyMeltingTransformer(block)),
 	
 	/**
 	 * The simple controller represents the most lightweight form of melting snow. It basically replaces every
-	 * block specified by {@link BlockMelting#from} with {@link BlockMelting#to}. For example, snow is immediately
+	 * block specified by {@link BlockMelting#predecessor} with {@link BlockMelting#successor}. For example, snow is immediately
 	 * replaced by air, and so on. Not very dramatic, but it can increase performance for very slow servers.
 	 */
-	SIMPLE((MelterEntry entry) -> new SimpleChunkFilter(entry.block.from, entry.block.to, entry.level).setSurfaceRelative(entry.surfaceRelative)),
+	SIMPLE((BlockMelting block) -> new MeltingTransformer(block) {
+		@Override
+		public IBlockState getReplacement(Chunk chunk, BlockPos position, IBlockState previous)
+		{
+			return this.meltingblock.successor.getDefaultState();
+		}
+	}),
 	
 	/** This melting controller simply disables any sort of melting whatsoever. */
 	NONE(null);
@@ -67,14 +77,14 @@ public enum MeltingController {
 	 * the {@link #factory} function on all of the {@link #meltmap}
 	 * entries.
 	 */
-	private static List<ChunkFilter> transformers;
+	private static List<ChunkFilter> transformers = new LinkedList<ChunkFilter>();
 	
 	/**
 	 * A function that should a new chunk filter for the specified melter entry.
 	 */
-	private final Function<MelterEntry, ChunkFilter> factory;
+	private final Function<BlockMelting, MeltingTransformer> factory;
 	
-	private MeltingController(Function<MelterEntry, ChunkFilter> factory)
+	private MeltingController(Function<BlockMelting, MeltingTransformer> factory)
 	{
 		this.factory = factory;
 	}
@@ -84,7 +94,7 @@ public enum MeltingController {
 	 */
 	public boolean isValid()
 	{
-		return this != NONE;
+		return this.factory != null;
 	}
 	
 	/**
@@ -95,13 +105,6 @@ public enum MeltingController {
 		return this == FANCY;
 	}
 	
-	/** Registers transformers used by Survival Inc. */
-	public static void registerTransformers()
-	{
-		MeltingController.meltmap.add(new MelterEntry((BlockMelting)ModBlocks.MELTING_SNOW.get(), 0, true)); // 0 + true = precipitation height
-		MeltingController.meltmap.add(new MelterEntry((BlockMelting)ModBlocks.MELTING_ICE.get(), -1, true)); // -1 + true = ground
-	}
-	
 	/**
 	 * Compiles the {@link #transformers} list from the values
 	 * of {@link #meltmap}. This list is further used by all
@@ -110,13 +113,30 @@ public enum MeltingController {
 	 */
 	public static void compile(MeltingController controller)
 	{
-		if(MeltingController.transformers == null) MeltingController.transformers = new LinkedList<ChunkFilter>();
-		else MeltingController.transformers.clear();
+		if(!controller.isValid()) throw new UnsupportedOperationException("Controller " + controller.name() + " is not capable of compilation!");
 		
 		for(MelterEntry entry : MeltingController.meltmap)
 		{
-			MeltingController.transformers.add(controller.factory.apply(entry));
+			MeltingTransformer transformer = controller.factory.apply(entry.block);
+			for(Map.Entry<Integer, Boolean> levelentry : entry.levelmap.entrySet())
+			{
+				int level = levelentry.getKey();
+				if(levelentry.getValue())
+					level = transformer.surfaceOffsetToLayer(level);
+				transformer.addLayer(level);
+			}
+			MeltingController.transformers.add(transformer);
 		}
+	}
+	
+	/**
+	 * Registers a custom transformer to the global list.
+	 * Use with caution.
+	 * @param filter
+	 */
+	public static void registerCustomTransformer(ChunkFilter filter)
+	{
+		MeltingController.transformers.add(filter);
 	}
 	
 	/**
@@ -127,21 +147,16 @@ public enum MeltingController {
 	 * blocks is therefore <tt>Y*256</tt> blocks.
 	 * @param chunk The chunk to be processed.
 	 */
-	public static void processChunk(Chunk chunk)
+	public static void processChunks(Collection<Chunk> chunks)
 	{
-		BlockPos begin = new BlockPos(0, 0, 0);
-		BlockPos end = new BlockPos(15, 0, 15);
-		
-		Iterable<BlockPos.MutableBlockPos> itr = BlockPos.getAllInBoxMutable(begin, end);
-		
-		for(BlockPos.MutableBlockPos base : itr)
+		for(ChunkFilter transformer : MeltingController.transformers)
 		{
-			for(ChunkFilter transformer : MeltingController.transformers)
-			{				
-				BlockPos position = transformer.offsetPosition(chunk, base);
-				transformer.applyToChunk(chunk, position);
-			}
+			long time = System.nanoTime();
+			transformer.processChunks(chunks);
+			time = System.nanoTime() - time;
+			SurvivalInc.logger.debug("Processing {} chunks using transformer {} took {} ns", chunks.size(), transformer.toString(), time);
 		}
+		
 	}
 	
 	@SubscribeEvent
@@ -155,11 +170,10 @@ public enum MeltingController {
 		Collection<Chunk> chunks = provider.getLoadedChunks();
 		
 		SurvivalInc.logger.info("Preparing to process {} chunks...", chunks.size());
-		long time = System.currentTimeMillis();
-		for(Chunk current : chunks)
-			MeltingController.processChunk(current);
-		time = System.currentTimeMillis() - time;
-		SurvivalInc.logger.info("Processed {} chunks in {} ms", chunks.size(), time);
+		long overall_time = System.currentTimeMillis();
+		MeltingController.processChunks(chunks);
+		overall_time = System.currentTimeMillis() - overall_time;
+		SurvivalInc.logger.info("Chunk processing done using all transformers in {} ms", overall_time);
 	}
 	
 	@SubscribeEvent
@@ -170,7 +184,7 @@ public enum MeltingController {
 		SeasonData data = SeasonData.load(event.getWorld());
 		if(data.season != Season.WINTER)
 		{
-			MeltingController.processChunk(event.getChunk());
+			MeltingController.processChunks(ImmutableSet.of(event.getChunk()));
 		}
 	}
 	
@@ -184,16 +198,19 @@ public enum MeltingController {
 	 */
 	public static class MelterEntry
 	{
-		public final boolean surfaceRelative;
+		public final Map<Integer, Boolean> levelmap;
 		public final BlockMelting block;
-		public final int level;
 		
-		public MelterEntry(BlockMelting block, int level, boolean surfaceRelative)
+		public MelterEntry(BlockMelting block)
 		{
-			this.surfaceRelative = surfaceRelative;
+			this.levelmap = new HashMap<Integer, Boolean>();
 			this.block = block;
-			this.level = level;
+		}
+		
+		public MelterEntry level(int level, boolean surface)
+		{
+			this.levelmap.put(level, surface);
+			return this;
 		}
 	}
-	
 }

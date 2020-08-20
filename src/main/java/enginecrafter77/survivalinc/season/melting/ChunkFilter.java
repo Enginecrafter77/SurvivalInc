@@ -1,6 +1,7 @@
 package enginecrafter77.survivalinc.season.melting;
 
-import net.minecraft.util.math.BlockPos;
+import java.util.Collection;
+
 import net.minecraft.world.chunk.Chunk;
 
 /**
@@ -10,15 +11,7 @@ import net.minecraft.world.chunk.Chunk;
  * @author Enginecrafter77
  */
 public interface ChunkFilter
-{
-	/**
-	 * Returns the offset position (regarding Y axis)
-	 * @param chunk The chunk being processed
-	 * @param position The current position
-	 * @return A position shifted along the Y axis
-	 */
-	public BlockPos offsetPosition(Chunk chunk, BlockPos position);
-	
+{	
 	/**
 	 * Performs the operation this chunk filter aims
 	 * to do on the block position previously relative
@@ -28,5 +21,5 @@ public interface ChunkFilter
 	 * @param chunk The chunk being processed
 	 * @param position The block position relative to chunk start
 	 */
-	public void applyToChunk(Chunk chunk, BlockPos position);
+	public void processChunks(Collection<Chunk> chunks);
 }

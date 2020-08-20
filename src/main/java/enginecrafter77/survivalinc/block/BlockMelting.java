@@ -4,47 +4,58 @@ import java.util.Random;
 
 import enginecrafter77.survivalinc.config.ModConfig;
 import net.minecraft.block.Block;
-import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.chunk.Chunk;
 
+/**
+ * BlockMelting represents a transitional block between
+ * two blocks, of which one is said to melt and become
+ * the other one.
+ * @author Enginecrafter77
+ */
 public class BlockMelting extends Block {
-	public static final PropertyInteger MELTPHASE = PropertyInteger.create("meltphase", 0, 3);
 	
-	public static final float FREEZING_TEMPERATURE = 0.15F;
+	/** The block which was transformed to BlockMelting */
+	public final Block predecessor;
 	
-	public final Block from, to;
+	/** The block to which this block eventually melts into */
+	public final Block successor;
 	
-	public BlockMelting(Block from, Block to)
+	/** The melt phase property */
+	private PropertyInteger phase_property;
+	
+	/** The temperature which when passed, the block freezes/melts */
+	public float freezing_point = 0.15F;
+	
+	public BlockMelting(Block predecessor, Block successor)
 	{
-		super(from.getDefaultState().getMaterial());
-		this.from = from;
-		this.to = to;
+		super(predecessor.getDefaultState().getMaterial());
+		this.predecessor = predecessor;
+		this.successor = successor;
 		
-		this.setDefaultState(this.blockState.getBaseState().withProperty(MELTPHASE, Integer.valueOf(0)));
+		this.setDefaultState(this.blockState.getBaseState().withProperty(phase_property, Integer.valueOf(0)));
 	}
 	
 	@Override
 	protected BlockStateContainer createBlockState()
 	{
-		return new BlockStateContainer(this, new IProperty[] {MELTPHASE});
+		this.phase_property = PropertyInteger.create("meltphase", 0, this.getPhaseCount());
+		return new BlockStateContainer(this, phase_property);
 	}
 	
 	@Override
 	public int getMetaFromState(IBlockState state)
 	{
-		return state.getValue(MELTPHASE);
+		return state.getValue(phase_property);
 	}
 	
 	@Override
 	public IBlockState getStateFromMeta(int meta)
 	{
-		return this.getDefaultState().withProperty(MELTPHASE, meta);
+		return this.getDefaultState().withProperty(phase_property, meta);
 	}
 	
 	@Override
@@ -58,31 +69,60 @@ public class BlockMelting extends Block {
 	{
 		world.profiler.startSection("melting");
 		
-		boolean melts = !BlockMelting.isFreezingAt(world, position);
-		int phase = state.getValue(MELTPHASE) + (melts ? 1 : -1);
-		if(MELTPHASE.getAllowedValues().contains(phase))
+		boolean melts = this.shouldMelt(world, position);
+		int phase = state.getValue(phase_property) + (melts ? 1 : -1);
+		if(phase_property.getAllowedValues().contains(phase))
 		{
-			state = state.withProperty(MELTPHASE, phase);
+			state = state.withProperty(phase_property, phase);
 			world.setBlockState(position, state, 2);
 		}
 		else
 		{
-			Block target = melts ? this.to : this.from;
+			Block target = melts ? this.successor : this.predecessor;
 			world.setBlockState(position, target.getDefaultState(), 2);
 		}
 		
 		world.profiler.endSection();
 	}
 	
-	public static boolean isFreezingAt(World world, BlockPos position)
+	/**
+	 * @return The maximum melt phase
+	 */
+	public int getPhaseCount()
 	{
-		return world.getBiome(position).getTemperature(position) <= BlockMelting.FREEZING_TEMPERATURE;
+		return 3;
 	}
 	
-	public static boolean isFreezingAt(Chunk chunk, BlockPos position)
+	/**
+	 * Used to get reference to the melt phase property
+	 * @return The melt phase property of the block
+	 */
+	public PropertyInteger getMeltProperty()
 	{
-		World world = chunk.getWorld();
-		Biome biome = chunk.getBiome(position, world.getBiomeProvider());
-		return biome.getTemperature(chunk.getPos().getBlock(position.getX(), position.getY(), position.getZ())) <= BlockMelting.FREEZING_TEMPERATURE;
+		return this.phase_property;
+	}
+	
+	/**
+	 * Indicates whether the block at the specified position should melt.
+	 * If this method returns true, it's melt phase is incremented by 1.
+	 * @param world The world to operate in
+	 * @param position The position of the block
+	 * @return True if the block should increment it's melt phase
+	 */
+	public boolean shouldMelt(World world, BlockPos position)
+	{
+		return world.getBiome(position).getTemperature(position) > this.freezing_point;
+	}
+	
+	/**
+	 * Indicates whether the block at the specified position should freeze.
+	 * If this method returns true, it's melt phase is decreased by 1.
+	 * @param world The world to operate in
+	 * @param position The position of the block
+	 * @return True if the block should decrease it's melt phase.
+	 */
+	public boolean shouldFreeze(World world, BlockPos position)
+	{
+		return !this.shouldMelt(world, position);
 	}
 }

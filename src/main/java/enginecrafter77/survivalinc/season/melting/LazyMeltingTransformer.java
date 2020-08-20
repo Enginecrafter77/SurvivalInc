@@ -1,42 +1,38 @@
 package enginecrafter77.survivalinc.season.melting;
 
 import enginecrafter77.survivalinc.block.BlockMelting;
-import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 
 /**
  * LazyMeltingTransformer is designed for situations where
  * BlockMelting doesn't tick randomly, but instead needs
- * to receive ticks manually. This class provides just that.
- * On every call to {@link #applyToChunk(Chunk, BlockPos)},
- * in addition to checking for the substituted block, it
- * is also checked if there is a {@link BlockMelting melting block}.
- * If it is, it calls it's {@link Block#updateTick(World, BlockPos, IBlockState, java.util.Random)}
- * with 90% probability to update it's melt property.
+ * to receive ticks manually.
  * @author Enginecrafter77
  */
-public class LazyMeltingTransformer extends SimpleMeltingTransformer {
+public class LazyMeltingTransformer extends MeltingTransformer {
 
-	public LazyMeltingTransformer(BlockMelting block, int level)
+	public LazyMeltingTransformer(BlockMelting block)
 	{
-		super(block, level);
+		super(block);
 	}
 
 	@Override
-	public void applyToChunk(Chunk chunk, BlockPos position)
+	public boolean shouldReplace(Chunk chunk, BlockPos position, IBlockState state)
 	{
-		super.applyToChunk(chunk, position);
+		return super.shouldReplace(chunk, position, state) || state.getBlock() == this.meltingblock && chunk.getWorld().rand.nextFloat() > 0.1F;
+	}
+	
+	@Override
+	public IBlockState getReplacement(Chunk chunk, BlockPos position, IBlockState previous)
+	{
+		if(previous == this.meltingblock.predecessor)
+			super.getReplacement(chunk, position, previous);
+		else
+			this.meltingblock.updateTick(chunk.getWorld(), chunk.getPos().getBlock(position.getX(), position.getY(), position.getZ()), previous, chunk.getWorld().rand);
 		
-		IBlockState state = chunk.getBlockState(position);
-		Block block = state.getBlock();
-		World world = chunk.getWorld();
-		if(block == this.to && world.rand.nextFloat() > 0.1F)
-		{
-			block.updateTick(world, chunk.getPos().getBlock(position.getX(), position.getY(), position.getZ()), state, world.rand);
-		}
+		return null;
 	}
 
 }
