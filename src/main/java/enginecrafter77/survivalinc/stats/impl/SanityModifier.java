@@ -207,7 +207,10 @@ public class SanityModifier {
 				StatTracker stats = player.getCapability(StatCapability.target, null);
 				stats.modifyStat(DefaultStats.SANITY, mod);
 			}
-			catch(NullPointerException exc) {} // Food simply doesn't have sanity mapping
+			catch(NullPointerException exc)
+			{
+				// Food simply doesn't have any sanity mapping associated
+			}
 		}
 	}
 	
