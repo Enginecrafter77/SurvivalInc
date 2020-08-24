@@ -9,6 +9,7 @@ import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatRecord;
+import enginecrafter77.survivalinc.stats.StatRegisterEvent;
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatTracker;
@@ -29,6 +30,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.biome.Biome;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 
 /**
@@ -86,6 +88,12 @@ public class HeatModifier implements StatProvider {
 			Float value = Float.parseFloat(entry.substring(separator + 1));
 			HeatModifier.armorInsulation.addArmorType(target, value);
 		}
+	}
+	
+	@SubscribeEvent
+	public static void registerStat(StatRegisterEvent event)
+	{
+		event.register(HeatModifier.instance);
 	}
 	
 	@Override

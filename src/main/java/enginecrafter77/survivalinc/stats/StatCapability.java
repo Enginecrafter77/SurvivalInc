@@ -13,10 +13,10 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
-import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 @Mod.EventBusSubscriber
 public class StatCapability implements ICapabilitySerializable<NBTBase> {
@@ -69,26 +69,21 @@ public class StatCapability implements ICapabilitySerializable<NBTBase> {
 		// Do this only on server side; Client will only receive the data
 		if(!event.player.world.isRemote)
 		{
+			SurvivalInc.logger.info("Sending stat tracker data to {}", event.player.getName());
 			SurvivalInc.proxy.net.sendTo(new StatSyncMessage(event.player.world), (EntityPlayerMP)event.player);
 		}
 	}
 	
 	@SubscribeEvent
-	public static void onPlayerUpdate(LivingUpdateEvent event)
+	public static void onPlayerTick(TickEvent.PlayerTickEvent event)
 	{
-		Entity ent = event.getEntity();
+		StatTracker stat = event.player.getCapability(StatCapability.target, null);
+		stat.update(event.player);
 		
-		if(ent instanceof EntityPlayer)
+		if(!event.player.world.isRemote && event.player.world.getWorldTime() % ModConfig.GENERAL.serverSyncDelay == 0)
 		{
-			EntityPlayer player = (EntityPlayer)ent;
-			StatTracker stat = player.getCapability(StatCapability.target, null);
-			stat.update(player);
-			
-			if(!player.world.isRemote && player.world.getWorldTime() % ModConfig.GENERAL.serverSyncDelay == 0)
-			{
-				// Send update to all players about the currently processed player's stats
-				SurvivalInc.proxy.net.sendToAll(new StatSyncMessage(player));
-			}
+			// Send update to all players about the currently processed player's stats
+			SurvivalInc.proxy.net.sendToAll(new StatSyncMessage(event.player));
 		}
 	}
 }

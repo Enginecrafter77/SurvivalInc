@@ -6,6 +6,7 @@ import java.util.Random;
 import java.util.UUID;
 
 import enginecrafter77.survivalinc.config.ModConfig;
+import enginecrafter77.survivalinc.stats.StatRegisterEvent;
 import enginecrafter77.survivalinc.stats.effect.ConstantStatEffect;
 import enginecrafter77.survivalinc.stats.effect.FunctionalEffect;
 import enginecrafter77.survivalinc.stats.effect.FunctionalEffectFilter;
@@ -22,6 +23,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 
 /*
@@ -59,6 +61,12 @@ public class WetnessModifier {
 		WetnessModifier.humiditymap.put(Blocks.FLOWING_LAVA, -1F);
 		WetnessModifier.humiditymap.put(Blocks.LIT_FURNACE, -0.4F);
 		WetnessModifier.humiditymap.put(Blocks.MAGMA, -0.4F);
+	}
+	
+	@SubscribeEvent
+	public static void registerStat(StatRegisterEvent event)
+	{
+		event.register(DefaultStats.WETNESS);
 	}
 	
 	public static void slowDown(EntityPlayer player, float current)

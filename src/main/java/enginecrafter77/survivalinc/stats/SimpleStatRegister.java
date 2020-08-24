@@ -1,10 +1,9 @@
 package enginecrafter77.survivalinc.stats;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
+
+import javax.annotation.Nonnull;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
@@ -18,40 +17,22 @@ import net.minecraft.util.ResourceLocation;
 public class SimpleStatRegister extends HashMap<StatProvider, StatRecord> implements StatTracker {
 	private static final long serialVersionUID = -878624371786181967L;
 	
-	/**
-	 * A shared list which holds all {@link StatProvider} instances that
-	 * should be registered in each new SimpleStatRegister instance.
-	 */
-	public static List<StatProvider> providers = new LinkedList<StatProvider>();
-	
 	/** A map storing the last change to each stat */
 	private final HashMap<StatProvider, Float> changelog;
 	
 	/**
-	 * Creates a new SimpleStatProvider instance
-	 * using the providers specified in {@link #providers}
+	 * Creates a new empty SimpleStatProvider instance
+	 * with no {@link StatProvider}s registered.
 	 */
 	public SimpleStatRegister()
 	{
-		this(SimpleStatRegister.providers);
-	}
-	
-	/**
-	 * Creates a new SimpleStatProvider instance tracking
-	 * the specified providers.
-	 */
-	public SimpleStatRegister(Iterable<StatProvider> providers)
-	{
 		this.changelog = new HashMap<StatProvider, Float>();
-		for(StatProvider provider : providers)
-			this.registerProvider(provider);
 	}
 	
 	@Override
 	public void registerProvider(StatProvider provider)
 	{
-		if(this.getProvider(provider.getStatID()) != null)
-			throw new IllegalStateException("Provider " + provider.getClass().getCanonicalName() + " already registered!");
+		if(this.containsKey(provider)) throw new IllegalStateException("Provider " + provider.getClass().getCanonicalName() + " already registered!");
 		this.setRecord(provider, provider.createNewRecord());
 		this.changelog.put(provider, 0F);
 	}
@@ -88,23 +69,22 @@ public class SimpleStatRegister extends HashMap<StatProvider, StatRecord> implem
 	}
 	
 	@Override
-	public void modifyStat(StatProvider stat, float amount)
+	public void modifyStat(StatProvider stat, float amount) throws IllegalStateException
 	{
-		StatRecord record = this.getRecord(stat);
-		amount += record.getValue();
-		record.setValue(amount);
+		StatRecord record = this.getNonNullRecord(stat);
+		record.setValue(record.getValue() + amount);
 	}
 
 	@Override
-	public void setStat(StatProvider stat, float amount)
+	public void setStat(StatProvider stat, float amount) throws IllegalStateException
 	{
-		this.getRecord(stat).setValue(amount);
+		this.getNonNullRecord(stat).setValue(amount);
 	}
 	
 	@Override
-	public float getStat(StatProvider stat)
+	public float getStat(StatProvider stat) throws IllegalStateException
 	{
-		return this.getRecord(stat).getValue();
+		return this.getNonNullRecord(stat).getValue();
 	}
 	
 	@Override
@@ -138,9 +118,32 @@ public class SimpleStatRegister extends HashMap<StatProvider, StatRecord> implem
 	@Override
 	public String toString()
 	{
-		List<String> list = new ArrayList<String>(this.size());
+		StringBuilder builder = new StringBuilder();
+		builder.append(this.getClass().getSimpleName());
+		builder.append('[');
 		for(Entry<StatProvider, StatRecord> entry : this.entrySet())
-			list.add(String.format("%s=%f", entry.getKey().getStatID(), entry.getValue().getValue()));
-		return list.toString();
+		{
+			builder.append(entry.getKey().getStatID().toString());
+			builder.append(": ");
+			builder.append(entry.getValue().toString());
+			builder.append(", ");
+		}
+		builder.setLength(builder.length() - 2);
+		builder.append(']');
+		return builder.toString();
+	}
+	
+	/**
+	 * A simple helper used to check whether a stat provider is registered in delegate functions.
+	 * @param stat The stat to get the record for
+	 * @return The record associated (guaranteed to not be null)
+	 * @throws IllegalStateException If the record is null
+	 */
+	@Nonnull
+	private StatRecord getNonNullRecord(StatProvider stat) throws IllegalStateException
+	{
+		StatRecord record = this.getRecord(stat);
+		if(record == null) throw new IllegalStateException("Stat " + stat.getStatID().toString() + " has no record in this stat tracker!");
+		return record;
 	}
 }

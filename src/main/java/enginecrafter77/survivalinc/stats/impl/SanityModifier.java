@@ -31,6 +31,7 @@ import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.net.StatSyncMessage;
 import enginecrafter77.survivalinc.stats.StatCapability;
+import enginecrafter77.survivalinc.stats.StatRegisterEvent;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import enginecrafter77.survivalinc.stats.effect.ConstantStatEffect;
 import enginecrafter77.survivalinc.stats.effect.FunctionalEffect;
@@ -63,6 +64,12 @@ public class SanityModifier {
 			Float value = Float.parseFloat(entry.substring(separator + 1));
 			SanityModifier.foodSanityMap.put(target, value);
 		}
+	}
+	
+	@SubscribeEvent
+	public static void registerStat(StatRegisterEvent event)
+	{
+		event.register(DefaultStats.SANITY);
 	}
 	
 	public static void playStaticNoise(EntityPlayer player, float current)

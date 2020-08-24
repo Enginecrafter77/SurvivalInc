@@ -154,7 +154,7 @@ public enum MeltingController {
 			long time = System.nanoTime();
 			transformer.processChunks(chunks);
 			time = System.nanoTime() - time;
-			SurvivalInc.logger.debug("Processing {} chunks using transformer {} took {} ns", chunks.size(), transformer.toString(), time);
+			//SurvivalInc.logger.debug("Processing {} chunks using transformer {} took {} ns", chunks.size(), transformer.toString(), time);
 		}
 		
 	}

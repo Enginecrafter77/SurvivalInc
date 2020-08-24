@@ -6,9 +6,14 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 
 /**
- * StatTracker is a class that keeps {@link StatRecord records}
- * of a player's stats, and updates them when {@link #update(EntityPlayer)}
- * is called.
+ * StatTracker is capability interface used for tracking the
+ * so-called {@link StatProvider stats}. Stats are usually a
+ * simple numbers represented by floating-point numbers, which
+ * are often used to represent the current state associated with
+ * player. The stats are designed to be updated each tick using
+ * the {@link #update(EntityPlayer)} method. As such, they are
+ * kept up-to-date, so additional mechanisms can take appropriate
+ * action according to the current value of a stat.
  * @author Enginecrafter77
  */
 public interface StatTracker {
@@ -45,7 +50,8 @@ public interface StatTracker {
 	public Set<StatProvider> getRegisteredProviders();
 	
 	/**
-	 * Sets (or overwrites) the record of the target stat.
+	 * Assigns or replaces a {@link StatRecord}
+	 * to the specified {@link StatProvider}.
 	 * @param stat The stat to assign the record to
 	 * @param value The record to assign
 	 */
@@ -53,47 +59,54 @@ public interface StatTracker {
 	
 	/**
 	 * Returns the record about the specified stat. If
-	 * the stat has no assigned record yet, a new record
-	 * is created.
+	 * the {@link StatProvider} is not registered in
+	 * this StatTracker instance, null is returned.
 	 * @param stat The target stat provider
-	 * @return The record regarding the stat provided
+	 * @return The record regarding the stat provided or null if the stat is not tracked by this tracker.
 	 */
 	public StatRecord getRecord(StatProvider stat);
 	
 	/**
 	 * Adds amount to the value in the stat's record.
+	 * If the specified {@link StatProvider} has no record
+	 * associated with it, this method throws an {@link IllegalStateException}.
 	 * @param stat The stat to modify
 	 * @param amount The amount to add to the stat's record
+	 * @throws IllegalStateException when the stat provider has no associated record
 	 */
-	public void modifyStat(StatProvider stat, float amount);
+	public void modifyStat(StatProvider stat, float amount) throws IllegalStateException;
 	
 	/**
 	 * Sets the value inside the target stat's record.
+	 * If the specified {@link StatProvider} has no record
+	 * associated with it, this method throws an {@link IllegalStateException}.
 	 * @param stat The stat to assign new value to
 	 * @param amount The new value of the stat's record.
+	 * @throws IllegalStateException when the stat provider has no associated record
 	 */
-	public void setStat(StatProvider stat, float amount);
+	public void setStat(StatProvider stat, float amount) throws IllegalStateException;
 	
 	/**
 	 * Returns the current value of the target stat's record.
-	 * This method generally delegates to {@link StatRecord#getValue()}
+	 * This method generally delegates to {@link StatRecord#getValue()}.
+	 * If the specified {@link StatProvider} has no record
+	 * associated with it, this method throws an {@link IllegalStateException}.
 	 * @param stat The StatProvider to get the value about
-	 * @return The value of the record keeped about <i>stat</i>
+	 * @return The value of the record kept about <i>stat</i>
+	 * @throws IllegalStateException when the stat provider has no associated record
 	 */
-	public float getStat(StatProvider stat);
+	public float getStat(StatProvider stat) throws IllegalStateException;
 	
 	/**
-	 * Called each server tick to update the stat
-	 * tracker and the records stored about each
-	 * stat. This method generally involves iterating
-	 * over the set returned by {@link #getRegisteredProviders()},
+	 * Called each tick to update the stat tracker
+	 * and the records stored about each stat. This
+	 * method generally involves iterating over the
+	 * set returned by {@link #getRegisteredProviders()},
 	 * getting the currently stored record value, running the
 	 * {@link StatProvider#updateValue(EntityPlayer, float)}
 	 * with the second parameter equal to the current value,
 	 * applying the target {@link OverflowHandler overflow policy},
 	 * and storing the new value in the record.
-	 * Different implementations may differ, but this procedure
-	 * shall be kept.
 	 * @param player The player to apply the update to
 	 */
 	public void update(EntityPlayer player);

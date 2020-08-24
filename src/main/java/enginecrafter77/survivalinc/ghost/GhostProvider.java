@@ -1,9 +1,9 @@
 package enginecrafter77.survivalinc.ghost;
 
-import enginecrafter77.survivalinc.stats.SimpleStatRegister;
 import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatRecord;
+import enginecrafter77.survivalinc.stats.StatRegisterEvent;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import enginecrafter77.survivalinc.stats.effect.ConstantStatEffect;
 import enginecrafter77.survivalinc.stats.effect.FilteredEffectApplicator;
@@ -14,7 +14,6 @@ import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.net.StatSyncMessage;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 
@@ -29,6 +28,9 @@ public class GhostProvider implements StatProvider {
 	private GhostProvider()
 	{
 		this.applicator = new FilteredEffectApplicator();
+		
+		this.applicator.addEffect(new ConstantStatEffect(ConstantStatEffect.Operation.OFFSET, -0.2F), new FunctionalEffectFilter((EntityPlayer player, Float value) -> player.isSprinting()));
+		this.applicator.addEffect(new FunctionalEffect(GhostProvider::duringNight));
 	}
 	
 	@Override
@@ -70,6 +72,12 @@ public class GhostProvider implements StatProvider {
 	}
 	
 	@SubscribeEvent
+	public static void registerStat(StatRegisterEvent event)
+	{
+		event.register(GhostProvider.instance);
+	}
+	
+	@SubscribeEvent
 	public static void onPlayerRespawn(PlayerRespawnEvent event)
 	{
 		EntityPlayer player = event.player;
@@ -81,14 +89,6 @@ public class GhostProvider implements StatProvider {
 			
 			SurvivalInc.proxy.net.sendToAll(new StatSyncMessage(player));
 		}
-	}
-	
-	public static void register()
-	{
-		MinecraftForge.EVENT_BUS.register(GhostProvider.class);
-		GhostProvider.instance.applicator.addEffect(new ConstantStatEffect(ConstantStatEffect.Operation.OFFSET, -0.2F), new FunctionalEffectFilter((EntityPlayer player, Float value) -> player.isSprinting()));
-		GhostProvider.instance.applicator.addEffect(new FunctionalEffect(GhostProvider::duringNight));
-		SimpleStatRegister.providers.add(GhostProvider.instance);
 	}
 	
 	public static float duringNight(EntityPlayer player, float value)

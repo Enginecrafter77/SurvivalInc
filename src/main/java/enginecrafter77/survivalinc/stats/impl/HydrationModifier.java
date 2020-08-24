@@ -7,6 +7,7 @@ import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.net.WaterDrinkMessage;
 import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatProvider;
+import enginecrafter77.survivalinc.stats.StatRegisterEvent;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import enginecrafter77.survivalinc.stats.effect.ConstantStatEffect;
 import enginecrafter77.survivalinc.stats.effect.DamageStatEffect;
@@ -63,6 +64,12 @@ public class HydrationModifier implements IMessageHandler<WaterDrinkMessage, IMe
 			if(((tracker.getStat(heat) - heat.getMinimum()) / (heat.getMaximum() - heat.getMinimum())) > ModConfig.HYDRATION.sweatingThreshold) drain *= ModConfig.HYDRATION.sweatingMultiplier;
 		}
 		return value + drain;
+	}
+	
+	@SubscribeEvent
+	public static void registerStat(StatRegisterEvent event)
+	{
+		event.register(DefaultStats.HYDRATION);
 	}
 	
 	/**

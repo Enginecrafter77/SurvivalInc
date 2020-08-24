@@ -58,7 +58,7 @@ public class SimpleStatRecord implements StatRecord {
 	@Override
 	public String toString()
 	{
-		return Float.toString(this.value);
+		return String.format("%s(%f)", this.getClass().getSimpleName(), this.value);
 	}
 	
 }
