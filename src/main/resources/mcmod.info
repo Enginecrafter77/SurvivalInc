@@ -4,7 +4,7 @@
 		"name": "Survival Inc.",
 		"description": "Tired of the all-same routine every day? Do you want something more... let's say, special? Wait no more! Survival Inc. corporation is proud to present you our newest product in a line!",
 		"version": "${version}",
-		"mcversion": "1.12.2",
+		"mcversion": "${mcversion}",
 		"url": "https://minecraft.curseforge.com/projects/survivalinc",
 		"updateUrl": "",
 		"authorList": ["Enginecrafter77", "Schoperation"],
