@@ -47,12 +47,11 @@ public class SanityModifier {
 	
 	public static void init()
 	{
-		//if(ModConfig.WETNESS.enabled) DefaultStats.SANITY.modifiers.add(new FunctionalModifier<EntityPlayer>(SanityModifier::whenWet), OperationType.OFFSET);
 		if(ModConfig.WETNESS.enabled) DefaultStats.SANITY.effects.addEffect(new FunctionalEffect(SanityModifier::whenWet));
 		
-		DefaultStats.SANITY.effects.addEffect(new ConstantStatEffect(ConstantStatEffect.Operation.OFFSET, 0.004F), new FunctionalEffectFilter((EntityPlayer player, Float value) -> player.isPlayerSleeping()));
+		DefaultStats.SANITY.effects.addEffect(new ConstantStatEffect(ConstantStatEffect.Operation.OFFSET, 0.004F), FunctionalEffectFilter.byPlayer(EntityPlayer::isPlayerSleeping));
 		DefaultStats.SANITY.effects.addEffect(new FunctionalEffect(SanityModifier::whenNearEntities));
-		DefaultStats.SANITY.effects.addEffect(new FunctionalEffect(SanityModifier::duringNight));
+		DefaultStats.SANITY.effects.addEffect(new FunctionalEffect(SanityModifier::duringNight), HydrationModifier.isOutsideOverworld.invert());
 		DefaultStats.SANITY.effects.addEffect(new FunctionalEffect(SanityModifier::whenInDark), HydrationModifier.isOutsideOverworld.invert());
 		DefaultStats.SANITY.effects.addEffect(new FunctionalEffect(SanityModifier::playStaticNoise), new SideEffectFilter(Side.CLIENT));
 		

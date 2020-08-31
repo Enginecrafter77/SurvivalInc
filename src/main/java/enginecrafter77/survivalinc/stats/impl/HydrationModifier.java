@@ -39,7 +39,7 @@ public class HydrationModifier implements IMessageHandler<WaterDrinkMessage, IMe
 	
 	public static final DamageSource DEHYDRATION = new DamageSource("survivalinc_dehydration").setDamageIsAbsolute().setDamageBypassesArmor();
 	
-	public static FunctionalEffectFilter isOutsideOverworld = new FunctionalEffectFilter((EntityPlayer player, Float value) -> Math.abs(player.dimension) == 1);
+	public static FunctionalEffectFilter isOutsideOverworld = FunctionalEffectFilter.byPlayer((EntityPlayer player) -> player.dimension != 0);
 	
 	public static void init()
 	{
