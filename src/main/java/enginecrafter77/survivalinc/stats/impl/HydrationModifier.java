@@ -43,12 +43,12 @@ public class HydrationModifier implements IMessageHandler<WaterDrinkMessage, IMe
 	
 	public static void init()
 	{
-		FunctionalEffectFilter nasfat = new FunctionalEffectFilter(Range.lessThan(15F));
+		FunctionalEffectFilter nasfat = FunctionalEffectFilter.byValue(Range.lessThan(15F));
 		DefaultStats.HYDRATION.effects.addEffect(new ConstantStatEffect(ConstantStatEffect.Operation.OFFSET, -0.006F), HydrationModifier.isOutsideOverworld);
 		DefaultStats.HYDRATION.effects.addEffect(new ConstantStatEffect(ConstantStatEffect.Operation.OFFSET, -0.5F), new FunctionalEffectFilter((EntityPlayer player, Float value) -> player.isInLava()));
-		DefaultStats.HYDRATION.effects.addEffect(new DamageStatEffect(HydrationModifier.DEHYDRATION, 4F, 0), new FunctionalEffectFilter(Range.lessThan(5F)), new SideEffectFilter(Side.SERVER));
-		DefaultStats.HYDRATION.effects.addEffect(new PotionStatEffect(MobEffects.SLOWNESS, 5), new FunctionalEffectFilter(Range.lessThan(40F)), new SideEffectFilter(Side.SERVER));
-		DefaultStats.HYDRATION.effects.addEffect(new PotionStatEffect(MobEffects.WEAKNESS, 5), new FunctionalEffectFilter(Range.lessThan(40F)), new SideEffectFilter(Side.SERVER));
+		DefaultStats.HYDRATION.effects.addEffect(new DamageStatEffect(HydrationModifier.DEHYDRATION, 4F, 0), FunctionalEffectFilter.byValue(Range.lessThan(5F)), new SideEffectFilter(Side.SERVER));
+		DefaultStats.HYDRATION.effects.addEffect(new PotionStatEffect(MobEffects.SLOWNESS, 5), FunctionalEffectFilter.byValue(Range.lessThan(40F)), new SideEffectFilter(Side.SERVER));
+		DefaultStats.HYDRATION.effects.addEffect(new PotionStatEffect(MobEffects.WEAKNESS, 5), FunctionalEffectFilter.byValue(Range.lessThan(40F)), new SideEffectFilter(Side.SERVER));
 		DefaultStats.HYDRATION.effects.addEffect(new PotionStatEffect(MobEffects.MINING_FATIGUE, 5), nasfat, new SideEffectFilter(Side.SERVER));
 		DefaultStats.HYDRATION.effects.addEffect(new PotionStatEffect(MobEffects.NAUSEA, 5), nasfat, new SideEffectFilter(Side.SERVER));
 		DefaultStats.HYDRATION.effects.addEffect(new FunctionalEffect(HydrationModifier::naturalDrain));

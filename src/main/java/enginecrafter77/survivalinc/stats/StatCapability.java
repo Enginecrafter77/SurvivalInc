@@ -64,10 +64,10 @@ public class StatCapability implements ICapabilitySerializable<NBTBase> {
 	}
 	
 	@SubscribeEvent
-	public static void onPlayerLogsIn(PlayerEvent.PlayerLoggedInEvent event)
+	public static void refreshClientData(PlayerEvent event)
 	{
 		// Do this only on server side; Client will only receive the data
-		if(!event.player.world.isRemote)
+		if((event instanceof PlayerEvent.PlayerLoggedInEvent || event instanceof PlayerEvent.PlayerChangedDimensionEvent) && !event.player.world.isRemote)
 		{
 			SurvivalInc.logger.info("Sending stat tracker data to {}", event.player.getName());
 			SurvivalInc.proxy.net.sendTo(new StatSyncMessage(event.player.world), (EntityPlayerMP)event.player);
