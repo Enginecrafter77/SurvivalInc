@@ -110,6 +110,8 @@ config.survivalinc:sanity.hallucinationThreshold=Hallucination Threshold
 config.survivalinc:sanity.hallucinationThreshold.tooltip=The lowest value of sanity beyond which hallucinations may occur.
 config.survivalinc:sanity.foodMap=Food Bonus Map
 config.survivalinc:sanity.foodMap.tooltip=The map of food items and their respective sanity bonuses. The target item's value is added to the current sanity when the item is consumed.
+config.survivalinc:sanity.staticBuzzIntensity=Buzz Intensity
+config.survivalinc:sanity.staticBuzzIntensity.tooltip=The multiplier of the volume of the "slenderman" sound played on low sanity.
 
 # Wetness config
 survivalinc.wetness=Wetness

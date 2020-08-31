@@ -87,7 +87,8 @@ public class SanityModifier {
 			if(player.world.rand.nextFloat() < 0.25F && current < threshold)
 			{
 				// 1F - current / threshold => this calculation is used to increase the volume for "more insane" players, up to 100% original volume (applied at sanity 0)
-				player.world.playSound(player.posX, player.posY, player.posZ, staticbuzz, SoundCategory.AMBIENT, 1F - current / threshold, 1, false);
+				float volume = (1F - current / threshold) * (float)ModConfig.SANITY.staticBuzzIntensity;
+				player.world.playSound(player.posX, player.posY, player.posZ, staticbuzz, SoundCategory.AMBIENT, volume, 1, false);
 				client.entityRenderer.loadShader(distortshader);
 			}
 			else

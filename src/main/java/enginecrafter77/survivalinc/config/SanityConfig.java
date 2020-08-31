@@ -49,6 +49,10 @@ public class SanityConfig {
 	@Config.RangeDouble(min = 0, max = 1)
 	public double hallucinationThreshold = 0.4;
 	
+	@Config.LangKey("config.survivalinc:sanity.staticBuzzIntensity")
+	@Config.RangeDouble(min = 0, max = 1)
+	public double staticBuzzIntensity = 1;
+	
 	@Config.LangKey("config.survivalinc:sanity.foodMap")
 	@Config.RequiresMcRestart
 	public String[] foodSanityMap = {
