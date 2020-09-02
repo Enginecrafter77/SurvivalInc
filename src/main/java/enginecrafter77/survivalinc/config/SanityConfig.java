@@ -53,6 +53,18 @@ public class SanityConfig {
 	@Config.RangeDouble(min = 0, max = 1)
 	public double staticBuzzIntensity = 1;
 	
+	@Config.LangKey("config.survivalinc:sanity.sleepDeprivationMin")
+	@Config.RangeInt(min = 1)
+	public int sleepDeprivationMin = 24000;
+	
+	@Config.LangKey("config.survivalinc:sanity.sleepDeprivationMax")
+	@Config.RangeInt(min = 2)
+	public int sleepDeprivationMax = 120000;
+	
+	@Config.LangKey("config.survivalinc:sanity.sleepDeprivationDebuff")
+	@Config.RangeDouble(min = 0)
+	public double sleepDeprivationDebuff = 0.04;
+	
 	@Config.LangKey("config.survivalinc:sanity.foodMap")
 	@Config.RequiresMcRestart
 	public String[] foodSanityMap = {

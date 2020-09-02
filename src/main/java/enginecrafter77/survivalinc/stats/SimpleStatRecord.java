@@ -104,7 +104,7 @@ public class SimpleStatRecord implements StatRecord {
 	@Override
 	public String toString()
 	{
-		return String.format("%f (+ %f)", this.value, this.change);
+		return String.format("%f (+ %f/t)", this.value, this.change);
 	}
 	
 }

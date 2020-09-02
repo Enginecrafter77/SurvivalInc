@@ -77,7 +77,7 @@ public class CommonProxy {
 		if(ModConfig.SANITY.enabled)
 		{
 			MinecraftForge.EVENT_BUS.register(SanityModifier.class);
-			SanityModifier.init();
+			SanityModifier.instance.init();
 		}
 		
 		if(ModConfig.WETNESS.enabled)

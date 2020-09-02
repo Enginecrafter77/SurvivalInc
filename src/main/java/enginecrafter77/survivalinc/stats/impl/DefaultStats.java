@@ -13,8 +13,7 @@ import net.minecraft.util.ResourceLocation;
 
 public enum DefaultStats implements StatProvider {
 	WETNESS(0F, 100F, 0F),
-	HYDRATION(0F, 100F),
-	SANITY(0F, 100F);
+	HYDRATION(0F, 100F);
 	
 	public final FilteredEffectApplicator effects;
 	public final ResourceLocation id;
