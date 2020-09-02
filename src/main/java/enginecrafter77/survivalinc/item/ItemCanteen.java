@@ -25,6 +25,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 
 import enginecrafter77.survivalinc.SurvivalInc;
+import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import enginecrafter77.survivalinc.stats.impl.DefaultStats;
@@ -54,7 +55,8 @@ public class ItemCanteen extends Item {
 			NBTTagCompound nbt = stack.getTagCompound();
 			int stored = nbt.getInteger("stored");
 			nbt.setInteger("stored", stored - 32);
-			stats.modifyStat(DefaultStats.HYDRATION, 10F);
+			SimpleStatRecord hydration = (SimpleStatRecord)stats.getRecord(DefaultStats.HYDRATION);
+			hydration.addToValue(10F);
 		}
 		return stack;
 	}

@@ -3,19 +3,22 @@ package enginecrafter77.survivalinc.stats.impl;
 import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatRecord;
 import enginecrafter77.survivalinc.stats.effect.FilteredEffectApplicator;
+
+import com.google.common.collect.Range;
+
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 
 public enum DefaultStats implements StatProvider {
-	WETNESS(0, 100, 0F),
-	HYDRATION(0, 100),
-	SANITY(0, 100);
+	WETNESS(0F, 100F, 0F),
+	HYDRATION(0F, 100F),
+	SANITY(0F, 100F);
 	
 	public final FilteredEffectApplicator effects;
 	public final ResourceLocation id;
-	private float max, min, def;
+	public final float max, min, def;
 	
 	private DefaultStats(float min, float max, float def)
 	{
@@ -32,9 +35,13 @@ public enum DefaultStats implements StatProvider {
 	}
 	
 	@Override
-	public float updateValue(EntityPlayer target, float current)
+	public void update(EntityPlayer player, StatRecord record)
 	{
-		return DefaultStats.capValue(this, effects.apply(target, current));
+		if(!(player.isCreative() || player.isSpectator()))
+		{
+			SimpleStatRecord srec = (SimpleStatRecord)record;
+			srec.setValue(effects.apply(player, srec.getValue()));
+		}
 	}
 	
 	@Override
@@ -42,35 +49,12 @@ public enum DefaultStats implements StatProvider {
 	{
 		return this.id;
 	}
-
-	@Override
-	public float getMaximum()
-	{
-		return this.max;
-	}
-
-	@Override
-	public float getMinimum()
-	{
-		return this.min;
-	}
 	
 	@Override
 	public StatRecord createNewRecord()
 	{
-		return new SimpleStatRecord(this.def);
-	}
-
-	@Override
-	public boolean isAcitve(EntityPlayer player)
-	{
-		return !(player.isCreative() || player.isSpectator());
-	}
-	
-	public static float capValue(StatProvider provider, float current)
-	{
-		if(current > provider.getMaximum()) current = provider.getMaximum();
-		if(current < provider.getMinimum()) current = provider.getMinimum();
-		return current;
+		SimpleStatRecord record = new SimpleStatRecord(Range.closed(this.min, this.max));
+		record.setValue(this.def);
+		return record;
 	}
 }

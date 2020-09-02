@@ -69,7 +69,7 @@ public class RenderGhost extends RenderLivingBase<EntityPlayer> {
 		
 		if(record.isActive())
 		{
-			this.opacity = record.getValue() / GhostProvider.instance.getMaximum();
+			this.opacity = record.getValue() / record.valuerange.upperEndpoint();
 			this.doRender(player, event.getX(), event.getY(), event.getZ(), player.renderYawOffset, event.getPartialRenderTick());
 			event.setCanceled(true);
 		}

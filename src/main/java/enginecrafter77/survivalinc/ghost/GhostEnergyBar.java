@@ -35,12 +35,13 @@ public class GhostEnergyBar extends Gui implements StatBar {
 	{
 		Minecraft instance = Minecraft.getMinecraft();
 		
-		if(!GhostProvider.instance.isAcitve(instance.player)) return;
+		GhostEnergyRecord energy = (GhostEnergyRecord)tracker.getRecord(this.getProvider());
+		if(!energy.isActive()) return;
 		
 		this.setPosition(Axis.HORIZONTAL, resolution.getScaledWidth() / 2 - 91);
 		this.setPosition(Axis.VERTICAL, resolution.getScaledHeight() - 39);
 		
-		float value = this.count * tracker.getStat(this.getProvider()) / this.getProvider().getMaximum(), part;
+		float value = this.count * energy.getValue() / energy.valuerange.upperEndpoint(), part;
 		
 		instance.getTextureManager().bindTexture(texture);
 		GlStateManager.enableAlpha();

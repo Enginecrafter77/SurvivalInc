@@ -24,6 +24,7 @@ import java.util.List;
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.net.EntityItemUpdateMessage;
+import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import enginecrafter77.survivalinc.stats.impl.DefaultStats;
@@ -50,8 +51,9 @@ public class ItemTowel extends Item {
 		NBTTagCompound tag = stack.getTagCompound();
 		
 		// Wetness equalization
-		float wetness = tracker.getStat(DefaultStats.WETNESS), stored = tag.getFloat("stored");
-		float absorb = (wetness + stored) / 2F, leave = absorb;
+		SimpleStatRecord wetness = (SimpleStatRecord)tracker.getRecord(DefaultStats.WETNESS);
+		
+		float stored = tag.getFloat("stored"), absorb = (wetness.getValue() + stored) / 2F, leave = absorb;
 		
 		SurvivalInc.logger.debug("TOWEL| W: {}, S: {}, A/L: {}", wetness, stored, absorb);
 		
@@ -65,7 +67,7 @@ public class ItemTowel extends Item {
 		
 		SurvivalInc.logger.debug("TOWEL| \\--> A: {}, L: {}", absorb, leave);
 		
-		tracker.setStat(DefaultStats.WETNESS, leave);
+		wetness.setValue(leave);
 		tag.setFloat("stored", absorb);
 		return stack;
 	}

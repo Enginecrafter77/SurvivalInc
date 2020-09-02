@@ -1,5 +1,7 @@
 package enginecrafter77.survivalinc.ghost;
 
+import com.google.common.collect.Range;
+
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import net.minecraft.nbt.NBTTagCompound;
 
@@ -9,7 +11,7 @@ public class GhostEnergyRecord extends SimpleStatRecord {
 	
 	public GhostEnergyRecord()
 	{
-		super();
+		super(Range.closed(0F, 100F));
 		this.active = false;
 	}
 	

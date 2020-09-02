@@ -30,6 +30,7 @@ import java.util.Map;
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.net.StatSyncMessage;
+import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatRegisterEvent;
 import enginecrafter77.survivalinc.stats.StatTracker;
@@ -73,7 +74,7 @@ public class SanityModifier {
 	
 	public static void playStaticNoise(EntityPlayer player, float current)
 	{
-		float threshold = (float)ModConfig.SANITY.hallucinationThreshold * DefaultStats.SANITY.getMaximum();
+		float threshold = (float)ModConfig.SANITY.hallucinationThreshold * DefaultStats.SANITY.max;
 		if(player.world.getWorldTime() % 160 == 0)
 		{
 			/**
@@ -134,11 +135,11 @@ public class SanityModifier {
 	{
 		float boundary = (float)ModConfig.SANITY.wetnessAnnoyanceThreshold;
 		StatTracker stats = player.getCapability(StatCapability.target, null);
-		float wetness = stats.getStat(DefaultStats.WETNESS);
-		float annoyance = (wetness - DefaultStats.WETNESS.getMaximum()) / 10000;
+		SimpleStatRecord wetness = (SimpleStatRecord)stats.getRecord(DefaultStats.WETNESS);
+		float annoyance = (wetness.getValue() - wetness.valuerange.upperEndpoint()) / 10000;
 		annoyance = (boundary / -10000) - annoyance;
 		
-		if(wetness >= boundary) value -= annoyance;
+		if(wetness.getValue() >= boundary) value -= annoyance;
 		return value;
 	}
 	
@@ -173,7 +174,7 @@ public class SanityModifier {
 	{
 		Minecraft client = Minecraft.getMinecraft();
 		ShaderGroup shader = client.entityRenderer.getShaderGroup();
-		if(shader != null && client.world.getWorldTime() % 160 == 0 && !DefaultStats.SANITY.isAcitve(client.player) && shader.getShaderGroupName().equals(distortshader.toString()))
+		if(shader != null && client.world.getWorldTime() % 160 == 0 && (client.player.isCreative() || client.player.isSpectator()) && shader.getShaderGroupName().equals(distortshader.toString()))
 		{
 			client.entityRenderer.stopUseShader();
 		}
@@ -192,7 +193,8 @@ public class SanityModifier {
 		if(event.shouldSetSpawn()) // If the "lying in bed" was successful (the player actually fell asleep)
 		{
 			StatTracker stats = player.getCapability(StatCapability.target, null);
-			stats.modifyStat(DefaultStats.SANITY, DefaultStats.SANITY.getMaximum() * (float)ModConfig.SANITY.sleepResoration);
+			SimpleStatRecord sanity = (SimpleStatRecord)stats.getRecord(DefaultStats.SANITY);
+			sanity.addToValue(sanity.valuerange.upperEndpoint() * (float)ModConfig.SANITY.sleepResoration);
 			SurvivalInc.proxy.net.sendToAll(new StatSyncMessage(player));
 			player.getFoodStats().setFoodLevel(player.getFoodStats().getFoodLevel() - 8);
 		}
@@ -212,7 +214,8 @@ public class SanityModifier {
 				// Modify the sanity value
 				EntityPlayer player = (EntityPlayer)ent;
 				StatTracker stats = player.getCapability(StatCapability.target, null);
-				stats.modifyStat(DefaultStats.SANITY, mod);
+				SimpleStatRecord sanity = (SimpleStatRecord)stats.getRecord(DefaultStats.SANITY);
+				sanity.addToValue(mod);
 			}
 			catch(NullPointerException exc)
 			{
@@ -228,7 +231,8 @@ public class SanityModifier {
 		if(ent instanceof EntityPlayer)
 		{
 			StatTracker stat = ent.getCapability(StatCapability.target, null);
-			stat.modifyStat(DefaultStats.SANITY, (float)ModConfig.SANITY.animalTameBoost); // Solid 5 points for taming any animal
+			SimpleStatRecord sanity = (SimpleStatRecord)stat.getRecord(DefaultStats.SANITY);
+			sanity.addToValue((float)ModConfig.SANITY.animalTameBoost);
 		}
 	}
 }

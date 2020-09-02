@@ -2,9 +2,9 @@ package enginecrafter77.survivalinc.client;
 
 import java.awt.Color;
 
+import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatTracker;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
@@ -41,18 +41,30 @@ public class SimpleStatBar extends GaugeBar implements StatBar {
 		this.texwidth = 8;
 		this.iconheight = 12;
 		this.spacing = 2;
+		
+		// Create a dummy record to see if it's a subclass of SimpleStatRecord
+		if(!(key.createNewRecord() instanceof SimpleStatRecord))
+		{
+			throw new IllegalArgumentException("Differential Arrow can be used only with providers using SimpleStatRecord records!");
+		}
+	}
+	
+	public boolean isVisible(StatTracker tracker)
+	{
+		return true;
 	}
 	
 	@Override
 	protected float getProportion(StatTracker tracker)
 	{
-		return (tracker.getStat(key) - key.getMinimum()) / (key.getMaximum() - key.getMinimum());
+		SimpleStatRecord record = (SimpleStatRecord)tracker.getRecord(this.key);
+		return (record.getValue() - record.valuerange.lowerEndpoint()) / (record.valuerange.upperEndpoint() - record.valuerange.lowerEndpoint());
 	}
 	
 	@Override
 	public void draw(ScaledResolution resolution, StatTracker stats) throws UnsupportedOperationException
 	{
-		if(!this.key.isAcitve(Minecraft.getMinecraft().player)) return;
+		if(!this.isVisible(stats)) return;
 		
 		super.draw(resolution, stats);
 		

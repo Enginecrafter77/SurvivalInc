@@ -71,7 +71,7 @@ public class WetnessModifier {
 	
 	public static void slowDown(EntityPlayer player, float current)
 	{
-		float max = DefaultStats.WETNESS.getMaximum();
+		float max = DefaultStats.WETNESS.max;
 		float threshold = (float)ModConfig.WETNESS.slowdownThreshold / 100F;
 		
 		// This is the math part. I am way less worried about impact of this. Mmmm math...
@@ -110,7 +110,7 @@ public class WetnessModifier {
 	{
 		WorldClient world = Minecraft.getMinecraft().world;
 		Random rng = world.rand;
-		float coefficient = (current / DefaultStats.WETNESS.getMaximum());
+		float coefficient = (current / DefaultStats.WETNESS.max);
 		if(rng.nextFloat() < coefficient)
 		{
 			for(int index = 0; index < 4; index++)
@@ -126,7 +126,7 @@ public class WetnessModifier {
 		{
 			Material headBlockMaterial = player.world.getBlockState(new BlockPos(player).up()).getMaterial();
 			if(headBlockMaterial == Material.WATER) value += 5F;
-			else if(value < 0.4F * DefaultStats.WETNESS.getMaximum()) value += 1.25F;
+			else if(value < 0.4F * DefaultStats.WETNESS.max) value += 1.25F;
 		}
 		
 		return value;

@@ -55,7 +55,7 @@ public class StatCommand extends CommandBase {
 				component.appendText("\n ");
 				component.appendSibling(new TextComponentTranslation(String.format("stat.%s.name", provider.getStatID().toString())).setStyle(this.statNameStyle));
 				component.appendText("(" + TextFormatting.YELLOW + provider.getStatID().toString() + TextFormatting.RESET + ")");
-				component.appendText(": " + tracker.getStat(provider));
+				component.appendText(": " + tracker.getRecord(provider).toString());
 			}
 			sender.sendMessage(component);
 		}
@@ -67,13 +67,18 @@ public class StatCommand extends CommandBase {
 			StatProvider provider = tracker.getProvider(res);
 			if(provider == null) throw new CommandException("Stat " + res.toString() + " does not exist!");
 			
+			StatRecord record = tracker.getRecord(provider);
 			if(args[1].equals("set"))
 			{
-				if(args.length < 4) throw new CommandException("Insufficient Arguments\nUsage: " + this.getUsage(sender));
-				tracker.setStat(provider, Float.parseFloat(args[3]));
-				SurvivalInc.proxy.net.sendToAll(new StatSyncMessage(player));
+				if(record instanceof SimpleStatRecord)
+				{
+					if(args.length < 4) throw new CommandException("Insufficient Arguments\nUsage: " + this.getUsage(sender));
+					((SimpleStatRecord)record).setValue(Float.parseFloat(args[3]));
+					SurvivalInc.proxy.net.sendToAll(new StatSyncMessage(player));
+				}
+				else throw new CommandException("Stat " + provider.getStatID().toString() + " uses non-standard record type!");
 			}
-			else sender.sendMessage(new TextComponentString(provider.getStatID() + ": " + tracker.getStat(provider)));
+			else sender.sendMessage(new TextComponentString(provider.getStatID() + ": " + record.toString()));
 		}
 	}
 	

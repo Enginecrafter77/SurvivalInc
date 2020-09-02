@@ -3,6 +3,7 @@ package enginecrafter77.survivalinc.client;
 import java.util.EnumMap;
 
 import enginecrafter77.survivalinc.SurvivalInc;
+import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import net.minecraft.client.Minecraft;
@@ -22,6 +23,8 @@ public class DifferentialArrow implements StatRender
 	
 	public int width, height;
 	
+	protected float amplitude, min_scale, max_scale;
+	
 	public DifferentialArrow(StatProvider provider, int width, int height)
 	{
 		this.texturer = Minecraft.getMinecraft().getTextureManager();
@@ -29,6 +32,16 @@ public class DifferentialArrow implements StatRender
 		this.provider = provider;
 		this.height = height;
 		this.width = width;
+		
+		this.amplitude = 10F;
+		this.min_scale = 0.3F;
+		this.max_scale = 1F;
+		
+		// Create a dummy record to see if it's a subclass of SimpleStatRecord
+		if(!(provider.createNewRecord() instanceof SimpleStatRecord))
+		{
+			throw new IllegalArgumentException("Differential Arrow can be used only with providers using SimpleStatRecord records!");
+		}
 	}
 	
 	@Override
@@ -73,10 +86,11 @@ public class DifferentialArrow implements StatRender
 	
 	public float getArrowValue(StatTracker tracker)
 	{
-		float scale = 10F * tracker.getLastChange(provider);
+		SimpleStatRecord record = (SimpleStatRecord)tracker.getRecord(provider);
+		float scale = record.getLastChange() * this.amplitude;
 		float dist = Math.abs(scale);
-		if(dist > 1F) scale /= dist; // Always results in 1 or -1
-		if(dist < 0.3F && dist != 0) scale = scale > 0F ? 0.3F : -0.3F;
+		if(dist > this.max_scale) scale /= dist; // Always results in 1 or -1
+		if(dist < this.min_scale && dist != 0) scale = scale > 0 ? this.min_scale : -this.min_scale;
 		return scale;
 	}
 	

@@ -9,7 +9,6 @@ import enginecrafter77.survivalinc.stats.effect.ConstantStatEffect;
 import enginecrafter77.survivalinc.stats.effect.FilteredEffectApplicator;
 import enginecrafter77.survivalinc.stats.effect.FunctionalEffect;
 import enginecrafter77.survivalinc.stats.effect.FunctionalEffectFilter;
-import enginecrafter77.survivalinc.stats.impl.DefaultStats;
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.net.StatSyncMessage;
 import net.minecraft.entity.player.EntityPlayer;
@@ -34,11 +33,13 @@ public class GhostProvider implements StatProvider {
 	}
 	
 	@Override
-	public float updateValue(EntityPlayer target, float current)
-	{		
-		return DefaultStats.capValue(this, this.applicator.apply(target, current));
+	public void update(EntityPlayer target, StatRecord record)
+	{
+		GhostEnergyRecord ghost = (GhostEnergyRecord)record;
+		if(ghost.isActive())
+			ghost.setValue(this.applicator.apply(target, ghost.getValue()));
 	}
-
+	
 	@Override
 	public ResourceLocation getStatID()
 	{
@@ -46,29 +47,9 @@ public class GhostProvider implements StatProvider {
 	}
 
 	@Override
-	public float getMaximum()
-	{
-		return 100F;
-	}
-
-	@Override
-	public float getMinimum()
-	{
-		return 0F;
-	}
-
-	@Override
 	public StatRecord createNewRecord()
 	{
 		return new GhostEnergyRecord();
-	}
-
-	@Override
-	public boolean isAcitve(EntityPlayer player)
-	{
-		StatTracker ghost = player.getCapability(StatCapability.target, null);
-		GhostEnergyRecord stat = (GhostEnergyRecord)ghost.getRecord(this);
-		return stat.isActive();
 	}
 	
 	@SubscribeEvent

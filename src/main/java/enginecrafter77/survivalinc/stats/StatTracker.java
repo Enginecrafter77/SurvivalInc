@@ -67,37 +67,6 @@ public interface StatTracker {
 	public StatRecord getRecord(StatProvider stat);
 	
 	/**
-	 * Adds amount to the value in the stat's record.
-	 * If the specified {@link StatProvider} has no record
-	 * associated with it, this method throws an {@link IllegalStateException}.
-	 * @param stat The stat to modify
-	 * @param amount The amount to add to the stat's record
-	 * @throws IllegalStateException when the stat provider has no associated record
-	 */
-	public void modifyStat(StatProvider stat, float amount) throws IllegalStateException;
-	
-	/**
-	 * Sets the value inside the target stat's record.
-	 * If the specified {@link StatProvider} has no record
-	 * associated with it, this method throws an {@link IllegalStateException}.
-	 * @param stat The stat to assign new value to
-	 * @param amount The new value of the stat's record.
-	 * @throws IllegalStateException when the stat provider has no associated record
-	 */
-	public void setStat(StatProvider stat, float amount) throws IllegalStateException;
-	
-	/**
-	 * Returns the current value of the target stat's record.
-	 * This method generally delegates to {@link StatRecord#getValue()}.
-	 * If the specified {@link StatProvider} has no record
-	 * associated with it, this method throws an {@link IllegalStateException}.
-	 * @param stat The StatProvider to get the value about
-	 * @return The value of the record kept about <i>stat</i>
-	 * @throws IllegalStateException when the stat provider has no associated record
-	 */
-	public float getStat(StatProvider stat) throws IllegalStateException;
-	
-	/**
 	 * Called each tick to update the stat tracker
 	 * and the records stored about each stat. This
 	 * method generally involves iterating over the
@@ -110,11 +79,4 @@ public interface StatTracker {
 	 * @param player The player to apply the update to
 	 */
 	public void update(EntityPlayer player);
-	
-	/**
-	 * Returns the last change in value to the specified stat.
-	 * @param stat The stat to get last change for
-	 * @return The change in the specified stat last tick
-	 */
-	public float getLastChange(StatProvider stat);
 }

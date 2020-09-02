@@ -15,15 +15,4 @@ import net.minecraftforge.common.util.INBTSerializable;
  * @author Enginecrafter77
  */
 public interface StatRecord extends INBTSerializable<NBTTagCompound> {
-	/**
-	 * Sets the value kept by the record
-	 * @param value The new value to be stored by the record
-	 */
-	public void setValue(float value);
-	
-	/**
-	 * Returns the value kept by the record
-	 * @return The value kept by the record
-	 */
-	public float getValue();
 }

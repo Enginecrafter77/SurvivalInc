@@ -97,8 +97,10 @@ public class HeatModifier implements StatProvider {
 	}
 	
 	@Override
-	public float updateValue(EntityPlayer player, float current)
-	{		
+	public void update(EntityPlayer player, StatRecord record)
+	{
+		if(player.isCreative() || player.isSpectator()) return;
+		
 		float target;
 		if(player.posY < player.world.getSeaLevel()) target = (float)ModConfig.HEAT.caveTemperature; // Cave
 		else
@@ -110,19 +112,18 @@ public class HeatModifier implements StatProvider {
 		}
 		target = targettemp.apply(player, target * (float)ModConfig.HEAT.tempCoefficient);
 		
-		float difference = Math.abs(target - current);
+		SimpleStatRecord heat = (SimpleStatRecord)record;
+		float difference = Math.abs(target - heat.getValue());
 		float rate = difference * (float)ModConfig.HEAT.heatExchangeFactor;
 		rate = HeatModifier.exchangerate.apply(player, rate);
 		
 		// Apply the "side effects"
-		HeatModifier.consequences.apply(player, current);
+		HeatModifier.consequences.apply(player, heat.getValue());
 		
 		// If the current value is higher than the target, go down instead of up
-		if(current > target) rate *= -1;
+		if(heat.getValue() > target) rate *= -1;
 		// Checkout the rate to the value
-		current += rate;
-		
-		return DefaultStats.capValue(this, current);
+		heat.addToValue(rate);
 	}
 
 	@Override
@@ -132,27 +133,11 @@ public class HeatModifier implements StatProvider {
 	}
 
 	@Override
-	public float getMaximum()
-	{
-		return 120;
-	}
-
-	@Override
-	public float getMinimum()
-	{
-		return -20F;
-	}
-
-	@Override
 	public StatRecord createNewRecord()
 	{
-		return new SimpleStatRecord(80F);
-	}
-	
-	@Override
-	public boolean isAcitve(EntityPlayer player)
-	{
-		return !(player.isCreative() || player.isSpectator());
+		SimpleStatRecord record = new SimpleStatRecord(Range.closed(-20F, 120F));
+		record.setValue(80F);
+		return record;
 	}
 	
 	public static void onHighTemperature(EntityPlayer player)
@@ -170,7 +155,8 @@ public class HeatModifier implements StatProvider {
 	public static float applyWetnessCooldown(EntityPlayer player, float current)
 	{
 		StatTracker stats = player.getCapability(StatCapability.target, null);
-		return current * (1F + (float)ModConfig.HEAT.wetnessExchangeMultiplier * (stats.getStat(DefaultStats.WETNESS) / DefaultStats.WETNESS.getMaximum()));
+		SimpleStatRecord wetness = (SimpleStatRecord)stats.getRecord(DefaultStats.WETNESS);
+		return current * (1F + (float)ModConfig.HEAT.wetnessExchangeMultiplier * (wetness.getValue() / wetness.valuerange.upperEndpoint()));
 	}
 	
 	/**

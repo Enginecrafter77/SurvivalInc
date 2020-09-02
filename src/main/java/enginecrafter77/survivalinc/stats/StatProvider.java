@@ -26,7 +26,7 @@ public interface StatProvider extends Serializable {
 	 * @param current The current value of the stat
 	 * @return The new value of the stat
 	 */
-	public float updateValue(EntityPlayer target, float current);
+	public void update(EntityPlayer target, StatRecord record);
 	
 	/**
 	 * Returns a {@link ResourceLocation} based
@@ -35,22 +35,6 @@ public interface StatProvider extends Serializable {
 	 * @return A ResourceLocation-based stat ID
 	 */
 	public ResourceLocation getStatID();
-	
-	/**
-	 * @return The maximum value this stat might get to
-	 * @see #getOverflowHandler()
-	 * @see #getMinimum()
-	 * @see #getDefault()
-	 */
-	public float getMaximum();
-	
-	/**
-	 * @return The minimum value this stat might get to
-	 * @see #getOverflowHandler()
-	 * @see #getMaximum()
-	 * @see #getDefault()
-	 */
-	public float getMinimum();
 	
 	/**
 	 * Creates a new record for the stat provider.
@@ -65,15 +49,4 @@ public interface StatProvider extends Serializable {
 	 * @return A new instance of stat record.
 	 */
 	public StatRecord createNewRecord();
-	
-	/**
-	 * Used to indicate whether a stat is active
-	 * for the given player. Inactive stats are
-	 * not ticked (their {@link #updateValue(EntityPlayer, float)}
-	 * method is not called), and they are not rendered
-	 * in the {@link enginecrafter77.survivalinc.client.RenderHUD HUD}.
-	 * @param player The player being examined
-	 * @return True if the stat is relevant, false otherwise
-	 */
-	public boolean isAcitve(EntityPlayer player);
 }

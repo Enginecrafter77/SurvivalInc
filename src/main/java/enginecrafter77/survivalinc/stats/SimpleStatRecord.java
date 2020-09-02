@@ -1,5 +1,7 @@
 package enginecrafter77.survivalinc.stats;
 
+import com.google.common.collect.Range;
+
 import net.minecraft.nbt.NBTTagCompound;
 
 /**
@@ -10,15 +12,23 @@ import net.minecraft.nbt.NBTTagCompound;
  */
 public class SimpleStatRecord implements StatRecord {
 	
+	/** The range of values accepted by this record */
+	public final Range<Float> valuerange;
+	
 	/** The value stored in the record entry */
 	protected float value;
+	
+	/** The change induced last tick */
+	protected float change;
 	
 	/**
 	 * Constructs StatRecordEntry with default value of <i>value</i>
 	 */
-	public SimpleStatRecord(float value)
+	public SimpleStatRecord(Range<Float> range)
 	{
-		this.value = value;
+		this.valuerange = range;
+		this.change = 0F;
+		this.value = 0F;
 	}
 	
 	/**
@@ -26,19 +36,55 @@ public class SimpleStatRecord implements StatRecord {
 	 */
 	public SimpleStatRecord()
 	{
-		this(0F);
+		this(Range.all());
 	}
-
-	@Override
+	
+	/**
+	 * Checks if the value is in the desired range,
+	 * and corrects it if necessary.
+	 */
+	protected void checkValue()
+	{
+		if(!valuerange.contains(this.value))
+		{
+			Float midpoint = valuerange.lowerEndpoint() + (valuerange.upperEndpoint() - valuerange.lowerEndpoint()) / 2F;
+			switch(midpoint.compareTo(this.value))
+			{
+			case -1: // The midpoint is below the value, thus the value is greater than the range
+				this.value = valuerange.upperEndpoint();
+				break;
+			case 1: // The midpoint is above the value, thus the value is less than the range
+				this.value = valuerange.lowerEndpoint();
+				break;
+			default:
+				return;
+			}
+			this.change = 0;
+		}
+	}
+	
 	public void setValue(float value)
 	{
+		this.change = value - this.value;
 		this.value = value;
+		this.checkValue();
 	}
-
-	@Override
+	
 	public float getValue()
 	{
 		return this.value;
+	}
+	
+	public void addToValue(float value)
+	{
+		this.change = value;
+		this.value += value;
+		this.checkValue();
+	}
+	
+	public float getLastChange()
+	{
+		return this.change;
 	}
 
 	@Override
@@ -58,7 +104,7 @@ public class SimpleStatRecord implements StatRecord {
 	@Override
 	public String toString()
 	{
-		return String.format("%s(%f)", this.getClass().getSimpleName(), this.value);
+		return String.format("%f (+ %f)", this.value, this.change);
 	}
 	
 }
