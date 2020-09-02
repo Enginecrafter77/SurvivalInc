@@ -14,4 +14,7 @@ public class ClientConfig {
 	
 	@Config.LangKey("config.survivalinc:client.statBarPosition")
 	public String[] statBarPosition = {"$w / 2 + 95", "$h - 2"};
+	
+	@Config.LangKey("config.survivalinc:client.linearArrow")
+	public boolean linearArrow = false;
 }

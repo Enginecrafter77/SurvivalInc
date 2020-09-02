@@ -3,6 +3,7 @@ package enginecrafter77.survivalinc.client;
 import java.util.EnumMap;
 
 import enginecrafter77.survivalinc.SurvivalInc;
+import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatTracker;
@@ -49,7 +50,7 @@ public class DifferentialArrow implements StatRender
 	{
 		// Draw the arrow
 		this.texturer.bindTexture(arrowtexture);
-		float value = this.getArrowValue(tracker);
+		float value = this.getArrowScale(tracker);
 		boolean inverse = value < 0F;
 		value = Math.abs(value);
 		
@@ -84,13 +85,40 @@ public class DifferentialArrow implements StatRender
 		this.position.put(axis, value);
 	}
 	
-	public float getArrowValue(StatTracker tracker)
+	/**
+	 * Returns the relative arrow scale form 0 (invisible)
+	 * to 1 (visible). Negative returned values indicate
+	 * that the arrow should be rotated upside down.
+	 * @param tracker The stat tracker which tracks the provided stat
+	 * @return A value from -1 to 1, ranging from 0 = invisible to |1| = fully visible
+	 */
+	public float getArrowScale(StatTracker tracker)
 	{
 		SimpleStatRecord record = (SimpleStatRecord)tracker.getRecord(provider);
-		float scale = record.getLastChange() * this.amplitude;
-		float dist = Math.abs(scale);
-		if(dist > this.max_scale) scale /= dist; // Always results in 1 or -1
-		if(dist < this.min_scale && dist != 0) scale = scale > 0 ? this.min_scale : -this.min_scale;
+		
+		float scale = Math.abs(record.getLastChange() * this.amplitude);
+		if(!ModConfig.CLIENT.linearArrow)
+		{
+			/*
+			 * The scale is calculated using this relatively simple exponential formula:
+			 *      1 - n^(r|x * a|)
+			 * y = ------------
+			 *      1 - n^(r)
+			 * 
+			 * where n and r are constants, which define the shape of the curve, y is the
+			 * resultant scale of the arrow and X is the last change to the target stat.
+			 * 'a' is a constant which defines the linear scaling up of the last change,
+			 * so it's real effects can be visible.
+			 */
+			scale = (1F - (float)Math.pow(6F, -2F * scale)) / (1F - (float)Math.pow(6F, -2F));
+		}
+		
+		// Cap the scale
+		if(scale > this.max_scale) scale = this.max_scale; // Always results in 1 or -1
+		if(scale < this.min_scale && scale != 0) scale = this.min_scale;
+		
+		// Reintroduce the direction sign into the scale
+		if(record.getLastChange() < 0) scale *= -1F;
 		return scale;
 	}
 	
