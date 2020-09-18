@@ -4,3 +4,9 @@
 
 # These are explicitly windows files and should use crlf
 *.bat	text eol=crlf
+
+*.png	binary
+*.jpg	binary
+*.jar	binary
+*.class	binary
+*.ogg	binary
