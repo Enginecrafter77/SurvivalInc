@@ -3,7 +3,7 @@ package enginecrafter77.survivalinc.stats.effect;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
-import enginecrafter77.survivalinc.stats.effect.FilteredEffectApplicator.EffectFilter;
+import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import net.minecraft.entity.player.EntityPlayer;
 
 /**
@@ -15,28 +15,28 @@ import net.minecraft.entity.player.EntityPlayer;
  * instance each time they're called.
  * @author Enginecrafter77
  */
-public class FunctionalEffectFilter implements EffectFilter {
+public class FunctionalEffectFilter<RECORD> implements EffectFilter<RECORD> {
 	/** The function this effect filter delegates to */
-	public final BiPredicate<EntityPlayer, Float> delegate;
+	public final BiPredicate<RECORD, EntityPlayer> delegate;
 	
 	/** If true, inverts the value returned by the predicate */
 	public final boolean inverted;
 	
-	public FunctionalEffectFilter(BiPredicate<EntityPlayer, Float> delegate, boolean inverted)
+	public FunctionalEffectFilter(BiPredicate<RECORD, EntityPlayer> delegate, boolean inverted)
 	{
 		this.delegate = delegate;
 		this.inverted = inverted;
 	}
 	
-	public FunctionalEffectFilter(BiPredicate<EntityPlayer, Float> delegate)
+	public FunctionalEffectFilter(BiPredicate<RECORD, EntityPlayer> delegate)
 	{
 		this(delegate, false);
 	}
 	
 	@Override
-	public boolean isApplicableFor(EntityPlayer player, float value)
+	public boolean isApplicableFor(RECORD record, EntityPlayer player)
 	{
-		return this.delegate.test(player, value) != inverted;
+		return this.delegate.test(record, player) != inverted;
 	}
 	
 	/**
@@ -44,9 +44,9 @@ public class FunctionalEffectFilter implements EffectFilter {
 	 * FunctionalEffectFilter is immutable, this method returns a new instance each time.
 	 * @return An EffectFilter returning exactly the opposite values for each matching inputs
 	 */
-	public FunctionalEffectFilter invert()
+	public FunctionalEffectFilter<RECORD> invert()
 	{
-		return new FunctionalEffectFilter(this.delegate, !this.inverted);
+		return new FunctionalEffectFilter<RECORD>(this.delegate, !this.inverted);
 	}
 	
 	/**
@@ -54,9 +54,14 @@ public class FunctionalEffectFilter implements EffectFilter {
 	 * @param check The predicate checking the stat's value
 	 * @return A new instance of FunctionalEffectFilter
 	 */
-	public static FunctionalEffectFilter byValue(Predicate<Float> check)
+	public static <RECORD> FunctionalEffectFilter<RECORD> byRecord(Predicate<RECORD> check)
 	{
-		return new FunctionalEffectFilter((EntityPlayer player, Float value) -> check.test(value));
+		return new FunctionalEffectFilter<RECORD>((RECORD record, EntityPlayer player) -> check.test(record));
+	}
+	
+	public static FunctionalEffectFilter<SimpleStatRecord> byValue(Predicate<Float> check)
+	{
+		return new FunctionalEffectFilter<SimpleStatRecord>((SimpleStatRecord record, EntityPlayer player) -> check.test(record.getValue()));
 	}
 	
 	/**
@@ -64,8 +69,8 @@ public class FunctionalEffectFilter implements EffectFilter {
 	 * @param check The predicate checking the player entity
 	 * @return A new instance of FunctionalEffectFilter
 	 */
-	public static FunctionalEffectFilter byPlayer(Predicate<EntityPlayer> check)
+	public static FunctionalEffectFilter<Object> byPlayer(Predicate<EntityPlayer> check)
 	{
-		return new FunctionalEffectFilter((EntityPlayer player, Float value) -> check.test(player));
+		return new FunctionalEffectFilter<Object>((Object record, EntityPlayer player) -> check.test(player));
 	}
 }

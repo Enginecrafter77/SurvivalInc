@@ -21,12 +21,16 @@ public class SimpleStatRecord implements StatRecord {
 	/** The change induced last tick */
 	protected float change;
 	
+	/** The value kept for calculating the change */
+	private float lastvalue;
+	
 	/**
 	 * Constructs StatRecordEntry with default value of <i>value</i>
 	 */
 	public SimpleStatRecord(Range<Float> range)
 	{
 		this.valuerange = range;
+		this.lastvalue = 0F;
 		this.change = 0F;
 		this.value = 0F;
 	}
@@ -59,13 +63,11 @@ public class SimpleStatRecord implements StatRecord {
 			default:
 				return;
 			}
-			this.change = 0;
 		}
 	}
 	
 	public void setValue(float value)
 	{
-		this.change = value - this.value;
 		this.value = value;
 		this.checkValue();
 	}
@@ -77,7 +79,6 @@ public class SimpleStatRecord implements StatRecord {
 	
 	public void addToValue(float value)
 	{
-		this.change = value;
 		this.value += value;
 		this.checkValue();
 	}
@@ -85,6 +86,12 @@ public class SimpleStatRecord implements StatRecord {
 	public float getLastChange()
 	{
 		return this.change;
+	}
+	
+	public void checkoutValueChange()
+	{
+		this.change = this.value - this.lastvalue;
+		this.lastvalue = this.value;
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package enginecrafter77.survivalinc.stats.effect;
 
+import enginecrafter77.survivalinc.stats.StatRecord;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.DamageSource;
 
@@ -9,7 +10,7 @@ import net.minecraft.util.DamageSource;
  * {@link DamageSource}. It's as simple as that.
  * @author Enginecrafter77
  */
-public class DamageStatEffect implements StatEffect {
+public class DamageStatEffect implements StatEffect<StatRecord> {
 	
 	/** The source/type of the damage */
 	protected final DamageSource source;
@@ -44,12 +45,13 @@ public class DamageStatEffect implements StatEffect {
 	}
 
 	@Override
-	public float apply(EntityPlayer target, float current)
+	public void apply(StatRecord record, EntityPlayer player)
 	{
-		if(cooldown == 0 || target.ticksExisted % cooldown == 0)
+		if(player.world.isRemote) return;
+		
+		if(this.cooldown == 0 || player.ticksExisted % this.cooldown == 0)
 		{
-			target.attackEntityFrom(source, amount);
+			player.attackEntityFrom(this.source, this.amount);
 		}
-		return current;
 	}
 }

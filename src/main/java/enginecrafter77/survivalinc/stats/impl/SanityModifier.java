@@ -40,37 +40,31 @@ import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatRecord;
 import enginecrafter77.survivalinc.stats.StatRegisterEvent;
 import enginecrafter77.survivalinc.stats.StatTracker;
-import enginecrafter77.survivalinc.stats.effect.ConstantStatEffect;
-import enginecrafter77.survivalinc.stats.effect.FilteredEffectApplicator;
-import enginecrafter77.survivalinc.stats.effect.FunctionalEffect;
+import enginecrafter77.survivalinc.stats.effect.EffectApplicator;
 import enginecrafter77.survivalinc.stats.effect.FunctionalEffectFilter;
 import enginecrafter77.survivalinc.stats.effect.SideEffectFilter;
+import enginecrafter77.survivalinc.stats.effect.ValueStatEffect;
 
 public class SanityModifier implements StatProvider {
 	private static final long serialVersionUID = 6707924203617912749L;
 	
 	public static final ResourceLocation distortshader = new ResourceLocation(SurvivalInc.MOD_ID, "shaders/distort.json");
 	public static final SoundEvent staticbuzz = new SoundEvent(new ResourceLocation(SurvivalInc.MOD_ID, "staticbuzz"));
-	public static final SanityModifier instance = new SanityModifier();
 	
-	public final FilteredEffectApplicator effects;
-	public final Map<Item, Float> foodSanityMap;
+	public static final Map<Item, Float> foodSanityMap = new HashMap<Item, Float>();;
 	
-	private SanityModifier()
+	public final EffectApplicator<SanityRecord> effects;
+	
+	public SanityModifier()
 	{
-		this.foodSanityMap = new HashMap<Item, Float>();
-		this.effects = new FilteredEffectApplicator();
-	}
-	
-	public void init()
-	{
-		if(ModConfig.WETNESS.enabled) this.effects.addEffect(new FunctionalEffect(SanityModifier::whenWet));
+		this.effects = new EffectApplicator<SanityRecord>();
 		
-		this.effects.addEffect(new ConstantStatEffect(ConstantStatEffect.Operation.OFFSET, 0.004F), FunctionalEffectFilter.byPlayer(EntityPlayer::isPlayerSleeping));
-		this.effects.addEffect(new FunctionalEffect(SanityModifier::whenNearEntities));
-		this.effects.addEffect(new FunctionalEffect(SanityModifier::whenInDark), HydrationModifier.isOutsideOverworld.invert());
-		this.effects.addEffect(new FunctionalEffect(SanityModifier::playStaticNoise), new SideEffectFilter(Side.CLIENT));
-		this.effects.addEffect(new FunctionalEffect(SanityModifier::sleepDeprivation));
+		if(ModConfig.WETNESS.enabled) this.effects.add(SanityModifier::whenWet);
+		this.effects.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, 0.004F)).addFilter(FunctionalEffectFilter.byPlayer(EntityPlayer::isPlayerSleeping));
+		this.effects.add(SanityModifier::whenInDark).addFilter(HydrationModifier.isOutsideOverworld.invert());
+		this.effects.add(SanityModifier::playStaticNoise).addFilter(SideEffectFilter.CLIENT);
+		this.effects.add(SanityModifier::whenNearEntities);
+		this.effects.add(SanityModifier::sleepDeprivation);
 		
 		// Compile food value list
 		for(String entry : ModConfig.SANITY.foodSanityMap)
@@ -78,7 +72,7 @@ public class SanityModifier implements StatProvider {
 			int separator = entry.lastIndexOf(' ');
 			Item target = Item.getByNameOrId(entry.substring(0, separator));
 			Float value = Float.parseFloat(entry.substring(separator + 1));
-			this.foodSanityMap.put(target, value);
+			SanityModifier.foodSanityMap.put(target, value);
 		}
 	}
 	
@@ -89,8 +83,8 @@ public class SanityModifier implements StatProvider {
 		
 		SanityRecord sanity = (SanityRecord)record;
 		++sanity.ticksAwake;
-		
-		sanity.setValue(this.effects.apply(target, sanity.getValue()));
+		this.effects.apply(sanity, target);
+		sanity.checkoutValueChange();
 	}
 
 	@Override
@@ -108,22 +102,18 @@ public class SanityModifier implements StatProvider {
 	@SubscribeEvent
 	public static void registerStat(StatRegisterEvent event)
 	{
-		event.register(SanityModifier.instance);
+		event.register(SurvivalInc.proxy.sanity);
 	}
 	
-	public static float sleepDeprivation(EntityPlayer player, float current)
-	{
-		StatTracker tracker = player.getCapability(StatCapability.target, null);
-		SanityRecord record = (SanityRecord)tracker.getRecord(SanityModifier.instance);
-		
+	public static void sleepDeprivation(SanityRecord record, EntityPlayer player)
+	{		
 		if(record.getTicksAwake() > ModConfig.SANITY.sleepDeprivationMin)
 		{
-			current -= (float)ModConfig.SANITY.sleepDeprivationDebuff * (record.getTicksAwake() - ModConfig.SANITY.sleepDeprivationMin) / (ModConfig.SANITY.sleepDeprivationMax - ModConfig.SANITY.sleepDeprivationMin);
+			record.addToValue(-(float)ModConfig.SANITY.sleepDeprivationDebuff * (record.getTicksAwake() - ModConfig.SANITY.sleepDeprivationMin) / (ModConfig.SANITY.sleepDeprivationMax - ModConfig.SANITY.sleepDeprivationMin));
 		}
-		return current;
 	}
 	
-	public static void playStaticNoise(EntityPlayer player, float current)
+	public static void playStaticNoise(SanityRecord record, EntityPlayer player)
 	{
 		float threshold = (float)ModConfig.SANITY.hallucinationThreshold * SanityRecord.values.upperEndpoint();
 		if(player.world.getWorldTime() % 160 == 0)
@@ -136,10 +126,10 @@ public class SanityModifier implements StatProvider {
 			Minecraft client = Minecraft.getMinecraft();
 			if(player != client.player) return;
 			
-			if(player.world.rand.nextFloat() < 0.25F && current < threshold)
+			if(player.world.rand.nextFloat() < 0.25F && record.getValue() < threshold)
 			{
 				// 1F - current / threshold => this calculation is used to increase the volume for "more insane" players, up to 100% original volume (applied at sanity 0)
-				float volume = (1F - current / threshold) * (float)ModConfig.SANITY.staticBuzzIntensity;
+				float volume = (1F - record.getValue() / threshold) * (float)ModConfig.SANITY.staticBuzzIntensity;
 				player.world.playSound(player.posX, player.posY, player.posZ, staticbuzz, SoundCategory.AMBIENT, volume, 1, false);
 				client.entityRenderer.loadShader(distortshader);
 			}
@@ -155,7 +145,7 @@ public class SanityModifier implements StatProvider {
 		}
 	}
 	
-	public static float whenInDark(EntityPlayer player, float value)
+	public static void whenInDark(SanityRecord record, EntityPlayer player)
 	{
 		int lightlevel = player.world.getLight(new BlockPos(player));
 		
@@ -163,24 +153,22 @@ public class SanityModifier implements StatProvider {
 		if(lightlevel < ModConfig.SANITY.comfortLightLevel)
 		{
 			float darknesslevel = (float)(ModConfig.SANITY.comfortLightLevel - lightlevel) / (float)ModConfig.SANITY.comfortLightLevel;
-			value += (float)ModConfig.SANITY.darkSpookFactorBase * -darknesslevel;
+			record.addToValue((float)ModConfig.SANITY.darkSpookFactorBase * -darknesslevel);
 		}
-		return value;
 	}
 	
-	public static float whenWet(EntityPlayer player, float value)
+	public static void whenWet(SanityRecord record, EntityPlayer player)
 	{
 		float boundary = (float)ModConfig.SANITY.wetnessAnnoyanceThreshold;
 		StatTracker stats = player.getCapability(StatCapability.target, null);
-		SimpleStatRecord wetness = (SimpleStatRecord)stats.getRecord(DefaultStats.WETNESS);
+		SimpleStatRecord wetness = (SimpleStatRecord)stats.getRecord(SurvivalInc.proxy.wetness);
 		float annoyance = (wetness.getValue() - wetness.valuerange.upperEndpoint()) / 10000;
 		annoyance = (boundary / -10000) - annoyance;
 		
-		if(wetness.getValue() >= boundary) value -= annoyance;
-		return value;
+		if(wetness.getValue() >= boundary) record.addToValue(-annoyance);
 	}
 	
-	public static float whenNearEntities(EntityPlayer player, float value)
+	public static void whenNearEntities(SanityRecord record, EntityPlayer player)
 	{
 		BlockPos origin = player.getPosition();
 		Vec3i offset = new Vec3i(3, 3, 3);
@@ -188,6 +176,7 @@ public class SanityModifier implements StatProvider {
 		AxisAlignedBB box = new AxisAlignedBB(origin.subtract(offset), origin.add(offset));
 		List<EntityCreature> entities = player.world.getEntitiesWithinAABB(EntityCreature.class, box);
 		
+		float value = record.getValue();
 		for(EntityCreature creature : entities)
 		{
 			if(creature instanceof EntityTameable)
@@ -202,7 +191,7 @@ public class SanityModifier implements StatProvider {
 			else if(creature instanceof EntityMob)
 				value -= ModConfig.SANITY.hostileMobModifier;
 		}
-		return value;
+		record.setValue(value);
 	}
 	
 	@SubscribeEvent
@@ -230,7 +219,7 @@ public class SanityModifier implements StatProvider {
 		if(event.shouldSetSpawn()) // If the "lying in bed" was successful (the player actually fell asleep)
 		{
 			StatTracker stats = player.getCapability(StatCapability.target, null);
-			SanityRecord sanity = (SanityRecord)stats.getRecord(SanityModifier.instance);
+			SanityRecord sanity = (SanityRecord)stats.getRecord(SurvivalInc.proxy.sanity);
 			sanity.addToValue(sanity.valuerange.upperEndpoint() * (float)ModConfig.SANITY.sleepResoration);
 			sanity.resetSleep();
 			SurvivalInc.proxy.net.sendToAll(new StatSyncMessage(player));
@@ -247,12 +236,12 @@ public class SanityModifier implements StatProvider {
 			try
 			{
 				// Try to get the modifier from the map (throws NPE when no such mapping exists)
-				float mod = SanityModifier.instance.foodSanityMap.get(event.getItem().getItem());
+				float mod = SanityModifier.foodSanityMap.get(event.getItem().getItem());
 				
 				// Modify the sanity value
 				EntityPlayer player = (EntityPlayer)ent;
 				StatTracker stats = player.getCapability(StatCapability.target, null);
-				SimpleStatRecord sanity = (SimpleStatRecord)stats.getRecord(SanityModifier.instance);
+				SimpleStatRecord sanity = (SimpleStatRecord)stats.getRecord(SurvivalInc.proxy.sanity);
 				sanity.addToValue(mod);
 			}
 			catch(NullPointerException exc)
@@ -269,7 +258,7 @@ public class SanityModifier implements StatProvider {
 		if(ent instanceof EntityPlayer)
 		{
 			StatTracker stat = ent.getCapability(StatCapability.target, null);
-			SimpleStatRecord sanity = (SimpleStatRecord)stat.getRecord(SanityModifier.instance);
+			SimpleStatRecord sanity = (SimpleStatRecord)stat.getRecord(SurvivalInc.proxy.sanity);
 			sanity.addToValue((float)ModConfig.SANITY.animalTameBoost);
 		}
 	}

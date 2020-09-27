@@ -9,9 +9,6 @@ import enginecrafter77.survivalinc.ghost.GhostEnergyBar;
 import enginecrafter77.survivalinc.ghost.RenderGhost;
 import enginecrafter77.survivalinc.item.ItemCanteen;
 import enginecrafter77.survivalinc.season.LeafColorer;
-import enginecrafter77.survivalinc.stats.impl.DefaultStats;
-import enginecrafter77.survivalinc.stats.impl.HeatModifier;
-import enginecrafter77.survivalinc.stats.impl.SanityModifier;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -32,10 +29,10 @@ public class ClientProxy extends CommonProxy {
 	{
 		super.init(event);
 		
-		if(ModConfig.HEAT.enabled) RenderHUD.instance.add(new SimpleStatBar(HeatModifier.instance, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/heat.png"), new Color(0xE80000)));
-		if(ModConfig.HYDRATION.enabled) RenderHUD.instance.add(new SimpleStatBar(DefaultStats.HYDRATION, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/hydration.png"), new Color(ItemCanteen.waterBarColor)));
-		if(ModConfig.SANITY.enabled) RenderHUD.instance.add(new SimpleStatBar(SanityModifier.instance, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/sanity.png"), new Color(0xF6AF25)));
-		if(ModConfig.WETNESS.enabled) RenderHUD.instance.add(new SimpleStatBar(DefaultStats.WETNESS, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/wetness.png"), new Color(0x0047D5)));		
+		if(ModConfig.HEAT.enabled) RenderHUD.instance.add(new SimpleStatBar(SurvivalInc.proxy.heat, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/heat.png"), new Color(0xE80000)));
+		if(ModConfig.HYDRATION.enabled) RenderHUD.instance.add(new SimpleStatBar(SurvivalInc.proxy.hydration, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/hydration.png"), new Color(ItemCanteen.waterBarColor)));
+		if(ModConfig.SANITY.enabled) RenderHUD.instance.add(new SimpleStatBar(SurvivalInc.proxy.sanity, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/sanity.png"), new Color(0xF6AF25)));
+		if(ModConfig.WETNESS.enabled) RenderHUD.instance.add(new SimpleStatBar(SurvivalInc.proxy.wetness, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/wetness.png"), new Color(0x0047D5)));		
 		if(ModConfig.GHOST.enabled) RenderHUD.instance.add(new GhostEnergyBar());
 	}
 	

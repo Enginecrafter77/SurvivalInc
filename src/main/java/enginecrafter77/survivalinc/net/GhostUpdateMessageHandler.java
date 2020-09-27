@@ -1,7 +1,6 @@
 package enginecrafter77.survivalinc.net;
 
 import enginecrafter77.survivalinc.SurvivalInc;
-import enginecrafter77.survivalinc.ghost.GhostProvider;
 import enginecrafter77.survivalinc.stats.StatCapability;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
@@ -18,7 +17,7 @@ public class GhostUpdateMessageHandler implements IMessageHandler<GhostUpdateMes
 	{
 		WorldClient world = Minecraft.getMinecraft().world;
 		EntityPlayer player = world.getPlayerEntityByUUID(message.player);
-		player.getCapability(StatCapability.target, null).setRecord(GhostProvider.instance, message.record);
+		player.getCapability(StatCapability.target, null).setRecord(SurvivalInc.proxy.ghost, message.record);
 		SurvivalInc.logger.info("Received ghost update message ({}) about player {}", message.record, player.getDisplayName());
 		return null;
 	}

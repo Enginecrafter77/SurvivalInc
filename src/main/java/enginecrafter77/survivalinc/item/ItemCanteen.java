@@ -28,8 +28,6 @@ import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatTracker;
-import enginecrafter77.survivalinc.stats.impl.DefaultStats;
-
 import java.util.List;
 
 public class ItemCanteen extends Item {
@@ -55,7 +53,7 @@ public class ItemCanteen extends Item {
 			NBTTagCompound nbt = stack.getTagCompound();
 			int stored = nbt.getInteger("stored");
 			nbt.setInteger("stored", stored - 32);
-			SimpleStatRecord hydration = (SimpleStatRecord)stats.getRecord(DefaultStats.HYDRATION);
+			SimpleStatRecord hydration = (SimpleStatRecord)stats.getRecord(SurvivalInc.proxy.hydration);
 			hydration.addToValue(10F);
 		}
 		return stack;

@@ -7,14 +7,15 @@ import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.net.WaterDrinkMessage;
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import enginecrafter77.survivalinc.stats.StatCapability;
+import enginecrafter77.survivalinc.stats.StatProvider;
+import enginecrafter77.survivalinc.stats.StatRecord;
 import enginecrafter77.survivalinc.stats.StatRegisterEvent;
 import enginecrafter77.survivalinc.stats.StatTracker;
-import enginecrafter77.survivalinc.stats.effect.ConstantStatEffect;
 import enginecrafter77.survivalinc.stats.effect.DamageStatEffect;
-import enginecrafter77.survivalinc.stats.effect.FunctionalEffect;
+import enginecrafter77.survivalinc.stats.effect.EffectApplicator;
 import enginecrafter77.survivalinc.stats.effect.FunctionalEffectFilter;
 import enginecrafter77.survivalinc.stats.effect.PotionStatEffect;
-import enginecrafter77.survivalinc.stats.effect.SideEffectFilter;
+import enginecrafter77.survivalinc.stats.effect.ValueStatEffect;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -23,6 +24,7 @@ import net.minecraft.init.SoundEvents;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -33,44 +35,49 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import net.minecraftforge.fml.relauncher.Side;
 
-public class HydrationModifier implements IMessageHandler<WaterDrinkMessage, IMessage> {
-	
+public class HydrationModifier implements IMessageHandler<WaterDrinkMessage, IMessage>, StatProvider {
+	private static final long serialVersionUID = 6252973395407389818L;
+
 	public static final DamageSource DEHYDRATION = new DamageSource("survivalinc_dehydration").setDamageIsAbsolute().setDamageBypassesArmor();
 	
-	public static FunctionalEffectFilter isOutsideOverworld = FunctionalEffectFilter.byPlayer((EntityPlayer player) -> player.dimension != 0);
+	public static FunctionalEffectFilter<Object> isOutsideOverworld = FunctionalEffectFilter.byPlayer((EntityPlayer player) -> player.dimension != 0);
 	
-	public static void init()
+	public final EffectApplicator<SimpleStatRecord> effects;
+	
+	public HydrationModifier()
 	{
-		FunctionalEffectFilter nasfat = FunctionalEffectFilter.byValue(Range.lessThan(15F));
-		DefaultStats.HYDRATION.effects.addEffect(new ConstantStatEffect(ConstantStatEffect.Operation.OFFSET, -0.006F), HydrationModifier.isOutsideOverworld);
-		DefaultStats.HYDRATION.effects.addEffect(new ConstantStatEffect(ConstantStatEffect.Operation.OFFSET, -0.5F), new FunctionalEffectFilter((EntityPlayer player, Float value) -> player.isInLava()));
-		DefaultStats.HYDRATION.effects.addEffect(new DamageStatEffect(HydrationModifier.DEHYDRATION, 4F, 0), FunctionalEffectFilter.byValue(Range.lessThan(5F)), new SideEffectFilter(Side.SERVER));
-		DefaultStats.HYDRATION.effects.addEffect(new PotionStatEffect(MobEffects.SLOWNESS, 5), FunctionalEffectFilter.byValue(Range.lessThan(40F)), new SideEffectFilter(Side.SERVER));
-		DefaultStats.HYDRATION.effects.addEffect(new PotionStatEffect(MobEffects.WEAKNESS, 5), FunctionalEffectFilter.byValue(Range.lessThan(40F)), new SideEffectFilter(Side.SERVER));
-		DefaultStats.HYDRATION.effects.addEffect(new PotionStatEffect(MobEffects.MINING_FATIGUE, 5), nasfat, new SideEffectFilter(Side.SERVER));
-		DefaultStats.HYDRATION.effects.addEffect(new PotionStatEffect(MobEffects.NAUSEA, 5), nasfat, new SideEffectFilter(Side.SERVER));
-		DefaultStats.HYDRATION.effects.addEffect(new FunctionalEffect(HydrationModifier::naturalDrain));
+		FunctionalEffectFilter<SimpleStatRecord> nasfat = FunctionalEffectFilter.byValue(Range.lessThan(15F));
+		this.effects = new EffectApplicator<SimpleStatRecord>();
+		
+		this.effects.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, -0.006F)).addFilter(HydrationModifier.isOutsideOverworld);
+		this.effects.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, -0.5F)).addFilter(FunctionalEffectFilter.byPlayer(EntityPlayer::isInLava));
+		this.effects.add(new DamageStatEffect(HydrationModifier.DEHYDRATION, 4F, 0)).addFilter(FunctionalEffectFilter.byValue(Range.lessThan(5F)));
+		this.effects.add(new PotionStatEffect(MobEffects.SLOWNESS, 5)).addFilter(FunctionalEffectFilter.byValue(Range.lessThan(40F)));
+		this.effects.add(new PotionStatEffect(MobEffects.WEAKNESS, 5)).addFilter(FunctionalEffectFilter.byValue(Range.lessThan(40F)));
+		this.effects.add(new PotionStatEffect(MobEffects.MINING_FATIGUE, 5)).addFilter(nasfat);
+		this.effects.add(new PotionStatEffect(MobEffects.NAUSEA, 5)).addFilter(nasfat);
+		this.effects.add(HydrationModifier::naturalDrain);
 	}
 	
-	public static float naturalDrain(EntityPlayer player, float value)
+	@Override
+	public void update(EntityPlayer target, StatRecord record)
 	{
-		float drain = -(float)ModConfig.HYDRATION.passiveDrain;
-		if(ModConfig.HEAT.enabled)
-		{
-			StatTracker tracker = player.getCapability(StatCapability.target, null);
-			SimpleStatRecord heat = (SimpleStatRecord)tracker.getRecord(HeatModifier.instance);
-			if(((heat.getValue() - heat.valuerange.lowerEndpoint()) / (heat.valuerange.upperEndpoint() - heat.valuerange.lowerEndpoint())) > ModConfig.HYDRATION.sweatingThreshold)
-				drain *= ModConfig.HYDRATION.sweatingMultiplier;
-		}
-		return value + drain;
+		SimpleStatRecord hydration = (SimpleStatRecord)record;
+		this.effects.apply(hydration, target);
+		hydration.checkoutValueChange();
 	}
-	
-	@SubscribeEvent
-	public static void registerStat(StatRegisterEvent event)
+
+	@Override
+	public ResourceLocation getStatID()
 	{
-		event.register(DefaultStats.HYDRATION);
+		return new ResourceLocation(SurvivalInc.MOD_ID, "hydration");
+	}
+
+	@Override
+	public StatRecord createNewRecord()
+	{
+		return new SimpleStatRecord(Range.closed(0F, 100F));
 	}
 	
 	/**
@@ -91,7 +98,7 @@ public class HydrationModifier implements IMessageHandler<WaterDrinkMessage, IMe
 		{
 			SurvivalInc.logger.info("Player drink request authorized.");
 			StatTracker tracker = player.getCapability(StatCapability.target, null);
-			SimpleStatRecord hydration = (SimpleStatRecord)tracker.getRecord(DefaultStats.HYDRATION);
+			SimpleStatRecord hydration = (SimpleStatRecord)tracker.getRecord(SurvivalInc.proxy.hydration);
 			hydration.addToValue((float)ModConfig.HYDRATION.drinkAmount);
 			HydrationModifier.spawnWaterDrinkParticles(world, water_rt.hitVec);
 		}
@@ -99,6 +106,24 @@ public class HydrationModifier implements IMessageHandler<WaterDrinkMessage, IMe
 		return null;
 	}
 	
+	public static void naturalDrain(SimpleStatRecord record, EntityPlayer player)
+	{
+		float drain = (float)ModConfig.HYDRATION.passiveDrain;
+		if(ModConfig.HEAT.enabled)
+		{
+			StatTracker tracker = player.getCapability(StatCapability.target, null);
+			SimpleStatRecord heat = (SimpleStatRecord)tracker.getRecord(SurvivalInc.proxy.wetness);
+			if(((heat.getValue() - heat.valuerange.lowerEndpoint()) / (heat.valuerange.upperEndpoint() - heat.valuerange.lowerEndpoint())) > ModConfig.HYDRATION.sweatingThreshold)
+				drain *= ModConfig.HYDRATION.sweatingMultiplier;
+		}
+		record.addToValue(-drain);
+	}
+	
+	@SubscribeEvent
+	public static void registerStat(StatRegisterEvent event)
+	{
+		event.register(SurvivalInc.proxy.hydration);
+	}
 	
 	/**
 	 * This method gets run only on client. It basically sends "water drink request"
@@ -121,7 +146,7 @@ public class HydrationModifier implements IMessageHandler<WaterDrinkMessage, IMe
 		{
 			// Modify the client tracker
 			StatTracker tracker = player.getCapability(StatCapability.target, null);
-			SimpleStatRecord hydration = (SimpleStatRecord)tracker.getRecord(DefaultStats.HYDRATION);
+			SimpleStatRecord hydration = (SimpleStatRecord)tracker.getRecord(SurvivalInc.proxy.hydration);
 			hydration.addToValue((float)ModConfig.HYDRATION.drinkAmount);
 			SurvivalInc.proxy.net.sendToServer(new WaterDrinkMessage(event.getHand()));
 		}
@@ -145,7 +170,7 @@ public class HydrationModifier implements IMessageHandler<WaterDrinkMessage, IMe
 		if(water_rt != null)
 		{
 			StatTracker tracker = player.getCapability(StatCapability.target, null);
-			SimpleStatRecord hydration = (SimpleStatRecord)tracker.getRecord(DefaultStats.HYDRATION);
+			SimpleStatRecord hydration = (SimpleStatRecord)tracker.getRecord(SurvivalInc.proxy.hydration);
 			hydration.addToValue((float)ModConfig.HYDRATION.drinkAmount);
 			if(!player.world.isRemote) HydrationModifier.spawnWaterDrinkParticles((WorldServer)player.world, water_rt.hitVec);
 		}

@@ -5,15 +5,20 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
+import com.google.common.collect.Range;
+
+import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
+import enginecrafter77.survivalinc.stats.SimpleStatRecord;
+import enginecrafter77.survivalinc.stats.StatProvider;
+import enginecrafter77.survivalinc.stats.StatRecord;
 import enginecrafter77.survivalinc.stats.StatRegisterEvent;
-import enginecrafter77.survivalinc.stats.effect.ConstantStatEffect;
-import enginecrafter77.survivalinc.stats.effect.FunctionalEffect;
+import enginecrafter77.survivalinc.stats.effect.EffectApplicator;
 import enginecrafter77.survivalinc.stats.effect.FunctionalEffectFilter;
 import enginecrafter77.survivalinc.stats.effect.SideEffectFilter;
+import enginecrafter77.survivalinc.stats.effect.ValueStatEffect;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -21,10 +26,10 @@ import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.Side;
 
 /*
  * This is where the magic of changing one's wetness occurs. You'll most likely be here.
@@ -37,25 +42,28 @@ import net.minecraftforge.fml.relauncher.Side;
  * keep the schoperation's comment above. I find it funny.
  */
 
-public class WetnessModifier {
-	public static Map<Block, Float> humiditymap;
-	
+public class WetnessModifier implements StatProvider {
+	private static final long serialVersionUID = -4227255838351827965L;
+
 	public static UUID wetnessSlowdown = UUID.randomUUID();
 	
-	public static void init()
+	public static final Map<Block, Float> humiditymap = new HashMap<Block, Float>();
+	public final EffectApplicator<SimpleStatRecord> effects;
+	
+	public WetnessModifier()
 	{
-		DefaultStats.WETNESS.effects.addEffect(new ConstantStatEffect(ConstantStatEffect.Operation.OFFSET, 0.01F), new FunctionalEffectFilter((EntityPlayer player, Float value) -> player.world.isRainingAt(player.getPosition().up())));
-		DefaultStats.WETNESS.effects.addEffect(new ConstantStatEffect(ConstantStatEffect.Operation.OFFSET, -0.08F), HydrationModifier.isOutsideOverworld);
-		DefaultStats.WETNESS.effects.addEffect(new ConstantStatEffect(ConstantStatEffect.Operation.OFFSET, -0.8F), new FunctionalEffectFilter((EntityPlayer player, Float value) -> player.isBurning()));
+		this.effects = new EffectApplicator<SimpleStatRecord>();
 		
-		DefaultStats.WETNESS.effects.addEffect(new FunctionalEffect(WetnessModifier::scanSurroundings));
-		DefaultStats.WETNESS.effects.addEffect(new FunctionalEffect(WetnessModifier::naturalDrying));
-		DefaultStats.WETNESS.effects.addEffect(new FunctionalEffect(WetnessModifier::whenInWater));
+		this.effects.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, 0.01F)).addFilter(FunctionalEffectFilter.byPlayer((EntityPlayer player) -> player.world.isRainingAt(player.getPosition().up())));
+		this.effects.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, -0.08F)).addFilter(HydrationModifier.isOutsideOverworld);
+		this.effects.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, -0.8F)).addFilter(FunctionalEffectFilter.byPlayer(EntityPlayer::isBurning));
 		
-		DefaultStats.WETNESS.effects.addEffect(new FunctionalEffect(WetnessModifier::causeDripping), new SideEffectFilter(Side.CLIENT));
-		DefaultStats.WETNESS.effects.addEffect(new FunctionalEffect(WetnessModifier::slowDown), new SideEffectFilter(Side.SERVER));
+		this.effects.add(WetnessModifier::causeDripping).addFilter(SideEffectFilter.CLIENT);
+		this.effects.add(WetnessModifier::slowDown).addFilter(SideEffectFilter.SERVER);
+		this.effects.add(WetnessModifier::scanSurroundings);
+		this.effects.add(WetnessModifier::naturalDrying);
+		this.effects.add(WetnessModifier::whenInWater);
 		
-		WetnessModifier.humiditymap = new HashMap<Block, Float>();
 		WetnessModifier.humiditymap.put(Blocks.FIRE, -0.5F);
 		WetnessModifier.humiditymap.put(Blocks.LAVA, -1F);
 		WetnessModifier.humiditymap.put(Blocks.FLOWING_LAVA, -1F);
@@ -63,15 +71,35 @@ public class WetnessModifier {
 		WetnessModifier.humiditymap.put(Blocks.MAGMA, -0.4F);
 	}
 	
+	@Override
+	public void update(EntityPlayer target, StatRecord record)
+	{
+		SimpleStatRecord wetness = (SimpleStatRecord)record;
+		this.effects.apply(wetness, target);
+		wetness.checkoutValueChange();
+	}
+
+	@Override
+	public ResourceLocation getStatID()
+	{
+		return new ResourceLocation(SurvivalInc.MOD_ID, "wetness");
+	}
+
+	@Override
+	public SimpleStatRecord createNewRecord()
+	{
+		return new SimpleStatRecord(Range.closed(0F, 100F));
+	}
+	
 	@SubscribeEvent
 	public static void registerStat(StatRegisterEvent event)
 	{
-		event.register(DefaultStats.WETNESS);
+		event.register(SurvivalInc.proxy.wetness);
 	}
 	
-	public static void slowDown(EntityPlayer player, float current)
+	public static void slowDown(SimpleStatRecord record, EntityPlayer player)
 	{
-		float max = DefaultStats.WETNESS.max;
+		float current = record.getValue(), max = record.valuerange.upperEndpoint();
 		float threshold = (float)ModConfig.WETNESS.slowdownThreshold / 100F;
 		
 		// This is the math part. I am way less worried about impact of this. Mmmm math...
@@ -106,11 +134,11 @@ public class WetnessModifier {
 	 * @param player The player to apply for
 	 * @param current The current level of wetness
 	 */
-	public static void causeDripping(EntityPlayer player, float current)
+	public static void causeDripping(SimpleStatRecord record, EntityPlayer player)
 	{
-		WorldClient world = Minecraft.getMinecraft().world;
+		WorldClient world = (WorldClient)player.world;
 		Random rng = world.rand;
-		float coefficient = (current / DefaultStats.WETNESS.max);
+		float coefficient = (record.getValue() / record.valuerange.upperEndpoint());
 		if(rng.nextFloat() < coefficient)
 		{
 			for(int index = 0; index < 4; index++)
@@ -120,30 +148,27 @@ public class WetnessModifier {
 		}
 	}
 	
-	public static float whenInWater(EntityPlayer player, float value)
+	public static void whenInWater(SimpleStatRecord record, EntityPlayer player)
 	{
 		if(player.isInWater())
 		{
 			Material headBlockMaterial = player.world.getBlockState(new BlockPos(player).up()).getMaterial();
-			if(headBlockMaterial == Material.WATER) value += 5F;
-			else if(value < 0.4F * DefaultStats.WETNESS.max) value += 1.25F;
+			if(headBlockMaterial == Material.WATER) record.addToValue(5F);
+			else if(record.getValue() < 0.4F * record.valuerange.upperEndpoint()) record.addToValue(1.25F);
 		}
-		
-		return value;
 	}
 	
-	public static float naturalDrying(EntityPlayer player, float value)
+	public static void naturalDrying(SimpleStatRecord record, EntityPlayer player)
 	{
 		if(!player.isWet())
 		{
 			float rate = (float)ModConfig.WETNESS.passiveDryRate;
 			if(player.world.isDaytime() && player.world.canBlockSeeSky(player.getPosition())) rate *= ModConfig.WETNESS.sunlightMultiplier;
-			value -= rate;
+			record.addToValue(-rate);
 		}
-		return value;
 	}
 	
-	public static float scanSurroundings(EntityPlayer player, float value)
+	public static void scanSurroundings(SimpleStatRecord record, EntityPlayer player)
 	{
 		Vec3i offset = new Vec3i(2, 1, 2);
 		BlockPos origin = new BlockPos(player);
@@ -162,6 +187,6 @@ public class WetnessModifier {
 			}
 		}
 		if(player.isWet()) diff /= 2F;
-		return value + diff;
+		record.addToValue(diff);
 	}
 }

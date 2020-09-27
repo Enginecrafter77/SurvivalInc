@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import enginecrafter77.survivalinc.config.ModConfig;
-import enginecrafter77.survivalinc.stats.effect.StatEffect;
+import enginecrafter77.survivalinc.stats.effect.CalculatorFunction;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
@@ -20,7 +20,7 @@ import net.minecraft.item.ItemStack;
  * @see #addArmorType(net.minecraft.item.ItemArmor.ArmorMaterial, float)
  * @author Enginecrafter77
  */
-public class ArmorModifier implements StatEffect {
+public class ArmorModifier implements CalculatorFunction {
 	/** The number of armor slots */
 	protected static final int armorPieces = 4;
 	

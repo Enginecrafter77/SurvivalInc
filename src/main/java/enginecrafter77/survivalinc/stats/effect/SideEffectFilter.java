@@ -1,6 +1,5 @@
 package enginecrafter77.survivalinc.stats.effect;
 
-import enginecrafter77.survivalinc.stats.effect.FilteredEffectApplicator.EffectFilter;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.relauncher.Side;
 
@@ -12,18 +11,20 @@ import net.minecraftforge.fml.relauncher.Side;
  * side was client, the expected value of world.isRemote is true.
  * @author Enginecrafter77
  */
-public class SideEffectFilter implements EffectFilter {
+public enum SideEffectFilter implements EffectFilter<Object> {
 
-	/** The side the effect should only launch on */
+	CLIENT(Side.CLIENT),
+	SERVER(Side.SERVER);
+	
 	public final Side side;
 	
-	public SideEffectFilter(Side side)
+	private SideEffectFilter(Side side)
 	{
 		this.side = side;
 	}
-	
+
 	@Override
-	public boolean isApplicableFor(EntityPlayer player, float value)
+	public boolean isApplicableFor(Object record, EntityPlayer player)
 	{
 		return side.isClient() == player.world.isRemote;
 	}

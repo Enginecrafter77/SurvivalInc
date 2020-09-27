@@ -15,6 +15,7 @@ import enginecrafter77.survivalinc.season.SeasonUpdateEvent;
 import enginecrafter77.survivalinc.season.melting.MeltingController;
 import enginecrafter77.survivalinc.season.melting.MeltingController.MelterEntry;
 import enginecrafter77.survivalinc.stats.StatCommand;
+import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatRegisterDispatcher;
 import enginecrafter77.survivalinc.stats.StatStorage;
 import enginecrafter77.survivalinc.stats.StatTracker;
@@ -37,6 +38,8 @@ import net.minecraftforge.fml.relauncher.Side;
 public class CommonProxy {
 	
 	public SimpleNetworkWrapper net;
+	
+	public StatProvider heat, hydration, sanity, wetness, ghost;
 	
 	public void preInit(FMLPreInitializationEvent event)
 	{
@@ -64,29 +67,33 @@ public class CommonProxy {
 		
 		if(ModConfig.HEAT.enabled)
 		{
+			this.heat = new HeatModifier();
 			MinecraftForge.EVENT_BUS.register(HeatModifier.class);
-			HeatModifier.instance.init();
 		}
 		
 		if(ModConfig.HYDRATION.enabled)
 		{
+			this.hydration = new HydrationModifier();
 			MinecraftForge.EVENT_BUS.register(HydrationModifier.class);
-			HydrationModifier.init();
 		}
 		
 		if(ModConfig.SANITY.enabled)
 		{
+			this.sanity = new SanityModifier();
 			MinecraftForge.EVENT_BUS.register(SanityModifier.class);
-			SanityModifier.instance.init();
 		}
 		
 		if(ModConfig.WETNESS.enabled)
 		{
+			this.wetness = new WetnessModifier();
 			MinecraftForge.EVENT_BUS.register(WetnessModifier.class);
-			WetnessModifier.init();
 		}
 		
-		if(ModConfig.GHOST.enabled) MinecraftForge.EVENT_BUS.register(GhostProvider.class);
+		if(ModConfig.GHOST.enabled)
+		{
+			this.ghost = new GhostProvider();
+			MinecraftForge.EVENT_BUS.register(GhostProvider.class);
+		}
 	}
 	
 	public void postInit(FMLPostInitializationEvent event)

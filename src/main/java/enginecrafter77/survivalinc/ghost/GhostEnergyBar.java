@@ -76,7 +76,7 @@ public class GhostEnergyBar extends Gui implements StatBar {
 	@Override
 	public StatProvider getProvider()
 	{
-		return GhostProvider.instance;
+		return SurvivalInc.proxy.ghost;
 	}
 
 	@Override

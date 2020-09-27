@@ -14,12 +14,10 @@ import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import enginecrafter77.survivalinc.stats.effect.DamageStatEffect;
-import enginecrafter77.survivalinc.stats.effect.FilteredEffectApplicator;
-import enginecrafter77.survivalinc.stats.effect.FunctionalEffect;
+import enginecrafter77.survivalinc.stats.effect.EffectApplicator;
+import enginecrafter77.survivalinc.stats.effect.FunctionalCalculator;
 import enginecrafter77.survivalinc.stats.effect.FunctionalEffectFilter;
 import enginecrafter77.survivalinc.stats.effect.PotionStatEffect;
-import enginecrafter77.survivalinc.stats.effect.SideEffectFilter;
-import enginecrafter77.survivalinc.stats.effect.SimpleEffectApplicator;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.MobEffects;
@@ -31,7 +29,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.Side;
 
 /**
  * The class that handles heat radiation and
@@ -45,30 +42,24 @@ public class HeatModifier implements StatProvider {
 	public static final DamageSource HYPERTHERMIA = new DamageSource("survivalinc_hyperthermia").setDamageIsAbsolute().setDamageBypassesArmor();
 	public static final DamageSource HYPOTHERMIA = new DamageSource("survivalinc_hypothermia").setDamageIsAbsolute().setDamageBypassesArmor();
 	
-	public static final HeatModifier instance = new HeatModifier();
-	public static final ResourceLocation identifier = new ResourceLocation(SurvivalInc.MOD_ID, "heat");
-	
 	public static Map<Block, Float> blockHeatMap = new HashMap<Block, Float>();
 	public static ArmorModifier armorInsulation = new ArmorModifier();
 	
-	public static SimpleEffectApplicator targettemp = new SimpleEffectApplicator();
-	public static SimpleEffectApplicator exchangerate = new SimpleEffectApplicator();
-	public static FilteredEffectApplicator consequences = new FilteredEffectApplicator();
+	public static FunctionalCalculator targettemp = new FunctionalCalculator();
+	public static FunctionalCalculator exchangerate = new FunctionalCalculator();
+	public static EffectApplicator<SimpleStatRecord> consequences = new EffectApplicator<SimpleStatRecord>();
 	
-	// Make it a singleton
-	private HeatModifier() {}
-	
-	public void init()
+	public HeatModifier()
 	{
-		HeatModifier.targettemp.add(new FunctionalEffect(HeatModifier::whenNearHotBlock));
+		HeatModifier.targettemp.add(HeatModifier::whenNearHotBlock);
 		
-		if(ModConfig.WETNESS.enabled) HeatModifier.exchangerate.add(new FunctionalEffect(HeatModifier::applyWetnessCooldown));
+		if(ModConfig.WETNESS.enabled) HeatModifier.exchangerate.add(HeatModifier::applyWetnessCooldown);
 		HeatModifier.exchangerate.add(HeatModifier.armorInsulation);
 		
-		HeatModifier.consequences.addEffect(new PotionStatEffect(MobEffects.WEAKNESS, 0), FunctionalEffectFilter.byValue(Range.lessThan(25F)), new SideEffectFilter(Side.SERVER));
-		HeatModifier.consequences.addEffect(new PotionStatEffect(MobEffects.MINING_FATIGUE, 0), FunctionalEffectFilter.byValue(Range.lessThan(20F)), new SideEffectFilter(Side.SERVER));
-		HeatModifier.consequences.addEffect(new DamageStatEffect(HYPOTHERMIA, (float)ModConfig.HEAT.damageAmount, 10), FunctionalEffectFilter.byValue(Range.lessThan(10F)), new SideEffectFilter(Side.SERVER));
-		HeatModifier.consequences.addEffect(new FunctionalEffect(HeatModifier::onHighTemperature), FunctionalEffectFilter.byValue(Range.greaterThan(110F)), new SideEffectFilter(Side.SERVER));
+		HeatModifier.consequences.add(new DamageStatEffect(HYPOTHERMIA, (float)ModConfig.HEAT.damageAmount, 10)).addFilter(FunctionalEffectFilter.byValue(Range.lessThan(10F)));
+		HeatModifier.consequences.add(new PotionStatEffect(MobEffects.MINING_FATIGUE, 0)).addFilter(FunctionalEffectFilter.byValue(Range.lessThan(20F)));
+		HeatModifier.consequences.add(new PotionStatEffect(MobEffects.WEAKNESS, 0)).addFilter(FunctionalEffectFilter.byValue(Range.lessThan(25F)));
+		HeatModifier.consequences.add(HeatModifier::onHighTemperature).addFilter(FunctionalEffectFilter.byValue(Range.greaterThan(110F)));
 		
 		// Shit, these repeated parsers will surely get me a bad codefactor.io mark.
 		// Block temperature map
@@ -93,7 +84,7 @@ public class HeatModifier implements StatProvider {
 	@SubscribeEvent
 	public static void registerStat(StatRegisterEvent event)
 	{
-		event.register(HeatModifier.instance);
+		event.register(SurvivalInc.proxy.heat);
 	}
 	
 	@Override
@@ -118,18 +109,19 @@ public class HeatModifier implements StatProvider {
 		rate = HeatModifier.exchangerate.apply(player, rate);
 		
 		// Apply the "side effects"
-		HeatModifier.consequences.apply(player, heat.getValue());
+		HeatModifier.consequences.apply(heat, player);
 		
 		// If the current value is higher than the target, go down instead of up
 		if(heat.getValue() > target) rate *= -1;
 		// Checkout the rate to the value
 		heat.addToValue(rate);
+		heat.checkoutValueChange();
 	}
 
 	@Override
 	public ResourceLocation getStatID()
 	{
-		return HeatModifier.identifier;
+		return new ResourceLocation(SurvivalInc.MOD_ID, "heat");
 	}
 
 	@Override
@@ -140,7 +132,7 @@ public class HeatModifier implements StatProvider {
 		return record;
 	}
 	
-	public static void onHighTemperature(EntityPlayer player)
+	public static void onHighTemperature(StatRecord record, EntityPlayer player)
 	{
 		if(ModConfig.HEAT.fireDuration > 0)
 		{
@@ -155,7 +147,7 @@ public class HeatModifier implements StatProvider {
 	public static float applyWetnessCooldown(EntityPlayer player, float current)
 	{
 		StatTracker stats = player.getCapability(StatCapability.target, null);
-		SimpleStatRecord wetness = (SimpleStatRecord)stats.getRecord(DefaultStats.WETNESS);
+		SimpleStatRecord wetness = (SimpleStatRecord)stats.getRecord(SurvivalInc.proxy.wetness);
 		return current * (1F + (float)ModConfig.HEAT.wetnessExchangeMultiplier * (wetness.getValue() / wetness.valuerange.upperEndpoint()));
 	}
 	

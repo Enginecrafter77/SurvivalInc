@@ -1,5 +1,6 @@
 package enginecrafter77.survivalinc.stats.effect;
 
+import enginecrafter77.survivalinc.stats.StatRecord;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
@@ -10,8 +11,7 @@ import net.minecraft.potion.PotionEffect;
  * after a specified cooldown 
  * @author Enginecrafter77
  */
-public class PotionStatEffect implements StatEffect
-{	
+public class PotionStatEffect implements StatEffect<StatRecord> {
 	/** The effect to apply */
 	public final Potion effect;
 	
@@ -77,15 +77,16 @@ public class PotionStatEffect implements StatEffect
 		this.resetThreshold = threshold;
 		return this;
 	}
-	
+
 	@Override
-	public float apply(EntityPlayer player, float current)
+	public void apply(StatRecord record, EntityPlayer player)
 	{
+		if(player.world.isRemote) return;
+		
 		PotionEffect poteff = player.getActivePotionEffect(effect);
 		if(poteff == null || poteff.getDuration() <= Math.round((float)durationMax * resetThreshold))
 		{
 			player.addPotionEffect(new PotionEffect(effect, durationMax, amplifier, false, this.visible));
 		}
-		return current;
 	}
 }

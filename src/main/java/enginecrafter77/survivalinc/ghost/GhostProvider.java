@@ -5,10 +5,9 @@ import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatRecord;
 import enginecrafter77.survivalinc.stats.StatRegisterEvent;
 import enginecrafter77.survivalinc.stats.StatTracker;
-import enginecrafter77.survivalinc.stats.effect.ConstantStatEffect;
-import enginecrafter77.survivalinc.stats.effect.FilteredEffectApplicator;
-import enginecrafter77.survivalinc.stats.effect.FunctionalEffect;
+import enginecrafter77.survivalinc.stats.effect.EffectApplicator;
 import enginecrafter77.survivalinc.stats.effect.FunctionalEffectFilter;
+import enginecrafter77.survivalinc.stats.effect.ValueStatEffect;
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.net.StatSyncMessage;
 import net.minecraft.entity.player.EntityPlayer;
@@ -19,31 +18,32 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 public class GhostProvider implements StatProvider {
 	private static final long serialVersionUID = -2088047893866334112L;
 	
-	public static final ResourceLocation identifier = new ResourceLocation(SurvivalInc.MOD_ID, "ghostenergy");
-	public static final GhostProvider instance = new GhostProvider();
+	public final EffectApplicator<GhostEnergyRecord> applicator;
 	
-	public final FilteredEffectApplicator applicator;
-	
-	private GhostProvider()
+	public GhostProvider()
 	{
-		this.applicator = new FilteredEffectApplicator();
+		this.applicator = new EffectApplicator<GhostEnergyRecord>();
 		
-		this.applicator.addEffect(new ConstantStatEffect(ConstantStatEffect.Operation.OFFSET, -0.2F), new FunctionalEffectFilter((EntityPlayer player, Float value) -> player.isSprinting()));
-		this.applicator.addEffect(new FunctionalEffect(GhostProvider::duringNight));
+		this.applicator.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, -0.2F)).addFilter(FunctionalEffectFilter.byPlayer(EntityPlayer::isSprinting));
+		this.applicator.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, 0.05F)).addFilter(FunctionalEffectFilter.byPlayer(GhostProvider::duringNight));
 	}
 	
 	@Override
 	public void update(EntityPlayer target, StatRecord record)
 	{
 		GhostEnergyRecord ghost = (GhostEnergyRecord)record;
+		
 		if(ghost.isActive())
-			ghost.setValue(this.applicator.apply(target, ghost.getValue()));
+		{
+			this.applicator.apply(ghost, target);
+			ghost.checkoutValueChange();
+		}
 	}
 	
 	@Override
 	public ResourceLocation getStatID()
 	{
-		return GhostProvider.identifier;
+		return new ResourceLocation(SurvivalInc.MOD_ID, "ghostenergy");
 	}
 
 	@Override
@@ -55,7 +55,7 @@ public class GhostProvider implements StatProvider {
 	@SubscribeEvent
 	public static void registerStat(StatRegisterEvent event)
 	{
-		event.register(GhostProvider.instance);
+		event.register(SurvivalInc.proxy.ghost);
 	}
 	
 	@SubscribeEvent
@@ -65,14 +65,14 @@ public class GhostProvider implements StatProvider {
 		if(!event.isEndConquered())
 		{
 			StatTracker tracker = player.getCapability(StatCapability.target, null);
-			GhostEnergyRecord record = (GhostEnergyRecord)tracker.getRecord(GhostProvider.instance);
+			GhostEnergyRecord record = (GhostEnergyRecord)tracker.getRecord(SurvivalInc.proxy.ghost);
 			record.setActive(true);
 			
 			SurvivalInc.proxy.net.sendToAll(new StatSyncMessage(player));
 		}
 	}
 	
-	public static float duringNight(EntityPlayer player, float value)
+	public static boolean duringNight(EntityPlayer player)
 	{
 		boolean night;
 		if(player.world.isRemote)
@@ -81,8 +81,6 @@ public class GhostProvider implements StatProvider {
 			night = angle < 0.75F && angle > 0.25F;
 		}
 		else night = !player.world.isDaytime();
-		
-		if(night) value += 0.05F;
-		return value;
+		return night;
 	}
 }

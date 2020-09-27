@@ -1,5 +1,6 @@
 package enginecrafter77.survivalinc.ghost;
 
+import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import net.minecraft.client.Minecraft;
@@ -65,7 +66,7 @@ public class RenderGhost extends RenderLivingBase<EntityPlayer> {
 	{
 		EntityPlayer player = event.getEntityPlayer();
 		StatTracker tracker = player.getCapability(StatCapability.target, null);
-		GhostEnergyRecord record = (GhostEnergyRecord)tracker.getRecord(GhostProvider.instance);
+		GhostEnergyRecord record = (GhostEnergyRecord)tracker.getRecord(SurvivalInc.proxy.ghost);
 		
 		if(record.isActive())
 		{
