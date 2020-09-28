@@ -6,6 +6,17 @@ import java.util.List;
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import net.minecraft.entity.player.EntityPlayer;
 
+/**
+ * FunctionalCalculator is a simple mechanism for evaluating
+ * multiple {@link CalculatorFunctions}. The resultant value
+ * from one function is passed onto another, thus forming an
+ * evaluation chain. The return value from the last function
+ * is returned by the calculator. The calculator can also serve
+ * as a {@link StatEffect} on {@link SimpleStatRecord}. This
+ * way the initial value is taken from the record, and is stored
+ * in it afterwards.
+ * @author Enginecrafter77
+ */
 public class FunctionalCalculator implements CalculatorFunction, StatEffect<SimpleStatRecord> {
 
 	public final List<CalculatorFunction> functions;

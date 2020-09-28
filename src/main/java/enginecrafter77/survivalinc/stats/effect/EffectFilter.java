@@ -3,16 +3,18 @@ package enginecrafter77.survivalinc.stats.effect;
 import net.minecraft.entity.player.EntityPlayer;
 
 /**
- * A simple interface which is used to check
- * whether a stat effect is applicable or not.
+ * EffectFilter is a simple functional interface used
+ * by {@link EffectApplicator}, which is used to check
+ * whether the application of an effect is viable for
+ * the specified situation and subject.
  * @author Enginecrafter77
  */
 @FunctionalInterface
 public interface EffectFilter<RECORD> {
 	/**
-	 * @param player The player the stat effect will be run for
-	 * @param value The current value of the stat
-	 * @return True if the stat effect should run, false otherwise
+	 * @param record The stored and manipulated record
+	 * @param player The player the stat effect will be applied on
+	 * @return true if the stat effect should be applied, false otherwise
 	 */
 	public boolean isApplicableFor(RECORD record, EntityPlayer player);
 }

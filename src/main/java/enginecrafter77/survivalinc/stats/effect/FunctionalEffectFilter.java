@@ -7,12 +7,11 @@ import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import net.minecraft.entity.player.EntityPlayer;
 
 /**
- * Much like {@link FunctionalEffect}, this class uses
- * lambdas to implement a simple {@link EffectFilter}.
- * Moreover, this interface provides a {@link #invert()}
- * method. FunctionalEffectFilter is an immutable object.
- * As such, methods like {@link #invert()} return a new
- * instance each time they're called.
+ * FunctionalEffectFilter provides an elegant way of wrapping lambda
+ * functions, while providing an {@link #invert()} method, which
+ * allows for inverting of the filter. FunctionalEffectFilter is an
+ * immutable object. As such, methods like {@link #invert()} return
+ * a new instance each time they're called.
  * @author Enginecrafter77
  */
 public class FunctionalEffectFilter<RECORD> implements EffectFilter<RECORD> {

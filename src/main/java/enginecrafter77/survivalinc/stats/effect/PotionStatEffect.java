@@ -7,8 +7,14 @@ import net.minecraft.potion.PotionEffect;
 
 /**
  * Potion stat effect is an effect which applies
- * a specified {@link PotionEffect} on a player
- * after a specified cooldown 
+ * a specified {@link PotionEffect} on a player.
+ * The PotionStatEffect makes sure the specified
+ * potion effect stays active as long as this effect
+ * is being continuously applied. When the potion
+ * effect timer goes below {@link #resetThreshold}
+ * ticks and this effect is still being applied, the
+ * potion effect resets to the {@link #durationMax}
+ * ticks.
  * @author Enginecrafter77
  */
 public class PotionStatEffect implements StatEffect<StatRecord> {
