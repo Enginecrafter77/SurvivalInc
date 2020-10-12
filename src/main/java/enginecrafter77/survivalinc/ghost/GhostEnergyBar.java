@@ -1,88 +1,80 @@
 package enginecrafter77.survivalinc.ghost;
 
 import enginecrafter77.survivalinc.SurvivalInc;
-import enginecrafter77.survivalinc.client.StatBar;
-import enginecrafter77.survivalinc.stats.StatProvider;
+import enginecrafter77.survivalinc.client.ScalableOverlayElement;
+import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class GhostEnergyBar extends Gui implements StatBar {
+public class GhostEnergyBar extends ScalableOverlayElement {
 	
 	public static final ResourceLocation texture = new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/ghostenergy.png");
 	
-	public int[] parameters;
+	public static final int count = 10;
 	
-	public int count;
+	private StatTracker tracker;
 	
 	public GhostEnergyBar()
 	{
-		this.parameters = new int[4];
-		
-		this.count = 10;
-		this.parameters[2] = this.count * 8;
-		this.parameters[3] = 9;
+		super(GhostEnergyBar.count * 9, 9);
+		this.setAbsolutePosition(-91, -39);
+		this.setRelativePositionBase(0.5F, 1F);
 	}
 	
 	@Override
-	public void draw(ScaledResolution resolution, StatTracker tracker)
+	public void draw(RenderGameOverlayEvent event)
+	{
+		if(this.getRecord().isActive())
+		{
+			switch(event.getType())
+			{
+			case FOOD:
+				super.draw(event);
+			case ARMOR:
+			case HEALTH:
+				event.setCanceled(true);
+			default:
+				break;
+			}
+		}
+	}
+	
+	@Override
+	public void draw()
 	{
 		Minecraft instance = Minecraft.getMinecraft();
-		
-		GhostEnergyRecord energy = (GhostEnergyRecord)tracker.getRecord(this.getProvider());
-		if(!energy.isActive()) return;
-		
-		this.setPosition(Axis.HORIZONTAL, resolution.getScaledWidth() / 2 - 91);
-		this.setPosition(Axis.VERTICAL, resolution.getScaledHeight() - 39);
-		
-		float value = this.count * energy.getValue() / energy.valuerange.upperEndpoint(), part;
+		GhostEnergyRecord energy = this.getRecord();
+		float value = GhostEnergyBar.count * energy.getValue() / energy.valuerange.upperEndpoint();
 		
 		instance.getTextureManager().bindTexture(texture);
 		GlStateManager.enableAlpha();
 		
-		for(int current = 0; current < this.count; current++)
+		for(int current = 0; current < GhostEnergyBar.count; current++)
 		{
-			int offset = this.parameters[0] + (current * 8);
-			Gui.drawModalRectWithCustomSizedTexture(offset, this.parameters[1], 0, 0, 9, this.parameters[3], 9, 18);
+			int offset = this.getX() + current * 8;
+			Gui.drawModalRectWithCustomSizedTexture(offset, this.getY(), 0, 0, 9, this.getHeight(), 9, 18);
 			
 			if(value > 0)
 			{
-				part = value > 1F ? 1F : value;
-				Gui.drawModalRectWithCustomSizedTexture(offset, this.parameters[1], 0, 9, Math.round(part * 9F), this.parameters[3], 9, 18);
+				float part = value > 1F ? 1F : value;
+				Gui.drawModalRectWithCustomSizedTexture(offset, this.getY(), 0, 9, Math.round(part * 9F), this.getHeight(), 9, 18);
 				value -= part;
 			}
 		}
 		GlStateManager.disableAlpha();
 	}
-
-	@Override
-	public int getDimension(Axis axis)
+	
+	public GhostEnergyRecord getRecord()
 	{
-		return this.parameters[axis.ordinal() + 2];
-	}
-
-	@Override
-	public void setPosition(Axis axis, int value)
-	{
-		this.parameters[axis.ordinal()] = value;
-	}
-
-	@Override
-	public StatProvider getProvider()
-	{
-		return SurvivalInc.proxy.ghost;
-	}
-
-	@Override
-	public Axis getMajorAxis()
-	{
-		return Axis.HORIZONTAL;
+		if(this.tracker == null) this.tracker = Minecraft.getMinecraft().player.getCapability(StatCapability.target, null);
+		return (GhostEnergyRecord)this.tracker.getRecord(SurvivalInc.proxy.ghost);
 	}
 
 }

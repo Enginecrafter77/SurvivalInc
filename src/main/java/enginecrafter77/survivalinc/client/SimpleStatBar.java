@@ -2,20 +2,18 @@ package enginecrafter77.survivalinc.client;
 
 import java.awt.Color;
 
-import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import enginecrafter77.survivalinc.stats.StatProvider;
-import enginecrafter77.survivalinc.stats.StatTracker;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class SimpleStatBar extends GaugeBar implements StatBar {
-	public final StatProvider key;
-	
+public class SimpleStatBar extends GaugeBar {	
 	protected final DifferentialArrow arrow;
 	
 	protected final ResourceLocation texture;
@@ -27,85 +25,75 @@ public class SimpleStatBar extends GaugeBar implements StatBar {
 		this(key, icon, 0, 0, color);
 	}
 	
-	public SimpleStatBar(StatProvider key, ResourceLocation texture, int texture_x, int texture_y, Color color)
+	public SimpleStatBar(StatProvider provider, ResourceLocation texture, int texture_x, int texture_y, Color color)
 	{
-		super(8, 32, color);
+		super(provider, color);
 		
-		this.arrow = new DifferentialArrow(key, 8, 12);
+		this.arrow = new DifferentialArrow(provider, 8, 12);
 		this.texture = texture;
 		this.texoffx = texture_x;
 		this.texoffy = texture_y;
-		this.key = key;
 		
 		this.texheight = 12;
 		this.texwidth = 8;
 		this.iconheight = 12;
 		this.spacing = 2;
-		
-		// Create a dummy record to see if it's a subclass of SimpleStatRecord
-		if(!(key.createNewRecord() instanceof SimpleStatRecord))
-		{
-			throw new IllegalArgumentException("Differential Arrow can be used only with providers using SimpleStatRecord records!");
-		}
-	}
-	
-	public boolean isVisible(StatTracker tracker)
-	{
-		return true;
 	}
 	
 	@Override
-	protected float getProportion(StatTracker tracker)
+	public void draw(RenderGameOverlayEvent event)
 	{
-		SimpleStatRecord record = (SimpleStatRecord)tracker.getRecord(this.key);
-		return (record.getValue() - record.valuerange.lowerEndpoint()) / (record.valuerange.upperEndpoint() - record.valuerange.lowerEndpoint());
+		if(event.getType() == ElementType.HOTBAR) super.draw(event);
 	}
 	
 	@Override
-	public void draw(ScaledResolution resolution, StatTracker stats) throws UnsupportedOperationException
+	public void setAbsolutePosition(int x, int y)
 	{
-		if(!this.isVisible(stats)) return;
-		
-		super.draw(resolution, stats);
+		super.setAbsolutePosition(x, y);
+		this.arrow.setAbsolutePosition(x, y);
+	}
+	
+	@Override
+	public void setRelativePositionBase(float x, float y)
+	{
+		super.setRelativePositionBase(x, y);
+		this.arrow.setRelativePositionBase(x, y);
+	}
+	
+	@Override
+	public void onResolutionChange(ScaledResolution res)
+	{
+		super.onResolutionChange(res);
+		this.arrow.onResolutionChange(res);
+	}
+	
+	@Override
+	public int getHeight()
+	{
+		return this.arrow.getHeight() + super.getHeight() + this.iconheight + 2 * this.spacing;
+	}
+	
+	/**
+	 * This method returns the Y position of the gauge bar
+	 */
+	@Override
+	public int getY()
+	{
+		return super.getY() + this.arrow.getHeight() + this.spacing;
+	}
+	
+	@Override
+	public void draw()
+	{		
+		// Draw the arrow indicating value
+		this.arrow.draw();
+		// Draw the gauge bar
+		super.draw();
 		
 		GlStateManager.enableAlpha(); // Enable alpha, we will need it
 		// Draw the stat icon
-		this.texturer.bindTexture(texture);
-		Gui.drawModalRectWithCustomSizedTexture(this.position.get(Axis.HORIZONTAL), this.position.get(Axis.VERTICAL) + this.height + spacing, texoffx, texoffy, this.width, iconheight, texwidth, texheight);
-		// Draw the arrow indicating value
-		this.arrow.draw(resolution, stats);
+		this.texturer.bindTexture(this.texture);
+		Gui.drawModalRectWithCustomSizedTexture(this.getX(), this.getY() + super.getHeight() + this.spacing, texoffx, texoffy, this.width, iconheight, texwidth, texheight);
 		GlStateManager.disableAlpha(); // Disable alpha, just in case
-	}
-	
-	@Override
-	public void setPosition(Axis axis, int position)
-	{
-		this.position.put(axis, position);
-		
-		if(axis == Axis.VERTICAL)
-			position -= (this.arrow.height + this.spacing);
-		
-		this.arrow.setPosition(axis, position);
-	}
-
-	@Override
-	public StatProvider getProvider()
-	{
-		return this.key;
-	}
-
-	@Override
-	public Axis getMajorAxis()
-	{
-		return Axis.VERTICAL;
-	}
-
-	@Override
-	public int getDimension(Axis axis)
-	{
-		int value = super.getDimension(axis);
-		if(axis == Axis.VERTICAL)
-			value += spacing + iconheight;
-		return value;
 	}
 }

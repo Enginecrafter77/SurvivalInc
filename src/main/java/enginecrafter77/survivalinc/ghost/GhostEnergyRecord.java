@@ -54,7 +54,7 @@ public class GhostEnergyRecord extends SimpleStatRecord {
 	public NBTTagCompound serializeNBT()
 	{
 		NBTTagCompound tag = super.serializeNBT();
-		tag.setBoolean("active", this.isActive());
+		tag.setByte("status", this.status);
 		return tag;
 	}
 	
@@ -62,7 +62,7 @@ public class GhostEnergyRecord extends SimpleStatRecord {
 	public void deserializeNBT(NBTTagCompound nbt)
 	{
 		super.deserializeNBT(nbt);
-		this.setActive(nbt.getBoolean("active"));
+		this.status = nbt.getByte("status");
 	}
 	
 }
