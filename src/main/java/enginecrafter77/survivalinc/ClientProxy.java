@@ -2,8 +2,6 @@ package enginecrafter77.survivalinc;
 
 import java.awt.Color;
 
-import enginecrafter77.survivalinc.client.OverlayElementGroup;
-import enginecrafter77.survivalinc.client.OverlayElementGroup.Axis;
 import enginecrafter77.survivalinc.client.RenderHUD;
 import enginecrafter77.survivalinc.client.SimpleStatBar;
 import enginecrafter77.survivalinc.config.ModConfig;
@@ -31,17 +29,11 @@ public class ClientProxy extends CommonProxy {
 	{
 		super.init(event);
 		
-		OverlayElementGroup group = new OverlayElementGroup(Axis.HORIZONTAL);
-		group.setRelativePositionBase(0.5F, 1F);
-		group.setAbsolutePosition(95, -64);
-		
-		if(ModConfig.HEAT.enabled) group.add(new SimpleStatBar(SurvivalInc.proxy.heat, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/heat.png"), new Color(0xE80000)));
-		if(ModConfig.HYDRATION.enabled) group.add(new SimpleStatBar(SurvivalInc.proxy.hydration, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/hydration.png"), new Color(ItemCanteen.waterBarColor)));
-		if(ModConfig.SANITY.enabled) group.add(new SimpleStatBar(SurvivalInc.proxy.sanity, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/sanity.png"), new Color(0xF6AF25)));
-		if(ModConfig.WETNESS.enabled) group.add(new SimpleStatBar(SurvivalInc.proxy.wetness, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/wetness.png"), new Color(0x0047D5)));
-		RenderHUD.instance.add(group);
-		
-		if(ModConfig.GHOST.enabled) RenderHUD.instance.add(new GhostEnergyBar());
+		if(ModConfig.HEAT.enabled) RenderHUD.instance.add(new SimpleStatBar(SurvivalInc.proxy.heat, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/heat.png"), new Color(0xE80000)));
+		if(ModConfig.HYDRATION.enabled) RenderHUD.instance.add(new SimpleStatBar(SurvivalInc.proxy.hydration, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/hydration.png"), new Color(ItemCanteen.waterBarColor)));
+		if(ModConfig.SANITY.enabled) RenderHUD.instance.add(new SimpleStatBar(SurvivalInc.proxy.sanity, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/sanity.png"), new Color(0xF6AF25)));
+		if(ModConfig.WETNESS.enabled) RenderHUD.instance.add(new SimpleStatBar(SurvivalInc.proxy.wetness, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/wetness.png"), new Color(0x0047D5)));
+		if(ModConfig.GHOST.enabled) RenderHUD.instance.external.add(new GhostEnergyBar());
 	}
 	
 	@Override
@@ -49,7 +41,7 @@ public class ClientProxy extends CommonProxy {
 	{
 		super.postInit(event);
 		
-		if(!RenderHUD.instance.isEmpty()) MinecraftForge.EVENT_BUS.register(RenderHUD.instance);
+		if(!(RenderHUD.instance.elements.isEmpty() || RenderHUD.instance.external.isEmpty())) MinecraftForge.EVENT_BUS.register(RenderHUD.instance);
 		if(ModConfig.GHOST.enabled) MinecraftForge.EVENT_BUS.register(new RenderGhost());
 	}
 }

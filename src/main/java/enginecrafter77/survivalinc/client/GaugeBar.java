@@ -4,10 +4,6 @@ import java.awt.Color;
 import java.awt.color.ColorSpace;
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
-import enginecrafter77.survivalinc.stats.SimpleStatRecord;
-import enginecrafter77.survivalinc.stats.StatCapability;
-import enginecrafter77.survivalinc.stats.StatProvider;
-import enginecrafter77.survivalinc.stats.StatTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
@@ -19,34 +15,28 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class GaugeBar extends ScalableOverlayElement {
+public abstract class GaugeBar extends ScalableOverlayElement {
 	private static final ResourceLocation bartemplate = new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/statusbar.png");
 	private static final int bartemplate_width = 16, bartemplate_height = 32;
 	
 	public final TextureManager texturer;
 	
+	/** The base color */
 	public final Color color;
 	
+	/** True to force recalculation of the color */
 	private boolean recalculateColor;
+	
+	/** Individual RGB color components */
 	private float[] colorcomponents;
 	
-	public final StatProvider provider;
-	private StatTracker tracker;
-	
-	public GaugeBar(StatProvider provider, Color color)
+	public GaugeBar(Color color)
 	{
 		super(GaugeBar.bartemplate_width / 2, GaugeBar.bartemplate_height);
 		this.texturer = Minecraft.getMinecraft().renderEngine;
 		this.colorcomponents = new float[4];
 		this.recalculateColor = true;
-		this.provider = provider;
 		this.color = color;
-		
-		// Create a dummy record to see if it's a subclass of SimpleStatRecord
-		if(!(provider.createNewRecord() instanceof SimpleStatRecord))
-		{
-			throw new IllegalArgumentException("Differential Arrow can be used only with providers using SimpleStatRecord records!");
-		}
 	}
 	
 	@Override
@@ -55,16 +45,18 @@ public class GaugeBar extends ScalableOverlayElement {
 		if(event.getType() == ElementType.HOTBAR) super.draw(event);
 	}
 	
-	protected float getFillFraction(StatTracker tracker)
-	{
-		SimpleStatRecord record = (SimpleStatRecord)tracker.getRecord(this.provider);
-		return (record.getValue() - record.valuerange.lowerEndpoint()) / (record.valuerange.upperEndpoint() - record.valuerange.lowerEndpoint());
-	}
+	/**
+	 * The ratio of the filled to the empty part of the gauge bar.
+	 * In other words, it's the fraction of the gauge bar's area
+	 * that should be filled.
+	 * @return Fraction of the bar's area that should be filled.
+	 */
+	protected abstract float getFillFraction();
 	
 	@Override
 	public void draw()
 	{
-		float proportion = this.getFillFraction(this.getTracker());
+		float proportion = this.getFillFraction();
 		
 		float propheight = this.height * proportion;
 		int bar_bottom_dist = Math.round(propheight), bar_top_dist = Math.round((float)this.height - propheight);
@@ -90,24 +82,30 @@ public class GaugeBar extends ScalableOverlayElement {
 		GlStateManager.disableAlpha();
 	}
 	
-	public StatTracker getTracker()
-	{
-		if(this.tracker == null)
-			this.tracker = Minecraft.getMinecraft().player.getCapability(StatCapability.target, null);
-		return this.tracker;
-	}
-	
+	/**
+	 * Forces the gauge bar to recalculate the color the next render tick
+	 */
 	public void recalculateColor()
 	{
 		this.recalculateColor = true;
 	}
 	
-	protected void calculateRGBColor(float proportion)
+	/**
+	 * Internal function that splits the color returned by {@link #getColor(float)}
+	 * into individual RGB components.
+	 * @param fraction The fraction of the bar that is currently filled
+	 */
+	protected void calculateRGBColor(float fraction)
 	{
-		this.getColor(proportion).getColorComponents(ColorSpace.getInstance(ColorSpace.CS_sRGB), this.colorcomponents);
+		this.getColor(fraction).getColorComponents(ColorSpace.getInstance(ColorSpace.CS_sRGB), this.colorcomponents);
 		this.colorcomponents[3] = 1F - (float)ModConfig.CLIENT.barTransparency;
 	}
 	
+	/**
+	 * Calculates the color of the gauge bar with respect to the currently filled fraction of the gauge bar.
+	 * @param fraction The fraction of the bar that is currently filled
+	 * @return The color the gauge bar infill should have
+	 */
 	public Color getColor(float proportion)
 	{
 		return this.color;

@@ -13,7 +13,7 @@ public class ClientConfig {
 	public double[] autumnLeafColor = {1.2, 0.6, 0.8};
 	
 	@Config.LangKey("config.survivalinc:client.statBarPosition")
-	public String[] statBarPosition = {"$w / 2 + 95", "$h - 2"};
+	public double[] statBarPosition = {0.5, 1, 95, -64};
 	
 	@Config.LangKey("config.survivalinc:client.linearArrow")
 	public boolean linearArrow = false;

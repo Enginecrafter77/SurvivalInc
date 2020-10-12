@@ -24,8 +24,8 @@ public class GhostEnergyBar extends ScalableOverlayElement {
 	public GhostEnergyBar()
 	{
 		super(GhostEnergyBar.count * 9, 9);
-		this.setAbsolutePosition(-91, -39);
-		this.setRelativePositionBase(0.5F, 1F);
+		this.setPositionOffset(-91, -39);
+		this.setPositionOrigin(0.5F, 1F);
 	}
 	
 	@Override

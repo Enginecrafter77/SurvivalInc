@@ -2,7 +2,11 @@ package enginecrafter77.survivalinc.client;
 
 import java.awt.Color;
 
+import enginecrafter77.survivalinc.stats.SimpleStatRecord;
+import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatProvider;
+import enginecrafter77.survivalinc.stats.StatTracker;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
@@ -20,6 +24,9 @@ public class SimpleStatBar extends GaugeBar {
 	protected int texoffx, texoffy, texwidth, texheight;
 	protected int iconheight, spacing;
 	
+	public final StatProvider provider;
+	private StatTracker tracker;
+	
 	public SimpleStatBar(StatProvider key, ResourceLocation icon, Color color)
 	{
 		this(key, icon, 0, 0, color);
@@ -27,7 +34,8 @@ public class SimpleStatBar extends GaugeBar {
 	
 	public SimpleStatBar(StatProvider provider, ResourceLocation texture, int texture_x, int texture_y, Color color)
 	{
-		super(provider, color);
+		super(color);
+		this.provider = provider;
 		
 		this.arrow = new DifferentialArrow(provider, 8, 12);
 		this.texture = texture;
@@ -38,6 +46,21 @@ public class SimpleStatBar extends GaugeBar {
 		this.texwidth = 8;
 		this.iconheight = 12;
 		this.spacing = 2;
+		
+		// Create a dummy record to see if it's a subclass of SimpleStatRecord
+		if(!(provider.createNewRecord() instanceof SimpleStatRecord))
+		{
+			throw new IllegalArgumentException("Differential Arrow can be used only with providers using SimpleStatRecord records!");
+		}
+	}
+	
+	@Override
+	protected float getFillFraction()
+	{
+		if(this.tracker == null)
+			this.tracker = Minecraft.getMinecraft().player.getCapability(StatCapability.target, null);
+		SimpleStatRecord record = (SimpleStatRecord)this.tracker.getRecord(this.provider);
+		return (record.getValue() - record.valuerange.lowerEndpoint()) / (record.valuerange.upperEndpoint() - record.valuerange.lowerEndpoint());
 	}
 	
 	@Override
@@ -47,17 +70,17 @@ public class SimpleStatBar extends GaugeBar {
 	}
 	
 	@Override
-	public void setAbsolutePosition(int x, int y)
+	public void setPositionOffset(int x, int y)
 	{
-		super.setAbsolutePosition(x, y);
-		this.arrow.setAbsolutePosition(x, y);
+		super.setPositionOffset(x, y);
+		this.arrow.setPositionOffset(x, y);
 	}
 	
 	@Override
-	public void setRelativePositionBase(float x, float y)
+	public void setPositionOrigin(float x, float y)
 	{
-		super.setRelativePositionBase(x, y);
-		this.arrow.setRelativePositionBase(x, y);
+		super.setPositionOrigin(x, y);
+		this.arrow.setPositionOrigin(x, y);
 	}
 	
 	@Override
