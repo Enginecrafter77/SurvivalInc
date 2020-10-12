@@ -8,12 +8,11 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 
 /**
  * A packet designed to notify client-side item entities
- * that their remote represntation's stored item stack
+ * that their remote representation's stored item stack
  * was updated.
  * @author Enginecrafter77
  */
-public class EntityItemUpdateMessage implements IMessage
-{
+public class EntityItemUpdateMessage implements IMessage {
 	/** The item stack of the entity */
 	protected ItemStack stack;
 	protected int entityid;

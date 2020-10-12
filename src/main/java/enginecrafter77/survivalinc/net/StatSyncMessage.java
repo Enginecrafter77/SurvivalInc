@@ -57,7 +57,15 @@ public class StatSyncMessage implements IMessage {
 		this.addPlayerTrackerData(player);
 	}
 	
-	@SideOnly(Side.CLIENT)
+	/**
+	 * Constructs an empty StatSyncMessage. In order for
+	 * the message to be actually useful, {@link #addPlayerTrackerData(EntityPlayer)}
+	 * needs to be called on the object at least once.
+	 * 
+	 * This constructor is also used on {@link Side#CLIENT client}
+	 * side to construct dummy StatSyncMessage, that is later
+	 * initialized from the incoming data.
+	 */
 	public StatSyncMessage()
 	{
 		this.data = new HashMap<UUID, NBTTagCompound>();
