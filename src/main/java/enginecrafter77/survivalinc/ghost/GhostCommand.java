@@ -1,5 +1,7 @@
 package enginecrafter77.survivalinc.ghost;
 
+import java.util.List;
+
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.net.StatSyncMessage;
 import enginecrafter77.survivalinc.stats.StatCapability;
@@ -7,7 +9,8 @@ import enginecrafter77.survivalinc.stats.StatTracker;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.command.WrongUsageException;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
 
@@ -28,33 +31,37 @@ public class GhostCommand extends CommandBase {
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
 	{
-		if(args.length < 1) throw new CommandException("Usage: /ghost <player> [on|off]");
+		if(args.length < 1) throw new WrongUsageException("Usage: /ghost <player> [on|off]");
 		
-		EntityPlayer player = CommandBase.getPlayer(server, sender, args[0]);
+		List<EntityPlayerMP> subjects = CommandBase.getPlayers(server, sender, args[0]);
+		StatSyncMessage message = new StatSyncMessage();
 		
-		StatTracker tracker = player.getCapability(StatCapability.target, null);
-		GhostEnergyRecord record = (GhostEnergyRecord)tracker.getRecord(SurvivalInc.proxy.ghost);
-		boolean status = !record.isActive();
-		
-		if(args.length >= 2)
+		for(EntityPlayerMP player : subjects)
 		{
-			switch(args[1])
+			StatTracker tracker = player.getCapability(StatCapability.target, null);
+			GhostEnergyRecord record = (GhostEnergyRecord)tracker.getRecord(SurvivalInc.proxy.ghost);
+			boolean status = !record.isActive();
+			
+			if(args.length >= 2)
 			{
-			case "on":
-				status = true;
-				break;
-			case "off":
-				status = false;
-				break;
-			default:
-				throw new CommandException("Unknown state \"" + args[1] + "\"");
+				switch(args[1])
+				{
+				case "on":
+					status = true;
+					break;
+				case "off":
+					status = false;
+					break;
+				default:
+					throw new CommandException("Unknown state \"" + args[1] + "\"");
+				}
 			}
+			
+			record.setActive(status);
+			message.addPlayerTrackerData(player);
+			sender.sendMessage(new TextComponentString(String.format("Transformed %s into %s", player.getName(), status ? "ghost" : "human")));
 		}
-		
-		record.setActive(status);
-		SurvivalInc.proxy.net.sendToAll(new StatSyncMessage(player));
-		
-		sender.sendMessage(new TextComponentString(String.format("Transformed %s into %s", player.getName(), status ? "ghost" : "human")));
+		SurvivalInc.proxy.net.sendToAll(message);
 	}
 
 }

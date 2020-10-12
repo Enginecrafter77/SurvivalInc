@@ -8,10 +8,14 @@ import enginecrafter77.survivalinc.stats.StatTracker;
 import enginecrafter77.survivalinc.stats.effect.EffectApplicator;
 import enginecrafter77.survivalinc.stats.effect.FunctionalEffectFilter;
 import enginecrafter77.survivalinc.stats.effect.ValueStatEffect;
+
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.net.StatSyncMessage;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.FoodStats;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 
@@ -26,6 +30,7 @@ public class GhostProvider implements StatProvider {
 		
 		this.applicator.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, -0.2F)).addFilter(FunctionalEffectFilter.byPlayer(EntityPlayer::isSprinting));
 		this.applicator.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, 0.05F)).addFilter(FunctionalEffectFilter.byPlayer(GhostProvider::duringNight));
+		this.applicator.add(GhostProvider::onGhostUpdate);
 	}
 	
 	@Override
@@ -33,11 +38,19 @@ public class GhostProvider implements StatProvider {
 	{
 		GhostEnergyRecord ghost = (GhostEnergyRecord)record;
 		
-		if(ghost.isActive())
+		if(ghost.shouldReceiveTicks())
 		{
 			this.applicator.apply(ghost, target);
 			ghost.checkoutValueChange();
+			
+			FoodStats food = target.getFoodStats();
+			food.setFoodLevel(this.energyToFood(ghost));
 		}
+	}
+	
+	public int energyToFood(GhostEnergyRecord record)
+	{
+		return Math.round(20F * (record.getValue() / record.valuerange.upperEndpoint()));
 	}
 	
 	@Override
@@ -69,6 +82,37 @@ public class GhostProvider implements StatProvider {
 			record.setActive(true);
 			
 			SurvivalInc.proxy.net.sendToAll(new StatSyncMessage(player));
+		}
+	}
+	
+	@SubscribeEvent
+	public static void onPlayerInteract(PlayerInteractEvent event)
+	{
+		StatTracker tracker = event.getEntityPlayer().getCapability(StatCapability.target, null);
+		GhostEnergyRecord record = (GhostEnergyRecord)tracker.getRecord(SurvivalInc.proxy.ghost);
+		if(record.isActive())
+		{
+			if(event.isCancelable()) event.setCanceled(true);
+			event.setResult(Result.DENY);
+		}
+	}
+	
+	public static void onGhostUpdate(GhostEnergyRecord record, EntityPlayer player)
+	{		
+		if(record.hasPendingChange())
+		{
+			boolean isGhost = record.isActive();
+			player.capabilities.disableDamage = isGhost;
+			player.capabilities.allowEdit = !isGhost;
+			record.acceptChange();
+		}
+	}
+	
+	public static void disableSprinting(GhostEnergyRecord record, EntityPlayer player)
+	{
+		if(player.isSprinting())
+		{
+			player.setSprinting(false); //RenderHandEvent
 		}
 	}
 	

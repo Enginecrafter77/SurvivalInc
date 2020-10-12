@@ -18,10 +18,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class RenderGhost extends RenderLivingBase<EntityPlayer> {	
+public class RenderGhost extends RenderLivingBase<EntityPlayer> {
 	public final ResourceLocation texture;
-	
-	public float opacity;
 	
 	public RenderGhost()
 	{
@@ -43,11 +41,15 @@ public class RenderGhost extends RenderLivingBase<EntityPlayer> {
 	@Override
 	public void doRender(EntityPlayer entity, double x, double y, double z, float entityYaw, float partialTicks)
 	{
+		StatTracker tracker = entity.getCapability(StatCapability.target, null);
+		GhostEnergyRecord record = (GhostEnergyRecord)tracker.getRecord(SurvivalInc.proxy.ghost);
+		float opacity = record.getValue() / record.valuerange.upperEndpoint();
+		
 		GlStateManager.pushMatrix();
 		GlStateManager.scale(0.8F, 0.8F, 0.8F);
-		if(this.opacity < 0.9F)
+		if(opacity < 0.9F)
 		{
-			GlStateManager.color(1F, 1F, 1F, this.opacity);
+			GlStateManager.color(1F, 1F, 1F, opacity);
 			GlStateManager.enableNormalize();
 			GlStateManager.enableBlend();
 			GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
@@ -70,7 +72,6 @@ public class RenderGhost extends RenderLivingBase<EntityPlayer> {
 		
 		if(record.isActive())
 		{
-			this.opacity = record.getValue() / record.valuerange.upperEndpoint();
 			this.doRender(player, event.getX(), event.getY(), event.getZ(), player.renderYawOffset, event.getPartialRenderTick());
 			event.setCanceled(true);
 		}
