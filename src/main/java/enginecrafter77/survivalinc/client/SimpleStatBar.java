@@ -57,9 +57,7 @@ public class SimpleStatBar extends GaugeBar {
 	@Override
 	protected float getFillFraction()
 	{
-		if(this.tracker == null)
-			this.tracker = Minecraft.getMinecraft().player.getCapability(StatCapability.target, null);
-		SimpleStatRecord record = (SimpleStatRecord)this.tracker.getRecord(this.provider);
+		SimpleStatRecord record = (SimpleStatRecord)this.getTracker().getRecord(this.provider);
 		return (record.getValue() - record.valuerange.lowerEndpoint()) / (record.valuerange.upperEndpoint() - record.valuerange.lowerEndpoint());
 	}
 	
@@ -105,18 +103,28 @@ public class SimpleStatBar extends GaugeBar {
 		return super.getY() + this.arrow.getHeight() + this.spacing;
 	}
 	
+	public StatTracker getTracker()
+	{
+		if(this.tracker == null)
+			this.tracker = Minecraft.getMinecraft().player.getCapability(StatCapability.target, null);
+		return this.tracker;
+	}
+	
 	@Override
 	public void draw()
-	{		
-		// Draw the arrow indicating value
-		this.arrow.draw();
-		// Draw the gauge bar
-		super.draw();
-		
-		GlStateManager.enableAlpha(); // Enable alpha, we will need it
-		// Draw the stat icon
-		this.texturer.bindTexture(this.texture);
-		Gui.drawModalRectWithCustomSizedTexture(this.getX(), this.getY() + super.getHeight() + this.spacing, texoffx, texoffy, this.width, iconheight, texwidth, texheight);
-		GlStateManager.disableAlpha(); // Disable alpha, just in case
+	{
+		if(this.getTracker().isActive(this.provider, Minecraft.getMinecraft().player))
+		{
+			// Draw the arrow indicating value
+			this.arrow.draw();
+			// Draw the gauge bar
+			super.draw();
+			
+			GlStateManager.enableAlpha(); // Enable alpha, we will need it
+			// Draw the stat icon
+			this.texturer.bindTexture(this.texture);
+			Gui.drawModalRectWithCustomSizedTexture(this.getX(), this.getY() + super.getHeight() + this.spacing, texoffx, texoffy, this.width, iconheight, texwidth, texheight);
+			GlStateManager.disableAlpha(); // Disable alpha, just in case
+		}
 	}
 }

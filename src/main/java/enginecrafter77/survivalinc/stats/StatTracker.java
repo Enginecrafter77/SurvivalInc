@@ -2,6 +2,8 @@ package enginecrafter77.survivalinc.stats;
 
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 
@@ -79,4 +81,34 @@ public interface StatTracker {
 	 * @param player The player to apply the update to
 	 */
 	public void update(EntityPlayer player);
+	
+	/**
+	 * Checks whether the provided {@link StatProvider}
+	 * will be updated on next tick. When supplied with
+	 * the player parameter and the method returns true,
+	 * the stat is guaranteed to have received update this
+	 * tick. One may also supply null as the player parameter,
+	 * in which case the method only checks whether the stat
+	 * has been suspended from updating or not.
+	 * @see #setSuspended(StatProvider, boolean)
+	 * @param stat The stat to run the check for
+	 * @param player The player to check for the update, or null to check only the suspended state
+	 * @return
+	 * 	True if the player is provided and they passed all the checks, false otherwise.
+	 * 	If player is null, returns true if the stat is NOT suspended, false otherwise.
+	 */
+	public boolean isActive(StatProvider stat, @Nullable EntityPlayer player);
+	
+	/**
+	 * Suspends or resumes the specified stat. Suspending a stat causes the stat
+	 * to skip running it's provider {@link StatProvider#update(EntityPlayer, StatRecord) update}
+	 * method until it is resumed. Generally, suspending a stat temporarily disables
+	 * any effect it has on the player whatsoever. The suspended status of a stat can
+	 * be checked by passing <i>null</i> as player parameter to {@link #isActive(StatProvider, EntityPlayer)}.
+	 * @see StatProvider#update(EntityPlayer, StatRecord)
+	 * @see #isActive(StatProvider, EntityPlayer)
+	 * @param stat The stat to set the suspended status for
+	 * @param suspended The suspended status
+	 */
+	public void setSuspended(StatProvider stat, boolean suspended);
 }

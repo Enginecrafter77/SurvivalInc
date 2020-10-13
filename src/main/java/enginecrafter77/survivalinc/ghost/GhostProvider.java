@@ -12,6 +12,8 @@ import enginecrafter77.survivalinc.stats.effect.FunctionalEffectFilter;
 import enginecrafter77.survivalinc.stats.effect.SideEffectFilter;
 import enginecrafter77.survivalinc.stats.effect.ValueStatEffect;
 
+import java.util.Set;
+
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.net.StatSyncMessage;
@@ -47,8 +49,8 @@ public class GhostProvider implements StatProvider {
 		
 		EffectFilter<Object> playerSprinting = FunctionalEffectFilter.byPlayer(EntityPlayer::isSprinting);
 		this.applicator.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, -0.2F)).addFilter(playerSprinting);
-		this.applicator.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, 0.05F)).addFilter(FunctionalEffectFilter.byPlayer(GhostProvider::duringNight));
-		this.applicator.add(GhostProvider::sprintingParticles).addFilter(playerSprinting).addFilter(SideEffectFilter.CLIENT);
+		this.applicator.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, 0.05F)).addFilter(GhostProvider::duringNight);
+		this.applicator.add(GhostProvider::spawnSprintingParticles).addFilter(playerSprinting).addFilter(SideEffectFilter.CLIENT);
 		this.applicator.add(GhostProvider::synchronizeFood);
 		this.applicator.add(GhostProvider::onGhostUpdate);
 		
@@ -179,17 +181,30 @@ public class GhostProvider implements StatProvider {
 			boolean isGhost = record.isActive();
 			player.capabilities.disableDamage = isGhost;
 			player.capabilities.allowEdit = !isGhost;
+			
+			// Suspend all other stats
+			StatTracker tracker = player.getCapability(StatCapability.target, null);
+			Set<StatProvider> providers = tracker.getRegisteredProviders();
+			providers.remove(GhostProvider.instance);
+			for(StatProvider provider : providers)
+			{
+				tracker.setSuspended(provider, !isGhost);
+			}
+			
 			record.acceptChange();
 		}
 	}
 	
-	public static void sprintingParticles(GhostEnergyRecord record, EntityPlayer player)
+	public static void spawnSprintingParticles(GhostEnergyRecord record, EntityPlayer player)
 	{
-		WorldClient world = (WorldClient)player.world;
-		world.spawnParticle(EnumParticleTypes.CLOUD, player.lastTickPosX, player.lastTickPosY + (player.height / 2), player.lastTickPosZ, -player.motionX, 0D, -player.motionZ);
+		if(record.isActive())
+		{
+			WorldClient world = (WorldClient)player.world;
+			world.spawnParticle(EnumParticleTypes.CLOUD, player.lastTickPosX, player.lastTickPosY + (player.height / 2), player.lastTickPosZ, -player.motionX, 0D, -player.motionZ);
+		}
 	}
 	
-	public static boolean duringNight(EntityPlayer player)
+	public static boolean duringNight(GhostEnergyRecord record, EntityPlayer player)
 	{
 		boolean night;
 		if(player.world.isRemote)
