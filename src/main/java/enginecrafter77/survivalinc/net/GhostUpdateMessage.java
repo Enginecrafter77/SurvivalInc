@@ -2,8 +2,8 @@ package enginecrafter77.survivalinc.net;
 
 import java.util.UUID;
 
-import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.ghost.GhostEnergyRecord;
+import enginecrafter77.survivalinc.ghost.GhostProvider;
 import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import io.netty.buffer.ByteBuf;
@@ -22,7 +22,7 @@ public class GhostUpdateMessage implements IMessage {
 	public GhostUpdateMessage(EntityPlayer player)
 	{		
 		StatTracker tracker = player.getCapability(StatCapability.target, null);
-		this.record = (GhostEnergyRecord)tracker.getRecord(SurvivalInc.proxy.ghost);
+		this.record = (GhostEnergyRecord)tracker.getRecord(GhostProvider.instance);
 		this.player = player.getUniqueID();
 	}
 	

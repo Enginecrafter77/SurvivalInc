@@ -1,6 +1,5 @@
 package enginecrafter77.survivalinc.ghost;
 
-import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import net.minecraft.client.Minecraft;
@@ -42,7 +41,7 @@ public class RenderGhost extends RenderLivingBase<EntityPlayer> {
 	public void doRender(EntityPlayer entity, double x, double y, double z, float entityYaw, float partialTicks)
 	{
 		StatTracker tracker = entity.getCapability(StatCapability.target, null);
-		GhostEnergyRecord record = (GhostEnergyRecord)tracker.getRecord(SurvivalInc.proxy.ghost);
+		GhostEnergyRecord record = (GhostEnergyRecord)tracker.getRecord(GhostProvider.instance);
 		float opacity = record.getValue() / record.valuerange.upperEndpoint();
 		
 		GlStateManager.pushMatrix();
@@ -68,7 +67,7 @@ public class RenderGhost extends RenderLivingBase<EntityPlayer> {
 	{
 		EntityPlayer player = event.getEntityPlayer();
 		StatTracker tracker = player.getCapability(StatCapability.target, null);
-		GhostEnergyRecord record = (GhostEnergyRecord)tracker.getRecord(SurvivalInc.proxy.ghost);
+		GhostEnergyRecord record = (GhostEnergyRecord)tracker.getRecord(GhostProvider.instance);
 		
 		if(record.isActive())
 		{

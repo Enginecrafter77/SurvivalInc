@@ -29,6 +29,7 @@ import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 /*
@@ -44,19 +45,26 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class WetnessModifier implements StatProvider {
 	private static final long serialVersionUID = -4227255838351827965L;
-
-	public static UUID wetnessSlowdown = UUID.randomUUID();
 	
-	public static final Map<Block, Float> humiditymap = new HashMap<Block, Float>();
+	public static final WetnessModifier instance = new WetnessModifier();
+	
+	public final Map<Block, Float> humiditymap = new HashMap<Block, Float>();
 	public final EffectApplicator<SimpleStatRecord> effects;
+	public final UUID wetnessSlowdown;
 	
 	public WetnessModifier()
 	{
+		this.wetnessSlowdown = UUID.nameUUIDFromBytes(this.getStatID().toString().getBytes());
 		this.effects = new EffectApplicator<SimpleStatRecord>();
+	}
+	
+	public void init()
+	{
+		MinecraftForge.EVENT_BUS.register(WetnessModifier.class);
 		
 		this.effects.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, 0.01F)).addFilter(FunctionalEffectFilter.byPlayer((EntityPlayer player) -> player.world.isRainingAt(player.getPosition().up())));
-		this.effects.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, -0.08F)).addFilter(HydrationModifier.isOutsideOverworld);
 		this.effects.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, -0.8F)).addFilter(FunctionalEffectFilter.byPlayer(EntityPlayer::isBurning));
+		this.effects.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, -0.08F)).addFilter(HydrationModifier.isOutsideOverworld);
 		
 		this.effects.add(WetnessModifier::causeDripping).addFilter(SideEffectFilter.CLIENT);
 		this.effects.add(WetnessModifier::slowDown).addFilter(SideEffectFilter.SERVER);
@@ -64,11 +72,11 @@ public class WetnessModifier implements StatProvider {
 		this.effects.add(WetnessModifier::naturalDrying);
 		this.effects.add(WetnessModifier::whenInWater);
 		
-		WetnessModifier.humiditymap.put(Blocks.FIRE, -0.5F);
-		WetnessModifier.humiditymap.put(Blocks.LAVA, -1F);
-		WetnessModifier.humiditymap.put(Blocks.FLOWING_LAVA, -1F);
-		WetnessModifier.humiditymap.put(Blocks.LIT_FURNACE, -0.4F);
-		WetnessModifier.humiditymap.put(Blocks.MAGMA, -0.4F);
+		this.humiditymap.put(Blocks.FIRE, -0.5F);
+		this.humiditymap.put(Blocks.LAVA, -1F);
+		this.humiditymap.put(Blocks.FLOWING_LAVA, -1F);
+		this.humiditymap.put(Blocks.LIT_FURNACE, -0.4F);
+		this.humiditymap.put(Blocks.MAGMA, -0.4F);
 	}
 	
 	@Override
@@ -94,7 +102,7 @@ public class WetnessModifier implements StatProvider {
 	@SubscribeEvent
 	public static void registerStat(StatRegisterEvent event)
 	{
-		event.register(SurvivalInc.proxy.wetness);
+		event.register(WetnessModifier.instance);
 	}
 	
 	public static void slowDown(SimpleStatRecord record, EntityPlayer player)
@@ -125,8 +133,8 @@ public class WetnessModifier implements StatProvider {
 		
 		// Ugh I really hate this code. It's damn ineffective. So much list IO to handle every single tick.
 		IAttributeInstance inst = player.getAttributeMap().getAttributeInstance(SharedMonsterAttributes.MOVEMENT_SPEED);
-		inst.removeModifier(WetnessModifier.wetnessSlowdown);
-		inst.applyModifier(new AttributeModifier(WetnessModifier.wetnessSlowdown, "wetnessSlowdown", mod, 1).setSaved(false));
+		inst.removeModifier(WetnessModifier.instance.wetnessSlowdown);
+		inst.applyModifier(new AttributeModifier(WetnessModifier.instance.wetnessSlowdown, "wetnessSlowdown", mod, 1).setSaved(false));
 	}
 	
 	/**
@@ -179,9 +187,9 @@ public class WetnessModifier implements StatProvider {
 		for(BlockPos position : blocks)
 		{
 			Block block = player.world.getBlockState(position).getBlock();
-			if(WetnessModifier.humiditymap.containsKey(block))
+			if(WetnessModifier.instance.humiditymap.containsKey(block))
 			{
-				float basewetness = WetnessModifier.humiditymap.get(block);
+				float basewetness = WetnessModifier.instance.humiditymap.get(block);
 				float proximity = (float)Math.sqrt(position.distanceSq(player.posX, player.posY, player.posZ));
 				diff += basewetness / proximity;
 			}

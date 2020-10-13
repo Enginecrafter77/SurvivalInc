@@ -14,6 +14,7 @@ import enginecrafter77.survivalinc.net.StatSyncMessage;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.FoodStats;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -22,11 +23,17 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 public class GhostProvider implements StatProvider {
 	private static final long serialVersionUID = -2088047893866334112L;
 	
+	public static final GhostProvider instance = new GhostProvider();
 	public final EffectApplicator<GhostEnergyRecord> applicator;
 	
 	public GhostProvider()
 	{
 		this.applicator = new EffectApplicator<GhostEnergyRecord>();
+	}
+	
+	public void init()
+	{
+		MinecraftForge.EVENT_BUS.register(GhostProvider.class);
 		
 		this.applicator.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, -0.2F)).addFilter(FunctionalEffectFilter.byPlayer(EntityPlayer::isSprinting));
 		this.applicator.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, 0.05F)).addFilter(FunctionalEffectFilter.byPlayer(GhostProvider::duringNight));
@@ -48,11 +55,6 @@ public class GhostProvider implements StatProvider {
 		}
 	}
 	
-	public int energyToFood(GhostEnergyRecord record)
-	{
-		return Math.round(20F * (record.getValue() / record.valuerange.upperEndpoint()));
-	}
-	
 	@Override
 	public ResourceLocation getStatID()
 	{
@@ -68,7 +70,7 @@ public class GhostProvider implements StatProvider {
 	@SubscribeEvent
 	public static void registerStat(StatRegisterEvent event)
 	{
-		event.register(SurvivalInc.proxy.ghost);
+		event.register(GhostProvider.instance);
 	}
 	
 	@SubscribeEvent
@@ -78,7 +80,7 @@ public class GhostProvider implements StatProvider {
 		if(!event.isEndConquered())
 		{
 			StatTracker tracker = player.getCapability(StatCapability.target, null);
-			GhostEnergyRecord record = (GhostEnergyRecord)tracker.getRecord(SurvivalInc.proxy.ghost);
+			GhostEnergyRecord record = (GhostEnergyRecord)tracker.getRecord(GhostProvider.instance);
 			record.setActive(true);
 			
 			SurvivalInc.proxy.net.sendToAll(new StatSyncMessage(player));
@@ -89,12 +91,17 @@ public class GhostProvider implements StatProvider {
 	public static void onPlayerInteract(PlayerInteractEvent event)
 	{
 		StatTracker tracker = event.getEntityPlayer().getCapability(StatCapability.target, null);
-		GhostEnergyRecord record = (GhostEnergyRecord)tracker.getRecord(SurvivalInc.proxy.ghost);
+		GhostEnergyRecord record = (GhostEnergyRecord)tracker.getRecord(GhostProvider.instance);
 		if(record.isActive())
 		{
 			if(event.isCancelable()) event.setCanceled(true);
-			event.setResult(Result.DENY);
+			if(event.hasResult()) event.setResult(Result.DENY);
 		}
+	}
+	
+	public int energyToFood(GhostEnergyRecord record)
+	{
+		return Math.round(20F * (record.getValue() / record.valuerange.upperEndpoint()));
 	}
 	
 	public static void onGhostUpdate(GhostEnergyRecord record, EntityPlayer player)

@@ -4,6 +4,8 @@ import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatTracker;
+import enginecrafter77.survivalinc.stats.impl.HeatModifier;
+import enginecrafter77.survivalinc.stats.impl.WetnessModifier;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
@@ -33,8 +35,8 @@ public class ItemFeatherFan extends Item {
 			if(!world.isRemote) ((WorldServer)world).playSound(null, player.getPosition(), SoundEvents.ENTITY_PARROT_FLY, SoundCategory.PLAYERS, 0.2F, 1.25F);
 			
 			StatTracker stats = player.getCapability(StatCapability.target, null);
-			SimpleStatRecord heat = (SimpleStatRecord)stats.getRecord(SurvivalInc.proxy.heat);
-			SimpleStatRecord wetness = (SimpleStatRecord)stats.getRecord(SurvivalInc.proxy.wetness);
+			SimpleStatRecord heat = (SimpleStatRecord)stats.getRecord(HeatModifier.instance);
+			SimpleStatRecord wetness = (SimpleStatRecord)stats.getRecord(WetnessModifier.instance);
 			heat.addToValue(-20F);
 			wetness.addToValue(-5F);
 			if(player.isBurning()) player.extinguish();

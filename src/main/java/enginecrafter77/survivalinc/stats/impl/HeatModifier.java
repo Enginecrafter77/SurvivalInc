@@ -28,6 +28,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.biome.Biome;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 /**
@@ -42,24 +43,37 @@ public class HeatModifier implements StatProvider {
 	public static final DamageSource HYPERTHERMIA = new DamageSource("survivalinc_hyperthermia").setDamageIsAbsolute().setDamageBypassesArmor();
 	public static final DamageSource HYPOTHERMIA = new DamageSource("survivalinc_hypothermia").setDamageIsAbsolute().setDamageBypassesArmor();
 	
-	public static Map<Block, Float> blockHeatMap = new HashMap<Block, Float>();
-	public static ArmorModifier armorInsulation = new ArmorModifier();
+	public static final HeatModifier instance = new HeatModifier();
 	
-	public static FunctionalCalculator targettemp = new FunctionalCalculator();
-	public static FunctionalCalculator exchangerate = new FunctionalCalculator();
-	public static EffectApplicator<SimpleStatRecord> consequences = new EffectApplicator<SimpleStatRecord>();
+	public final Map<Block, Float> blockHeatMap;
+	public final ArmorModifier armorInsulation;
+	
+	public final FunctionalCalculator targettemp;
+	public final FunctionalCalculator exchangerate;
+	public final EffectApplicator<SimpleStatRecord> consequences;
 	
 	public HeatModifier()
 	{
-		HeatModifier.targettemp.add(HeatModifier::whenNearHotBlock);
+		this.targettemp = new FunctionalCalculator();
+		this.exchangerate = new FunctionalCalculator();
+		this.consequences = new EffectApplicator<SimpleStatRecord>();
+		this.blockHeatMap = new HashMap<Block, Float>();
+		this.armorInsulation = new ArmorModifier();
+	}
+	
+	public void init()
+	{
+		MinecraftForge.EVENT_BUS.register(HeatModifier.class);
 		
-		if(ModConfig.WETNESS.enabled) HeatModifier.exchangerate.add(HeatModifier::applyWetnessCooldown);
-		HeatModifier.exchangerate.add(HeatModifier.armorInsulation);
+		this.targettemp.add(HeatModifier::whenNearHotBlock);
 		
-		HeatModifier.consequences.add(new DamageStatEffect(HYPOTHERMIA, (float)ModConfig.HEAT.damageAmount, 10)).addFilter(FunctionalEffectFilter.byValue(Range.lessThan(10F)));
-		HeatModifier.consequences.add(new PotionStatEffect(MobEffects.MINING_FATIGUE, 0)).addFilter(FunctionalEffectFilter.byValue(Range.lessThan(20F)));
-		HeatModifier.consequences.add(new PotionStatEffect(MobEffects.WEAKNESS, 0)).addFilter(FunctionalEffectFilter.byValue(Range.lessThan(25F)));
-		HeatModifier.consequences.add(HeatModifier::onHighTemperature).addFilter(FunctionalEffectFilter.byValue(Range.greaterThan(110F)));
+		if(ModConfig.WETNESS.enabled) this.exchangerate.add(HeatModifier::applyWetnessCooldown);
+		this.exchangerate.add(this.armorInsulation);
+		
+		this.consequences.add(new DamageStatEffect(HYPOTHERMIA, (float)ModConfig.HEAT.damageAmount, 10)).addFilter(FunctionalEffectFilter.byValue(Range.lessThan(10F)));
+		this.consequences.add(new PotionStatEffect(MobEffects.MINING_FATIGUE, 0)).addFilter(FunctionalEffectFilter.byValue(Range.lessThan(20F)));
+		this.consequences.add(new PotionStatEffect(MobEffects.WEAKNESS, 0)).addFilter(FunctionalEffectFilter.byValue(Range.lessThan(25F)));
+		this.consequences.add(HeatModifier::onHighTemperature).addFilter(FunctionalEffectFilter.byValue(Range.greaterThan(110F)));
 		
 		// Shit, these repeated parsers will surely get me a bad codefactor.io mark.
 		// Block temperature map
@@ -68,7 +82,7 @@ public class HeatModifier implements StatProvider {
 			int separator = entry.lastIndexOf(' ');
 			Block target = Block.getBlockFromName(entry.substring(0, separator));
 			Float value = Float.parseFloat(entry.substring(separator + 1));
-			HeatModifier.blockHeatMap.put(target, value);
+			this.blockHeatMap.put(target, value);
 		}
 		
 		// Armor heat isolation
@@ -77,14 +91,14 @@ public class HeatModifier implements StatProvider {
 			int separator = entry.lastIndexOf(' ');
 			ItemArmor.ArmorMaterial target = ItemArmor.ArmorMaterial.valueOf(entry.substring(0, separator).toUpperCase());
 			Float value = Float.parseFloat(entry.substring(separator + 1));
-			HeatModifier.armorInsulation.addArmorType(target, value);
+			this.armorInsulation.addArmorType(target, value);
 		}
 	}
 	
 	@SubscribeEvent
 	public static void registerStat(StatRegisterEvent event)
 	{
-		event.register(SurvivalInc.proxy.heat);
+		event.register(HeatModifier.instance);
 	}
 	
 	@Override
@@ -106,10 +120,10 @@ public class HeatModifier implements StatProvider {
 		SimpleStatRecord heat = (SimpleStatRecord)record;
 		float difference = Math.abs(target - heat.getValue());
 		float rate = difference * (float)ModConfig.HEAT.heatExchangeFactor;
-		rate = HeatModifier.exchangerate.apply(player, rate);
+		rate = this.exchangerate.apply(player, rate);
 		
 		// Apply the "side effects"
-		HeatModifier.consequences.apply(heat, player);
+		this.consequences.apply(heat, player);
 		
 		// If the current value is higher than the target, go down instead of up
 		if(heat.getValue() > target) rate *= -1;
@@ -147,7 +161,7 @@ public class HeatModifier implements StatProvider {
 	public static float applyWetnessCooldown(EntityPlayer player, float current)
 	{
 		StatTracker stats = player.getCapability(StatCapability.target, null);
-		SimpleStatRecord wetness = (SimpleStatRecord)stats.getRecord(SurvivalInc.proxy.wetness);
+		SimpleStatRecord wetness = (SimpleStatRecord)stats.getRecord(WetnessModifier.instance);
 		return current * (1F + (float)ModConfig.HEAT.wetnessExchangeMultiplier * (wetness.getValue() / wetness.valuerange.upperEndpoint()));
 	}
 	
@@ -189,9 +203,9 @@ public class HeatModifier implements StatProvider {
 		for(BlockPos position : blocks)
 		{
 			Block block = player.world.getBlockState(position).getBlock();
-			if(HeatModifier.blockHeatMap.containsKey(block))
+			if(HeatModifier.instance.blockHeatMap.containsKey(block))
 			{
-				float currentheat = HeatModifier.blockHeatMap.get(block);
+				float currentheat = HeatModifier.instance.blockHeatMap.get(block);
 				float proximity = (float)Math.sqrt(player.getPositionVector().squareDistanceTo(new Vec3d(position)));
 				currentheat *= (float)(ModConfig.HEAT.gaussScaling / (Math.pow(proximity, 2) + ModConfig.HEAT.gaussScaling));
 				if(currentheat > heat) heat = currentheat; // Use only the maximum value

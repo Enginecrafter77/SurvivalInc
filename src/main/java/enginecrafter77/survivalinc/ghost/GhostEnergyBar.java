@@ -74,7 +74,7 @@ public class GhostEnergyBar extends ScalableOverlayElement {
 	public GhostEnergyRecord getRecord()
 	{
 		if(this.tracker == null) this.tracker = Minecraft.getMinecraft().player.getCapability(StatCapability.target, null);
-		return (GhostEnergyRecord)this.tracker.getRecord(SurvivalInc.proxy.ghost);
+		return (GhostEnergyRecord)this.tracker.getRecord(GhostProvider.instance);
 	}
 
 }
