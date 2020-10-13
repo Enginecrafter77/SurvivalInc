@@ -8,6 +8,8 @@ import net.minecraft.nbt.NBTTagCompound;
 
 public class GhostEnergyRecord extends SimpleStatRecord {
 	
+	public static final String[] status_desc = new String[] {"INACTIVE", "ACTIVE", "DEACTIVATING", "ACTIVATING"};
+	
 	/**
 	 * BITS:
 	 * 0: active
@@ -36,7 +38,7 @@ public class GhostEnergyRecord extends SimpleStatRecord {
 		this.status &= 0xFE;
 		if(active) this.status |= 0x1;
 		this.status |= 0x2;
-		SurvivalInc.logger.info("Setting ghost status: {}", this.status);
+		SurvivalInc.logger.info("Setting ghost status {}.", this.getStatus());
 	}
 	
 	public boolean hasPendingChange()
@@ -47,14 +49,19 @@ public class GhostEnergyRecord extends SimpleStatRecord {
 	public void acceptChange()
 	{
 		this.status &= 0xFD;
-		SurvivalInc.logger.info("Ghost status change accepted: {}", this.status);
+		SurvivalInc.logger.info("Ghost status change to {} accepted.", this.getStatus());
+	}
+	
+	public String getStatus()
+	{
+		return GhostEnergyRecord.status_desc[this.status];
 	}
 
 	@Override
 	public NBTTagCompound serializeNBT()
 	{
 		NBTTagCompound tag = super.serializeNBT();
-		tag.setByte("status", this.status);
+		tag.setBoolean("active", this.isActive());
 		return tag;
 	}
 	
@@ -62,7 +69,7 @@ public class GhostEnergyRecord extends SimpleStatRecord {
 	public void deserializeNBT(NBTTagCompound nbt)
 	{
 		super.deserializeNBT(nbt);
-		this.status = nbt.getByte("status");
+		this.setActive(nbt.getBoolean("active"));
 	}
 	
 }

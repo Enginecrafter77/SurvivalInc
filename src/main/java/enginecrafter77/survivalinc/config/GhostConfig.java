@@ -7,4 +7,8 @@ public class GhostConfig {
 	@Config.LangKey("config.survivalinc:ghost.enable")
 	@Config.RequiresMcRestart
 	public boolean enabled = false;
+	
+	@Config.LangKey("config.survivalinc:ghost.interactionCost")
+	@Config.RequiresMcRestart
+	public double interactionCost = 20F;
 }
