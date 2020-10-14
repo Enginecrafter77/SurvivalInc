@@ -8,9 +8,15 @@ public class GhostConfig {
 	@Config.RequiresMcRestart
 	public boolean enabled = false;
 	
+	@Config.LangKey("config.survivalinc:ghost.interactionThreshold")
+	public double interactionThreshold = 40D;
+	
+	@Config.LangKey("config.survivalinc:ghost.interactionSubclassing")
+	public boolean interactionSubclassing = false;
+	
 	@Config.LangKey("config.survivalinc:ghost.interactionCost")
 	@Config.RequiresMcRestart
-	public double interactionCost = 20D;
+	public double interactionCost = 10D;
 	
 	@Config.LangKey("config.survivalinc:ghost.passiveNightRegen")
 	@Config.RequiresMcRestart

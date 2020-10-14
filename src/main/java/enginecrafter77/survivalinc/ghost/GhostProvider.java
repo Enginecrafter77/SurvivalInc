@@ -1,6 +1,5 @@
 package enginecrafter77.survivalinc.ghost;
 
-import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatRecord;
@@ -17,6 +16,11 @@ import java.util.Set;
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.net.StatSyncMessage;
+import net.minecraft.block.BlockDoor;
+import net.minecraft.block.BlockFenceGate;
+import net.minecraft.block.BlockRedstoneComparator;
+import net.minecraft.block.BlockRedstoneRepeater;
+import net.minecraft.block.BlockTrapDoor;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -61,19 +65,14 @@ public class GhostProvider implements StatProvider {
 			this.applicator.add(GhostProvider::synchronizeFood).addFilter(GhostProvider.active);
 		}
 		
-		this.interactor.disable(Blocks.BED);
-		this.interactor.disable(Blocks.FURNACE);
-		this.interactor.disable(Blocks.LIT_FURNACE);
-		this.interactor.disable(Blocks.CHEST);
-		this.interactor.disable(Blocks.TRAPPED_CHEST);
-		this.interactor.disable(Blocks.DISPENSER);
-		this.interactor.disable(Blocks.DROPPER);
-		this.interactor.disable(Blocks.CRAFTING_TABLE);
-		this.interactor.disable(Blocks.BREWING_STAND);
-		
-		this.interactor.mapCase(Blocks.LEVER, 0.75F, 0F);
-		this.interactor.mapCase(Blocks.STONE_BUTTON, 0.5F, 0F);
-		this.interactor.mapCase(Blocks.TRAPDOOR, 0.9F, 0F);
+		this.interactor.addBlockClass(BlockDoor.class, 1F);
+		this.interactor.addBlockClass(BlockFenceGate.class, 0.9F);
+		this.interactor.addBlockClass(BlockRedstoneComparator.class, 2F);
+		this.interactor.addBlockClass(BlockRedstoneRepeater.class, 2F);
+		this.interactor.addBlockClass(BlockTrapDoor.class, 0.9F);
+		this.interactor.setBlockCost(Blocks.STONE_BUTTON, 0.6F);
+		this.interactor.setBlockCost(Blocks.WOODEN_BUTTON, 0.5F);
+		this.interactor.setBlockCost(Blocks.LEVER, 0.75F);
 	}
 	
 	@Override
@@ -103,17 +102,6 @@ public class GhostProvider implements StatProvider {
 	public int energyToFood(GhostEnergyRecord record)
 	{
 		return Math.round(4F + 16F * (record.getValue() / record.valuerange.upperEndpoint()));
-	}
-	
-	public float getInteractionCost(PlayerInteractEvent event)
-	{
-		Float value = this.interactor.apply(event);
-		if(value == null)
-		{
-			SimpleStatRecord record = (SimpleStatRecord)GhostProvider.instance.createNewRecord();
-			value = record.valuerange.upperEndpoint() + 1;
-		}
-		return value;
 	}
 	
 	//==================================
@@ -147,16 +135,19 @@ public class GhostProvider implements StatProvider {
 		GhostEnergyRecord record = (GhostEnergyRecord)tracker.getRecord(GhostProvider.instance);
 		if(record.isActive())
 		{
-			float cost = GhostProvider.instance.getInteractionCost(event);
-			if(cost <= record.getValue())
+			float energy = record.getValue();
+			if(energy >= ModConfig.GHOST.interactionThreshold)
 			{
-				record.addToValue(-cost);
+				Float cost = GhostProvider.instance.interactor.apply(event);
+				if(cost != null && energy >= cost)
+				{
+					record.addToValue(-cost);
+					return;
+				}
 			}
-			else
-			{
-				if(event.isCancelable()) event.setCanceled(true);
-				if(event.hasResult()) event.setResult(Result.DENY);
-			}
+			
+			if(event.isCancelable()) event.setCanceled(true);
+			if(event.hasResult()) event.setResult(Result.DENY);
 		}
 	}
 	
@@ -186,7 +177,7 @@ public class GhostProvider implements StatProvider {
 			providers.remove(GhostProvider.instance);
 			for(StatProvider provider : providers)
 			{
-				tracker.setSuspended(provider, !isGhost);
+				tracker.setSuspended(provider, isGhost);
 			}
 			
 			record.acceptChange();

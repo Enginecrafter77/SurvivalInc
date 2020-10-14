@@ -1,12 +1,10 @@
 package enginecrafter77.survivalinc.ghost;
 
-import java.util.AbstractMap;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 
+import enginecrafter77.survivalinc.config.ModConfig;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -14,58 +12,64 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 public class InteractionProcessor implements Function<PlayerInteractEvent, Float> {
 	
 	public final Class<? extends PlayerInteractEvent> eventclass;
-	public final Map<Block, Map.Entry<Float, Float>> cases;
-	public final Set<Block> disabled;
+	public final Map<Class<? extends Block>, Float> general_cases;
+	public final Map<Block, Float> specific_cases;
 	public final float flatrate;
 	
 	public InteractionProcessor(Class<? extends PlayerInteractEvent> eventclass, float flatrate)
 	{
-		this.cases = new HashMap<Block, Map.Entry<Float, Float>>();
-		this.disabled = new HashSet<Block>();
+		this.specific_cases = new HashMap<Block, Float>();
+		this.general_cases = new HashMap<Class<? extends Block>, Float>();
 		this.eventclass = eventclass;
 		this.flatrate = flatrate;
 	}
 	
-	public void mapAbsoluteCase(Block block, float mapping)
+	public void setBlockCost(Block block, float multiplier)
 	{
-		this.mapCase(block, 1F, mapping);
+		this.specific_cases.put(block, multiplier);
 	}
 	
-	public void mapCase(Block block, float multiplier, float offset)
+	public void addBlockClass(Class<? extends Block> blockclass, float multiplier)
 	{
-		this.cases.put(block, new AbstractMap.SimpleEntry<Float, Float>(multiplier, offset));
+		this.general_cases.put(blockclass, multiplier);
 	}
 	
-	public void disable(Block block)
-	{
-		this.disabled.add(block);
-	}
-
 	public IBlockState getBlock(PlayerInteractEvent event)
 	{
-		return event.getEntity().world.getBlockState(event.getPos());
+		return event.getWorld().getBlockState(event.getPos());
 	}
 	
 	@Override
 	public Float apply(PlayerInteractEvent target)
 	{
-		if(this.eventclass.isAssignableFrom(target.getClass()))
+		Float rate = null;
+		if(target.getClass() == this.eventclass)
 		{
 			IBlockState blockstate = this.getBlock(target);
 			Block block = blockstate.getBlock();
+			Class<? extends Block> blockclass = block.getClass();
 			
-			if(!this.disabled.contains(block))
+			if(this.specific_cases.containsKey(block))
 			{
-				if(this.cases.containsKey(block))
+				rate = this.flatrate * this.specific_cases.get(block);
+			}
+			else if(this.general_cases.containsKey(blockclass))
+			{
+				rate = this.flatrate * this.general_cases.get(blockclass);
+			}
+			else if(ModConfig.GHOST.interactionSubclassing) // This is a compatibility feature (disabled by default)
+			{
+				for(Map.Entry<Class<? extends Block>, Float> entry : this.general_cases.entrySet())
 				{
-					Map.Entry<Float, Float> entry = this.cases.get(block);
-					return this.flatrate * entry.getKey() + entry.getValue();
+					if(entry.getKey().isAssignableFrom(blockclass))
+					{
+						rate = this.flatrate * entry.getValue();
+						break;
+					}
 				}
-				else return this.flatrate;
 			}
 		}
-		
-		return null;
+		return rate;
 	}
 	
 }
