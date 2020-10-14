@@ -62,12 +62,6 @@ public class SimpleStatBar extends GaugeBar {
 	}
 	
 	@Override
-	public void draw(RenderGameOverlayEvent event)
-	{
-		if(event.getType() == ElementType.HOTBAR) super.draw(event);
-	}
-	
-	@Override
 	public void setPositionOffset(int x, int y)
 	{
 		super.setPositionOffset(x, y);
@@ -103,11 +97,10 @@ public class SimpleStatBar extends GaugeBar {
 		return super.getY() + this.arrow.getHeight() + this.spacing;
 	}
 	
-	public StatTracker getTracker()
+	@Override
+	public void draw(RenderGameOverlayEvent event)
 	{
-		if(this.tracker == null)
-			this.tracker = Minecraft.getMinecraft().player.getCapability(StatCapability.target, null);
-		return this.tracker;
+		if(event.getType() == ElementType.HOTBAR) super.draw(event);
 	}
 	
 	@Override
@@ -126,5 +119,12 @@ public class SimpleStatBar extends GaugeBar {
 			Gui.drawModalRectWithCustomSizedTexture(this.getX(), this.getY() + super.getHeight() + this.spacing, texoffx, texoffy, this.width, iconheight, texwidth, texheight);
 			GlStateManager.disableAlpha(); // Disable alpha, just in case
 		}
+	}
+	
+	public StatTracker getTracker()
+	{
+		if(this.tracker == null)
+			this.tracker = Minecraft.getMinecraft().player.getCapability(StatCapability.target, null);
+		return this.tracker;
 	}
 }

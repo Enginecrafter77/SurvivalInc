@@ -45,14 +45,6 @@ public abstract class GaugeBar extends ScalableOverlayElement {
 		if(event.getType() == ElementType.HOTBAR) super.draw(event);
 	}
 	
-	/**
-	 * The ratio of the filled to the empty part of the gauge bar.
-	 * In other words, it's the fraction of the gauge bar's area
-	 * that should be filled.
-	 * @return Fraction of the bar's area that should be filled.
-	 */
-	protected abstract float getFillFraction();
-	
 	@Override
 	public void draw()
 	{
@@ -81,6 +73,14 @@ public abstract class GaugeBar extends ScalableOverlayElement {
 		GlStateManager.popMatrix();
 		GlStateManager.disableAlpha();
 	}
+	
+	/**
+	 * The ratio of the filled to the empty part of the gauge bar.
+	 * In other words, it's the fraction of the gauge bar's area
+	 * that should be filled.
+	 * @return Fraction of the bar's area that should be filled.
+	 */
+	protected abstract float getFillFraction();
 	
 	/**
 	 * Forces the gauge bar to recalculate the color the next render tick
