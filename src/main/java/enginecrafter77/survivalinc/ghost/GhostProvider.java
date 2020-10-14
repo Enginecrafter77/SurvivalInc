@@ -11,6 +11,7 @@ import enginecrafter77.survivalinc.stats.effect.FunctionalEffectFilter;
 import enginecrafter77.survivalinc.stats.effect.SideEffectFilter;
 import enginecrafter77.survivalinc.stats.effect.ValueStatEffect;
 
+import java.util.Random;
 import java.util.Set;
 
 import enginecrafter77.survivalinc.SurvivalInc;
@@ -22,12 +23,17 @@ import net.minecraft.block.BlockRedstoneComparator;
 import net.minecraft.block.BlockRedstoneRepeater;
 import net.minecraft.block.BlockTrapDoor;
 import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.util.DamageSource;
+import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.FoodStats;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
@@ -128,6 +134,10 @@ public class GhostProvider implements StatProvider {
 		}
 	}
 	
+	/**
+	 * Takes care of placing interaction toll on ghosts.
+	 * @param event The interaction event
+	 */
 	@SubscribeEvent
 	public static void onPlayerInteract(PlayerInteractEvent event)
 	{
@@ -151,6 +161,55 @@ public class GhostProvider implements StatProvider {
 		}
 	}
 	
+	/**
+	 * Makes sure ghosts won't be able to hit mobs. If they attempt to do so,
+	 * a tiny bit of their ghost energy will jump to the victim, thus draining
+	 * the ghost's energy. 
+	 * @param event The attack event
+	 */
+	@SubscribeEvent
+	public static void onPlayerHitEntity(LivingAttackEvent event)
+	{
+		DamageSource source = event.getSource();
+		if(source instanceof EntityDamageSource)
+		{
+			EntityDamageSource attack = (EntityDamageSource)source;
+			Entity attacker = attack.getTrueSource();
+			if(attacker instanceof EntityPlayer)
+			{
+				StatTracker tracker = attacker.getCapability(StatCapability.target, null);
+				GhostEnergyRecord record = (GhostEnergyRecord)tracker.getRecord(GhostProvider.instance);
+				
+				if(record.isActive())
+				{
+					Entity victim = event.getEntity();
+					Random rng = victim.world.rand;
+					for(int pass = 32; pass > 0; pass--)
+					{
+						victim.world.spawnParticle(EnumParticleTypes.CLOUD, victim.posX + victim.width * (rng.nextDouble() - 0.5), victim.posY + victim.height * rng.nextGaussian(), victim.posZ + victim.width * (rng.nextDouble() - 0.5), 0, 0, 0);
+					}
+					record.addToValue(-1F); // We need to punish the player a lil' bit
+					event.setCanceled(true);
+				}
+			}
+		}
+	}
+	
+	@SubscribeEvent
+	public static void disableItemPickup(EntityItemPickupEvent event)
+	{
+		StatTracker tracker = event.getEntityPlayer().getCapability(StatCapability.target, null);
+		GhostEnergyRecord record = (GhostEnergyRecord)tracker.getRecord(GhostProvider.instance);
+		if(record.isActive())
+		{
+			event.setCanceled(true);
+		}
+	}
+	
+	/**
+	 * Makes sure that ghosts are not attacked by any mobs whatsoever.
+	 * @param event The visibility modifier event
+	 */ 
 	@SubscribeEvent
 	public static void modifyVisibility(PlayerEvent.Visibility event)
 	{
