@@ -17,4 +17,7 @@ public class ClientConfig {
 	
 	@Config.LangKey("config.survivalinc:client.linearArrow")
 	public boolean linearArrow = false;
+	
+	@Config.LangKey("config.survivalinc:client.pulsatingGhosts")
+	public boolean pulsatingGhosts = true;
 }

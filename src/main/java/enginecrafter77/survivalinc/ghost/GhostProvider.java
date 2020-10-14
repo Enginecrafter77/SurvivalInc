@@ -33,7 +33,9 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 public class GhostProvider implements StatProvider {
 	private static final long serialVersionUID = -2088047893866334112L;
 	
+	public static final EffectFilter<GhostEnergyRecord> active = (GhostEnergyRecord record, EntityPlayer player) -> record.isActive();
 	public static final GhostProvider instance = new GhostProvider();
+	
 	public final EffectApplicator<GhostEnergyRecord> applicator;
 	public final InteractionProcessor interactor;
 	
@@ -48,11 +50,16 @@ public class GhostProvider implements StatProvider {
 		MinecraftForge.EVENT_BUS.register(GhostProvider.class);
 		
 		EffectFilter<Object> playerSprinting = FunctionalEffectFilter.byPlayer(EntityPlayer::isSprinting);
-		this.applicator.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, -0.2F)).addFilter(playerSprinting);
-		this.applicator.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, 0.05F)).addFilter(GhostProvider::duringNight);
-		this.applicator.add(GhostProvider::spawnSprintingParticles).addFilter(playerSprinting).addFilter(SideEffectFilter.CLIENT);
-		this.applicator.add(GhostProvider::synchronizeFood);
+		this.applicator.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, (float)ModConfig.GHOST.passiveNightRegen)).addFilter(GhostProvider::duringNight);
 		this.applicator.add(GhostProvider::onGhostUpdate);
+		
+		if(ModConfig.GHOST.allowFlying) this.applicator.add(GhostProvider::provideFlying);
+		if(ModConfig.GHOST.sprintingEnergyDrain > 0)
+		{
+			this.applicator.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, -(float)ModConfig.GHOST.sprintingEnergyDrain)).addFilter(playerSprinting);
+			this.applicator.add(GhostProvider::spawnSprintingParticles).addFilter(SideEffectFilter.CLIENT).addFilter(GhostProvider.active).addFilter(playerSprinting);
+			this.applicator.add(GhostProvider::synchronizeFood).addFilter(GhostProvider.active);
+		}
 		
 		this.interactor.disable(Blocks.BED);
 		this.interactor.disable(Blocks.FURNACE);
@@ -165,15 +172,6 @@ public class GhostProvider implements StatProvider {
 	//=======[Functional Effects]=======
 	//==================================
 	
-	public static void synchronizeFood(GhostEnergyRecord record, EntityPlayer player)
-	{
-		if(record.isActive())
-		{
-			FoodStats food = player.getFoodStats();
-			food.setFoodLevel(GhostProvider.instance.energyToFood(record));
-		}
-	}
-	
 	public static void onGhostUpdate(GhostEnergyRecord record, EntityPlayer player)
 	{		
 		if(record.hasPendingChange())
@@ -195,12 +193,27 @@ public class GhostProvider implements StatProvider {
 		}
 	}
 	
+	public static void synchronizeFood(GhostEnergyRecord record, EntityPlayer player)
+	{
+		FoodStats food = player.getFoodStats();
+		food.setFoodLevel(GhostProvider.instance.energyToFood(record));
+	}
+	
 	public static void spawnSprintingParticles(GhostEnergyRecord record, EntityPlayer player)
 	{
-		if(record.isActive())
+		WorldClient world = (WorldClient)player.world;
+		world.spawnParticle(EnumParticleTypes.CLOUD, player.lastTickPosX, player.lastTickPosY + (player.height / 2), player.lastTickPosZ, -player.motionX, 0D, -player.motionZ);
+	}
+	
+	public static void provideFlying(GhostEnergyRecord record, EntityPlayer player)
+	{
+		boolean shouldFly = record.getValue() > ModConfig.GHOST.flyingThreshold;
+		if(player.capabilities.allowFlying != shouldFly) player.capabilities.allowFlying = shouldFly;
+		
+		if(player.capabilities.isFlying)
 		{
-			WorldClient world = (WorldClient)player.world;
-			world.spawnParticle(EnumParticleTypes.CLOUD, player.lastTickPosX, player.lastTickPosY + (player.height / 2), player.lastTickPosZ, -player.motionX, 0D, -player.motionZ);
+			record.addToValue(-(float)ModConfig.GHOST.flyingDrain);
+			if(record.getValue() < ModConfig.GHOST.flyingThreshold) player.capabilities.isFlying = false;
 		}
 	}
 	

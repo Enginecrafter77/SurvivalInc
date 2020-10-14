@@ -1,5 +1,6 @@
 package enginecrafter77.survivalinc.ghost;
 
+import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import net.minecraft.client.Minecraft;
@@ -44,21 +45,20 @@ public class RenderGhost extends RenderLivingBase<EntityPlayer> {
 		GhostEnergyRecord record = (GhostEnergyRecord)tracker.getRecord(GhostProvider.instance);
 		float opacity = record.getValue() / record.valuerange.upperEndpoint();
 		
+		if(ModConfig.CLIENT.pulsatingGhosts)
+			opacity *= (0.8D + 0.15D * Math.sin(((float)entity.ticksExisted + partialTicks) / (2 * Math.PI)));
+		
 		GlStateManager.pushMatrix();
 		GlStateManager.scale(0.8F, 0.8F, 0.8F);
-		if(opacity < 0.9F)
-		{
-			GlStateManager.color(1F, 1F, 1F, opacity);
-			GlStateManager.enableNormalize();
-			GlStateManager.enableBlend();
-			GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
-			GlStateManager.depthMask(false);
-			super.doRender(entity, x, y + 1, z, entityYaw, partialTicks);
-			GlStateManager.depthMask(true);
-			GlStateManager.disableNormalize();
-			GlStateManager.disableBlend();
-		}
-		else super.doRender(entity, x, y + 1, z, entityYaw, partialTicks);
+		GlStateManager.color(1F, 1F, 1F, opacity);
+		GlStateManager.enableNormalize();
+		GlStateManager.enableBlend();
+		GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
+		GlStateManager.depthMask(false);
+		super.doRender(entity, x, y + 1, z, entityYaw, partialTicks);
+		GlStateManager.depthMask(true);
+		GlStateManager.disableNormalize();
+		GlStateManager.disableBlend();
 		GlStateManager.popMatrix();
 	}
 
