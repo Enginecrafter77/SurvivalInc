@@ -45,7 +45,7 @@ public class ClientProxy extends CommonProxy {
 	{
 		super.postInit(event);
 		
-		if(!(RenderHUD.instance.elements.isEmpty() || RenderHUD.instance.external.isEmpty())) MinecraftForge.EVENT_BUS.register(RenderHUD.instance);
+		if(RenderHUD.instance.isUseful()) MinecraftForge.EVENT_BUS.register(RenderHUD.instance);
 		if(ModConfig.GHOST.enabled) MinecraftForge.EVENT_BUS.register(new RenderGhost());
 	}
 }

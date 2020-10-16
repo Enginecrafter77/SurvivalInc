@@ -23,12 +23,26 @@ public class RenderHUD extends OverlayElementGroup {
 		this.external = new LinkedList<OverlayElement>();
 	}
 	
+	/**
+	 * @return True if registering this as event handler would have any effect, false otherwise
+	 */
+	public boolean isUseful()
+	{
+		return !(this.elements.isEmpty() && this.external.isEmpty());
+	}
+	
+	@Override
+	public void draw(RenderGameOverlayEvent event)
+	{
+		super.draw(event);
+		for(OverlayElement element : this.external)
+			element.draw(event);
+	}
+	
 	@SubscribeEvent
 	public void renderOverlay(RenderGameOverlayEvent event)
 	{
 		this.draw(event);
-		for(OverlayElement element : this.external)
-			element.draw(event);
 	}
 	
 	@Override
