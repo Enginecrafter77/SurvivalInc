@@ -1,6 +1,11 @@
 package enginecrafter77.survivalinc.client;
 
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import java.util.Set;
+
+import com.google.common.collect.ImmutableSet;
+
+import net.minecraft.client.gui.ScaledResolution;
+import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -11,12 +16,12 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * @author Enginecrafter77
  */
 @SideOnly(Side.CLIENT)
-public interface OverlayElement {
-	/**
-	 * Draws the element on the specified event
-	 * @param event The event to draw this element on
-	 */
-	public abstract void draw(RenderGameOverlayEvent event);
+public interface OverlayElement<RENDER_ARGUMENT> {
+	public static final Set<ElementType> ALLOW_ALL = ImmutableSet.of();
+	
+	public void draw(ScaledResolution resolution, ElementPositioner position, float partialTicks, RENDER_ARGUMENT arg);
+	
+	public Set<ElementType> disableElements(RENDER_ARGUMENT arg);
 	
 	/**
 	 * @return The width of the element

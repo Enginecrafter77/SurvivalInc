@@ -4,22 +4,17 @@ import java.awt.Color;
 import java.awt.color.ColorSpace;
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public abstract class GaugeBar extends ScalableOverlayElement {
+public class GaugeBar extends SimpleOverlayElement<Float> {
 	private static final ResourceLocation bartemplate = new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/statusbar.png");
 	private static final int bartemplate_width = 16, bartemplate_height = 32;
-	
-	public final TextureManager texturer;
 	
 	/** The base color */
 	public final Color color;
@@ -32,55 +27,39 @@ public abstract class GaugeBar extends ScalableOverlayElement {
 	
 	public GaugeBar(Color color)
 	{
-		super(GaugeBar.bartemplate_width / 2, GaugeBar.bartemplate_height);
-		this.texturer = Minecraft.getMinecraft().renderEngine;
+		super(8, 32);
 		this.colorcomponents = new float[4];
 		this.recalculateColor = true;
 		this.color = color;
 	}
 	
 	@Override
-	public void draw(RenderGameOverlayEvent event)
-	{
-		if(event.getType() == ElementType.HOTBAR) super.draw(event);
-	}
-	
-	@Override
-	public void draw()
-	{
-		float proportion = this.getFillFraction();
-		
-		float propheight = this.height * proportion;
-		int bar_bottom_dist = Math.round(propheight), bar_top_dist = Math.round((float)this.height - propheight);
+	public void draw(ScaledResolution resolution, ElementPositioner position, float partialTicks, Float prop)
+	{	
+		float propheight = this.getHeight() * prop;
+		int bar_bottom_dist = Math.round(propheight), bar_top_dist = Math.round((float)this.getHeight() - propheight);
 		
 		// Recalculate the color if needed
 		if(this.recalculateColor)
 		{
-			this.calculateRGBColor(proportion);
+			this.calculateRGBColor(prop);
 			this.recalculateColor = false;
 		}
 		
 		GlStateManager.enableAlpha();
 		// Draw the gauge frame
 		this.texturer.bindTexture(bartemplate);
-		Gui.drawModalRectWithCustomSizedTexture(this.getX(), this.getY(), 0, 0, this.width, this.height, GaugeBar.bartemplate_width, GaugeBar.bartemplate_height);
+		int x = position.getX(resolution), y = position.getY(resolution);
+		Gui.drawModalRectWithCustomSizedTexture(x, y, 0, 0, this.getWidth(), this.getHeight(), GaugeBar.bartemplate_width, GaugeBar.bartemplate_height);
 		
 		// Draw the gauge infill (colored using OpenGL)
 		GlStateManager.pushMatrix();
 		GlStateManager.color(this.colorcomponents[0], this.colorcomponents[1], this.colorcomponents[2], this.colorcomponents[3]);
-		Gui.drawModalRectWithCustomSizedTexture(this.getX(), this.getY() + bar_top_dist, this.width, bar_top_dist, this.width, bar_bottom_dist, GaugeBar.bartemplate_width, GaugeBar.bartemplate_height);
+		Gui.drawModalRectWithCustomSizedTexture(x, y + bar_top_dist, this.getWidth(), bar_top_dist, this.getWidth(), bar_bottom_dist, GaugeBar.bartemplate_width, GaugeBar.bartemplate_height);
 		GlStateManager.color(1F, 1F, 1F);
 		GlStateManager.popMatrix();
 		GlStateManager.disableAlpha();
 	}
-	
-	/**
-	 * The ratio of the filled to the empty part of the gauge bar.
-	 * In other words, it's the fraction of the gauge bar's area
-	 * that should be filled.
-	 * @return Fraction of the bar's area that should be filled.
-	 */
-	protected abstract float getFillFraction();
 	
 	/**
 	 * Forces the gauge bar to recalculate the color the next render tick

@@ -8,19 +8,16 @@ import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class DifferentialArrow extends ScalableOverlayElement {
+public class DifferentialArrow extends SimpleOverlayElement<StatTracker> {
 	public static final ResourceLocation arrowtexture = new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/arrow.png");
 	
-	public final TextureManager texturer;
 	public final StatProvider provider;
 	
 	protected float amplitude, min_scale, max_scale;
@@ -28,7 +25,6 @@ public class DifferentialArrow extends ScalableOverlayElement {
 	public DifferentialArrow(StatProvider provider, int width, int height)
 	{
 		super(width, height);
-		this.texturer = Minecraft.getMinecraft().renderEngine;
 		this.provider = provider;
 		
 		this.amplitude = 10F;
@@ -43,13 +39,7 @@ public class DifferentialArrow extends ScalableOverlayElement {
 	}
 	
 	@Override
-	public void draw(RenderGameOverlayEvent event)
-	{
-		if(event.getType() == ElementType.HOTBAR) super.draw(event);
-	}
-	
-	@Override
-	public void draw()
+	public void draw(ScaledResolution resolution, ElementPositioner position, float partialTicks, StatTracker arg)
 	{
 		// Bind the arrow texture
 		this.texturer.bindTexture(arrowtexture);
@@ -61,7 +51,7 @@ public class DifferentialArrow extends ScalableOverlayElement {
 		GlStateManager.enableAlpha();
 		GlStateManager.pushMatrix(); // Create new object by pushing matrix
 		// Offset this object into the desired position + centering offset
-		GlStateManager.translate(this.getX() + (this.width / 2), this.getY() + (this.height / 2), 0F);
+		GlStateManager.translate(position.getX(resolution) + (this.width / 2), position.getY(resolution) + (this.height / 2), 0F);
 		GlStateManager.pushMatrix(); // Create new object by pushing matrix
 		GlStateManager.scale(value, value, 1F); // Scale the arrow
 		if(inverse) GlStateManager.rotate(180F, 0F, 0F, 1F); // Rotate the arrow
@@ -107,5 +97,4 @@ public class DifferentialArrow extends ScalableOverlayElement {
 		if(record.getLastChange() < 0) scale *= -1F;
 		return scale;
 	}
-	
 }
