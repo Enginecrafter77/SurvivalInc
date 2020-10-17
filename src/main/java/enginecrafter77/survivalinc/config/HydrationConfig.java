@@ -8,6 +8,11 @@ public class HydrationConfig {
 	@Config.RequiresMcRestart
 	public boolean enabled = true;
 	
+	@Config.LangKey("config.survivalinc:hydration.startValue")
+	@Config.RangeDouble(min = 0, max = 100)
+	@Config.RequiresWorldRestart
+	public double startValue = 80D;
+	
 	@Config.LangKey("config.survivalinc:hydration.passiveDrain")
 	@Config.RangeDouble(min = 0)
 	public double passiveDrain = 0.001F;

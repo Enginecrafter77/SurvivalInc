@@ -20,7 +20,7 @@ public class GhostEnergyRecord extends SimpleStatRecord {
 	public GhostEnergyRecord()
 	{
 		super(Range.closed(0F, 100F));
-		this.status = 0x3;
+		this.status = 0x0; // INACTIVE
 	}
 	
 	public boolean shouldReceiveTicks()

@@ -153,7 +153,8 @@ public class SanityModifier implements StatProvider {
 	
 	public static void whenInDark(SanityRecord record, EntityPlayer player)
 	{
-		int lightlevel = player.world.getLight(new BlockPos(player));
+		BlockPos position = new BlockPos(player.getPositionVector().add(0D, player.getEyeHeight(), 0D));
+		int lightlevel = player.world.getLight(position);
 		
 		// If there is not enough light, steve/alex feels anxious
 		if(lightlevel < ModConfig.SANITY.comfortLightLevel)
@@ -278,6 +279,7 @@ public class SanityModifier implements StatProvider {
 		public SanityRecord()
 		{
 			super(values);
+			this.setValue((float)ModConfig.SANITY.startValue);
 			this.ticksAwake = 0;
 		}
 		

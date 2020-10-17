@@ -82,7 +82,9 @@ public class HydrationModifier implements IMessageHandler<WaterDrinkMessage, IMe
 	@Override
 	public StatRecord createNewRecord()
 	{
-		return new SimpleStatRecord(Range.closed(0F, 100F));
+		SimpleStatRecord record = new SimpleStatRecord(Range.closed(0F, 100F));
+		record.setValue((float)ModConfig.HYDRATION.startValue);
+		return record;
 	}
 	
 	/**
