@@ -57,15 +57,15 @@ public class SeasonCommand extends CommandBase {
 			PrintStream message = new PrintStream(buffer);
 			message.format("$aCurrent season:$r %s\n", data.toString());
 			message.format("$aSeason Length:$r %d\n", data.season.getLength());
-			message.format("$aCurrent Temperature Offset:$r %.03f\n", currentoffset);
-			message.format("$aPeak Temperature Offset:$r %f\n", data.season.getPeakTemperatureOffset());
-			message.format("$aTemperature Inclination:$r %.03f", data.season.getTemperatureOffset(data.day + 1) - currentoffset);
+			message.format("$aStandard Temperature Offset:$r %.03f\n", currentoffset);
+			message.format("$aPeak Temperature Offset in $e%s$a:$r %f\n", data.season.name(), data.season.getPeakTemperatureOffset());
+			message.format("$aCurrent Temperature Inclination:$r %.03f", data.season.getTemperatureOffset(data.day + 1) - currentoffset);
 			if(sender instanceof Entity)
 			{
 				BlockPos position = new BlockPos(sender.getPositionVector());
 				Biome biome = server.getWorld(0).getBiome(position);
 				float biometempdiff = biome.getTemperature(position) - biome.getDefaultTemperature();
-				message.format("\n$aNominal temperature in $e%s$a:$r %.02f ($7%s$r)", biome.getBiomeName().toUpperCase(), SeasonController.instance.biomeTemp.originals.get(biome), SeasonCommand.formatOffset("%.03f", currentoffset));
+				message.format("\n$aNominal temperature in current biome:$r %.02f ($7%s$r)", SeasonController.instance.biomeTemp.originals.get(biome), SeasonCommand.formatOffset("%.03f", currentoffset));
 				message.format("\n$aTemperature at $eX%d Y%d Z%d$a:$r %.02f ($7%s$r)", position.getX(), position.getY(), position.getZ(), biome.getTemperature(position), SeasonCommand.formatOffset("%.03f", biometempdiff));
 			}
 			message.close();

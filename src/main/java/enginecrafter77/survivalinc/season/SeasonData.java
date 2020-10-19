@@ -60,15 +60,33 @@ public class SeasonData extends WorldSavedData {
 		return String.format("%s (Day %d)", season.name(), day);
 	}
 	
-	public void update(World world)
+	/**
+	 * Advances the date information by the
+	 * specified number of days. If the method
+	 * also happens to cross a boundary of a
+	 * season (i.e. not only the day is updated,
+	 * but also the season), the returned value
+	 * is greater than 0. In fact, the return
+	 * value is equal to the times this method
+	 * has crossed a season boundary while calculating
+	 * the new date.
+	 * @param days The days to advance the date by
+	 * @return Number of seasons advanced.
+	 */
+	public int advance(int days)
 	{
-		this.day++;
+		int seasons_advanced = 0;
 		
-		if(day > season.getLength())
+		while((days + this.day) >= this.season.getLength())
 		{
-			this.season = season.getFollowing(1);
+			days -= this.season.getLength() - this.day;
+			this.season = this.season.getFollowing(1);
+			seasons_advanced++;
 			this.day = 0;
 		}
+		this.day += days;
+		
+		return seasons_advanced;
 	}
 
 	/**

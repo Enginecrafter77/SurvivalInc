@@ -32,10 +32,13 @@ import enginecrafter77.survivalinc.SurvivalInc;
 
 public class SeasonController implements IMessageHandler<SeasonUpdateEvent, IMessage> {
 	
+	/** The length of one full minecraft day/night cycle */
 	public static final int minecraftDayLength = 24000;
 	
+	/** The season controller singleton */
 	public static final SeasonController instance = new SeasonController();
 	
+	/** The biome temperature controller instance */
 	public BiomeTempController biomeTemp;
 	
 	private SeasonController()
@@ -120,11 +123,11 @@ public class SeasonController implements IMessageHandler<SeasonUpdateEvent, IMes
 		if(!event.world.isRemote && event.phase == TickEvent.Phase.START && dimension == DimensionType.OVERWORLD)
 		{
 			// Is it early morning? Also, before the player really joins, some time passes. Give the player some time to actually receive the update.
-			if(event.world.getWorldTime() % SeasonController.minecraftDayLength == 200)
+			if(event.world.getWorldTime() % SeasonController.minecraftDayLength == 1200)
 			{
-				SurvivalInc.logger.info("Day advance. Event: Side: {}, Phase: {}, Type: {}, Dim: {}", event.side.name(), event.phase.name(), event.type.name(), dimension.name());
+				SurvivalInc.logger.info("Season update triggered. (P:{}; D:{})", event.phase.name(), dimension.name());
 				SeasonData data = SeasonData.load(event.world);
-				data.update(event.world);
+				data.advance(1);
 				
 				MinecraftForge.EVENT_BUS.post(new SeasonUpdateEvent(event.world, data)); // Broadcast the event on server side
 				

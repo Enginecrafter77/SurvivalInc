@@ -11,7 +11,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
- * An universal transporter of an infrmation
+ * An universal transporter of an information
  * that the season data has updated. This class
  * is designed to be used as event, as well as
  * being used as message for processing on Client
