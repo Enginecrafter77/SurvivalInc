@@ -15,8 +15,12 @@ public class SanityConfig {
 	public double startValue = 100D;
 	
 	@Config.LangKey("config.survivalinc:sanity.wetnessAnnoyanceThreshold")
+	@Config.RangeDouble(min = 0, max = 1)
+	public double wetnessAnnoyanceThreshold = 0.35D;
+	
+	@Config.LangKey("config.survivalinc:sanity.maxWetnessAnnoyance")
 	@Config.RangeDouble(min = 0, max = 100)
-	public double wetnessAnnoyanceThreshold = 50;
+	public double maxWetnessAnnoyance = 0.02D;
 	
 	@Config.LangKey("config.survivalinc:sanity.darkSpookFactorBase")
 	@Config.RangeDouble(min = 1E-4, max = 0.1)

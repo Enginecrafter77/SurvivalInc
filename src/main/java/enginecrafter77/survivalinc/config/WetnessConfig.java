@@ -21,6 +21,10 @@ public class WetnessConfig {
 	@Config.RangeDouble(min = 0, max = 1)
 	public double minimalWalkSpeed = 0.25;
 	
+	@Config.LangKey("config.survivalinc:wetness.submergedSlowdownFactor")
+	@Config.RangeDouble(min = 0, max = 1)
+	public double submergedSlowdownFactor = 0.25;
+	
 	@Config.LangKey("config.survivalinc:wetness.slowdownThreshold")
 	@Config.RangeDouble(min = 0, max = 100)
 	public double slowdownThreshold = 60;

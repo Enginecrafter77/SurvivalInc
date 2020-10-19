@@ -65,7 +65,7 @@ public class SanityModifier implements StatProvider {
 	public void init()
 	{
 		MinecraftForge.EVENT_BUS.register(SanityModifier.class);
-		if(ModConfig.WETNESS.enabled) this.effects.add(SanityModifier::whenWet);
+		if(ModConfig.WETNESS.enabled) this.effects.add(SanityModifier::whenWet).addFilter(FunctionalEffectFilter.byPlayer(EntityPlayer::isInWater).invert());
 		this.effects.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, 0.004F)).addFilter(FunctionalEffectFilter.byPlayer(EntityPlayer::isPlayerSleeping));
 		this.effects.add(SanityModifier::whenInDark).addFilter(HydrationModifier.isOutsideOverworld.invert());
 		this.effects.add(SanityModifier::playStaticNoise).addFilter(SideEffectFilter.CLIENT);
@@ -168,11 +168,11 @@ public class SanityModifier implements StatProvider {
 	{
 		float boundary = (float)ModConfig.SANITY.wetnessAnnoyanceThreshold;
 		StatTracker stats = player.getCapability(StatCapability.target, null);
-		SimpleStatRecord wetness = (SimpleStatRecord)stats.getRecord(SanityModifier.instance);
-		float annoyance = (wetness.getValue() - wetness.getValueRange().upperEndpoint()) / 10000;
-		annoyance = (boundary / -10000) - annoyance;
-		
-		if(wetness.getValue() >= boundary) record.addToValue(-annoyance);
+		SimpleStatRecord wetness = (SimpleStatRecord)stats.getRecord(WetnessModifier.instance);		
+		if(wetness.getNormalizedValue() > boundary)
+		{
+			record.addToValue(((wetness.getNormalizedValue() - boundary) / (1F - boundary)) * -(float)ModConfig.SANITY.maxWetnessAnnoyance);
+		}
 	}
 	
 	public static void whenNearEntities(SanityRecord record, EntityPlayer player)
