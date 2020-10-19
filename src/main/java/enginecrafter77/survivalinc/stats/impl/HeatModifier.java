@@ -141,7 +141,8 @@ public class HeatModifier implements StatProvider {
 	@Override
 	public StatRecord createNewRecord()
 	{
-		SimpleStatRecord record = new SimpleStatRecord(Range.closed(-20F, 120F));
+		SimpleStatRecord record = new SimpleStatRecord();
+		record.setValueRange(Range.closed(-20F, 120F));
 		record.setValue(80F);
 		return record;
 	}
@@ -162,7 +163,7 @@ public class HeatModifier implements StatProvider {
 	{
 		StatTracker stats = player.getCapability(StatCapability.target, null);
 		SimpleStatRecord wetness = (SimpleStatRecord)stats.getRecord(WetnessModifier.instance);
-		return current * (1F + (float)ModConfig.HEAT.wetnessExchangeMultiplier * (wetness.getValue() / wetness.valuerange.upperEndpoint()));
+		return current * (1F + (float)ModConfig.HEAT.wetnessExchangeMultiplier * wetness.getNormalizedValue());
 	}
 	
 	/**

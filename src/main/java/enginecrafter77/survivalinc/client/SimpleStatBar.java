@@ -43,8 +43,7 @@ public class SimpleStatBar extends OverlayElementGroup<StatTracker> {
 
 	private Float getRecordValue(StatTracker tracker)
 	{
-		SimpleStatRecord record = (SimpleStatRecord)tracker.getRecord(provider);
-		return record.getValue() / record.valuerange.upperEndpoint();
+		return ((SimpleStatRecord)tracker.getRecord(provider)).getNormalizedValue();
 	}
 	
 	public static class IconRender extends SimpleOverlayElement<Object>

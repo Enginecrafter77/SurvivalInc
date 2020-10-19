@@ -82,7 +82,8 @@ public class HydrationModifier implements IMessageHandler<WaterDrinkMessage, IMe
 	@Override
 	public StatRecord createNewRecord()
 	{
-		SimpleStatRecord record = new SimpleStatRecord(Range.closed(0F, 100F));
+		SimpleStatRecord record = new SimpleStatRecord();
+		record.setValueRange(Range.closed(0F, 100F));
 		record.setValue((float)ModConfig.HYDRATION.startValue);
 		return record;
 	}
@@ -120,7 +121,7 @@ public class HydrationModifier implements IMessageHandler<WaterDrinkMessage, IMe
 		{
 			StatTracker tracker = player.getCapability(StatCapability.target, null);
 			SimpleStatRecord heat = (SimpleStatRecord)tracker.getRecord(HydrationModifier.instance);
-			if(((heat.getValue() - heat.valuerange.lowerEndpoint()) / (heat.valuerange.upperEndpoint() - heat.valuerange.lowerEndpoint())) > ModConfig.HYDRATION.sweatingThreshold)
+			if(heat.getNormalizedValue() > ModConfig.HYDRATION.sweatingThreshold)
 				drain *= ModConfig.HYDRATION.sweatingMultiplier;
 		}
 		record.addToValue(-drain);

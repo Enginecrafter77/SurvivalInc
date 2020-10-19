@@ -169,7 +169,7 @@ public class SanityModifier implements StatProvider {
 		float boundary = (float)ModConfig.SANITY.wetnessAnnoyanceThreshold;
 		StatTracker stats = player.getCapability(StatCapability.target, null);
 		SimpleStatRecord wetness = (SimpleStatRecord)stats.getRecord(SanityModifier.instance);
-		float annoyance = (wetness.getValue() - wetness.valuerange.upperEndpoint()) / 10000;
+		float annoyance = (wetness.getValue() - wetness.getValueRange().upperEndpoint()) / 10000;
 		annoyance = (boundary / -10000) - annoyance;
 		
 		if(wetness.getValue() >= boundary) record.addToValue(-annoyance);
@@ -227,7 +227,7 @@ public class SanityModifier implements StatProvider {
 		{
 			StatTracker stats = player.getCapability(StatCapability.target, null);
 			SanityRecord sanity = (SanityRecord)stats.getRecord(SanityModifier.instance);
-			sanity.addToValue(sanity.valuerange.upperEndpoint() * (float)ModConfig.SANITY.sleepResoration);
+			sanity.addToValue(sanity.getValueRange().upperEndpoint() * (float)ModConfig.SANITY.sleepResoration);
 			sanity.resetSleep();
 			SurvivalInc.proxy.net.sendToAll(new StatSyncMessage(player));
 			player.getFoodStats().setFoodLevel(player.getFoodStats().getFoodLevel() - 8);
@@ -278,7 +278,8 @@ public class SanityModifier implements StatProvider {
 		
 		public SanityRecord()
 		{
-			super(values);
+			super();
+			this.setValueRange(SanityRecord.values);
 			this.setValue((float)ModConfig.SANITY.startValue);
 			this.ticksAwake = 0;
 		}

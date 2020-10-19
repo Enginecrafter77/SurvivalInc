@@ -15,6 +15,7 @@ import net.minecraft.util.ResourceLocation;
  * @author Enginecrafter77
  */
 public class SimpleStatRegister implements StatTracker {
+	/** A map of the stat provider IDs with the {@link SimpleStatRegisterEntry} */
 	public final Map<ResourceLocation, SimpleStatRegisterEntry> statmap;
 	
 	public SimpleStatRegister()
@@ -106,11 +107,22 @@ public class SimpleStatRegister implements StatTracker {
 		this.getEntry(stat).setActive(!suspended);
 	}
 	
+	/**
+	 * Returns the internally associated {@link SimpleStatRegisterEntry}.
+	 * @param stat The stat provider
+	 * @return Internally associated {@link SimpleStatRegisterEntry}.
+	 */
 	public SimpleStatRegisterEntry getEntry(StatProvider stat)
 	{
 		return this.statmap.get(stat.getStatID());
 	}
 	
+	/**
+	 * Creates a new {@link SimpleStatRegisterEntry} to be used
+	 * with this implementation of {@link SimpleStatRegister}.
+	 * @param stat
+	 * @return
+	 */
 	protected SimpleStatRegisterEntry createNewEntry(StatProvider stat)
 	{
 		return new SimpleStatRegisterEntry(stat);

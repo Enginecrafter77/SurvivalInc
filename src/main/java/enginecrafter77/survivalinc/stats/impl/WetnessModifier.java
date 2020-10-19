@@ -94,9 +94,11 @@ public class WetnessModifier implements StatProvider {
 	}
 
 	@Override
-	public SimpleStatRecord createNewRecord()
+	public StatRecord createNewRecord()
 	{
-		return new SimpleStatRecord(Range.closed(0F, 100F));
+		SimpleStatRecord record = new SimpleStatRecord();
+		record.setValueRange(Range.closed(0F, 100F));
+		return record;
 	}
 	
 	@SubscribeEvent
@@ -107,7 +109,7 @@ public class WetnessModifier implements StatProvider {
 	
 	public static void slowDown(SimpleStatRecord record, EntityPlayer player)
 	{
-		float current = record.getValue(), max = record.valuerange.upperEndpoint();
+		float current = record.getValue(), max = record.getValueRange().upperEndpoint();
 		float threshold = (float)ModConfig.WETNESS.slowdownThreshold / 100F;
 		
 		// This is the math part. I am way less worried about impact of this. Mmmm math...
@@ -146,13 +148,9 @@ public class WetnessModifier implements StatProvider {
 	{
 		WorldClient world = (WorldClient)player.world;
 		Random rng = world.rand;
-		float coefficient = (record.getValue() / record.valuerange.upperEndpoint());
-		if(rng.nextFloat() < coefficient)
+		for(int index = Math.round(4F * record.getNormalizedValue()); index > 0; index--)
 		{
-			for(int index = 0; index < 4; index++)
-			{
-				world.spawnParticle(EnumParticleTypes.DRIP_WATER, player.posX + (rng.nextFloat() * 0.5 - 0.25), player.posY + (rng.nextFloat() * 1 + 0.25), player.posZ + (rng.nextFloat() * 0.5 - 0.25), player.motionX, -0.5, player.motionZ, null);
-			}
+			world.spawnParticle(EnumParticleTypes.DRIP_WATER, player.posX + (rng.nextFloat() * 0.5 - 0.25), player.posY + (rng.nextFloat() * 1 + 0.25), player.posZ + (rng.nextFloat() * 0.5 - 0.25), player.motionX, -0.5, player.motionZ, null);
 		}
 	}
 	
@@ -162,7 +160,7 @@ public class WetnessModifier implements StatProvider {
 		{
 			Material headBlockMaterial = player.world.getBlockState(new BlockPos(player).up()).getMaterial();
 			if(headBlockMaterial == Material.WATER) record.addToValue(5F);
-			else if(record.getValue() < 0.4F * record.valuerange.upperEndpoint()) record.addToValue(1.25F);
+			else if(record.getNormalizedValue() < 0.4F) record.addToValue(1.25F);
 		}
 	}
 	

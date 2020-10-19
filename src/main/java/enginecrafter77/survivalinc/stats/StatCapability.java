@@ -17,6 +17,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.relauncher.Side;
 
 @Mod.EventBusSubscriber
 public class StatCapability implements ICapabilitySerializable<NBTBase> {
@@ -80,7 +81,7 @@ public class StatCapability implements ICapabilitySerializable<NBTBase> {
 		StatTracker stat = event.player.getCapability(StatCapability.target, null);
 		stat.update(event.player);
 		
-		if(!event.player.world.isRemote && event.player.world.getWorldTime() % ModConfig.GENERAL.serverSyncDelay == 0)
+		if(event.side == Side.SERVER && event.player.world.getWorldTime() % ModConfig.GENERAL.serverSyncDelay == 0)
 		{
 			// Send update to all players about the currently processed player's stats
 			SurvivalInc.proxy.net.sendToAll(new StatSyncMessage(event.player));

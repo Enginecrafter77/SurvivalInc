@@ -44,7 +44,7 @@ public class RenderGhost extends RenderLivingBase<EntityPlayer> {
 	{
 		StatTracker tracker = entity.getCapability(StatCapability.target, null);
 		GhostEnergyRecord record = (GhostEnergyRecord)tracker.getRecord(GhostProvider.instance);
-		float opacity = record.getValue() / record.valuerange.upperEndpoint();
+		float opacity = record.getNormalizedValue();
 		
 		if(ModConfig.CLIENT.pulsatingGhosts)
 			opacity *= (0.8D + 0.15D * Math.sin(((float)entity.ticksExisted + partialTicks) / (2 * Math.PI)));

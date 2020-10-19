@@ -9,13 +9,13 @@ import net.minecraft.util.ResourceLocation;
 
 /**
  * StatTracker is capability interface used for tracking the
- * so-called {@link StatProvider stats}. Stats are usually a
- * simple numbers represented by floating-point numbers, which
- * are often used to represent the current state associated with
- * player. The stats are designed to be updated each tick using
- * the {@link #update(EntityPlayer)} method. As such, they are
- * kept up-to-date, so additional mechanisms can take appropriate
- * action according to the current value of a stat.
+ * so-called {@link StatProvider stats}. Stats are simple data
+ * values kept using {@link StatRecord}s. The stats are designed
+ * to be updated each tick based on the situation the player is
+ * currently in, so that other mechanisms can act upon them.
+ * StatTracker provides an interface for interaction with these
+ * stats, as well as a system for seamless synchronization between
+ * client and server.
  * @author Enginecrafter77
  */
 public interface StatTracker {
@@ -74,10 +74,7 @@ public interface StatTracker {
 	 * method generally involves iterating over the
 	 * set returned by {@link #getRegisteredProviders()},
 	 * getting the currently stored record value, running the
-	 * {@link StatProvider#updateValue(EntityPlayer, float)}
-	 * with the second parameter equal to the current value,
-	 * applying the target {@link OverflowHandler overflow policy},
-	 * and storing the new value in the record.
+	 * {@link StatProvider#update(EntityPlayer, StatRecord)}.
 	 * @param player The player to apply the update to
 	 */
 	public void update(EntityPlayer player);

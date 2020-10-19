@@ -111,7 +111,7 @@ public class GhostProvider implements StatProvider {
 	
 	public int energyToFood(GhostEnergyRecord record)
 	{
-		return Math.round(4F + 16F * (record.getValue() / record.valuerange.upperEndpoint()));
+		return Math.round(4F + 16F * record.getNormalizedValue());
 	}
 	
 	//==================================

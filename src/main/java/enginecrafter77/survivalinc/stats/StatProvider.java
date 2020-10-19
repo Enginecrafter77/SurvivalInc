@@ -6,12 +6,10 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 
 /**
- * StatProvider describes how a specific stat should behave.
- * This includes specifying maximum, minimum and default values.
- * This interface is designed to be used as singleton. That means
- * it's not good to store stat values in the implementing class,
- * as this stat provider can possibly be shared among multiple
- * {@link StatTracker trackers}.
+ * StatProvider serves as a descriptor of a stat.
+ * StatProvider's main job is providing the stat's
+ * ID, creating new {@link StatRecord}, and updating
+ * the record each tick.
  * @author Enginecrafter77
  */
 public interface StatProvider extends Serializable {

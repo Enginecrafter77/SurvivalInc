@@ -36,7 +36,7 @@ public class GhostEnergyBar extends SimpleOverlayElement<StatTracker> {
 		GhostEnergyRecord energy = (GhostEnergyRecord)tracker.getRecord(GhostProvider.instance);
 		if(energy.isActive())
 		{
-			float value = GhostEnergyBar.count * energy.getValue() / energy.valuerange.upperEndpoint();
+			float value = GhostEnergyBar.count * energy.getNormalizedValue();
 			
 			this.texturer.bindTexture(texture);
 			GlStateManager.enableAlpha();
