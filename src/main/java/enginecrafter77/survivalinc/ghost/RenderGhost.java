@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.GlStateManager.SourceFactor;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -78,5 +79,13 @@ public class RenderGhost extends RenderLivingBase<EntityPlayer> {
 			this.doRender(player, event.getX(), event.getY(), event.getZ(), player.renderYawOffset, event.getPartialRenderTick());
 			event.setCanceled(true);
 		}
+	}
+	
+	@SubscribeEvent
+	public void renderPlayerHand(RenderHandEvent event)
+	{
+		StatTracker tracker = Minecraft.getMinecraft().player.getCapability(StatCapability.target, null);
+		GhostEnergyRecord record = (GhostEnergyRecord)tracker.getRecord(GhostProvider.instance);
+		if(record.isActive()) event.setCanceled(true);
 	}
 }

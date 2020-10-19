@@ -22,6 +22,7 @@ import net.minecraft.block.BlockFenceGate;
 import net.minecraft.block.BlockRedstoneComparator;
 import net.minecraft.block.BlockRedstoneRepeater;
 import net.minecraft.block.BlockTrapDoor;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -31,6 +32,9 @@ import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.FoodStats;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
@@ -152,6 +156,7 @@ public class GhostProvider implements StatProvider {
 				if(cost != null && energy >= cost)
 				{
 					record.addToValue(-cost);
+					GhostProvider.spawnInteractionParticles(event.getEntityPlayer(), event.getPos(), cost);
 					return;
 				}
 			}
@@ -230,6 +235,10 @@ public class GhostProvider implements StatProvider {
 			player.capabilities.disableDamage = isGhost;
 			player.capabilities.allowEdit = !isGhost;
 			
+			// A dirty hack to disable bobbing. Probably not the best way to do it, but whatever.
+			if(player.world.isRemote && player == Minecraft.getMinecraft().player)
+				Minecraft.getMinecraft().gameSettings.viewBobbing = !isGhost;
+			
 			// Suspend all other stats
 			StatTracker tracker = player.getCapability(StatCapability.target, null);
 			Set<StatProvider> providers = tracker.getRegisteredProviders();
@@ -252,7 +261,7 @@ public class GhostProvider implements StatProvider {
 	public static void spawnSprintingParticles(GhostEnergyRecord record, EntityPlayer player)
 	{
 		WorldClient world = (WorldClient)player.world;
-		world.spawnParticle(EnumParticleTypes.CLOUD, player.lastTickPosX, player.lastTickPosY + (player.height / 2), player.lastTickPosZ, -player.motionX, 0D, -player.motionZ);
+		world.spawnParticle(EnumParticleTypes.CLOUD, player.lastTickPosX, player.lastTickPosY + (player.height / 2), player.lastTickPosZ, -player.motionX, 0.1D, -player.motionZ);
 	}
 	
 	public static void provideFlying(GhostEnergyRecord record, EntityPlayer player)
@@ -277,5 +286,27 @@ public class GhostProvider implements StatProvider {
 		}
 		else night = !player.world.isDaytime();
 		return night;
+	}
+	
+	//=====================================
+	//=======[Miscellaneous Methods]=======
+	//=====================================
+	
+	public static void spawnInteractionParticles(EntityPlayer player, BlockPos position, float cost)
+	{
+		if(player.world.isRemote)
+		{
+			AxisAlignedBB box = player.world.getBlockState(position).getBoundingBox(player.world, position).grow(0.1D);
+			Vec3d offbound = new Vec3d(box.maxX - box.minX, box.maxY - box.minY, box.maxZ - box.minY);
+			Vec3d center = new Vec3d(position).add(box.getCenter());
+			
+			Random rng = player.world.rand;
+			for(int pass = Math.round(cost * 2F); pass > 0; pass--)
+			{
+				Vec3d randoff = new Vec3d(rng.nextDouble() - 0.5D, rng.nextDouble() - 0.5D, rng.nextDouble() - 0.5D);
+				Vec3d pos = center.add(offbound.x * randoff.x, offbound.y * randoff.y, offbound.z * randoff.z);
+				player.world.spawnParticle(EnumParticleTypes.CLOUD, pos.x, pos.y, pos.z, 0, 0.1D, 0);
+			}
+		}
 	}
 }
