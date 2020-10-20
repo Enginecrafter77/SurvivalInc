@@ -150,7 +150,7 @@ public class GhostProvider implements StatProvider {
 		if(record.isActive())
 		{
 			float energy = record.getValue();
-			if(energy >= ModConfig.GHOST.interactionThreshold)
+			if(ModConfig.GHOST.enableInteraction && energy >= ModConfig.GHOST.interactionThreshold)
 			{
 				Float cost = GhostProvider.instance.interactor.apply(event);
 				if(cost != null && energy >= cost)
@@ -227,6 +227,13 @@ public class GhostProvider implements StatProvider {
 	//=======[Functional Effects]=======
 	//==================================
 	
+	/**
+	 * Takes care of setting ghosts invulnerable,
+	 * disabling bobbing and suspending all the
+	 * other stats.
+	 * @param record The ghost energy record
+	 * @param player The player to apply the changes to
+	 */
 	public static void onGhostUpdate(GhostEnergyRecord record, EntityPlayer player)
 	{		
 		if(record.hasPendingChange())
@@ -252,21 +259,40 @@ public class GhostProvider implements StatProvider {
 		}
 	}
 	
+	/**
+	 * Synchronizes player's food level with the ghost energy.
+	 * This makes sure that players with little ghost energy
+	 * would not be able to sprint.
+	 * @param record The ghost energy record
+	 * @param player The player to apply the effect to
+	 */
 	public static void synchronizeFood(GhostEnergyRecord record, EntityPlayer player)
 	{
 		FoodStats food = player.getFoodStats();
 		food.setFoodLevel(GhostProvider.instance.energyToFood(record));
 	}
 	
+	/**
+	 * Spawns cloud particles representing emitted ghost
+	 * energy while the ghost is "sprinting".
+	 * @param record The ghost energy record
+	 * @param player The player to apply the effect to
+	 */
 	public static void spawnSprintingParticles(GhostEnergyRecord record, EntityPlayer player)
 	{
 		WorldClient world = (WorldClient)player.world;
 		world.spawnParticle(EnumParticleTypes.CLOUD, player.lastTickPosX, player.lastTickPosY + (player.height / 2), player.lastTickPosZ, -player.motionX, 0.1D, -player.motionZ);
 	}
 	
+	/**
+	 * Makes sure that ghosts with enough energy are able to fly
+	 * as long as their energy is above the flying threshold.
+	 * @param record The ghost energy record
+	 * @param player The player to apply the effect to
+	 */
 	public static void provideFlying(GhostEnergyRecord record, EntityPlayer player)
 	{
-		boolean shouldFly = record.getValue() > ModConfig.GHOST.flyingThreshold;
+		boolean shouldFly = record.isActive() && record.getValue() > ModConfig.GHOST.flyingThreshold;
 		if(player.capabilities.allowFlying != shouldFly) player.capabilities.allowFlying = shouldFly;
 		
 		if(player.capabilities.isFlying)
@@ -276,6 +302,11 @@ public class GhostProvider implements StatProvider {
 		}
 	}
 	
+	/**
+	 * Passively gives free energy to ghosts during night.
+	 * @param record The ghost energy record
+	 * @param player The player to apply the effect to
+	 */
 	public static boolean duringNight(GhostEnergyRecord record, EntityPlayer player)
 	{
 		boolean night;
@@ -292,6 +323,11 @@ public class GhostProvider implements StatProvider {
 	//=======[Miscellaneous Methods]=======
 	//=====================================
 	
+	/**
+	 * Spawns a cloud around the block the player has right-clicked.
+	 * @param record The ghost energy record
+	 * @param player The player to apply the effect to
+	 */
 	public static void spawnInteractionParticles(EntityPlayer player, BlockPos position, float cost)
 	{
 		if(player.world.isRemote)
@@ -305,7 +341,7 @@ public class GhostProvider implements StatProvider {
 			{
 				Vec3d randoff = new Vec3d(rng.nextDouble() - 0.5D, rng.nextDouble() - 0.5D, rng.nextDouble() - 0.5D);
 				Vec3d pos = center.add(offbound.x * randoff.x, offbound.y * randoff.y, offbound.z * randoff.z);
-				player.world.spawnParticle(EnumParticleTypes.CLOUD, pos.x, pos.y, pos.z, 0, 0.1D, 0);
+				player.world.spawnParticle(EnumParticleTypes.CLOUD, pos.x, pos.y, pos.z, 0, 0.2D, 0);
 			}
 		}
 	}

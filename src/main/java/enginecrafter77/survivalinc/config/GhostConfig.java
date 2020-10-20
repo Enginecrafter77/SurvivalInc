@@ -8,7 +8,11 @@ public class GhostConfig {
 	@Config.RequiresMcRestart
 	public boolean enabled = false;
 	
+	@Config.LangKey("config.survivalinc:ghost.enableInteraction")
+	public boolean enableInteraction = true;
+	
 	@Config.LangKey("config.survivalinc:ghost.interactionThreshold")
+	@Config.RangeDouble(min = 0D, max = 100D)
 	public double interactionThreshold = 40D;
 	
 	@Config.LangKey("config.survivalinc:ghost.interactionSubclassing")

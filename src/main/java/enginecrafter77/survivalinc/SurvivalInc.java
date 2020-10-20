@@ -11,7 +11,6 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 @Mod(modid = SurvivalInc.MOD_ID)
@@ -26,7 +25,7 @@ public class SurvivalInc {
 	public static SurvivalInc instance;
 
 	// Logger
-	public static final Logger logger = LogManager.getLogger(SurvivalInc.class.getSimpleName());
+	public static Logger logger;
 
 	// Create proxies to load stuff correctly.
 	@SidedProxy(clientSide = "enginecrafter77.survivalinc.ClientProxy", serverSide = "enginecrafter77.survivalinc.CommonProxy")
@@ -36,6 +35,7 @@ public class SurvivalInc {
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event)
 	{
+		SurvivalInc.logger = event.getModLog();
 		proxy.preInit(event);
 	}
 
