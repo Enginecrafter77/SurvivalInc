@@ -30,7 +30,7 @@ public class SeasonCommand extends CommandBase {
 	@Override
 	public String getUsage(ICommandSender sender)
 	{
-		return "/season <set|info> [season|day]";
+		return "/season <set|info|advance> [<season> [day]]";
 	}
 
 	@Override
@@ -51,13 +51,21 @@ public class SeasonCommand extends CommandBase {
 			MinecraftForge.EVENT_BUS.post(new SeasonUpdateEvent(world, data));
 			data.markDirty();
 			break;
+		case "advance":
+			int days = 1;
+			if(args.length >= 2) days = CommandBase.parseInt(args[1]);
+			data.advance(days);
+			sender.sendMessage(new TextComponentString("Advancing season by " + days + " days --> " + data.toString()));
+			MinecraftForge.EVENT_BUS.post(new SeasonUpdateEvent(world, data));
+			data.markDirty();
+			break;
 		case "info":
 			float currentoffset = data.season.getTemperatureOffset(data.day);
 			ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 			PrintStream message = new PrintStream(buffer);
 			message.format("$aCurrent season:$r %s\n", data.toString());
 			message.format("$aSeason Length:$r %d\n", data.season.getLength());
-			message.format("$aStandard Temperature Offset:$r %.03f\n", currentoffset);
+			message.format("$aTemperature Offset on $eDay %d$a:$r %.03f\n", data.day, currentoffset);
 			message.format("$aPeak Temperature Offset in $e%s$a:$r %f\n", data.season.name(), data.season.getPeakTemperatureOffset());
 			message.format("$aCurrent Temperature Inclination:$r %.03f", data.season.getTemperatureOffset(data.day + 1) - currentoffset);
 			if(sender instanceof Entity)

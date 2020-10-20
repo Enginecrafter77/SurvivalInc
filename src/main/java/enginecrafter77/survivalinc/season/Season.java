@@ -40,6 +40,12 @@ public enum Season {
 		return seasons[index];
 	}
 	
+	/** @return The length of the season in minecraft days. */
+	public int getLength()
+	{
+		return ModConfig.SEASONS.durations[this.ordinal()];
+	}
+	
 	/**
 	 * Returns the peak temperature offset of the season.
 	 * The peak temperature offset is the offset with the
@@ -53,10 +59,15 @@ public enum Season {
 		return (float)ModConfig.SEASONS.temperatures[this.ordinal()];
 	}
 	
-	/** @return The length of the season in minecraft days. */
-	public int getLength()
+	/**
+	 * Peak day is the day in the current season when
+	 * the temperature offset is supposed to hit the
+	 * temperature returned by {@link #getPeakTemperatureOffset()}
+	 * @return The day the temperature offset meets it's peak
+	 */
+	public int getPeakDay()
 	{
-		return ModConfig.SEASONS.durations[this.ordinal()];
+		return this.getLength() / 2;
 	}
 	
 	/**
@@ -102,25 +113,25 @@ public enum Season {
 	public float getTemperatureOffset(int days)
 	{
 		// Indicates which way around we are going. 1 means forward while -1 means backward.
-		int way = days > (this.getLength() / 2) ? 1 : -1;
+		int way = days > this.getPeakDay() ? 1 : -1;
 		
 		// The season we are aiming at with our calculations (e.g. Spring day 10 is beyond half, so temperature shifts towards summer)
 		Season target = this.getFollowing(way);
 		
 		// The current absolute day of year
-		int currentabs = this.getAbsoluteDay(days);
+		int absolute_day = this.getAbsoluteDay(days);
 		
 		// The absolute day of half of this season (where temperature is supposed to achieve the specified value)
-		int localabs = this.getAbsoluteDay(this.getLength() / 2);
+		int localpeak = this.getAbsoluteDay(this.getPeakDay());
 		
 		// The absolute day of half of the target season (where temperature is supposed to achieve the specified value)
-		int targetabs = target.getAbsoluteDay(target.getLength() / 2);
+		int targetpeak = target.getAbsoluteDay(target.getPeakDay());
 		
 		/*
 		 * Remember your math teacher saying that when you multiply
 		 * inequality with negative number, it flips around?
 		 * This basically checks if we are wrapping around the year
-		 * edge, and fixes the targettings.
+		 * edge, and if so, adds/subtracts a whole year length.
 		 */
 		if(way * target.ordinal() < way * this.ordinal())
 		{
@@ -155,19 +166,23 @@ public enum Season {
 			 * as far away from the edge as the original number.
 			 * It may be hard to imagine, but it works perfectly.
 			 */
-			targetabs += way * Season.getYearLength();
+			targetpeak += way * Season.getYearLength();
 		}
 		
-		float value = Season.calculateSlope(currentabs, localabs, targetabs, this.getPeakTemperatureOffset(), target.getPeakTemperatureOffset());
-		
-		System.out.format("\tSeason %s day %02d aiming towards %s(%02d)[%f] => \t %f\n", this.name(), days, target.name(), target.getLength(), target.getPeakTemperatureOffset(), value);
-		
+		float value = Season.interpolateTemperature(absolute_day, localpeak, targetpeak, this.getPeakTemperatureOffset(), target.getPeakTemperatureOffset());
+		System.out.format("\tSeason %s day %02d transitioning into %s --> %f\n", this.toString(), days, target.toString(), value);
 		return value;
 	}
 	
+	@Override
+	public String toString()
+	{
+		return String.format("%s(%d; %f@%d)", this.name(), this.getLength(), this.getPeakTemperatureOffset(), this.getPeakDay());
+	}
+	
 	/**
-	 * Calculates the current temperature offset using the
-	 * specified function variable values.
+	 * Calculates the current temperature offset by utilizing
+	 * simple linear interpolation method.
 	 * 
 	 * Mathematically, this function is a simple linear
 	 * equation that, when plotted, creates a nice slope
@@ -181,7 +196,6 @@ public enum Season {
 	 * 	y = (b-a)--------- + a
 	 *  		  d1 - d0
 	 * </pre>
-	 * 
 	 * This method basically computes the difference between the temperatures,
 	 * and applies it to the fraction of the days elapsed from the total days.
 	 * Finally, the temperature correction equal to <i>a</i> is applied.
@@ -192,9 +206,8 @@ public enum Season {
 	 * @param b The temperature of point B
 	 * @return The value linearly scaled between points A and B
 	 */
-	private static float calculateSlope(float x, float d0, float d1, float a, float b)
+	private static float interpolateTemperature(float x, float d0, float d1, float a, float b)
 	{
-		System.out.format("FX: X=%f, d0=%f, d1=%f, a=%f, b=%f ---\\/\n", x, d0, d1, a, b);
 		return (b - a) * ((x - d0) / (d1 - d0)) + a;
 	}
 }
