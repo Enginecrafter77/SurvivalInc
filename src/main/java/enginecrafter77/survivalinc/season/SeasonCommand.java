@@ -3,14 +3,17 @@ package enginecrafter77.survivalinc.season;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
+import enginecrafter77.survivalinc.SurvivalInc;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.command.WrongUsageException;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
-import net.minecraft.world.World;
+import net.minecraft.world.DimensionType;
+import net.minecraft.world.WorldServer;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.common.MinecraftForge;
 
@@ -36,19 +39,18 @@ public class SeasonCommand extends CommandBase {
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
 	{
-		World world = sender.getEntityWorld();
+		WorldServer world = server.getWorld(DimensionType.OVERWORLD.getId());		
 		SeasonData data = SeasonData.load(world);
 		
-		if(args.length < 1) throw new CommandException("Insufficient arguments\n" + this.getUsage(sender));
+		if(args.length < 1) throw new WrongUsageException("Insufficient arguments\nUsgae: " + this.getUsage(sender));
 		
 		switch(args[0])
 		{
 		case "set":
-			if(args.length < 3) throw new CommandException(this.getUsage(sender));
+			if(args.length < 3) throw new WrongUsageException("Insufficient arguments\nUsage: " + this.getUsage(sender));
 			data.season = Season.valueOf(args[1]);
 			data.day = Integer.parseInt(args[2]);
-			sender.sendMessage(new TextComponentString("Set season to " + data.toString()));
-			MinecraftForge.EVENT_BUS.post(new SeasonUpdateEvent(world, data));
+			sender.sendMessage(new TextComponentString("Set calendar time to " + data.toString()));
 			data.markDirty();
 			break;
 		case "advance":
@@ -56,7 +58,6 @@ public class SeasonCommand extends CommandBase {
 			if(args.length >= 2) days = CommandBase.parseInt(args[1]);
 			data.advance(days);
 			sender.sendMessage(new TextComponentString("Advancing season by " + days + " days --> " + data.toString()));
-			MinecraftForge.EVENT_BUS.post(new SeasonUpdateEvent(world, data));
 			data.markDirty();
 			break;
 		case "info":
@@ -81,6 +82,12 @@ public class SeasonCommand extends CommandBase {
 			break;
 		default:
 			break; // Like that's ever gonna happen! What a load of...
+		}
+		
+		if(data.isDirty())
+		{
+			SurvivalInc.proxy.net.sendToDimension(new SeasonSyncMessage(data), DimensionType.OVERWORLD.getId());
+			MinecraftForge.EVENT_BUS.post(new SeasonChangedEvent(world, data));
 		}
 	}
 	

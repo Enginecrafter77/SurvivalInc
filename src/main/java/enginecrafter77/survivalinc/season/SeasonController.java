@@ -30,7 +30,7 @@ import java.util.List;
 
 import enginecrafter77.survivalinc.SurvivalInc;
 
-public class SeasonController implements IMessageHandler<SeasonUpdateEvent, IMessage> {
+public class SeasonController implements IMessageHandler<SeasonSyncMessage, IMessage> {
 	
 	/** The length of one full minecraft day/night cycle */
 	public static final int minecraftDayLength = 24000;
@@ -53,27 +53,116 @@ public class SeasonController implements IMessageHandler<SeasonUpdateEvent, IMes
 		catch(NoSuchFieldException exc)
 		{
 			RuntimeException nexc = new RuntimeException();
-			nexc.initCause(exc); //ReportedException
+			nexc.initCause(exc);
 			throw nexc;
 		}
+	}
+	
+	public void notifyClient(EntityPlayerMP client)
+	{
+		SeasonData data = SeasonData.load(client.world);
+		SurvivalInc.logger.info("Sending season data ({}) to player \"{}\", who just entered overworld", data.toString(), client.getDisplayNameString());
+		SurvivalInc.proxy.net.sendTo(new SeasonSyncMessage(data), client);
 	}
 	
 	// Process the event and broadcast it on client
 	@Override
 	@SideOnly(Side.CLIENT)
-	public IMessage onMessage(SeasonUpdateEvent message, MessageContext ctx)
+	public IMessage onMessage(SeasonSyncMessage message, MessageContext ctx)
 	{
-		World world = message.getWorld();
-		if(world == null) SurvivalInc.logger.error("Minecraft remote world tracking instance is null. This is NOT a good thing. Skipping season update...");
+		WorldClient world = Minecraft.getMinecraft().world;
+		if(world == null) SurvivalInc.logger.error("Minecraft remote world tracking instance is null. This is NOT a good thing. Season sync packet dropped...");
+		else if(world.provider.getDimensionType() != DimensionType.OVERWORLD) throw new RuntimeException("Received a stat update message from outside overworld.");
 		else
 		{
+			SurvivalInc.logger.info("Updateding client's world season data to {}...", message.data.toString());
 			world.setData(SeasonData.datakey, message.data);
-			MinecraftForge.EVENT_BUS.post(message);
-			SurvivalInc.logger.info("Updated client's world season data to {}", message.toString());
+			MinecraftForge.EVENT_BUS.post(new SeasonChangedEvent(world, message.data));
+			SurvivalInc.logger.info("Updated client's world season data to {}", message.data.toString());
 		}
 		return null;
 	}
 	
+	/**
+	 * Sends the season data to new players in overworld
+	 * @param event The player logged in event
+	 */
+	@SubscribeEvent
+	public void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event)
+	{
+		if(!event.player.world.isRemote && event.player.world.provider.getDimensionType() == DimensionType.OVERWORLD)
+			this.notifyClient((EntityPlayerMP)event.player);
+	}
+	
+	/**
+	 * Sends the season data to players entering overworld
+	 * @param event The player logged in event
+	 */
+	@SubscribeEvent
+	public void onPlayerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event)
+	{
+		if(!event.player.world.isRemote && event.toDim == DimensionType.OVERWORLD.getId())
+			this.notifyClient((EntityPlayerMP)event.player);
+	}
+	
+	/**
+	 * Load the season data from disk on server side.
+	 * @param event The world load event
+	 */
+	@SubscribeEvent
+	public void loadSeasonData(WorldEvent.Load event)
+	{
+		World world = event.getWorld();
+		if(!world.isRemote && world.provider.getDimensionType() == DimensionType.OVERWORLD) MinecraftForge.EVENT_BUS.post(new SeasonChangedEvent(world));
+	}
+	
+	/**
+	 * Updates the season data on server. Unfortunately,
+	 * this method won't work for clients.
+	 * @param event The world tick event
+	 */
+	@SubscribeEvent
+	public void onUpdate(TickEvent.WorldTickEvent event)
+	{
+		DimensionType dimension = event.world.provider.getDimensionType();
+		if(event.side == Side.SERVER && event.phase == TickEvent.Phase.START && dimension == DimensionType.OVERWORLD)
+		{
+			// Is it early morning? Also, before the player really joins, some time passes. Give the player some time to actually receive the update.
+			if(event.world.getWorldTime() % SeasonController.minecraftDayLength == 1200)
+			{
+				SurvivalInc.logger.info("Season update triggered in {} on {}", dimension.name(), event.side.name());
+				SeasonData data = SeasonData.load(event.world);
+				data.advance(1);
+				data.markDirty();
+				
+				SurvivalInc.proxy.net.sendToDimension(new SeasonSyncMessage(data), DimensionType.OVERWORLD.getId()); // Synchronize the data with clients, so they being processing on their side
+				MinecraftForge.EVENT_BUS.post(new SeasonChangedEvent(event.world, data)); // Broadcast and process the event on server side
+			}
+		}
+	}
+	
+	/**
+	 * Capture the season update event and apply biome temperatures
+	 * @param event The season changed event
+	 */
+	@SubscribeEvent
+	public void applySeasonData(SeasonChangedEvent event)
+	{
+		WorldInfo info = event.getWorld().getWorldInfo();
+		this.biomeTemp.applySeason(event.data);
+		
+		// Determine the weather. The season is the main factor.
+		float randWeather = (float) Math.random();
+		if(randWeather < event.getSeason().rainfallchance && info.isRaining())
+			info.setRaining(true);
+		
+		SurvivalInc.logger.info("Applied biome temperatures for season {}", event.data.toString());
+	}
+	
+	/**
+	 * Determines the color of the grass in the said biome
+	 * @param event The grass color event
+	 */
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void biomeGrass(BiomeEvent.GetGrassColor event)
@@ -95,74 +184,11 @@ public class SeasonController implements IMessageHandler<SeasonUpdateEvent, IMes
 		}
 		
 	}
-	
-	@SubscribeEvent
-	public void onPlayerLogsIn(PlayerEvent.PlayerLoggedInEvent event)
-	{
-		if(!event.player.world.isRemote)
-		{
-			SeasonUpdateEvent update = new SeasonUpdateEvent(event.player.world);
-			SurvivalInc.logger.info("Synchronizing client's ({}) season data: {}", event.player.getDisplayNameString(), update.data.toString());
-			SurvivalInc.proxy.net.sendTo(update, (EntityPlayerMP)event.player);
-		}
-	}
-	
-	// Apply the season data on world load
-	@SubscribeEvent
-	public void register(WorldEvent.Load event)
-	{		
-		SeasonData data = SeasonData.load(event.getWorld());
-		MinecraftForge.EVENT_BUS.post(new SeasonUpdateEvent(event.getWorld(), data));
-	}
-	
-	// Used to fire SeasonUpdateEvent when 
-	@SubscribeEvent
-	public void onUpdate(TickEvent.WorldTickEvent event)
-	{
-		DimensionType dimension = event.world.provider.getDimensionType();
-		if(!event.world.isRemote && event.phase == TickEvent.Phase.START && dimension == DimensionType.OVERWORLD)
-		{
-			// Is it early morning? Also, before the player really joins, some time passes. Give the player some time to actually receive the update.
-			if(event.world.getWorldTime() % SeasonController.minecraftDayLength == 1200)
-			{
-				SurvivalInc.logger.info("Season update triggered. (P:{}; D:{})", event.phase.name(), dimension.name());
-				SeasonData data = SeasonData.load(event.world);
-				data.advance(1);
-				
-				MinecraftForge.EVENT_BUS.post(new SeasonUpdateEvent(event.world, data)); // Broadcast the event on server side
-				
-				data.markDirty();
-			}
-		}
-	}
-	
-	// Capture the season update event and share it with clients
-	@SubscribeEvent
-	public void relayToClients(SeasonUpdateEvent event)
-	{		
-		if(!event.getWorld().isRemote)
-		{
-			SurvivalInc.logger.info("Broadcasting season data to clients");
-			SurvivalInc.proxy.net.sendToAll(event); // Send new event to client side
-		}
-	}
-	
-	// Capture the season update event and apply biome temperatures
-	@SubscribeEvent
-	public void applySeasonData(SeasonUpdateEvent event)
-	{
-		WorldInfo info = event.getWorld().getWorldInfo();
-		this.biomeTemp.applySeason(event.data);
-		
-		// Determine the weather. The season is the main factor.
-		float randWeather = (float) Math.random();
-		if(randWeather < event.getSeason().rainfallchance && info.isRaining())
-			info.setRaining(true);
-		
-		SurvivalInc.logger.info("Season update ({}) applied.", event.data.toString());
-	}
 
-	// Add bonus harvest drops from crops in the Autumn.
+	/**
+	 * Add bonus harvest drops from crops in the Autumn.
+	 * @param event The block harvest drops event
+	 */
 	@SubscribeEvent
 	public void onCropHarvest(BlockEvent.HarvestDropsEvent event)
 	{
@@ -184,7 +210,10 @@ public class SeasonController implements IMessageHandler<SeasonUpdateEvent, IMes
 		}
 	}
 
-	// Make nothing grow in winter, and more grow in summer
+	/**
+	 * Make nothing grow in winter, and let crops grow faster in summer
+	 * @param event
+	 */
 	@SubscribeEvent
 	public void affectGrowth(BlockEvent.CropGrowEvent.Pre event)
 	{		

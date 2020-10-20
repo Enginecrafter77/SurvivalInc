@@ -13,10 +13,9 @@ import com.google.common.collect.ImmutableSet;
 
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.block.BlockMelting;
-import enginecrafter77.survivalinc.season.Season;
-import enginecrafter77.survivalinc.season.SeasonData;
-import enginecrafter77.survivalinc.season.SeasonUpdateEvent;
+import enginecrafter77.survivalinc.season.SeasonChangedEvent;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.DimensionType;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
@@ -160,10 +159,10 @@ public enum MeltingController {
 	}
 	
 	@SubscribeEvent
-	public static void onSeasonUpdate(SeasonUpdateEvent event)
+	public static void onSeasonUpdate(SeasonChangedEvent event)
 	{
 		World world = event.getWorld();
-		if(world.isRemote) return; // We don't serve clients here
+		if(world.isRemote) return; // Avoid running on client
 		
 		WorldServer serverworld = (WorldServer)world;
 		ChunkProviderServer provider = serverworld.getChunkProvider();
@@ -178,14 +177,11 @@ public enum MeltingController {
 	
 	@SubscribeEvent
 	public static void onChunkLoad(ChunkEvent.Load event)
-	{		
-		if(event.getWorld().isRemote) return; // We don't serve clients here
-		
-		SeasonData data = SeasonData.load(event.getWorld());
-		if(data.season != Season.WINTER)
-		{
-			MeltingController.processChunks(ImmutableSet.of(event.getChunk()));
-		}
+	{
+		World world = event.getWorld();
+		// Avoid running on client and outside overworld
+		if(world.isRemote || world.provider.getDimensionType() != DimensionType.OVERWORLD) return;
+		MeltingController.processChunks(ImmutableSet.of(event.getChunk()));
 	}
 	
 	/**

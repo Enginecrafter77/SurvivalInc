@@ -1,5 +1,6 @@
 package enginecrafter77.survivalinc.season;
 
+import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
 
 public enum Season {
@@ -170,7 +171,7 @@ public enum Season {
 		}
 		
 		float value = Season.interpolateTemperature(absolute_day, localpeak, targetpeak, this.getPeakTemperatureOffset(), target.getPeakTemperatureOffset());
-		System.out.format("\tSeason %s day %02d transitioning into %s --> %f\n", this.toString(), days, target.toString(), value);
+		SurvivalInc.logger.debug("Season {} day {} transitioning into {} --> {}", this.toString(), days, target.toString(), value);
 		return value;
 	}
 	

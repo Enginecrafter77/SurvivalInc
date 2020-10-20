@@ -52,7 +52,6 @@ public class BiomeTempController {
 	{
 		try
 		{
-			SurvivalInc.logger.info("Setting base temperature of biome {} to {}", biome.getRegistryName().toString(), temperature);
 			target.setFloat(biome, temperature);
 		}
 		catch(ReflectiveOperationException exc)
@@ -93,6 +92,9 @@ public class BiomeTempController {
 	 */
 	public void applySeason(SeasonData data)
 	{		
+		long time = System.currentTimeMillis();
+		int processed = 0;
+		
 		float offset = data.season.getTemperatureOffset(data.day);
 		for(Biome biome : ForgeRegistries.BIOMES.getValuesCollection())
 		{
@@ -101,11 +103,15 @@ public class BiomeTempController {
 			// A little check to fix compatibility with mods that add biomes during runtime
 			if(!this.originals.containsKey(biome))
 			{
-				SurvivalInc.logger.info("Biome {} has not saved it's original value. Mapping to {}.", biome.getRegistryName().toString(), biome.getDefaultTemperature());
+				SurvivalInc.logger.debug("Biome {} has not saved it's original value. Mapping to {}.", biome.getRegistryName().toString(), biome.getDefaultTemperature());
 				this.originals.put(biome, biome.getDefaultTemperature());
 			}
 			
 			this.setTemperature(biome, this.calculateNewBiomeTemperature(biome, data, offset));
+			processed++;
 		}
+		
+		time = System.currentTimeMillis() - time;
+		SurvivalInc.logger.info("Processed {} biomes in {} ms", processed, time);
 	}
 }
