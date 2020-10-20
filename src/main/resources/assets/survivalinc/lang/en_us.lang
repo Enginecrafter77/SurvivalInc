@@ -37,11 +37,13 @@ survivalinc.client.tooltip=Client-Only Settings
 config.survivalinc:client.barTransparency=Bar Transparency
 config.survivalinc:client.barTransparency.tooltip=The transparency of the HUD
 config.survivalinc:client.statBarPosition=HUD Position
-config.survivalinc:client.statBarPosition.tooltip=The position of the HUD, represented by an expression. The expression can use mathematical symbols, as well as 2 defined variables: $w and $h, representing scaled width and height respectively.
+config.survivalinc:client.statBarPosition.tooltip=The position of the HUD, represented by 2 alternating pairs of numbers. The resultant X/Y position of the stat HUD is calculated as "an + b", where n is the current maximum dimension of the coordinate.
 config.survivalinc:client.autumnLeafColor=Autumn Foliage Color
 config.survivalinc:client.autumnLeafColor.tooltip=The color multiplier applied to each RGB component of the original foliage color during autumn
 config.survivalinc:client.linearArrow=Linear Arrow
 config.survivalinc:client.linearArrow.tooltip=Forces the stat change arrow to behave in linear fashion rather than exponential.
+config.survivalinc:client.pulsatingGhosts=Pulsating Ghosts
+config.survivalinc:client.pulsatingGhosts.tooltip=Determines if the ghosts should be seen as "pulsing". Setting to false disables this behavior.
 
 # Heat config
 survivalinc.heat=Heat
@@ -84,6 +86,8 @@ config.survivalinc:hydration.sweatingThreshold=Sweating Threshold
 config.survivalinc:hydration.sweatingThreshold.tooltip=The minimal amount of heat that causes increased sweating
 config.survivalinc:hydration.passiveDrain=Passive Drain
 config.survivalinc:hydration.passiveDrain.tooltip=The rate at which hydration passively decreases
+config.survivalinc:hydration.startValue=Starting Value
+config.survivalinc:hydration.startValue.tooltip=The amount of hydration the player has upon spawn
 
 # Sanity config
 survivalinc.sanity=Sanity
@@ -92,6 +96,8 @@ config.survivalinc:sanity.enable=Enable Sanity
 config.survivalinc:sanity.enable.tooltip=Determines if the sanity mechanics should take part in the game.
 config.survivalinc:sanity.wetnessAnnoyanceThreshold=Wetness Annoyance
 config.survivalinc:sanity.wetnessAnnoyanceThreshold.tooltip=The minimal level of wetness that starts to be annoying to the character, thus losing sanity.
+config.survivalinc:sanity.maxWetnessAnnoyance=Wetness Annoyance
+config.survivalinc:sanity.maxWetnessAnnoyance.tooltip=The maximum sanity drain caused by excess wetness
 config.survivalinc:sanity.comfortLightLevel=Comfort Light Level
 config.survivalinc:sanity.comfortLightLevel.tooltip=The lowest sanity-neutral light level.
 config.survivalinc:sanity.darkSpookFactorBase=Dark Spookiness Base
@@ -120,6 +126,8 @@ config.survivalinc:sanity.sleepDeprivationMax=Maximum Sleep Deficit
 config.survivalinc:sanity.sleepDeprivationMax.tooltip=The amount of minecraft ticks after the sleep deprivation's effect reaches the full intensity
 config.survivalinc:sanity.sleepDeprivationDebuff=Sleep Deficit Debuff
 config.survivalinc:sanity.sleepDeprivationDebuff.tooltip=The amount of sanity taken each tick after the maximum sleep deficit amount of ticks without sleep have been elapsed.
+config.survivalinc:sanity.startValue=Starting Value
+config.survivalinc:sanity.startValue.tooltip=The amount of sanity the player has upon spawn
 
 # Wetness config
 survivalinc.wetness=Wetness
@@ -138,6 +146,8 @@ config.survivalinc:wetness.towelDryRate=Towel Dry Rate
 config.survivalinc:wetness.towelDryRate.tooltip=The rate at which towels dry when placed on top of operating furnace
 config.survivalinc:wetness.passiveDryRate=Passive Drying Rate
 config.survivalinc:wetness.passiveDryRate.tooltip=The rate at which wetness passively decreases
+config.survivalinc:wetness.submergedSlowdownFactor=Submerged Slowdown
+config.survivalinc:wetness.submergedSlowdownFactor.tooltip=A number by which the wetness slowdown is multiplied in water.
 
 # Season config
 survivalinc.seasons=Seasons
@@ -160,3 +170,19 @@ survivalinc.ghost=Ghost
 survivalinc.ghost.tooltip=Ghost related settings
 config.survivalinc:ghost.enable=Enable Ghost
 config.survivalinc:ghost.enable.tooltip=Should spawning ghost on death instead of respawn be enabled?
+config.survivalinc:ghost.interactionThreshold=Interaction Threshold
+config.survivalinc:ghost.interactionThreshold.tooltip=The lowest ghost energy value to allow block interaction
+config.survivalinc:ghost.interactionSubclassing=Interaction Subclassing
+config.survivalinc:ghost.interactionSubclassing.tooltip=Makes the ghost interaction code try to also match block's subclasses. This may improve compatibility, but will very slightly impact performance.
+config.survivalinc:ghost.interactionCost=Interaction Cost
+config.survivalinc:ghost.interactionCost.tooltip=The standard cost of right-click interaction with allowed blocks
+config.survivalinc:ghost.passiveNightRegen=Night Regeneration
+config.survivalinc:ghost.passiveNightRegen.tooltip=The rate in units/tick in which the ghost energy regenerates at night.
+config.survivalinc:ghost.sprintingEnergyDrain=Sprinting Drain
+config.survivalinc:ghost.sprintingEnergyDrain.tooltip=The rate at which springing drains ghost energy, in units/tick
+config.survivalinc:ghost.allowFlying=Allow Flying
+config.survivalinc:ghost.allowFlying.tooltip=Set to false to disable any ghost flying whatsoever.
+config.survivalinc:ghost.flyingThreshold=Flying Threshold
+config.survivalinc:ghost.flyingThreshold.tooltip=The minimal ghost energy at which ghosts gain the ability to fly
+config.survivalinc:ghost.flyingDrain=Flying Drain
+config.survivalinc:ghost.flyingDrain.tooltip=The rate at which flying drains ghost energy
