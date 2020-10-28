@@ -13,20 +13,19 @@ buildscript {
 
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'com.palantir.git-version'
+apply plugin: 'maven-publish'
 
-version gitVersion()
 group = "enginecrafter77.survivalinc" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "SurvivalInc"
+version gitVersion()
 
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
+// Need this here so eclipse task generates correctly.
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
 minecraft {
 	version = "1.12.2-14.23.5.2847"
 	mappings = "stable_39"
 	runDir = "run"
-	
-	// An SRG named sources jar is made by default. uncomment this to disable.
-	//makeObfSourceJar = false
 }
 
 repositories {
@@ -35,29 +34,10 @@ repositories {
 }
 
 dependencies {
-	// You may put jars on which you depend on in ./libs or you may define them like so..
-	//compile "some.group:artifact:version:classifier"
-	//compile "some.group:artifact:version"
-	
-	// Real examples
-	//compile 'com.mod-buildcraft:buildcraft:6.0.8:dev'  // adds buildcraft to the dev env
-	//compile 'com.googlecode.efficient-java-matrix-library:ejml:0.24' // adds ejml to the dev env
-	
-	// The 'provided' configuration is for optional dependencies that exist at compile-time but might not at runtime.
-	//provided 'com.mod-buildcraft:buildcraft:6.0.8:dev'
-	
-	// These dependencies get remapped to your current MCP mappings
-	//deobf 'com.mod-buildcraft:buildcraft:6.0.8:dev'
-	
-	// For more info...
-	// http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
-	// http://www.gradle.org/docs/current/userguide/dependency_management.html
-	
 	runtime 'mezz.jei:jei_1.12.2:4.16.1.302'
 	runtime 'mcp.mobius.waila:Hwyla:1.8.26-B41_1.12.2'
 }
 
-// Example for how to get properties into the manifest for reading by the runtime..
 jar {
 	manifest {
 		attributes([
@@ -74,13 +54,13 @@ jar {
 
 processResources {
 	// this will ensure that this task is redone when the versions change.
-	inputs.property "version", project.version
 	inputs.property "mcversion", project.minecraft.version
+	inputs.property "version", project.version
 	
 	// replace stuff in mcmod.info, nothing else
 	from(sourceSets.main.resources.srcDirs) {
 		include 'mcmod.info'
-				
+		
 		// replace version and mcversion
 		expand 'version': project.version, 'mcversion': project.minecraft.version
 	}
@@ -92,4 +72,17 @@ processResources {
 	
 	// Move ATs to meta inf directory
 	rename '(.+_at.cfg)', 'META-INF/$1'
+}
+
+// Maven publishing
+publishing {
+	publications {
+		maven(MavenPublication) {
+			groupId = 'enginecrafter77.survivalinc'
+			version = System.getenv("MVN_VER") ?: project.version.substring(1) // Cut off the V
+			artifactId = 'survivalinc_' + project.minecraft.version
+			from components.java
+			artifact sourceJar
+		}
+	}
 }

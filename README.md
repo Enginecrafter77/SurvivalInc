@@ -33,6 +33,9 @@ Survival Inc. has been designed with extensibility in mind. As such, it is possi
 with it from other mods quite easily. See the wiki and individual pages about what can you access
 from your mod.
 
+Read the guide [here](https://github.com/Enginecrafter77/SurvivalInc/wiki/Using-the-API) on setting up
+your project with SurvivalInc dependency.
+
 ## Legal (Jokes Aside)
 The name of the project is a unique name made up by Enginecrafter77. The name was chosen for the survival
 nature of the mod's influence on the main game. Any possible match with a real company with name "Survival Inc.",
