@@ -31,7 +31,7 @@ public class BlockMeltingIce extends BlockMelting {
 	@Override
 	public void harvestBlock(World world, EntityPlayer player, BlockPos position, IBlockState state, TileEntity tile, ItemStack stack)
 	{
-		this.predecessor.harvestBlock(world, player, position, state, tile, stack);
+		this.freezeTarget.harvestBlock(world, player, position, state, tile, stack);
 	}
 	
 	@Override

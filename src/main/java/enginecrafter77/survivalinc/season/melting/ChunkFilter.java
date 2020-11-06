@@ -1,7 +1,5 @@
 package enginecrafter77.survivalinc.season.melting;
 
-import java.util.Collection;
-
 import net.minecraft.world.chunk.Chunk;
 
 /**
@@ -11,7 +9,7 @@ import net.minecraft.world.chunk.Chunk;
  * @author Enginecrafter77
  */
 public interface ChunkFilter
-{	
+{
 	/**
 	 * Performs the operation this chunk filter aims
 	 * to do on the block position previously relative
@@ -21,5 +19,5 @@ public interface ChunkFilter
 	 * @param chunk The chunk being processed
 	 * @param position The block position relative to chunk start
 	 */
-	public void processChunks(Collection<Chunk> chunks);
+	public void processChunk(Chunk chunk);
 }

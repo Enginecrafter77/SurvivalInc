@@ -14,7 +14,6 @@ import com.google.common.collect.ImmutableSet;
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.block.BlockMelting;
 import enginecrafter77.survivalinc.season.SeasonChangedEvent;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -22,7 +21,6 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.ChunkProviderServer;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraft.block.state.IBlockState;
 
 /**
  * Controls the strategy employed to melt down the blocks
@@ -38,7 +36,7 @@ public enum MeltingController {
 	 * with the melting block's own type. Then, it does nothing and relies on the BlockMelting
 	 * to tick itself.
 	 */
-	FANCY((BlockMelting block) -> new MeltingTransformer(block)),
+	FANCY(MeltingTransformer::new),
 	
 	/**
 	 * The lazy controller is very similar to the fancy controller with a single exception.
@@ -47,20 +45,14 @@ public enum MeltingController {
 	 * a {@link SeasonUpdateEvent} is fired (which is roughly every day). This allows for less-dynamic
 	 * but also way less laggy way of melting the meltable blocks.
 	 */
-	LAZY((BlockMelting block) -> new LazyMeltingTransformer(block)),
+	LAZY(LazyMeltingTransformer::new),
 	
 	/**
 	 * The simple controller represents the most lightweight form of melting snow. It basically replaces every
 	 * block specified by {@link BlockMelting#predecessor} with {@link BlockMelting#successor}. For example, snow is immediately
 	 * replaced by air, and so on. Not very dramatic, but it can increase performance for very slow servers.
 	 */
-	SIMPLE((BlockMelting block) -> new MeltingTransformer(block) {
-		@Override
-		public IBlockState getReplacement(Chunk chunk, BlockPos position, IBlockState previous)
-		{
-			return this.meltingblock.successor.getDefaultState();
-		}
-	}),
+	SIMPLE(MinimalMeltingTransformer::new),
 	
 	/** This melting controller simply disables any sort of melting whatsoever. */
 	NONE(null);
@@ -99,7 +91,7 @@ public enum MeltingController {
 	/**
 	 * @return True if {@link BlockMelting melting blocks} should receive random ticks, false otherwise
 	 */
-	public boolean allowRandomTicks()
+	public boolean requiresRandomTicks()
 	{
 		return this == FANCY;
 	}
@@ -150,12 +142,11 @@ public enum MeltingController {
 	{
 		for(ChunkFilter transformer : MeltingController.transformers)
 		{
-			long time = System.nanoTime();
-			transformer.processChunks(chunks);
-			time = System.nanoTime() - time;
-			//SurvivalInc.logger.debug("Processing {} chunks using transformer {} took {} ns", chunks.size(), transformer.toString(), time);
+			for(Chunk chunk : chunks)
+			{
+				transformer.processChunk(chunk);
+			}
 		}
-		
 	}
 	
 	@SubscribeEvent
@@ -170,7 +161,9 @@ public enum MeltingController {
 		
 		SurvivalInc.logger.info("Preparing to process {} chunks...", chunks.size());
 		long overall_time = System.currentTimeMillis();
+		serverworld.profiler.startSection("chunktransformer");
 		MeltingController.processChunks(chunks);
+		serverworld.profiler.endSection();
 		overall_time = System.currentTimeMillis() - overall_time;
 		SurvivalInc.logger.info("Chunk processing done using all transformers in {} ms", overall_time);
 	}

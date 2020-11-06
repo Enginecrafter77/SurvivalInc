@@ -11,18 +11,17 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 /**
- * BlockMelting represents a transitional block between
- * two blocks, of which one is said to melt and become
- * the other one.
+ * BlockMelting represents an intermediate block between two blocks,
+ * of which one is said to melt and become the other one.
  * @author Enginecrafter77
  */
 public class BlockMelting extends Block {
 	
-	/** The block which was transformed to BlockMelting */
-	public final Block predecessor;
+	/** The block to which this block turns into if fully melted */
+	public final Block meltTarget;
 	
-	/** The block to which this block eventually melts into */
-	public final Block successor;
+	/** The block to which this block turns into if fully frozen */
+	public final Block freezeTarget;
 	
 	/** The melt phase property */
 	private PropertyInteger phase_property;
@@ -30,11 +29,11 @@ public class BlockMelting extends Block {
 	/** The temperature which when passed, the block freezes/melts */
 	public float freezing_point = 0.15F;
 	
-	public BlockMelting(Block predecessor, Block successor)
+	public BlockMelting(Block frozen, Block melted)
 	{
-		super(predecessor.getDefaultState().getMaterial());
-		this.predecessor = predecessor;
-		this.successor = successor;
+		super(frozen.getDefaultState().getMaterial());
+		this.freezeTarget = frozen;
+		this.meltTarget = melted;
 		
 		this.setDefaultState(this.blockState.getBaseState().withProperty(phase_property, Integer.valueOf(0)));
 	}
@@ -61,7 +60,7 @@ public class BlockMelting extends Block {
 	@Override
 	public boolean getTickRandomly()
 	{
-		return ModConfig.SEASONS.meltController.allowRandomTicks();
+		return ModConfig.SEASONS.meltController.requiresRandomTicks();
 	}
 
 	@Override
@@ -69,24 +68,27 @@ public class BlockMelting extends Block {
 	{
 		world.profiler.startSection("melting");
 		
-		boolean melts = this.shouldMelt(world, position);
-		int phase = state.getValue(phase_property) + (melts ? 1 : -1);
-		if(phase_property.getAllowedValues().contains(phase))
+		MeltAction action = this.getAction(world, position);
+		if(action != MeltAction.PASS) // Check to avoid unnecessary block updates
 		{
-			state = state.withProperty(phase_property, phase);
-			world.setBlockState(position, state, 2);
-		}
-		else
-		{
-			Block target = melts ? this.successor : this.predecessor;
-			world.setBlockState(position, target.getDefaultState(), 2);
+			int phase = state.getValue(phase_property) + action.getPhaseIncrement();
+			if(this.phase_property.getAllowedValues().contains(phase))
+			{
+				state = state.withProperty(phase_property, phase);
+				world.setBlockState(position, state, 2);
+			}
+			else
+			{
+				IBlockState next = this.transform(world, position, action);
+				if(next != null) world.setBlockState(position, next, 2);
+			}
 		}
 		
 		world.profiler.endSection();
 	}
 	
 	/**
-	 * @return The maximum melt phase
+	 * @return Number of intermediate steps between frozen and melted state
 	 */
 	public int getPhaseCount()
 	{
@@ -94,35 +96,61 @@ public class BlockMelting extends Block {
 	}
 	
 	/**
-	 * Used to get reference to the melt phase property
-	 * @return The melt phase property of the block
+	 * Called when the melting block reaches borderline
+	 * status, i.e. the phase has reached value out of
+	 * it's range, so the block should transform into
+	 * another block based on the melt action.
+	 * @param world The world
+	 * @param position The position of the transforming block
+	 * @param action The melt action performed this tick
+	 * @return
 	 */
-	public PropertyInteger getMeltProperty()
+	public IBlockState transform(World world, BlockPos position, MeltAction action)
 	{
-		return this.phase_property;
+		switch(action)
+		{
+		case FREEZE:
+			return this.freezeTarget.getDefaultState();
+		case MELT:
+			return this.meltTarget.getDefaultState();
+		default:
+			return null;
+		}
 	}
 	
 	/**
-	 * Indicates whether the block at the specified position should melt.
-	 * If this method returns true, it's melt phase is incremented by 1.
+	 * Called on world ticks to change the melting phase of the melting block.
 	 * @param world The world to operate in
 	 * @param position The position of the block
-	 * @return True if the block should increment it's melt phase
+	 * @return One of the possible actions that will be performed
 	 */
-	public boolean shouldMelt(World world, BlockPos position)
+	public MeltAction getAction(World world, BlockPos position)
 	{
-		return world.getBiome(position).getTemperature(position) > this.freezing_point;
+		return world.getBiome(position).getTemperature(position) > this.freezing_point ? MeltAction.MELT : MeltAction.FREEZE;
 	}
 	
 	/**
-	 * Indicates whether the block at the specified position should freeze.
-	 * If this method returns true, it's melt phase is decreased by 1.
-	 * @param world The world to operate in
-	 * @param position The position of the block
-	 * @return True if the block should decrease it's melt phase.
+	 * MeltAction represents the possible actions
+	 * that may be performed on a melting block.
+	 * @author Enginecrafter77
 	 */
-	public boolean shouldFreeze(World world, BlockPos position)
+	public static enum MeltAction
 	{
-		return !this.shouldMelt(world, position);
+		/** Causes the block to undergo freezing, i.e. it's melt phase decreases */
+		FREEZE,
+		
+		/** Does not modify the block's melt phase */
+		PASS,
+		
+		/** Causes the block to undergo melting, i.e. it's melt phase increases */
+		MELT;
+		
+		/**
+		 * @return The increment to the melt phase this action causes.
+		 */
+		public int getPhaseIncrement()
+		{
+			return this.ordinal() - 1;
+		}
 	}
 }

@@ -1,12 +1,10 @@
 package enginecrafter77.survivalinc.season.melting;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 
 /**
@@ -65,24 +63,26 @@ public abstract class LayeredChunkFilter implements ChunkFilter {
 	}
 	
 	/**
-	 * Checks if the block at the target position is suitable to be replaced.
-	 * @see #getReplacement(Chunk, BlockPos, IBlockState)
+	 * Checks if the block at the target position is suitable for transformation using this chunk filter.
+	 * @see #transform(Chunk, BlockPos, IBlockState)
 	 * @param chunk The chunk to operate in
 	 * @param position The relative block position inside the chunk (X&Z capped at 15)
 	 * @param state The block state at the target position
 	 * @return True if the operation is allowed, false otherwise
 	 */
-	public abstract boolean shouldReplace(Chunk chunk, BlockPos position, IBlockState state);
+	public abstract boolean shouldBlockBeTransformed(Chunk chunk, BlockPos position, IBlockState state);
 	
 	/**
-	 * Returns the block state that the block for which {@link #shouldReplace(World, BlockPos, IBlockState)} returned true.
-	 * @see #shouldReplace(Chunk, BlockPos, IBlockState)
+	 * Applies whatever transformation this chunk filter should perform on a single block.
+	 * If the returned {@link IBlockState} is not null, the block state at the specified
+	 * position is set to that state.
+	 * @see #shouldBlockBeTransformed(Chunk, BlockPos, IBlockState)
 	 * @param chunk The chunk to operate in
-	 * @param position The relative block position inside the chunk (X&Z capped at 15)
+	 * @param position The relative block position inside the chunk (X&Z capped in <0;15>)
 	 * @param previous The previous {@link IBlockState} of the block
-	 * @return The block state that should be replaced with
+	 * @return The block state that should the block get, or null to disable replacing the block state
 	 */
-	public abstract IBlockState getReplacement(Chunk chunk, BlockPos position, IBlockState previous);
+	public abstract IBlockState transform(Chunk chunk, BlockPos position, IBlockState previous);
 	
 	/**
 	 * Adds a layer referencing uniform absolute Y coordinate in world.
@@ -141,14 +141,11 @@ public abstract class LayeredChunkFilter implements ChunkFilter {
 	}
 	
 	@Override
-	public void processChunks(Collection<Chunk> chunks)
+	public void processChunk(Chunk chunk)
 	{
-		for(Chunk chunk : chunks)
+		for(int layer : this.layers)
 		{
-			for(int layer : this.layers)
-			{
-				this.processChunkLayer(chunk, layer);
-			}
+			this.processChunkLayer(chunk, layer);
 		}
 	}
 	
@@ -184,9 +181,9 @@ public abstract class LayeredChunkFilter implements ChunkFilter {
 		{
 			position = this.moveToLayer(chunk, position, layer);
 			IBlockState state = chunk.getBlockState(position);
-			if(this.shouldReplace(chunk, position, state))
+			if(this.shouldBlockBeTransformed(chunk, position, state))
 			{
-				state = this.getReplacement(chunk, position, state);
+				state = this.transform(chunk, position, state);
 				if(state != null) chunk.setBlockState(position, state);
 			}
 		}

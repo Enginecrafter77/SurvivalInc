@@ -19,20 +19,23 @@ public class LazyMeltingTransformer extends MeltingTransformer {
 	}
 
 	@Override
-	public boolean shouldReplace(Chunk chunk, BlockPos position, IBlockState state)
+	public boolean shouldBlockBeTransformed(Chunk chunk, BlockPos position, IBlockState state)
 	{
-		return super.shouldReplace(chunk, position, state) || state.getBlock() == this.meltingblock && chunk.getWorld().rand.nextFloat() > 0.1F;
+		return super.shouldBlockBeTransformed(chunk, position, state) || state.getBlock() == this.meltingblock && chunk.getWorld().rand.nextFloat() > 0.1F;
 	}
 	
 	@Override
-	public IBlockState getReplacement(Chunk chunk, BlockPos position, IBlockState previous)
+	public IBlockState transform(Chunk chunk, BlockPos position, IBlockState previous)
 	{
-		if(previous == this.meltingblock.predecessor)
-			super.getReplacement(chunk, position, previous);
+		if(previous.getBlock() == this.meltingblock.freezeTarget)
+		{
+			return super.transform(chunk, position, previous);
+		}
 		else
+		{
 			this.meltingblock.updateTick(chunk.getWorld(), chunk.getPos().getBlock(position.getX(), position.getY(), position.getZ()), previous, chunk.getWorld().rand);
-		
-		return null;
+			return null;
+		}
 	}
 
 }
