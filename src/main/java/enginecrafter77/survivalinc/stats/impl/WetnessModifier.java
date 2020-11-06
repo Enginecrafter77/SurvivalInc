@@ -152,7 +152,7 @@ public class WetnessModifier implements StatProvider {
 		Random rng = world.rand;
 		for(int index = Math.round(4F * record.getNormalizedValue()); index > 0; index--)
 		{
-			world.spawnParticle(EnumParticleTypes.DRIP_WATER, player.posX + (rng.nextFloat() * 0.5 - 0.25), player.posY + (rng.nextFloat() * 1 + 0.25), player.posZ + (rng.nextFloat() * 0.5 - 0.25), player.motionX, -0.5, player.motionZ, null);
+			world.spawnParticle(EnumParticleTypes.DRIP_WATER, player.posX + (rng.nextFloat() * 0.5 - 0.25), player.posY + (rng.nextFloat() * 1 + 0.25), player.posZ + (rng.nextFloat() * 0.5 - 0.25), player.motionX, -0.5, player.motionZ);
 		}
 	}
 	
