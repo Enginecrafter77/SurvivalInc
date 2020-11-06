@@ -11,6 +11,7 @@ import enginecrafter77.survivalinc.stats.effect.FunctionalEffectFilter;
 import enginecrafter77.survivalinc.stats.effect.SideEffectFilter;
 import enginecrafter77.survivalinc.stats.effect.ValueStatEffect;
 
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
@@ -25,18 +26,23 @@ import net.minecraft.block.BlockTrapDoor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.FoodStats;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -195,6 +201,47 @@ public class GhostProvider implements StatProvider {
 					}
 					record.addToValue(-1F); // We need to punish the player a lil' bit
 					event.setCanceled(true);
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Called when an entity dies, so nearby ghosts
+	 * can drain it's life energy and use it to form
+	 * their former bodies.
+	 * @param event The entity death event
+	 */
+	@SubscribeEvent
+	public static void onEntityDeath(LivingDeathEvent event)
+	{
+		Vec3d offset = new Vec3d(3D, 1D, 3D);
+		EntityLivingBase target = event.getEntityLiving();
+		Vec3d origin = target.getPositionVector().add(0D, target.height / 2D, 0D);
+		AxisAlignedBB box = new AxisAlignedBB(origin.subtract(offset), origin.add(offset));
+		
+		List<EntityPlayer> players = target.world.getEntitiesWithinAABB(EntityPlayer.class, box);
+		for(EntityPlayer player : players)
+		{
+			StatTracker tracker = player.getCapability(StatCapability.target, null);
+			GhostEnergyRecord record = (GhostEnergyRecord)tracker.getRecord(GhostProvider.instance);
+			
+			if(record.isActive() && record.getNormalizedValue() == 1F)
+			{
+				record.setActive(false);
+				
+				if(target.world.isRemote)
+				{
+					// Client code
+					WorldClient world = (WorldClient)target.world;
+					world.playSound(player, origin.x, origin.y, origin.z, SoundEvents.BLOCK_PORTAL_TRAVEL, SoundCategory.PLAYERS, 0.8F, 1F);
+				}
+				else
+				{
+					// Server code
+					WorldServer world = (WorldServer)target.world;
+					world.spawnParticle(EnumParticleTypes.EXPLOSION_HUGE, origin.x, origin.y, origin.z, 10, 0D, 0D, 0D, 0D);
+					world.playSound(null, origin.x, origin.y, origin.z, SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.PLAYERS, 0.6F, 1F);
 				}
 			}
 		}
