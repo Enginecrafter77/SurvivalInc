@@ -17,7 +17,7 @@ apply plugin: 'maven-publish'
 
 group = "enginecrafter77.survivalinc" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "SurvivalInc"
-version gitVersion()
+version gitVersion().substring(1)
 
 // Need this here so eclipse task generates correctly.
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
@@ -79,7 +79,7 @@ publishing {
 	publications {
 		maven(MavenPublication) {
 			groupId = 'enginecrafter77.survivalinc'
-			version = System.getenv("MVN_VER") ?: project.version.substring(1) // Cut off the V
+			version = System.getenv("MVN_VER") ?: project.version
 			artifactId = 'survivalinc_' + project.minecraft.version
 			from components.java
 			artifact sourceJar
