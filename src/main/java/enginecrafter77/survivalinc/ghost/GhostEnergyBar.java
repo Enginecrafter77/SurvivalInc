@@ -36,25 +36,28 @@ public class GhostEnergyBar extends SimpleOverlayElement<StatTracker> {
 		GhostEnergyRecord energy = (GhostEnergyRecord)tracker.getRecord(GhostProvider.instance);
 		if(energy.isActive())
 		{
-			float value = GhostEnergyBar.count * energy.getNormalizedValue();
-			
-			this.texturer.bindTexture(texture);
+			this.texturer.bindTexture(GhostEnergyBar.texture);
 			GlStateManager.enableAlpha();
-			
-			int y = GhostEnergyBar.position.getY(resolution);
-			for(int current = 0; current < GhostEnergyBar.count; current++)
-			{
-				int offset = GhostEnergyBar.position.getX(resolution) + current * 8;
-				Gui.drawModalRectWithCustomSizedTexture(offset, y, 0, 0, 9, this.getHeight(), 9, 18);
-				
-				if(value > 0)
-				{
-					float part = value > 1F ? 1F : value;
-					Gui.drawModalRectWithCustomSizedTexture(offset, y, 0, 9, Math.round(part * 9F), this.getHeight(), 9, 18);
-					value -= part;
-				}
-			}
+			this.renderHearts(resolution, 1F, 0, 0);
+			this.renderHearts(resolution, energy.getNormalizedValue(), 0, 9);
+			if(energy.isResurrectionActive()) this.renderHearts(resolution, energy.getResurrectionProgress(), 0, 18);
 			GlStateManager.disableAlpha();
+		}
+	}
+	
+	public void renderHearts(ScaledResolution resolution, float fill, int u, int v)
+	{
+		float value = GhostEnergyBar.count * fill;
+		int y = GhostEnergyBar.position.getY(resolution);
+		for(int current = 0; current < GhostEnergyBar.count; current++)
+		{
+			int offset = GhostEnergyBar.position.getX(resolution) + current * 8;			
+			if(value > 0)
+			{
+				float part = value > 1F ? 1F : value;
+				Gui.drawModalRectWithCustomSizedTexture(offset, y, u, v, Math.round(part * 9F), this.getHeight(), 9, 27);
+				value -= part;
+			}
 		}
 	}
 	

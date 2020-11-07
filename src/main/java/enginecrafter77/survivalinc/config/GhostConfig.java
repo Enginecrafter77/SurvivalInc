@@ -23,7 +23,7 @@ public class GhostConfig {
 	
 	@Config.LangKey("config.survivalinc:ghost.resurrectionDuration")
 	@Config.RangeInt(min = 60)
-	public int resurrectionDuration = 100;
+	public int resurrectionDuration = 200;
 	
 	@Config.LangKey("config.survivalinc:ghost.interactionCost")
 	@Config.RequiresMcRestart

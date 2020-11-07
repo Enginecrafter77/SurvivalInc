@@ -125,6 +125,7 @@ public class GhostEnergyRecord extends SimpleStatRecord {
 	 */
 	public void finishResurrection()
 	{
+		this.setValue(0F);
 		this.setActive(false);
 		this.resurrection_progress = -1;
 	}
