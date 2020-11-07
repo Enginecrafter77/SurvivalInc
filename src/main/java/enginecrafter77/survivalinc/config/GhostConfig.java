@@ -18,6 +18,13 @@ public class GhostConfig {
 	@Config.LangKey("config.survivalinc:ghost.interactionSubclassing")
 	public boolean interactionSubclassing = false;
 	
+	@Config.LangKey("config.survivalinc:ghost.resurrectionBlocksMovement")
+	public boolean resurrectionBlocksMovement = true;
+	
+	@Config.LangKey("config.survivalinc:ghost.resurrectionDuration")
+	@Config.RangeInt(min = 60)
+	public int resurrectionDuration = 100;
+	
 	@Config.LangKey("config.survivalinc:ghost.interactionCost")
 	@Config.RequiresMcRestart
 	public double interactionCost = 10D;

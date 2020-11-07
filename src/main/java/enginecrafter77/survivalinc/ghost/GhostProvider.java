@@ -34,12 +34,14 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.FoodStats;
+import net.minecraft.util.MovementInput;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.client.event.InputUpdateEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
@@ -55,6 +57,8 @@ public class GhostProvider implements StatProvider {
 	
 	public static final EffectFilter<GhostEnergyRecord> active = (GhostEnergyRecord record, EntityPlayer player) -> record.isActive();
 	public static final GhostProvider instance = new GhostProvider();
+	public static final HelicalParticleSpawner resurrect_particles = new HelicalParticleSpawner(EnumParticleTypes.PORTAL).setHelixCount(8);
+	public static final Vec3d rp_box = new Vec3d(0.6D, 1.5D, 0.6D), rp_offset = new Vec3d(0D, -0.3D, 0D);
 	
 	public final EffectApplicator<GhostEnergyRecord> applicator;
 	public final InteractionProcessor interactor;
@@ -73,6 +77,7 @@ public class GhostProvider implements StatProvider {
 		this.applicator.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, (float)ModConfig.GHOST.passiveNightRegen)).addFilter(GhostProvider::duringNight);
 		this.applicator.add(GhostProvider::onGhostUpdate);
 		
+		this.applicator.add(GhostProvider::resurrectTick);
 		if(ModConfig.GHOST.allowFlying) this.applicator.add(GhostProvider::provideFlying);
 		if(ModConfig.GHOST.sprintingEnergyDrain > 0)
 		{
@@ -226,24 +231,7 @@ public class GhostProvider implements StatProvider {
 			StatTracker tracker = player.getCapability(StatCapability.target, null);
 			GhostEnergyRecord record = (GhostEnergyRecord)tracker.getRecord(GhostProvider.instance);
 			
-			if(record.isActive() && record.getNormalizedValue() == 1F)
-			{
-				record.setActive(false);
-				
-				if(target.world.isRemote)
-				{
-					// Client code
-					WorldClient world = (WorldClient)target.world;
-					world.playSound(player, origin.x, origin.y, origin.z, SoundEvents.BLOCK_PORTAL_TRAVEL, SoundCategory.PLAYERS, 0.8F, 1F);
-				}
-				else
-				{
-					// Server code
-					WorldServer world = (WorldServer)target.world;
-					world.spawnParticle(EnumParticleTypes.EXPLOSION_HUGE, origin.x, origin.y, origin.z, 10, 0D, 0D, 0D, 0D);
-					world.playSound(null, origin.x, origin.y, origin.z, SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.PLAYERS, 0.6F, 1F);
-				}
-			}
+			if(record.isActive() && record.getNormalizedValue() == 1F) record.tickResurrection();
 		}
 	}
 	
@@ -268,6 +256,33 @@ public class GhostProvider implements StatProvider {
 		StatTracker tracker = event.getEntityPlayer().getCapability(StatCapability.target, null);
 		GhostEnergyRecord record = (GhostEnergyRecord)tracker.getRecord(GhostProvider.instance);
 		if(record.isActive()) event.modifyVisibility(0D);
+	}
+	
+	/**
+	 * Makes sure that ghosts won't be able to move while being resurrected
+	 * @param event The movement input update event
+	 */
+	@SubscribeEvent
+	public static void blockMovementWhileResurrecting(InputUpdateEvent event)
+	{
+		if(ModConfig.GHOST.resurrectionBlocksMovement)
+		{
+			StatTracker tracker = event.getEntityPlayer().getCapability(StatCapability.target, null);
+			GhostEnergyRecord record = (GhostEnergyRecord)tracker.getRecord(GhostProvider.instance);
+			
+			if(record.isResurrectionActive())
+			{
+				MovementInput input = event.getMovementInput();
+				input.forwardKeyDown = false;
+				input.rightKeyDown = false;
+				input.backKeyDown = false;
+				input.leftKeyDown = false;
+				input.moveForward = 0F;
+				input.moveStrafe = 0F;
+				input.sneak = false;
+				input.jump = false;
+			}
+		}
 	}
 	
 	//==================================
@@ -317,6 +332,43 @@ public class GhostProvider implements StatProvider {
 	{
 		FoodStats food = player.getFoodStats();
 		food.setFoodLevel(GhostProvider.instance.energyToFood(record));
+	}
+	
+	/**
+	 * Used to process ghost resurrection ticks.
+	 * @param record The ghost energy record
+	 * @param player The player to apply the effect to
+	 */
+	public static void resurrectTick(GhostEnergyRecord record, EntityPlayer player)
+	{
+		if(record.isResurrectionActive())
+		{
+			record.tickResurrection();
+			
+			Vec3d origin = player.getPositionVector().add(0D, player.height / 2D, 0D);
+			if(player.world.isRemote)
+			{
+				WorldClient world = (WorldClient)player.world;
+				if(record.timeUntilResurrection() == 60)
+				{
+					world.playSound(player, origin.x, origin.y, origin.z, SoundEvents.BLOCK_PORTAL_TRAVEL, SoundCategory.PLAYERS, 0.8F, 1F);
+				}
+				GhostProvider.resurrect_particles.spawn(world, origin.add(rp_offset), rp_box, Vec3d.ZERO, player.ticksExisted);
+			}
+			
+			if(record.isResurrectionReady())
+			{
+				record.finishResurrection();
+				
+				if(!player.world.isRemote)
+				{
+					// Server code
+					WorldServer world = (WorldServer)player.world;
+					world.spawnParticle(EnumParticleTypes.EXPLOSION_HUGE, origin.x, origin.y, origin.z, 10, 0D, 0D, 0D, 0D);
+					world.playSound(null, origin.x, origin.y, origin.z, SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.PLAYERS, 0.6F, 1F);
+				}
+			}
+		}
 	}
 	
 	/**

@@ -188,3 +188,7 @@ config.survivalinc:ghost.flyingThreshold=Flying Threshold
 config.survivalinc:ghost.flyingThreshold.tooltip=The minimal ghost energy at which ghosts gain the ability to fly
 config.survivalinc:ghost.flyingDrain=Flying Drain
 config.survivalinc:ghost.flyingDrain.tooltip=The rate at which flying drains ghost energy
+config.survivalinc:ghost.resurrectionDuration=Resurrection Duration
+config.survivalinc:ghost.resurrectionDuration.tooltip=Time in tick it takes to resurrect a ghost.
+config.survivalinc:ghost.resurrectionBlocksMovement=Block Resurrection Movement
+config.survivalinc:ghost.resurrectionBlocksMovement.tooltip=Set to true to disable movement of resurrecting ghosts.
