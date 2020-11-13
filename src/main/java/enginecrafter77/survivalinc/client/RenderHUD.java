@@ -19,14 +19,14 @@ public class RenderHUD extends OverlayElementGroup<StatTracker> {
 	public static final ElementPositioner origin = new ImmutableElementPosition(0F, 0F, 0, 0);
 	public static final RenderHUD instance = new RenderHUD();
 	
-	public final List<OverlayElement<StatTracker>> external;	
+	public final List<OverlayElement<? super StatTracker>> external;	
 	public final ElementPositioner positioner;
 	protected ElementType type;
 	
 	public RenderHUD()
 	{
 		super(Axis.HORIZONTAL);
-		this.external = new LinkedList<OverlayElement<StatTracker>>();
+		this.external = new LinkedList<OverlayElement<? super StatTracker>>();
 		this.positioner = new ElementPositioner();
 		this.type = ElementType.ALL;
 		
@@ -46,7 +46,7 @@ public class RenderHUD extends OverlayElementGroup<StatTracker> {
 	public Set<ElementType> disableElements(StatTracker tracker)
 	{
 		Set<ElementType> elements = super.disableElements(tracker);
-		for(OverlayElement<StatTracker> ext : this.external)
+		for(OverlayElement<? super StatTracker> ext : this.external)
 			elements.addAll(ext.disableElements(tracker));
 		return elements;
 	}
@@ -59,7 +59,7 @@ public class RenderHUD extends OverlayElementGroup<StatTracker> {
 		if(type == this.type)
 		{
 			this.draw(event.getResolution(), this.positioner, event.getPartialTicks(), tracker);
-			for(OverlayElement<StatTracker> ext : this.external)
+			for(OverlayElement<? super StatTracker> ext : this.external)
 				ext.draw(event.getResolution(), RenderHUD.origin, event.getPartialTicks(), tracker);
 		}
 		
