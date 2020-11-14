@@ -10,8 +10,8 @@ public abstract class SimpleOverlayElement<ARGUMENT> implements OverlayElement<A
 	
 	public final TextureManager texturer;
 	
-	public final int height;
-	public final int width;
+	protected final int height;
+	protected final int width;
 	
 	public SimpleOverlayElement(int width, int height)
 	{

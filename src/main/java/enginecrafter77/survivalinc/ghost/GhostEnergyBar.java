@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableSet;
 
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.client.TextureResource;
+import enginecrafter77.survivalinc.client.TexturedElement;
 import enginecrafter77.survivalinc.client.ElementPositioner;
 import enginecrafter77.survivalinc.client.ImmutableElementPosition;
 import enginecrafter77.survivalinc.client.SimpleOverlayElement;
@@ -31,13 +32,13 @@ public class GhostEnergyBar extends SimpleOverlayElement<StatTracker> {
 	{
 		super(GhostEnergyBar.count * 9, 9);
 		
-		this.hearts_bg = new SymbolFillBar(texture.createDrawable(0, 0, 9, 9, true), GhostEnergyBar.count);
+		this.hearts_bg = new SymbolFillBar(new TexturedElement(texture, 0, 0, 9, 9, true), GhostEnergyBar.count);
 		this.hearts_bg.setSpacing(-1);
 		
-		this.hearts_fill = new SymbolFillBar(texture.createDrawable(0, 9, 9, 9, true), GhostEnergyBar.count);
+		this.hearts_fill = new SymbolFillBar(new TexturedElement(texture, 0, 9, 9, 9, true), GhostEnergyBar.count);
 		this.hearts_fill.setSpacing(-1);
 		
-		this.hearts_rev = new SymbolFillBar(texture.createDrawable(0, 18, 9, 9, true), GhostEnergyBar.count);
+		this.hearts_rev = new SymbolFillBar(new TexturedElement(texture, 0, 18, 9, 9, true), GhostEnergyBar.count);
 		this.hearts_rev.setSpacing(-1);
 	}
 	

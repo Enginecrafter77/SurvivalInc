@@ -4,6 +4,8 @@ import java.awt.Color;
 
 import enginecrafter77.survivalinc.client.RenderHUD;
 import enginecrafter77.survivalinc.client.SimpleStatBar;
+import enginecrafter77.survivalinc.client.TextureResource;
+import enginecrafter77.survivalinc.client.TexturedElement;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.ghost.GhostEnergyBar;
 import enginecrafter77.survivalinc.ghost.RenderGhost;
@@ -33,10 +35,11 @@ public class ClientProxy extends CommonProxy {
 	{
 		super.init(event);
 		
-		if(ModConfig.HEAT.enabled) RenderHUD.instance.add(new SimpleStatBar(HeatModifier.instance, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/heat.png"), new Color(0xE80000)));
-		if(ModConfig.HYDRATION.enabled) RenderHUD.instance.add(new SimpleStatBar(HydrationModifier.instance, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/hydration.png"), new Color(ItemCanteen.waterBarColor)));
-		if(ModConfig.SANITY.enabled) RenderHUD.instance.add(new SimpleStatBar(SanityModifier.instance, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/sanity.png"), new Color(0xF6AF25)));
-		if(ModConfig.WETNESS.enabled) RenderHUD.instance.add(new SimpleStatBar(WetnessModifier.instance, new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/wetness.png"), new Color(0x0047D5)));
+		TextureResource resource = new TextureResource(new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/staticons.png"), 16, 24);
+		if(ModConfig.HEAT.enabled) RenderHUD.instance.add(new SimpleStatBar(HeatModifier.instance, new TexturedElement(resource, 0, 0, 8, 12, true), new Color(0xE80000)));
+		if(ModConfig.HYDRATION.enabled) RenderHUD.instance.add(new SimpleStatBar(HydrationModifier.instance, new TexturedElement(resource, 8, 0, 8, 12, true), new Color(ItemCanteen.waterBarColor)));
+		if(ModConfig.SANITY.enabled) RenderHUD.instance.add(new SimpleStatBar(SanityModifier.instance, new TexturedElement(resource, 0, 12, 8, 12, true), new Color(0xF6AF25)));
+		if(ModConfig.WETNESS.enabled) RenderHUD.instance.add(new SimpleStatBar(WetnessModifier.instance, new TexturedElement(resource, 8, 12, 8, 12, true), new Color(0x0047D5)));
 		if(ModConfig.GHOST.enabled) RenderHUD.instance.external.add(new GhostEnergyBar());
 	}
 	

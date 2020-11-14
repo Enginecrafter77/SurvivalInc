@@ -3,15 +3,15 @@ package enginecrafter77.survivalinc.client;
 import net.minecraft.client.gui.ScaledResolution;
 
 public class SymbolFillBar extends SimpleOverlayElement<Float> {	
-	public final TextureResource.DrawableTexture texture;
+	public final TexturedElement symbol;
 	public final int count;
 	
 	private int spacing;
 	
-	public SymbolFillBar(TextureResource.DrawableTexture texture, int count)
+	public SymbolFillBar(TexturedElement symbol, int count)
 	{
-		super(texture.width, texture.height);
-		this.texture = texture;
+		super(symbol.getWidth(), symbol.getHeight());
+		this.symbol = symbol;
 		this.count = count;
 		
 		this.spacing = 0;
@@ -36,14 +36,14 @@ public class SymbolFillBar extends SimpleOverlayElement<Float> {
 		int x = position.getX(resolution), y = position.getY(resolution);		
 		int steps = (int)Math.round(Math.floor(length)); // Number of full symbols
 		
-		this.texture.begin(this.texturer);
+		TexturedElement.TextureDrawingContext context = this.symbol.createContext(this.texturer);
 		for(int piece = 0; piece <= steps; piece++)
 		{
 			int offset = piece * (this.width + this.spacing);
 			int width = Math.round((float)this.width * Math.min(1F, length - piece));
-			this.texture.drawScaled(x + offset, y, width, this.getHeight());
+			context.drawScaled(x + offset, y, width, this.getHeight());
 		}
-		this.texture.end();
+		context.close();
 	}
 
 }
