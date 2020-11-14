@@ -37,7 +37,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  * player entity.
  * @author Enginecrafter77
  */
-public class HeatModifier implements StatProvider {
+public class HeatModifier implements StatProvider<SimpleStatRecord> {
 	private static final long serialVersionUID = 6260092840749029918L;
 	
 	public static final DamageSource HYPERTHERMIA = new DamageSource("survivalinc_hyperthermia").setDamageIsAbsolute().setDamageBypassesArmor();
@@ -139,12 +139,18 @@ public class HeatModifier implements StatProvider {
 	}
 
 	@Override
-	public StatRecord createNewRecord()
+	public SimpleStatRecord createNewRecord()
 	{
 		SimpleStatRecord record = new SimpleStatRecord();
 		record.setValueRange(Range.closed(-20F, 120F));
 		record.setValue(80F);
 		return record;
+	}
+	
+	@Override
+	public Class<SimpleStatRecord> getRecordClass()
+	{
+		return SimpleStatRecord.class;
 	}
 	
 	public static void onHighTemperature(StatRecord record, EntityPlayer player)
@@ -162,7 +168,7 @@ public class HeatModifier implements StatProvider {
 	public static float applyWetnessCooldown(EntityPlayer player, float current)
 	{
 		StatTracker stats = player.getCapability(StatCapability.target, null);
-		SimpleStatRecord wetness = (SimpleStatRecord)stats.getRecord(WetnessModifier.instance);
+		SimpleStatRecord wetness = stats.getRecord(WetnessModifier.instance);
 		return current * (1F + (float)ModConfig.HEAT.wetnessExchangeMultiplier * wetness.getNormalizedValue());
 	}
 	

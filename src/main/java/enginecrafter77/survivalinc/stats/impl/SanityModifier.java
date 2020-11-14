@@ -9,7 +9,6 @@ import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
@@ -30,8 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.collect.Range;
-
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.net.StatSyncMessage;
@@ -46,7 +43,7 @@ import enginecrafter77.survivalinc.stats.effect.FunctionalEffectFilter;
 import enginecrafter77.survivalinc.stats.effect.SideEffectFilter;
 import enginecrafter77.survivalinc.stats.effect.ValueStatEffect;
 
-public class SanityModifier implements StatProvider {
+public class SanityModifier implements StatProvider<SanityRecord> {
 	private static final long serialVersionUID = 6707924203617912749L;
 	
 	public static final ResourceLocation distortshader = new ResourceLocation(SurvivalInc.MOD_ID, "shaders/distort.json");
@@ -100,9 +97,15 @@ public class SanityModifier implements StatProvider {
 	}
 
 	@Override
-	public StatRecord createNewRecord()
+	public SanityRecord createNewRecord()
 	{
 		return new SanityRecord();
+	}
+	
+	@Override
+	public Class<SanityRecord> getRecordClass()
+	{
+		return SanityRecord.class;
 	}
 	
 	@SubscribeEvent
@@ -168,7 +171,7 @@ public class SanityModifier implements StatProvider {
 	{
 		float boundary = (float)ModConfig.SANITY.wetnessAnnoyanceThreshold;
 		StatTracker stats = player.getCapability(StatCapability.target, null);
-		SimpleStatRecord wetness = (SimpleStatRecord)stats.getRecord(WetnessModifier.instance);		
+		SimpleStatRecord wetness = stats.getRecord(WetnessModifier.instance);		
 		if(wetness.getNormalizedValue() > boundary)
 		{
 			record.addToValue(((wetness.getNormalizedValue() - boundary) / (1F - boundary)) * -(float)ModConfig.SANITY.maxWetnessAnnoyance);
@@ -207,7 +210,8 @@ public class SanityModifier implements StatProvider {
 	{
 		Minecraft client = Minecraft.getMinecraft();
 		ShaderGroup shader = client.entityRenderer.getShaderGroup();
-		if(shader != null && client.world.getWorldTime() % 160 == 0 && (client.player.isCreative() || client.player.isSpectator()) && shader.getShaderGroupName().equals(distortshader.toString()))
+		StatTracker tracker = client.player.getCapability(StatCapability.target, null);
+		if(shader != null && client.world.getWorldTime() % 160 == 0 && shader.getShaderGroupName().equals(distortshader.toString()) && !tracker.isActive(SanityModifier.instance, null))
 		{
 			client.entityRenderer.stopUseShader();
 		}
@@ -226,7 +230,7 @@ public class SanityModifier implements StatProvider {
 		if(event.shouldSetSpawn()) // If the "lying in bed" was successful (the player actually fell asleep)
 		{
 			StatTracker stats = player.getCapability(StatCapability.target, null);
-			SanityRecord sanity = (SanityRecord)stats.getRecord(SanityModifier.instance);
+			SanityRecord sanity = stats.getRecord(SanityModifier.instance);
 			sanity.addToValue(sanity.getValueRange().upperEndpoint() * (float)ModConfig.SANITY.sleepResoration);
 			sanity.resetSleep();
 			SurvivalInc.proxy.net.sendToAll(new StatSyncMessage(player));
@@ -248,7 +252,7 @@ public class SanityModifier implements StatProvider {
 				// Modify the sanity value
 				EntityPlayer player = (EntityPlayer)ent;
 				StatTracker stats = player.getCapability(StatCapability.target, null);
-				SimpleStatRecord sanity = (SimpleStatRecord)stats.getRecord(SanityModifier.instance);
+				SimpleStatRecord sanity = stats.getRecord(SanityModifier.instance);
 				sanity.addToValue(mod);
 			}
 			catch(NullPointerException exc)
@@ -265,54 +269,8 @@ public class SanityModifier implements StatProvider {
 		if(ent instanceof EntityPlayer)
 		{
 			StatTracker stat = ent.getCapability(StatCapability.target, null);
-			SimpleStatRecord sanity = (SimpleStatRecord)stat.getRecord(SanityModifier.instance);
+			SimpleStatRecord sanity = stat.getRecord(SanityModifier.instance);
 			sanity.addToValue((float)ModConfig.SANITY.animalTameBoost);
-		}
-	}
-	
-	public static class SanityRecord extends SimpleStatRecord
-	{
-		public static final Range<Float> values = Range.closed(0F, 100F);
-		
-		protected int ticksAwake;
-		
-		public SanityRecord()
-		{
-			super();
-			this.setValueRange(SanityRecord.values);
-			this.setValue((float)ModConfig.SANITY.startValue);
-			this.ticksAwake = 0;
-		}
-		
-		public void resetSleep()
-		{
-			this.ticksAwake = 0;
-		}
-		
-		public int getTicksAwake()
-		{
-			return this.ticksAwake;
-		}
-
-		@Override
-		public NBTTagCompound serializeNBT()
-		{
-			NBTTagCompound tag = super.serializeNBT();
-			tag.setInteger("ticksAwake", this.ticksAwake);
-			return tag;
-		}
-
-		@Override
-		public void deserializeNBT(NBTTagCompound nbt)
-		{
-			super.deserializeNBT(nbt);
-			this.ticksAwake = nbt.getInteger("ticksAwake");
-		}
-		
-		@Override
-		public String toString()
-		{
-			return super.toString() + String.format(" [SD: %d]", this.ticksAwake);
 		}
 	}
 }

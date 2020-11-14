@@ -23,7 +23,7 @@ public class StatStorage implements IStorage<StatTracker> {
 	public NBTBase writeNBT(Capability<StatTracker> capability, StatTracker instance, EnumFacing side)
 	{
 		NBTTagCompound compound = new NBTTagCompound();
-		for(StatProvider provider : instance.getRegisteredProviders())
+		for(StatProvider<?> provider : instance.getRegisteredProviders())
 			compound.setTag(provider.getStatID().toString(), instance.getRecord(provider).serializeNBT());
 		return compound;
 	}
@@ -34,15 +34,13 @@ public class StatStorage implements IStorage<StatTracker> {
 		if(nbt instanceof NBTTagCompound)
 		{
 			NBTTagCompound compound = (NBTTagCompound)nbt;
-			for(StatProvider provider : instance.getRegisteredProviders())
+			for(StatProvider<?> provider : instance.getRegisteredProviders())
 			{
 				String id = provider.getStatID().toString();
 				if(compound.hasKey(id))
 				{
 					NBTTagCompound entry = compound.getCompoundTag(id);
-					StatRecord record = provider.createNewRecord();
-					record.deserializeNBT(entry);
-					instance.setRecord(provider, record);
+					instance.getRecord(provider).deserializeNBT(entry);
 				}
 				else SurvivalInc.logger.warn("Requested stat %s not defined in provided NBT!", id.toString());
 			}

@@ -15,25 +15,18 @@ public class StatFillBar<RECORD extends StatRecord> implements OverlayElement<St
 	
 	public final SymbolFillBar background;
 	
-	public final StatProvider provider;
+	public final StatProvider<RECORD> provider;
 	
 	protected final Map<SymbolFillBar, Function<RECORD, Float>> bars;
 	
-	private final Class<RECORD> recordclass;
 	private int spacing;
 	
-	public StatFillBar(StatProvider provider, Class<RECORD> record, TexturedElement base, int count)
+	public StatFillBar(StatProvider<RECORD> provider, Class<RECORD> record, TexturedElement base, int count)
 	{
 		this.bars = new LinkedHashMap<SymbolFillBar, Function<RECORD, Float>>();
 		this.background = new SymbolFillBar(base, count);
-		this.recordclass = record;
 		this.provider = provider;
 		this.spacing = 0;
-		
-		if(!record.isAssignableFrom(provider.createNewRecord().getClass()))
-		{
-			throw new ClassCastException("Provider StatProvider doesn't use the desired records!");
-		}
 	}
 	
 	@Override
@@ -68,17 +61,12 @@ public class StatFillBar<RECORD extends StatRecord> implements OverlayElement<St
 		this.bars.put(bar, getter);
 	}
 	
-	public RECORD getRecord(StatTracker tracker)
-	{
-		return this.recordclass.cast(tracker.getRecord(this.provider));
-	}
-	
 	@Override
 	public void draw(ScaledResolution resolution, ElementPositioner position, float partialTicks, StatTracker arg)
 	{
 		this.background.draw(resolution, position, partialTicks, 1F);
 		
-		RECORD record = this.getRecord(arg);
+		RECORD record = arg.getRecord(this.provider);
 		for(Map.Entry<SymbolFillBar, Function<RECORD, Float>> entry : this.bars.entrySet())
 		{
 			Function<RECORD, Float> transformer = entry.getValue();

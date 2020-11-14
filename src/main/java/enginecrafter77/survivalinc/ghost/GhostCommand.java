@@ -39,7 +39,7 @@ public class GhostCommand extends CommandBase {
 		for(EntityPlayerMP player : subjects)
 		{
 			StatTracker tracker = player.getCapability(StatCapability.target, null);
-			GhostEnergyRecord record = (GhostEnergyRecord)tracker.getRecord(GhostProvider.instance);
+			GhostEnergyRecord record = tracker.getRecord(GhostProvider.instance);
 			boolean status = !record.isActive();
 			
 			if(args.length >= 2)

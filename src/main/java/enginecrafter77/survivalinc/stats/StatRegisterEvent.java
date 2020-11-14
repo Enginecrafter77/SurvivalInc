@@ -1,7 +1,6 @@
 package enginecrafter77.survivalinc.stats;
 
-import java.util.Set;
-
+import java.util.Collection;
 import net.minecraftforge.fml.common.eventhandler.Event;
 
 /**
@@ -31,7 +30,7 @@ public class StatRegisterEvent extends Event {
 	 * {@link SimpleStatRegister} instance.
 	 * @param provider
 	 */
-	public void register(StatProvider provider)
+	public void register(StatProvider<?> provider)
 	{
 		this.target.registerProvider(provider);
 	}
@@ -39,7 +38,7 @@ public class StatRegisterEvent extends Event {
 	/**
 	 * @return A set of already registered stat providers.
 	 */
-	public Set<StatProvider> getRegisteredProviders()
+	public Collection<StatProvider<?>> getRegisteredProviders()
 	{
 		return this.target.getRegisteredProviders();
 	}

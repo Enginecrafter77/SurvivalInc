@@ -50,7 +50,7 @@ public class StatCommand extends CommandBase {
 		if(args.length < 2 || args[1].equals("list"))
 		{
 			ITextComponent component = new TextComponentString(player.getDisplayNameString() + "'s stats:");
-			for(StatProvider provider : tracker.getRegisteredProviders())
+			for(StatProvider<?> provider : tracker.getRegisteredProviders())
 			{
 				component.appendText("\n ");
 				component.appendSibling(new TextComponentTranslation(String.format("stat.%s.name", provider.getStatID().toString())).setStyle(this.statNameStyle));
@@ -64,7 +64,7 @@ public class StatCommand extends CommandBase {
 			if(args.length < 3) throw new CommandException("Insufficient Arguments\nUsage: " + this.getUsage(sender));
 			
 			ResourceLocation res = new ResourceLocation(args[2]);
-			StatProvider provider = tracker.getProvider(res);
+			StatProvider<?> provider = tracker.getProvider(res);
 			if(provider == null) throw new CommandException("Stat " + res.toString() + " does not exist!");
 			
 			StatRecord record = tracker.getRecord(provider);

@@ -54,7 +54,7 @@ public class ItemCanteen extends Item {
 			NBTTagCompound nbt = stack.getTagCompound();
 			int stored = nbt.getInteger("stored");
 			nbt.setInteger("stored", stored - 32);
-			SimpleStatRecord hydration = (SimpleStatRecord)stats.getRecord(GhostProvider.instance);
+			SimpleStatRecord hydration = stats.getRecord(GhostProvider.instance);
 			hydration.addToValue(10F);
 		}
 		return stack;

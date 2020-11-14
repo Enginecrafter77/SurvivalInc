@@ -51,7 +51,7 @@ public class ItemTowel extends Item {
 		NBTTagCompound tag = stack.getTagCompound();
 		
 		// Wetness equalization
-		SimpleStatRecord wetness = (SimpleStatRecord)tracker.getRecord(WetnessModifier.instance);
+		SimpleStatRecord wetness = tracker.getRecord(WetnessModifier.instance);
 		
 		float stored = tag.getFloat("stored"), absorb = (wetness.getValue() + stored) / 2F, leave = absorb;
 		

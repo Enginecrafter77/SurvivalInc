@@ -1,9 +1,12 @@
 package enginecrafter77.survivalinc.stats;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import javax.annotation.Nullable;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
@@ -24,7 +27,7 @@ public class SimpleStatRegister implements StatTracker {
 	}
 	
 	@Override
-	public void registerProvider(StatProvider provider)
+	public void registerProvider(StatProvider<?> provider) throws IllegalStateException
 	{
 		ResourceLocation identifier = provider.getStatID();
 		if(this.statmap.containsKey(identifier)) throw new IllegalStateException("Provider " + provider.getClass().getCanonicalName() + " already registered!");
@@ -32,7 +35,7 @@ public class SimpleStatRegister implements StatTracker {
 	}
 	
 	@Override
-	public void removeProvider(StatProvider provider)
+	public void removeProvider(StatProvider<?> provider) throws IllegalStateException
 	{
 		ResourceLocation identifier = provider.getStatID();
 		if(!this.statmap.containsKey(identifier))
@@ -41,36 +44,35 @@ public class SimpleStatRegister implements StatTracker {
 	}
 	
 	@Override
-	public StatProvider getProvider(ResourceLocation identifier)
+	public StatProvider<?> getProvider(ResourceLocation identifier)
 	{
 		return this.statmap.get(identifier).provider;
 	}
 	
 	@Override
-	public void setRecord(StatProvider stat, StatRecord value)
+	public <RECORD extends StatRecord> void setRecord(StatProvider<RECORD> stat, RECORD value)
 	{
-		this.getEntry(stat).setRecord(value);
+		SimpleStatRegisterEntry entry = this.getEntry(stat);
+		if(entry != null) entry.setRecord(value);
 	}
 	
 	@Override
-	public StatRecord getRecord(StatProvider stat)
+	public <RECORD extends StatRecord> RECORD getRecord(StatProvider<RECORD> stat)
 	{
-		return this.getEntry(stat).getRecord();
+		SimpleStatRegisterEntry entry = this.getEntry(stat);
+		return entry == null ? null : stat.getRecordClass().cast(entry.getRecord());
 	}
 	
 	@Override
 	public void update(EntityPlayer player)
 	{
-		for(SimpleStatRegisterEntry entry : this.statmap.values())
-		{
-			entry.tick(player);
-		}
+		this.statmap.values().forEach((SimpleStatRegisterEntry entry) -> entry.tick(player));
 	}
 
 	@Override
-	public Set<StatProvider> getRegisteredProviders()
+	public Collection<StatProvider<?>> getRegisteredProviders()
 	{
-		Set<StatProvider> providers = new HashSet<StatProvider>(this.statmap.size());
+		Set<StatProvider<?>> providers = new HashSet<StatProvider<?>>(this.statmap.size());
 		for(SimpleStatRegisterEntry entry : this.statmap.values())
 			providers.add(entry.provider);
 		return providers;
@@ -86,7 +88,7 @@ public class SimpleStatRegister implements StatTracker {
 		{
 			builder.append(entry.getKey().toString());
 			builder.append(": ");
-			builder.append(entry.getValue().getRecord().toString());
+			builder.append(entry.getValue().toString());
 			builder.append(", ");
 		}
 		builder.setLength(builder.length() - 2);
@@ -95,14 +97,14 @@ public class SimpleStatRegister implements StatTracker {
 	}
 
 	@Override
-	public boolean isActive(StatProvider stat, EntityPlayer player)
+	public boolean isActive(StatProvider<?> stat, @Nullable EntityPlayer player)
 	{
 		SimpleStatRegisterEntry entry = this.getEntry(stat);
 		return player == null ? entry.isActive() : entry.isActiveFor(player);
 	}
 
 	@Override
-	public void setSuspended(StatProvider stat, boolean suspended)
+	public void setSuspended(StatProvider<?> stat, boolean suspended)
 	{
 		this.getEntry(stat).setActive(!suspended);
 	}
@@ -110,9 +112,9 @@ public class SimpleStatRegister implements StatTracker {
 	/**
 	 * Returns the internally associated {@link SimpleStatRegisterEntry}.
 	 * @param stat The stat provider
-	 * @return Internally associated {@link SimpleStatRegisterEntry}.
+	 * @return Internally associated {@link SimpleStatRegisterEntry}, or null if no such entry exists
 	 */
-	public SimpleStatRegisterEntry getEntry(StatProvider stat)
+	public SimpleStatRegisterEntry getEntry(StatProvider<?> stat)
 	{
 		return this.statmap.get(stat.getStatID());
 	}
@@ -123,19 +125,19 @@ public class SimpleStatRegister implements StatTracker {
 	 * @param stat
 	 * @return
 	 */
-	protected SimpleStatRegisterEntry createNewEntry(StatProvider stat)
+	protected SimpleStatRegisterEntry createNewEntry(StatProvider<?> stat)
 	{
 		return new SimpleStatRegisterEntry(stat);
 	}
 	
 	protected static class SimpleStatRegisterEntry
 	{
-		public final StatProvider provider;
+		public final StatProvider<?> provider;
 		public boolean runInCreative;
 		protected StatRecord record;
 		private boolean shouldTick;
 		
-		public SimpleStatRegisterEntry(StatProvider provider)
+		public SimpleStatRegisterEntry(StatProvider<?> provider)
 		{
 			this.record = provider.createNewRecord();
 			this.runInCreative = false;

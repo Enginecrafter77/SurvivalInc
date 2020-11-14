@@ -11,9 +11,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class SimpleStatBar extends OverlayElementGroup<StatTracker> {	
-	public final StatProvider provider;
+	public final StatProvider<? extends SimpleStatRecord> provider;
 	
-	public SimpleStatBar(StatProvider provider, TexturedElement icon, Color color)
+	public SimpleStatBar(StatProvider<? extends SimpleStatRecord> provider, TexturedElement icon, Color color)
 	{
 		super(Axis.VERTICAL);
 		this.provider = provider;
@@ -21,12 +21,6 @@ public class SimpleStatBar extends OverlayElementGroup<StatTracker> {
 		this.elements.add(new DifferentialArrow(provider, 8, 12));
 		this.elements.add(new ElementTypeAdapter<StatTracker, Float>(new GaugeBar(color), this::getRecordValue));
 		this.elements.add(icon);
-		
-		// Create a dummy record to see if it's a subclass of SimpleStatRecord
-		if(!(provider.createNewRecord() instanceof SimpleStatRecord))
-		{
-			throw new IllegalArgumentException("Differential Arrow can be used only with providers using SimpleStatRecord records!");
-		}
 	}
 
 	@Override
@@ -40,6 +34,6 @@ public class SimpleStatBar extends OverlayElementGroup<StatTracker> {
 
 	private Float getRecordValue(StatTracker tracker)
 	{
-		return ((SimpleStatRecord)tracker.getRecord(provider)).getNormalizedValue();
+		return tracker.getRecord(provider).getNormalizedValue();
 	}
 }

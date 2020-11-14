@@ -1,7 +1,6 @@
 package enginecrafter77.survivalinc.stats;
 
-import java.util.Set;
-
+import java.util.Collection;
 import javax.annotation.Nullable;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -26,7 +25,7 @@ public interface StatTracker {
 	 * @param provider The target provider
 	 * @throws IllegalStateException when the provider is already registered
 	 */
-	public void registerProvider(StatProvider provider) throws IllegalStateException;
+	public void registerProvider(StatProvider<?> provider) throws IllegalStateException;
 	
 	/**
 	 * Attempts to unregister the target provider from this
@@ -35,7 +34,7 @@ public interface StatTracker {
 	 * @param provider The target provider
 	 * @throws IllegalStateException when the provider is not found inside this tracker
 	 */
-	public void removeProvider(StatProvider provider) throws IllegalStateException;
+	public void removeProvider(StatProvider<?> provider) throws IllegalStateException;
 	
 	/**
 	 * Searches for a {@link StatProvider provider} with the
@@ -44,12 +43,12 @@ public interface StatTracker {
 	 * @param identifier The {@link StatProvider#getStatID()} return value of the searched stat
 	 * @return The target stat provider, or null if not found.
 	 */
-	public StatProvider getProvider(ResourceLocation identifier);
+	public StatProvider<?> getProvider(ResourceLocation identifier);
 	
 	/**
 	 * @return The set of all registered providers in this tracker.
 	 */
-	public Set<StatProvider> getRegisteredProviders();
+	public Collection<StatProvider<?>> getRegisteredProviders();
 	
 	/**
 	 * Assigns or replaces a {@link StatRecord}
@@ -57,7 +56,7 @@ public interface StatTracker {
 	 * @param stat The stat to assign the record to
 	 * @param value The record to assign
 	 */
-	public void setRecord(StatProvider stat, StatRecord value);
+	public <RECORD extends StatRecord> void setRecord(StatProvider<RECORD> stat, RECORD value);
 	
 	/**
 	 * Returns the record about the specified stat. If
@@ -66,7 +65,7 @@ public interface StatTracker {
 	 * @param stat The target stat provider
 	 * @return The record regarding the stat provided or null if the stat is not tracked by this tracker.
 	 */
-	public StatRecord getRecord(StatProvider stat);
+	public <RECORD extends StatRecord> RECORD getRecord(StatProvider<RECORD> stat);
 	
 	/**
 	 * Called each tick to update the stat tracker
@@ -94,7 +93,7 @@ public interface StatTracker {
 	 * 	True if the player is provided and they passed all the checks, false otherwise.
 	 * 	If player is null, returns true if the stat is NOT suspended, false otherwise.
 	 */
-	public boolean isActive(StatProvider stat, @Nullable EntityPlayer player);
+	public boolean isActive(StatProvider<?> stat, @Nullable EntityPlayer player);
 	
 	/**
 	 * Suspends or resumes the specified stat. Suspending a stat causes the stat
@@ -107,5 +106,5 @@ public interface StatTracker {
 	 * @param stat The stat to set the suspended status for
 	 * @param suspended The suspended status
 	 */
-	public void setSuspended(StatProvider stat, boolean suspended);
+	public void setSuspended(StatProvider<?> stat, boolean suspended);
 }

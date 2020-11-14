@@ -43,7 +43,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  * keep the schoperation's comment above. I find it funny.
  */
 
-public class WetnessModifier implements StatProvider {
+public class WetnessModifier implements StatProvider<SimpleStatRecord> {
 	private static final long serialVersionUID = -4227255838351827965L;
 	
 	public static final WetnessModifier instance = new WetnessModifier();
@@ -94,11 +94,17 @@ public class WetnessModifier implements StatProvider {
 	}
 
 	@Override
-	public StatRecord createNewRecord()
+	public SimpleStatRecord createNewRecord()
 	{
 		SimpleStatRecord record = new SimpleStatRecord();
 		record.setValueRange(Range.closed(0F, 100F));
 		return record;
+	}
+	
+	@Override
+	public Class<SimpleStatRecord> getRecordClass()
+	{
+		return SimpleStatRecord.class;
 	}
 	
 	@SubscribeEvent

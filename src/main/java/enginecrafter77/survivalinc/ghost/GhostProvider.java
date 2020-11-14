@@ -11,10 +11,9 @@ import enginecrafter77.survivalinc.stats.effect.FunctionalEffectFilter;
 import enginecrafter77.survivalinc.stats.effect.SideEffectFilter;
 import enginecrafter77.survivalinc.stats.effect.ValueStatEffect;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
-
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.net.StatSyncMessage;
@@ -52,7 +51,7 @@ import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 
-public class GhostProvider implements StatProvider {
+public class GhostProvider implements StatProvider<GhostEnergyRecord> {
 	private static final long serialVersionUID = -2088047893866334112L;
 	
 	public static final EffectFilter<GhostEnergyRecord> active = (GhostEnergyRecord record, EntityPlayer player) -> record.isActive();
@@ -115,9 +114,15 @@ public class GhostProvider implements StatProvider {
 	}
 
 	@Override
-	public StatRecord createNewRecord()
+	public GhostEnergyRecord createNewRecord()
 	{
 		return new GhostEnergyRecord();
+	}
+	
+	@Override
+	public Class<GhostEnergyRecord> getRecordClass()
+	{
+		return GhostEnergyRecord.class;
 	}
 	
 	public int energyToFood(GhostEnergyRecord record)
@@ -142,7 +147,7 @@ public class GhostProvider implements StatProvider {
 		if(!event.isEndConquered())
 		{
 			StatTracker tracker = player.getCapability(StatCapability.target, null);
-			GhostEnergyRecord record = (GhostEnergyRecord)tracker.getRecord(GhostProvider.instance);
+			GhostEnergyRecord record = tracker.getRecord(GhostProvider.instance);
 			record.setActive(true);
 			
 			SurvivalInc.proxy.net.sendToAll(new StatSyncMessage(player));
@@ -157,7 +162,7 @@ public class GhostProvider implements StatProvider {
 	public static void onPlayerInteract(PlayerInteractEvent event)
 	{
 		StatTracker tracker = event.getEntityPlayer().getCapability(StatCapability.target, null);
-		GhostEnergyRecord record = (GhostEnergyRecord)tracker.getRecord(GhostProvider.instance);
+		GhostEnergyRecord record = tracker.getRecord(GhostProvider.instance);
 		if(record.isActive())
 		{
 			float energy = record.getValue();
@@ -194,7 +199,7 @@ public class GhostProvider implements StatProvider {
 			if(attacker instanceof EntityPlayer)
 			{
 				StatTracker tracker = attacker.getCapability(StatCapability.target, null);
-				GhostEnergyRecord record = (GhostEnergyRecord)tracker.getRecord(GhostProvider.instance);
+				GhostEnergyRecord record = tracker.getRecord(GhostProvider.instance);
 				
 				if(record.isActive())
 				{
@@ -229,7 +234,7 @@ public class GhostProvider implements StatProvider {
 		for(EntityPlayer player : players)
 		{
 			StatTracker tracker = player.getCapability(StatCapability.target, null);
-			GhostEnergyRecord record = (GhostEnergyRecord)tracker.getRecord(GhostProvider.instance);
+			GhostEnergyRecord record = tracker.getRecord(GhostProvider.instance);
 			
 			if(record.isActive() && record.getNormalizedValue() == 1F) record.tickResurrection();
 		}
@@ -239,7 +244,7 @@ public class GhostProvider implements StatProvider {
 	public static void disableItemPickup(EntityItemPickupEvent event)
 	{
 		StatTracker tracker = event.getEntityPlayer().getCapability(StatCapability.target, null);
-		GhostEnergyRecord record = (GhostEnergyRecord)tracker.getRecord(GhostProvider.instance);
+		GhostEnergyRecord record = tracker.getRecord(GhostProvider.instance);
 		if(record.isActive())
 		{
 			event.setCanceled(true);
@@ -254,7 +259,7 @@ public class GhostProvider implements StatProvider {
 	public static void modifyVisibility(PlayerEvent.Visibility event)
 	{
 		StatTracker tracker = event.getEntityPlayer().getCapability(StatCapability.target, null);
-		GhostEnergyRecord record = (GhostEnergyRecord)tracker.getRecord(GhostProvider.instance);
+		GhostEnergyRecord record = tracker.getRecord(GhostProvider.instance);
 		if(record.isActive()) event.modifyVisibility(0D);
 	}
 	
@@ -268,7 +273,7 @@ public class GhostProvider implements StatProvider {
 		if(ModConfig.GHOST.resurrectionBlocksMovement)
 		{
 			StatTracker tracker = event.getEntityPlayer().getCapability(StatCapability.target, null);
-			GhostEnergyRecord record = (GhostEnergyRecord)tracker.getRecord(GhostProvider.instance);
+			GhostEnergyRecord record = tracker.getRecord(GhostProvider.instance);
 			
 			if(record.isResurrectionActive())
 			{
@@ -310,12 +315,10 @@ public class GhostProvider implements StatProvider {
 			
 			// Suspend all other stats
 			StatTracker tracker = player.getCapability(StatCapability.target, null);
-			Set<StatProvider> providers = tracker.getRegisteredProviders();
+			Collection<StatProvider<?>> providers = tracker.getRegisteredProviders();
 			providers.remove(GhostProvider.instance);
-			for(StatProvider provider : providers)
-			{
+			for(StatProvider<?> provider : providers)
 				tracker.setSuspended(provider, isGhost);
-			}
 			
 			record.acceptChange();
 		}

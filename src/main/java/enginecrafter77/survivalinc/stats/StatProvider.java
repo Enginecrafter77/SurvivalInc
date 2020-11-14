@@ -12,7 +12,7 @@ import net.minecraft.util.ResourceLocation;
  * the record each tick.
  * @author Enginecrafter77
  */
-public interface StatProvider extends Serializable {
+public interface StatProvider<RECORD extends StatRecord> extends Serializable {
 	/**
 	 * Called by the stat {@link StatTracker#update(EntityPlayer) tracker}
 	 * to update the value of this stat. This method basically calculates
@@ -46,5 +46,13 @@ public interface StatProvider extends Serializable {
 	 * default values when new record is created.
 	 * @return A new instance of stat record.
 	 */
-	public StatRecord createNewRecord();
+	public RECORD createNewRecord();
+	
+	/**
+	 * Returns the formal type representation
+	 * of the {@link StatRecord} used by this
+	 * provider.
+	 * @return The type of object returned by {@link createNewRecord}
+	 */
+	public Class<RECORD> getRecordClass();
 }

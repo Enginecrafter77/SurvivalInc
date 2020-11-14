@@ -3,10 +3,8 @@ package enginecrafter77.survivalinc.client;
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
-import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatTracker;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
@@ -18,11 +16,11 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class DifferentialArrow extends SimpleOverlayElement<StatTracker> {
 	public static final ResourceLocation arrowtexture = new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/arrow.png");
 	
-	public final StatProvider provider;
+	public final StatProvider<? extends SimpleStatRecord> provider;
 	
 	protected float amplitude, min_scale, max_scale;
 	
-	public DifferentialArrow(StatProvider provider, int width, int height)
+	public DifferentialArrow(StatProvider<? extends SimpleStatRecord> provider, int width, int height)
 	{
 		super(width, height);
 		this.provider = provider;
@@ -30,21 +28,15 @@ public class DifferentialArrow extends SimpleOverlayElement<StatTracker> {
 		this.amplitude = 10F;
 		this.min_scale = 0.3F;
 		this.max_scale = 1F;
-		
-		// Create a dummy record to see if it's a subclass of SimpleStatRecord
-		if(!(provider.createNewRecord() instanceof SimpleStatRecord))
-		{
-			throw new IllegalArgumentException("Differential Arrow can be used only with providers using SimpleStatRecord records!");
-		}
 	}
 	
 	@Override
-	public void draw(ScaledResolution resolution, ElementPositioner position, float partialTicks, StatTracker arg)
+	public void draw(ScaledResolution resolution, ElementPositioner position, float partialTicks, StatTracker tracker)
 	{
 		// Bind the arrow texture
 		this.texturer.bindTexture(arrowtexture);
 		
-		float value = this.getArrowScale(Minecraft.getMinecraft().player.getCapability(StatCapability.target, null));
+		float value = this.getArrowScale(tracker);
 		boolean inverse = value < 0F;
 		value = Math.abs(value);
 		
@@ -70,7 +62,7 @@ public class DifferentialArrow extends SimpleOverlayElement<StatTracker> {
 	 */
 	public float getArrowScale(StatTracker tracker)
 	{
-		SimpleStatRecord record = (SimpleStatRecord)tracker.getRecord(provider);
+		SimpleStatRecord record = tracker.getRecord(provider);
 		
 		float scale = Math.abs(record.getLastChange() * this.amplitude);
 		if(!ModConfig.CLIENT.linearArrow)

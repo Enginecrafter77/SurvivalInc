@@ -37,7 +37,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
-public class HydrationModifier implements IMessageHandler<WaterDrinkMessage, IMessage>, StatProvider {
+public class HydrationModifier implements IMessageHandler<WaterDrinkMessage, IMessage>, StatProvider<SimpleStatRecord> {
 	private static final long serialVersionUID = 6252973395407389818L;
 
 	public static final FunctionalEffectFilter<Object> isOutsideOverworld = FunctionalEffectFilter.byPlayer((EntityPlayer player) -> player.dimension != 0);
@@ -80,12 +80,18 @@ public class HydrationModifier implements IMessageHandler<WaterDrinkMessage, IMe
 	}
 
 	@Override
-	public StatRecord createNewRecord()
+	public SimpleStatRecord createNewRecord()
 	{
 		SimpleStatRecord record = new SimpleStatRecord();
 		record.setValueRange(Range.closed(0F, 100F));
 		record.setValue((float)ModConfig.HYDRATION.startValue);
 		return record;
+	}
+	
+	@Override
+	public Class<SimpleStatRecord> getRecordClass()
+	{
+		return SimpleStatRecord.class;
 	}
 	
 	/**
@@ -106,7 +112,7 @@ public class HydrationModifier implements IMessageHandler<WaterDrinkMessage, IMe
 		{
 			SurvivalInc.logger.info("Player drink request authorized.");
 			StatTracker tracker = player.getCapability(StatCapability.target, null);
-			SimpleStatRecord hydration = (SimpleStatRecord)tracker.getRecord(HydrationModifier.instance);
+			SimpleStatRecord hydration = tracker.getRecord(HydrationModifier.instance);
 			hydration.addToValue((float)ModConfig.HYDRATION.drinkAmount);
 			HydrationModifier.spawnWaterDrinkParticles(world, water_rt.hitVec);
 		}
@@ -120,7 +126,7 @@ public class HydrationModifier implements IMessageHandler<WaterDrinkMessage, IMe
 		if(ModConfig.HEAT.enabled)
 		{
 			StatTracker tracker = player.getCapability(StatCapability.target, null);
-			SimpleStatRecord heat = (SimpleStatRecord)tracker.getRecord(HydrationModifier.instance);
+			SimpleStatRecord heat = tracker.getRecord(HydrationModifier.instance);
 			if(heat.getNormalizedValue() > ModConfig.HYDRATION.sweatingThreshold)
 				drain *= ModConfig.HYDRATION.sweatingMultiplier;
 		}
@@ -154,7 +160,7 @@ public class HydrationModifier implements IMessageHandler<WaterDrinkMessage, IMe
 		{
 			// Modify the client tracker
 			StatTracker tracker = player.getCapability(StatCapability.target, null);
-			SimpleStatRecord hydration = (SimpleStatRecord)tracker.getRecord(HydrationModifier.instance);
+			SimpleStatRecord hydration = tracker.getRecord(HydrationModifier.instance);
 			hydration.addToValue((float)ModConfig.HYDRATION.drinkAmount);
 			SurvivalInc.proxy.net.sendToServer(new WaterDrinkMessage(event.getHand()));
 		}
@@ -178,7 +184,7 @@ public class HydrationModifier implements IMessageHandler<WaterDrinkMessage, IMe
 		if(water_rt != null)
 		{
 			StatTracker tracker = player.getCapability(StatCapability.target, null);
-			SimpleStatRecord hydration = (SimpleStatRecord)tracker.getRecord(HydrationModifier.instance);
+			SimpleStatRecord hydration = tracker.getRecord(HydrationModifier.instance);
 			hydration.addToValue((float)ModConfig.HYDRATION.drinkAmount);
 			if(!player.world.isRemote) HydrationModifier.spawnWaterDrinkParticles((WorldServer)player.world, water_rt.hitVec);
 		}

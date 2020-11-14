@@ -43,7 +43,7 @@ public class RenderGhost extends RenderLivingBase<EntityPlayer> {
 	public void doRender(EntityPlayer entity, double x, double y, double z, float entityYaw, float partialTicks)
 	{
 		StatTracker tracker = entity.getCapability(StatCapability.target, null);
-		GhostEnergyRecord record = (GhostEnergyRecord)tracker.getRecord(GhostProvider.instance);
+		GhostEnergyRecord record = tracker.getRecord(GhostProvider.instance);
 		float opacity = record.getNormalizedValue();
 		
 		if(ModConfig.CLIENT.pulsatingGhosts)
@@ -72,7 +72,7 @@ public class RenderGhost extends RenderLivingBase<EntityPlayer> {
 	{
 		EntityPlayer player = event.getEntityPlayer();
 		StatTracker tracker = player.getCapability(StatCapability.target, null);
-		GhostEnergyRecord record = (GhostEnergyRecord)tracker.getRecord(GhostProvider.instance);
+		GhostEnergyRecord record = tracker.getRecord(GhostProvider.instance);
 		
 		if(record.isActive())
 		{
@@ -85,7 +85,7 @@ public class RenderGhost extends RenderLivingBase<EntityPlayer> {
 	public void renderPlayerHand(RenderHandEvent event)
 	{
 		StatTracker tracker = Minecraft.getMinecraft().player.getCapability(StatCapability.target, null);
-		GhostEnergyRecord record = (GhostEnergyRecord)tracker.getRecord(GhostProvider.instance);
+		GhostEnergyRecord record = tracker.getRecord(GhostProvider.instance);
 		if(record.isActive()) event.setCanceled(true);
 	}
 }

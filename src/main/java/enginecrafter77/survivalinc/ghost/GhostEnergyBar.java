@@ -36,18 +36,18 @@ public class GhostEnergyBar extends StatFillBar<GhostEnergyRecord> {
 	}
 	
 	@Override
-	public void draw(ScaledResolution resolution, ElementPositioner position, float partialTicks, StatTracker arg)
+	public void draw(ScaledResolution resolution, ElementPositioner position, float partialTicks, StatTracker tracker)
 	{
-		if(this.getRecord(arg).isActive())
+		if(tracker.getRecord(this.provider).isActive())
 		{
-			super.draw(resolution, position, partialTicks, arg);
+			super.draw(resolution, position, partialTicks, tracker);
 		}
 	}
 
 	@Override
 	public Set<ElementType> disableElements(StatTracker tracker)
 	{
-		return this.getRecord(tracker).isActive() ? GhostEnergyBar.replaced : ALLOW_ALL;
+		return tracker.getRecord(this.provider).isActive() ? GhostEnergyBar.replaced : ALLOW_ALL;
 	}
 
 }
