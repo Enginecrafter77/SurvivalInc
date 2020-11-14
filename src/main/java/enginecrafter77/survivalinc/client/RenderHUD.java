@@ -1,7 +1,7 @@
 package enginecrafter77.survivalinc.client;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 
 import enginecrafter77.survivalinc.config.ModConfig;
@@ -19,19 +19,24 @@ public class RenderHUD extends OverlayElementGroup<StatTracker> {
 	public static final ElementPositioner origin = new ImmutableElementPosition(0F, 0F, 0, 0);
 	public static final RenderHUD instance = new RenderHUD();
 	
-	public final List<OverlayElement<? super StatTracker>> external;	
+	protected final Map<OverlayElement<? super StatTracker>, ElementPositioner> external;	
 	public final ElementPositioner positioner;
 	protected ElementType type;
 	
 	public RenderHUD()
 	{
 		super(Axis.HORIZONTAL);
-		this.external = new LinkedList<OverlayElement<? super StatTracker>>();
+		this.external = new LinkedHashMap<OverlayElement<? super StatTracker>, ElementPositioner>();
 		this.positioner = new ElementPositioner();
 		this.type = ElementType.ALL;
 		
 		this.positioner.setPositionOrigin((float)ModConfig.CLIENT.statBarPosition[0], (float)ModConfig.CLIENT.statBarPosition[1]);
 		this.positioner.setPositionOffset((int)ModConfig.CLIENT.statBarPosition[2], (int)ModConfig.CLIENT.statBarPosition[3]);
+	}
+	
+	public void addIndependent(OverlayElement<? super StatTracker> element, ElementPositioner position)
+	{
+		this.external.put(element, position);
 	}
 	
 	/**
@@ -46,7 +51,7 @@ public class RenderHUD extends OverlayElementGroup<StatTracker> {
 	public Set<ElementType> disableElements(StatTracker tracker)
 	{
 		Set<ElementType> elements = super.disableElements(tracker);
-		for(OverlayElement<? super StatTracker> ext : this.external)
+		for(OverlayElement<? super StatTracker> ext : this.external.keySet())
 			elements.addAll(ext.disableElements(tracker));
 		return elements;
 	}
@@ -59,8 +64,10 @@ public class RenderHUD extends OverlayElementGroup<StatTracker> {
 		if(type == this.type)
 		{
 			this.draw(event.getResolution(), this.positioner, event.getPartialTicks(), tracker);
-			for(OverlayElement<? super StatTracker> ext : this.external)
-				ext.draw(event.getResolution(), RenderHUD.origin, event.getPartialTicks(), tracker);
+			for(Map.Entry<OverlayElement<? super StatTracker>, ElementPositioner> entry : this.external.entrySet())
+			{
+				entry.getKey().draw(event.getResolution(), entry.getValue(), event.getPartialTicks(), tracker);
+			}
 		}
 		
 		if(this.disableElements(tracker).contains(type)) event.setCanceled(true);

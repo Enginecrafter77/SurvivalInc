@@ -6,26 +6,37 @@ import java.util.function.Function;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 
-public class ElementTypeAdapter<TARGET, SOURCE> implements OverlayElement<TARGET> {
-	public final Function<TARGET, SOURCE> transformer;
-	public final OverlayElement<SOURCE> target;
+public class ElementTypeAdapter<INPUT, FORWARD> implements OverlayElement<INPUT> {
+	public final Function<INPUT, FORWARD> transformer;
+	public final OverlayElement<FORWARD> target;
 	
-	public ElementTypeAdapter(OverlayElement<SOURCE> target, Function<TARGET, SOURCE> transformer)
+	public ElementTypeAdapter(OverlayElement<FORWARD> target, Function<INPUT, FORWARD> transformer)
 	{
 		this.transformer = transformer;
 		this.target = target;
 	}
 	
-	@Override
-	public void draw(ScaledResolution resolution, ElementPositioner position, float partialTicks, TARGET arg)
+	protected ElementTypeAdapter(OverlayElement<FORWARD> target)
 	{
-		this.target.draw(resolution, position, partialTicks, this.transformer.apply(arg));
+		this.transformer = null;
+		this.target = target;
+	}
+	
+	public FORWARD transformArgument(INPUT input)
+	{
+		return this.transformer.apply(input);
+	}
+	
+	@Override
+	public void draw(ScaledResolution resolution, ElementPositioner position, float partialTicks, INPUT arg)
+	{
+		this.target.draw(resolution, position, partialTicks, this.transformArgument(arg));
 	}
 
 	@Override
-	public Set<ElementType> disableElements(TARGET arg)
+	public Set<ElementType> disableElements(INPUT arg)
 	{
-		return target.disableElements(transformer.apply(arg));
+		return target.disableElements(this.transformArgument(arg));
 	}
 
 	@Override
