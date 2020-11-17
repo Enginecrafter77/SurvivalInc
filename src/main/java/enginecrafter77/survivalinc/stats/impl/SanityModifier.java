@@ -206,12 +206,14 @@ public class SanityModifier implements StatProvider<SanityRecord> {
 	
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
-	public static void onClientWorldTick(TickEvent.ClientTickEvent event)
+	public static void onClientWorldTick(TickEvent.PlayerTickEvent event)
 	{
+		if(event.side.isServer()) return;
+		
 		Minecraft client = Minecraft.getMinecraft();
 		ShaderGroup shader = client.entityRenderer.getShaderGroup();
-		StatTracker tracker = client.player.getCapability(StatCapability.target, null);
-		if(shader != null && client.world.getWorldTime() % 160 == 0 && shader.getShaderGroupName().equals(distortshader.toString()) && !tracker.isActive(SanityModifier.instance, null))
+		StatTracker tracker = event.player.getCapability(StatCapability.target, null);
+		if(shader != null && event.player.world.getWorldTime() % 160 == 0 && shader.getShaderGroupName().equals(distortshader.toString()) && !tracker.isActive(SanityModifier.instance, null))
 		{
 			client.entityRenderer.stopUseShader();
 		}
