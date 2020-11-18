@@ -19,14 +19,11 @@ public class StatFillBar<RECORD extends StatRecord> implements OverlayElement<St
 	
 	protected final Map<SymbolFillBar, Function<RECORD, Float>> bars;
 	
-	private int spacing;
-	
-	public StatFillBar(StatProvider<RECORD> provider, Class<RECORD> record, TexturedElement base, int count)
+	public StatFillBar(StatProvider<RECORD> provider, Class<RECORD> record, TexturedElement base)
 	{
 		this.bars = new LinkedHashMap<SymbolFillBar, Function<RECORD, Float>>();
-		this.background = new SymbolFillBar(base, count);
+		this.background = new SymbolFillBar(base);
 		this.provider = provider;
-		this.spacing = 0;
 	}
 	
 	@Override
@@ -49,16 +46,26 @@ public class StatFillBar<RECORD extends StatRecord> implements OverlayElement<St
 	
 	public void setSpacing(int spacing)
 	{
-		this.spacing = spacing;
 		this.background.setSpacing(spacing);
 		for(SymbolFillBar bar : this.bars.keySet()) bar.setSpacing(spacing);
 	}
 	
+	public void setCapacity(int capacity)
+	{
+		this.background.setCapacity(capacity);
+		for(SymbolFillBar bar : this.bars.keySet()) bar.setCapacity(capacity);
+	}
+	
+	public void addOverlay(SymbolFillBar bar, Function<RECORD, Float> getter)
+	{
+		bar.setCapacity(this.background.getCapacity());
+		bar.setSpacing(this.background.getSpacing());
+		this.bars.put(bar, getter);
+	}
+	
 	public void addOverlay(TexturedElement texture, Function<RECORD, Float> getter)
 	{
-		SymbolFillBar bar = new SymbolFillBar(texture, this.background.count);
-		bar.setSpacing(spacing);
-		this.bars.put(bar, getter);
+		this.addOverlay(new SymbolFillBar(texture), getter);
 	}
 	
 	@Override
