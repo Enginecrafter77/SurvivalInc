@@ -1,7 +1,6 @@
 package enginecrafter77.survivalinc.client;
 
 import enginecrafter77.survivalinc.SurvivalInc;
-import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatTracker;
@@ -18,12 +17,14 @@ public class DifferentialArrow extends SimpleOverlayElement<StatTracker> {
 	public static final ResourceLocation arrowtexture = new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/arrow.png");
 	
 	public final StatProvider<? extends SimpleStatRecord> provider;
+	public final boolean exponential;
 	
 	protected float amplitude, min_scale, max_scale;
 	
-	public DifferentialArrow(StatProvider<? extends SimpleStatRecord> provider, int width, int height)
+	public DifferentialArrow(StatProvider<? extends SimpleStatRecord> provider, int width, int height, boolean exponential)
 	{
 		super(width, height);
+		this.exponential = exponential;
 		this.provider = provider;
 		
 		this.amplitude = 10F;
@@ -66,7 +67,7 @@ public class DifferentialArrow extends SimpleOverlayElement<StatTracker> {
 		SimpleStatRecord record = tracker.getRecord(provider);
 		
 		float scale = Math.abs(record.getLastChange() * this.amplitude);
-		if(!ModConfig.CLIENT.linearArrow)
+		if(this.exponential)
 		{
 			/*
 			 * The scale is calculated using this relatively simple exponential formula:

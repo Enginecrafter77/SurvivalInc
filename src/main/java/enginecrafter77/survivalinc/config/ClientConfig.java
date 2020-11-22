@@ -12,9 +12,6 @@ public class ClientConfig {
 	@Config.RangeDouble(min = 0)
 	public double[] autumnLeafColor = {1.2, 0.6, 0.8};
 	
-	@Config.LangKey("config.survivalinc:client.linearArrow")
-	public boolean linearArrow = false;
-	
 	@Config.LangKey("config.survivalinc:client.pulsatingGhosts")
 	public boolean pulsatingGhosts = true;
 }

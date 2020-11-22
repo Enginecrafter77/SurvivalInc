@@ -19,7 +19,7 @@ public class SimpleStatBar extends OverlayElementGroup<StatTracker> {
 		super(Axis2D.VERTICAL);
 		this.provider = provider;
 		
-		this.elements.add(new DifferentialArrow(provider, 8, 12));
+		this.elements.add(new DifferentialArrow(provider, 8, 12, true));
 		this.elements.add(new ElementTypeAdapter<StatTracker, Float>(new GaugeBar(color), this::getRecordValue));
 		this.elements.add(icon);
 	}

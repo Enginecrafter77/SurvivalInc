@@ -38,8 +38,6 @@ config.survivalinc:client.barTransparency=Bar Transparency
 config.survivalinc:client.barTransparency.tooltip=The transparency of the HUD
 config.survivalinc:client.autumnLeafColor=Autumn Foliage Color
 config.survivalinc:client.autumnLeafColor.tooltip=The color multiplier applied to each RGB component of the original foliage color during autumn
-config.survivalinc:client.linearArrow=Linear Arrow
-config.survivalinc:client.linearArrow.tooltip=Forces the stat change arrow to behave in linear fashion rather than exponential.
 config.survivalinc:client.pulsatingGhosts=Pulsating Ghosts
 config.survivalinc:client.pulsatingGhosts.tooltip=Determines if the ghosts should be seen as "pulsing". Setting to false disables this behavior.
 

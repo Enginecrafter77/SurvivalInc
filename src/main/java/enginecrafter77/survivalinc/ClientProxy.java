@@ -38,8 +38,8 @@ public class ClientProxy extends CommonProxy {
 	{
 		super.init(event);
 		
-		TextureResource newicons = new TextureResource(new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/staticons-new.png"), 18, 18);
-		TextureResource sanityicon = new TextureResource(new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/sanity.png"), 40, 20);
+		TextureResource newicons = new TextureResource(new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/staticons.png"), 18, 18);
+		TextureResource sanityicon = new TextureResource(new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/sanity.png"), 32, 16);
 		TranslateRenderFilter moveup = new TranslateRenderFilter(new ElementPositioner(0F, 0F, 0, -10));
 		if(ModConfig.HEAT.enabled)
 		{
@@ -61,10 +61,11 @@ public class ClientProxy extends CommonProxy {
 		}
 		if(ModConfig.SANITY.enabled)
 		{
-			StatFillBar<SanityRecord> bar = new StatFillBar<SanityRecord>(SanityModifier.instance, SanityRecord.class, Direction2D.UP, new TexturedElement(sanityicon, 0, 0, 20, 20, true));
-			bar.addOverlay(new TexturedElement(sanityicon, 20, 0, 20, 20, true), SimpleStatRecord::getNormalizedValue);
+			StatFillBar<SanityRecord> bar = new StatFillBar<SanityRecord>(SanityModifier.instance, SanityRecord.class, Direction2D.UP, new TexturedElement(sanityicon, 0, 0, 16, 16, true));
+			bar.addOverlay(new TexturedElement(sanityicon, 16, 0, 16, 16, true), SimpleStatRecord::getNormalizedValue);
 			bar.setCapacity(1);
-			RenderHUD.instance.addIndependent(bar, new ElementPositioner(0.5F, 1F, -10, -59));
+			RenderHUD.instance.addIndependent(bar, new ElementPositioner(0.5F, 1F, -8, -51));
+			RenderHUD.instance.addFilter(moveup, ElementType.SUBTITLES);
 		}
 		if(ModConfig.GHOST.enabled)
 		{
