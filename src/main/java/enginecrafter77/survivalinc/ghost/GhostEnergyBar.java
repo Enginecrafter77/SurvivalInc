@@ -46,10 +46,4 @@ public class GhostEnergyBar extends StatFillBar<GhostEnergyRecord> {
 		}
 	}
 
-	@Override
-	public Set<ElementType> disableElements(StatTracker tracker)
-	{
-		return tracker.getRecord(this.provider).isActive() ? GhostEnergyBar.replaced : ALLOW_ALL;
-	}
-
 }

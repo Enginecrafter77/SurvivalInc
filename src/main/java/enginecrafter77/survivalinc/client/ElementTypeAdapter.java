@@ -1,10 +1,8 @@
 package enginecrafter77.survivalinc.client;
 
-import java.util.Set;
 import java.util.function.Function;
 
 import net.minecraft.client.gui.ScaledResolution;
-import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 
 public class ElementTypeAdapter<INPUT, FORWARD> implements OverlayElement<INPUT> {
 	public final Function<INPUT, FORWARD> transformer;
@@ -34,21 +32,9 @@ public class ElementTypeAdapter<INPUT, FORWARD> implements OverlayElement<INPUT>
 	}
 
 	@Override
-	public Set<ElementType> disableElements(INPUT arg)
+	public int getSize(Axis2D axis)
 	{
-		return target.disableElements(this.transformArgument(arg));
-	}
-
-	@Override
-	public int getWidth()
-	{
-		return target.getWidth();
-	}
-
-	@Override
-	public int getHeight()
-	{
-		return target.getHeight();
+		return target.getSize(axis);
 	}
 
 }

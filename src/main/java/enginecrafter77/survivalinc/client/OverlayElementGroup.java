@@ -1,12 +1,8 @@
 package enginecrafter77.survivalinc.client;
 
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
-
 import net.minecraft.client.gui.ScaledResolution;
-import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -17,6 +13,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * a common axis.
  * @author Enginecrafter77
  */
+@Deprecated
 @SideOnly(Side.CLIENT)
 public class OverlayElementGroup<TYPE> implements OverlayElement<TYPE> {
 	
@@ -46,39 +43,22 @@ public class OverlayElementGroup<TYPE> implements OverlayElement<TYPE> {
 	}
 	
 	@Override
-	public int getHeight()
+	public int getSize(Axis2D axis)
 	{
-		int height = 0;
+		int size = 0;
 		for(OverlayElement<?> element : this.elements)
 		{
-			if(this.axis == Axis2D.VERTICAL)
+			int elementsize = element.getSize(axis);
+			if(this.axis == axis)
 			{
-				height += element.getHeight() + this.spacing;
+				size += elementsize + this.spacing;
 			}
-			else if(element.getHeight() > height)
+			else if(elementsize > size)
 			{
-				height = element.getHeight();
-			}
-		}
-		return height;
-	}
-	
-	@Override
-	public int getWidth()
-	{
-		int width = 0;
-		for(OverlayElement<?> element : this.elements)
-		{
-			if(this.axis == Axis2D.HORIZONTAL)
-			{
-				width += element.getWidth() + this.spacing;
-			}
-			else if(element.getWidth() > width)
-			{
-				width = element.getWidth();
+				size = elementsize;
 			}
 		}
-		return width;
+		return size;
 	}
 	
 	@Override
@@ -87,18 +67,9 @@ public class OverlayElementGroup<TYPE> implements OverlayElement<TYPE> {
 		for(OverlayElement<? super TYPE> element : this.elements)
 		{
 			element.draw(resolution, position, partialTicks, arg);
-			int offx = this.axis == Axis2D.HORIZONTAL ? element.getWidth() + this.spacing : 0;
-			int offy = this.axis == Axis2D.VERTICAL ? element.getHeight() + this.spacing : 0;
+			int offx = this.axis == Axis2D.HORIZONTAL ? element.getSize(Axis2D.HORIZONTAL) + this.spacing : 0;
+			int offy = this.axis == Axis2D.VERTICAL ? element.getSize(Axis2D.VERTICAL) + this.spacing : 0;
 			position = new ElementPositioner(position, offx, offy);
 		}
-	}
-	
-	@Override
-	public Set<ElementType> disableElements(TYPE arg)
-	{
-		Set<ElementType> set = new HashSet<ElementType>();
-		for(OverlayElement<? super TYPE> element : this.elements)
-			set.addAll(element.disableElements(arg));
-		return set;
 	}
 }

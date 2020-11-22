@@ -1,13 +1,14 @@
 package enginecrafter77.survivalinc.client;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Map;
-import java.util.Set;
-
-import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -15,25 +16,42 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class RenderHUD extends OverlayElementGroup<StatTracker> {
-	public static final ElementPositioner origin = new ElementPositioner(0F, 0F, 0, 0);
-	public static final RenderHUD instance = new RenderHUD();
+public class RenderHUD {
+	public static final RenderHUD instance = new RenderHUD(ElementType.ALL);
 	
-	protected final Map<OverlayElement<? super StatTracker>, ElementPositioner> external;	
-	public final ElementPositioner positioner;
-	protected ElementType type;
+	protected final Map<OverlayElement<? super StatTracker>, ElementPositioner> elements;
+	protected final Map<ElementType, Collection<ElementRenderFilter<? super StatTracker>>> filters;
+	protected final ElementType trigger;
 	
-	public RenderHUD()
+	public RenderHUD(ElementType trigger)
 	{
-		super(Axis2D.HORIZONTAL);
-		this.external = new LinkedHashMap<OverlayElement<? super StatTracker>, ElementPositioner>();
-		this.positioner = new ElementPositioner((float)ModConfig.CLIENT.statBarPosition[0], (float)ModConfig.CLIENT.statBarPosition[1], (int)ModConfig.CLIENT.statBarPosition[2], (int)ModConfig.CLIENT.statBarPosition[3]);
-		this.type = ElementType.ALL;
+		this.elements = new LinkedHashMap<OverlayElement<? super StatTracker>, ElementPositioner>();
+		this.filters = new HashMap<ElementType, Collection<ElementRenderFilter<? super StatTracker>>>();
+		this.trigger = trigger;
 	}
 	
 	public void addIndependent(OverlayElement<? super StatTracker> element, ElementPositioner position)
 	{
-		this.external.put(element, position);
+		this.elements.put(element, position);
+	}
+	
+	public void addFilter(ElementRenderFilter<? super StatTracker> filter, ElementType element)
+	{
+		Collection<ElementRenderFilter<? super StatTracker>> filters = this.filters.get(element);
+		if(filters == null)
+		{
+			filters = new LinkedList<ElementRenderFilter<? super StatTracker>>();
+			this.filters.put(element, filters);
+		}
+		filters.add(filter);
+	}
+	
+	public void addFilterToAll(ElementRenderFilter<? super StatTracker> filter, ElementType... elements)
+	{
+		for(ElementType element : elements)
+		{
+			this.addFilter(filter, element);
+		}
 	}
 	
 	/**
@@ -41,32 +59,60 @@ public class RenderHUD extends OverlayElementGroup<StatTracker> {
 	 */
 	public boolean isUseful()
 	{
-		return !(this.elements.isEmpty() && this.external.isEmpty());
+		return !this.elements.isEmpty() && !this.filters.isEmpty();
 	}
 	
-	@Override
-	public Set<ElementType> disableElements(StatTracker tracker)
+	/**
+	 * Runs the {@link ElementRenderFilter#end(ScaledResolution, Object)} for all the registered filters
+	 * associated with the provided type.
+	 * @param resolution The resolution the filters are running at
+	 * @param element The currently processed element type
+	 * @param tracker A stat tracker as argument
+	 */
+	private void runEndFilters(ScaledResolution resolution, ElementType element, StatTracker tracker)
 	{
-		Set<ElementType> elements = super.disableElements(tracker);
-		for(OverlayElement<? super StatTracker> ext : this.external.keySet())
-			elements.addAll(ext.disableElements(tracker));
-		return elements;
+		Collection<ElementRenderFilter<? super StatTracker>> filters = this.filters.get(element);
+		if(filters != null)
+		{
+			for(ElementRenderFilter<? super StatTracker> filter : filters) filter.end(resolution, tracker);
+		}
 	}
 	
 	@SubscribeEvent
-	public void renderOverlay(RenderGameOverlayEvent event)
+	public void renderOverlayPre(RenderGameOverlayEvent.Pre event)
+	{
+		StatTracker tracker = Minecraft.getMinecraft().player.getCapability(StatCapability.target, null);
+		Collection<ElementRenderFilter<? super StatTracker>> filters = this.filters.get(event.getType());
+		if(filters != null)
+		{
+			for(ElementRenderFilter<? super StatTracker> filter : filters)
+			{
+				boolean render = filter.begin(event.getResolution(), tracker);
+				if(!render) event.setCanceled(true);
+			}
+		}
+		
+		/*
+		 * If the event is to be cancelled, the post event will never run, thus
+		 * the filters which invoke GlStateManager#pushMatrix() may leave GL in
+		 * a weird state. This call makes sure that every filter that has been
+		 * started will also be ended, no matter what.
+		 */
+		if(event.isCanceled()) this.runEndFilters(event.getResolution(), event.getType(), tracker);
+	}
+	
+	@SubscribeEvent
+	public void renderOverlayPost(RenderGameOverlayEvent.Post event)
 	{
 		StatTracker tracker = Minecraft.getMinecraft().player.getCapability(StatCapability.target, null);
 		ElementType type = event.getType();
-		if(type == this.type)
+		if(this.trigger == type)
 		{
-			this.draw(event.getResolution(), this.positioner, event.getPartialTicks(), tracker);
-			for(Map.Entry<OverlayElement<? super StatTracker>, ElementPositioner> entry : this.external.entrySet())
+			for(Map.Entry<OverlayElement<? super StatTracker>, ElementPositioner> entry : this.elements.entrySet())
 			{
 				entry.getKey().draw(event.getResolution(), entry.getValue(), event.getPartialTicks(), tracker);
 			}
 		}
-		
-		if(this.disableElements(tracker).contains(type)) event.setCanceled(true);
+		this.runEndFilters(event.getResolution(), type, tracker);
 	}
 }

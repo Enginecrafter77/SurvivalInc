@@ -9,6 +9,7 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+@Deprecated
 @SideOnly(Side.CLIENT)
 public class SimpleStatBar extends OverlayElementGroup<StatTracker> {	
 	public final StatProvider<? extends SimpleStatRecord> provider;

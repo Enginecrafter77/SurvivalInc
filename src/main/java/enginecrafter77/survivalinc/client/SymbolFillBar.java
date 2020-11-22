@@ -1,10 +1,7 @@
 package enginecrafter77.survivalinc.client;
 
-import java.util.Set;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
-import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 
 public class SymbolFillBar implements OverlayElement<Float> {	
 	public final TexturedElement symbol;
@@ -44,13 +41,14 @@ public class SymbolFillBar implements OverlayElement<Float> {
 	
 	protected int calculateOffsetOn(float fill, int index, Axis2D axis)
 	{
+		int size = this.symbol.getSize(axis);
 		int offset = 0;
 		if(this.direction.axis == axis)
 		{
-			offset = index * (axis.getAxialDimension(this.symbol) + this.spacing);
-			if(this.direction.requiresOffseting())
+			offset = index * (size + this.spacing);
+			if(this.direction.isReverse())
 			{
-				offset += Math.round((1F - fill) * axis.getAxialDimension(this.symbol));
+				offset += Math.round((1F - fill) * size);
 			}
 		}
 		return offset;
@@ -58,7 +56,7 @@ public class SymbolFillBar implements OverlayElement<Float> {
 	
 	protected int calculateDimensionOn(float fill, int piece, Axis2D axis)
 	{
-		int dimension = axis.getAxialDimension(this.symbol);
+		int dimension = this.symbol.getSize(axis);
 		if(this.direction.axis == axis)
 			dimension = Math.round((float)dimension * fill);
 		return dimension;
@@ -70,7 +68,7 @@ public class SymbolFillBar implements OverlayElement<Float> {
 		int height = this.calculateDimensionOn(fill, index, Axis2D.VERTICAL);
 		int offx = 0, offy = 0;
 		
-		if(this.direction.requiresOffseting())
+		if(this.direction.isReverse())
 		{
 			offx = context.width - width;
 			offy = context.height - height;
@@ -81,30 +79,13 @@ public class SymbolFillBar implements OverlayElement<Float> {
 		context.drawPartial(x, y, offx, offy, width, height);
 	}
 	
-	private int getDimensionOn(Axis2D axis)
+	@Override
+	public int getSize(Axis2D axis)
 	{
-		int dimension = axis.getAxialDimension(this.symbol);
+		int dimension = this.symbol.getSize(axis);
 		if(this.direction.axis == axis)
 			dimension = this.capacity * (dimension + this.spacing);
 		return dimension;
-	}
-	
-	@Override
-	public Set<ElementType> disableElements(Float arg)
-	{
-		return OverlayElement.ALLOW_ALL;
-	}
-	
-	@Override
-	public int getHeight()
-	{
-		return this.getDimensionOn(Axis2D.VERTICAL);
-	}
-	
-	@Override
-	public int getWidth()
-	{
-		return this.getDimensionOn(Axis2D.HORIZONTAL);
 	}
 	
 	@Override

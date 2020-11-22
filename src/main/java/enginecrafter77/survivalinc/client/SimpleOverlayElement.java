@@ -1,10 +1,7 @@
 package enginecrafter77.survivalinc.client;
 
-import java.util.Set;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 
 public abstract class SimpleOverlayElement<ARGUMENT> implements OverlayElement<ARGUMENT> {
 	
@@ -19,23 +16,28 @@ public abstract class SimpleOverlayElement<ARGUMENT> implements OverlayElement<A
 		this.height = height;
 		this.width = width;
 	}
-	
-	@Override
-	public Set<ElementType> disableElements(ARGUMENT arg)
-	{
-		return OverlayElement.ALLOW_ALL;
-	}
 
-	@Override
 	public int getWidth()
 	{
 		return this.width;
 	}
 
-	@Override
 	public int getHeight()
 	{
 		return this.height;
+	}
+	
+	public int getSize(Axis2D axis)
+	{
+		switch(axis)
+		{
+		case HORIZONTAL:
+			return this.getWidth();
+		case VERTICAL:
+			return this.getHeight();
+		default:
+			return 0;
+		}
 	}
 
 }
