@@ -41,20 +41,38 @@ public class SymbolFillBar implements OverlayElement<Float> {
 	
 	protected int calculateOffsetOn(float fill, int index, Axis2D axis)
 	{
-		int size = this.symbol.getSize(axis);
 		int offset = 0;
+		int size = this.symbol.getSize(axis);
 		if(this.direction.axis == axis)
 		{
-			offset = index * (size + this.spacing);
-			if(this.direction.isReverse())
+			if(this.direction.isReverse()) // If the direction is in reverse, we need to follow some other rules.
 			{
-				offset += Math.round((1F - fill) * size);
+				/*
+				 * Since every position is in the top left corner, start the offset at the other end (O1).
+				 * This leads us position on the end of the chain. Since we are at the very end of the
+				 * chain (last pixel), we need to step back by entire 1 space (icon + spacing) by subtracting
+				 * the icon and spacing sizes (O2). Then, we need to advance forward to shift the texture, since
+				 * we may be drawing a partial icon (O3).
+				 * 
+				 * Operands: offset = O1 - O2 + O3
+				 */
+				offset = this.getSize(axis) - (size + this.spacing) + Math.round((1F - fill) * size);
 			}
+			// Ultimately, shift the position by the number of symbols (icon + spacing) in the desired way.
+			offset += index * (size + this.spacing) * this.direction.getAxialDelta();
 		}
 		return offset;
 	}
 	
-	protected int calculateDimensionOn(float fill, int piece, Axis2D axis)
+	/**
+	 * Calculates the axial dimension of the icon with the desired fill.
+	 * Basically if the axis matches the drawing direction's axis, the width
+	 * is multiplied by the fill ratio, otherwise it is returned as it is. 
+	 * @param fill
+	 * @param axis
+	 * @return
+	 */
+	protected int calculateDimensionOn(float fill, Axis2D axis)
 	{
 		int dimension = this.symbol.getSize(axis);
 		if(this.direction.axis == axis)
@@ -62,12 +80,21 @@ public class SymbolFillBar implements OverlayElement<Float> {
 		return dimension;
 	}
 	
+	/**
+	 * Draws a single symbol.
+	 * @param context The drawing context 
+	 * @param index The index of the icon to be drawn
+	 * @param x The X coordinate of the drawing origin point (top left corner of the whole bar)
+	 * @param y The Y coordinate of the drawing origin point (top left corner of the whole bar)
+	 * @param fill The fill fraction of the symbol.
+	 */
 	protected void drawSymbol(TexturedElement.TextureDrawingContext context, int index, int x, int y, float fill)
 	{
-		int width = this.calculateDimensionOn(fill, index, Axis2D.HORIZONTAL);
-		int height = this.calculateDimensionOn(fill, index, Axis2D.VERTICAL);
+		int width = this.calculateDimensionOn(fill, Axis2D.HORIZONTAL);
+		int height = this.calculateDimensionOn(fill, Axis2D.VERTICAL);
 		int offx = 0, offy = 0;
 		
+		// If the direction is reverse, we also need to shift the texture
 		if(this.direction.isReverse())
 		{
 			offx = context.width - width;

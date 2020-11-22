@@ -52,7 +52,7 @@ public class ClientProxy extends CommonProxy {
 		}
 		if(ModConfig.HYDRATION.enabled)
 		{
-			StatFillBar<SimpleStatRecord> bar = new StatFillBar<SimpleStatRecord>(HydrationModifier.instance, SimpleStatRecord.class, Direction2D.RIGHT, new TexturedElement(newicons, 0, 9, 9, 9, true));
+			StatFillBar<SimpleStatRecord> bar = new StatFillBar<SimpleStatRecord>(HydrationModifier.instance, SimpleStatRecord.class, Direction2D.LEFT, new TexturedElement(newicons, 0, 9, 9, 9, true));
 			bar.addOverlay(new TexturedElement(newicons, 9, 9, 9, 9, true), SimpleStatRecord::getNormalizedValue);
 			bar.setCapacity(10);
 			bar.setSpacing(-1);
