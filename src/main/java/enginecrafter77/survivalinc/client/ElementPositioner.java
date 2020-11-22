@@ -18,51 +18,28 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class ElementPositioner {
 	
 	/** The X offset from the {@link #mulX X position origin} */
-	protected int offX;
+	protected final int offX;
 	
 	/** The Y offset from the {@link #mulY Y position origin} */
-	protected int offY;
+	protected final int offY;
 	
 	/** The X position origin */
-	protected float mulX;
+	protected final float mulX;
 	
 	/** The Y position origin */
-	protected float mulY;
+	protected final float mulY;
 	
-	public ElementPositioner()
+	public ElementPositioner(float mx, float my, int ox, int oy)
 	{
-		this.mulX = 0F;
-		this.mulY = 0F;
-		this.offX = 0;
-		this.offY = 0;
+		this.mulX = mx;
+		this.mulY = my;
+		this.offX = ox;
+		this.offY = oy;
 	}
 	
-	/**
-	 * Sets the absolute offsets relative to the screen
-	 * origin.
-	 * @see #setPositionOrigin(float, float)
-	 * @param x The X offset
-	 * @param y The Y offset
-	 */
-	public void setPositionOffset(int x, int y)
+	public ElementPositioner(ElementPositioner origin, int x, int y)
 	{
-		this.offX = x;
-		this.offY = y;
-	}
-	
-	/**
-	 * Sets the position of the origin point relative
-	 * to the screen dimensions. For example, value
-	 * 0.5 on X indicates that the origin will be in
-	 * the middle of the screen.
-	 * @see #setPositionOffset(int, int)
-	 * @param x The fraction of the screen dimension for the X origin point
-	 * @param y The fraction of the screen dimension for the Y origin point
-	 */
-	public void setPositionOrigin(float x, float y)
-	{
-		this.mulX = x;
-		this.mulY = y;
+		this(origin.mulX, origin.mulY, origin.offX + x, origin.offY + y);
 	}
 	
 	/**
@@ -78,7 +55,7 @@ public class ElementPositioner {
 	 */
 	public int getX(ScaledResolution resolution)
 	{
-		return Math.round((float)resolution.getScaledWidth() * this.mulX + (float)this.offX);
+		return (int)((float)resolution.getScaledWidth() * this.mulX) + this.offX;
 	}
 	
 	/**
@@ -94,6 +71,6 @@ public class ElementPositioner {
 	 */
 	public int getY(ScaledResolution resolution)
 	{
-		return Math.round((float)resolution.getScaledHeight() * this.mulY + (float)this.offY);
+		return (int)((float)resolution.getScaledHeight() * this.mulY) + this.offY;
 	}
 }

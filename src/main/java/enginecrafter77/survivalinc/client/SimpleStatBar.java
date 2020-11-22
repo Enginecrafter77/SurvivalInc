@@ -15,7 +15,7 @@ public class SimpleStatBar extends OverlayElementGroup<StatTracker> {
 	
 	public SimpleStatBar(StatProvider<? extends SimpleStatRecord> provider, TexturedElement icon, Color color)
 	{
-		super(Axis.VERTICAL);
+		super(Axis2D.VERTICAL);
 		this.provider = provider;
 		
 		this.elements.add(new DifferentialArrow(provider, 8, 12));

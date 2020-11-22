@@ -45,14 +45,14 @@ public class TexturedElement extends SimpleOverlayElement<Object> {
 			super(width, height);
 		}
 
-		public void drawScaled(int x, int y, int width, int height)
+		public void drawPartial(int x, int y, int offx, int offy, int width, int height)
 		{
-			Gui.drawModalRectWithCustomSizedTexture(x, y, offset_x, offset_y, width, height, resource.texture_width, resource.texture_height);
+			Gui.drawModalRectWithCustomSizedTexture(x, y, offset_x + offx, offset_y + offy, width, height, resource.texture_width, resource.texture_height);
 		}
 		
 		public void draw(int x, int y)
 		{
-			this.drawScaled(x, y, this.width, this.height);
+			this.drawPartial(x, y, 0, 0, this.width, this.height);
 		}
 		
 		@Override

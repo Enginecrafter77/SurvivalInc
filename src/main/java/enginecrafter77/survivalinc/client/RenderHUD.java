@@ -16,7 +16,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class RenderHUD extends OverlayElementGroup<StatTracker> {
-	public static final ElementPositioner origin = new ImmutableElementPosition(0F, 0F, 0, 0);
+	public static final ElementPositioner origin = new ElementPositioner(0F, 0F, 0, 0);
 	public static final RenderHUD instance = new RenderHUD();
 	
 	protected final Map<OverlayElement<? super StatTracker>, ElementPositioner> external;	
@@ -25,13 +25,10 @@ public class RenderHUD extends OverlayElementGroup<StatTracker> {
 	
 	public RenderHUD()
 	{
-		super(Axis.HORIZONTAL);
+		super(Axis2D.HORIZONTAL);
 		this.external = new LinkedHashMap<OverlayElement<? super StatTracker>, ElementPositioner>();
-		this.positioner = new ElementPositioner();
+		this.positioner = new ElementPositioner((float)ModConfig.CLIENT.statBarPosition[0], (float)ModConfig.CLIENT.statBarPosition[1], (int)ModConfig.CLIENT.statBarPosition[2], (int)ModConfig.CLIENT.statBarPosition[3]);
 		this.type = ElementType.ALL;
-		
-		this.positioner.setPositionOrigin((float)ModConfig.CLIENT.statBarPosition[0], (float)ModConfig.CLIENT.statBarPosition[1]);
-		this.positioner.setPositionOffset((int)ModConfig.CLIENT.statBarPosition[2], (int)ModConfig.CLIENT.statBarPosition[3]);
 	}
 	
 	public void addIndependent(OverlayElement<? super StatTracker> element, ElementPositioner position)

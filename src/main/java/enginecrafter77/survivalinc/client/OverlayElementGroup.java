@@ -1,7 +1,6 @@
 package enginecrafter77.survivalinc.client;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -25,12 +24,12 @@ public class OverlayElementGroup<TYPE> implements OverlayElement<TYPE> {
 	public final List<OverlayElement<? super TYPE>> elements;
 	
 	/** The axis to spread the elements along */
-	public final Axis axis;
+	public final Axis2D axis;
 	
 	/** Spacing between each two elements */
 	public int spacing;
 	
-	public OverlayElementGroup(Axis axis)
+	public OverlayElementGroup(Axis2D axis)
 	{
 		this.elements = new LinkedList<OverlayElement<? super TYPE>>();
 		this.spacing = 2;
@@ -52,7 +51,7 @@ public class OverlayElementGroup<TYPE> implements OverlayElement<TYPE> {
 		int height = 0;
 		for(OverlayElement<?> element : this.elements)
 		{
-			if(this.axis == Axis.VERTICAL)
+			if(this.axis == Axis2D.VERTICAL)
 			{
 				height += element.getHeight() + this.spacing;
 			}
@@ -70,7 +69,7 @@ public class OverlayElementGroup<TYPE> implements OverlayElement<TYPE> {
 		int width = 0;
 		for(OverlayElement<?> element : this.elements)
 		{
-			if(this.axis == Axis.HORIZONTAL)
+			if(this.axis == Axis2D.HORIZONTAL)
 			{
 				width += element.getWidth() + this.spacing;
 			}
@@ -85,8 +84,13 @@ public class OverlayElementGroup<TYPE> implements OverlayElement<TYPE> {
 	@Override
 	public void draw(ScaledResolution resolution, ElementPositioner position, float partialTicks, TYPE arg)
 	{
-		PositioningIterator pos = new PositioningIterator(resolution, position, partialTicks, arg);
-		while(pos.hasNext()) pos.next();
+		for(OverlayElement<? super TYPE> element : this.elements)
+		{
+			element.draw(resolution, position, partialTicks, arg);
+			int offx = this.axis == Axis2D.HORIZONTAL ? element.getWidth() + this.spacing : 0;
+			int offy = this.axis == Axis2D.VERTICAL ? element.getHeight() + this.spacing : 0;
+			position = new ElementPositioner(position, offx, offy);
+		}
 	}
 	
 	@Override
@@ -96,47 +100,5 @@ public class OverlayElementGroup<TYPE> implements OverlayElement<TYPE> {
 		for(OverlayElement<? super TYPE> element : this.elements)
 			set.addAll(element.disableElements(arg));
 		return set;
-	}
-	
-	/**
-	 * A simple enum specifying the axis plane.
-	 * @author Enginecrafter77
-	 */
-	public static enum Axis {HORIZONTAL, VERTICAL}
-	
-	public class PositioningIterator extends ElementPositioner implements Iterator<OverlayElement<? super TYPE>>
-	{		
-		public final ScaledResolution resolution;
-		public final float partialTicks;
-		public final TYPE arg;
-		
-		public int index;
-		
-		public PositioningIterator(ScaledResolution resolution, ElementPositioner position, float partialTicks, TYPE arg)
-		{
-			this.partialTicks = partialTicks;
-			this.resolution = resolution;
-			this.index = 0;
-			this.arg = arg;
-			
-			this.setPositionOffset(position.offX, position.offY);
-			this.setPositionOrigin(position.mulX, position.mulY);
-		}
-
-		@Override
-		public boolean hasNext()
-		{
-			return this.index < elements.size();
-		}
-
-		@Override
-		public OverlayElement<? super TYPE> next()
-		{
-			OverlayElement<? super TYPE> element = elements.get(this.index++);
-			element.draw(this.resolution, this, this.partialTicks, this.arg);
-			this.offX += axis == Axis.HORIZONTAL ? element.getWidth() + spacing : 0;
-			this.offY += axis == Axis.VERTICAL ? element.getHeight() + spacing : 0;
-			return element;
-		}
 	}
 }

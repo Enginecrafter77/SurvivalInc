@@ -1,6 +1,7 @@
 package enginecrafter77.survivalinc;
 
-import enginecrafter77.survivalinc.client.ImmutableElementPosition;
+import enginecrafter77.survivalinc.client.Direction2D;
+import enginecrafter77.survivalinc.client.ElementPositioner;
 import enginecrafter77.survivalinc.client.RenderHUD;
 import enginecrafter77.survivalinc.client.StatFillBar;
 import enginecrafter77.survivalinc.client.TextureResource;
@@ -38,28 +39,28 @@ public class ClientProxy extends CommonProxy {
 		TextureResource sanityicon = new TextureResource(new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/sanity.png"), 40, 20);
 		if(ModConfig.HEAT.enabled)
 		{
-			StatFillBar<SimpleStatRecord> bar = new StatFillBar<SimpleStatRecord>(HeatModifier.instance, SimpleStatRecord.class, new TexturedElement(newicons, 0, 0, 9, 9, true));
+			StatFillBar<SimpleStatRecord> bar = new StatFillBar<SimpleStatRecord>(HeatModifier.instance, SimpleStatRecord.class, Direction2D.RIGHT, new TexturedElement(newicons, 0, 0, 9, 9, true));
 			bar.addOverlay(new TexturedElement(newicons, 9, 0, 9, 9, true), SimpleStatRecord::getNormalizedValue);
 			bar.setCapacity(10);
 			bar.setSpacing(-1);
-			RenderHUD.instance.addIndependent(bar, new ImmutableElementPosition(0.5F, 1F, -92, -59));
+			RenderHUD.instance.addIndependent(bar, new ElementPositioner(0.5F, 1F, -91, -59));
 		}
 		if(ModConfig.HYDRATION.enabled)
 		{
-			StatFillBar<SimpleStatRecord> bar = new StatFillBar<SimpleStatRecord>(HydrationModifier.instance, SimpleStatRecord.class, new TexturedElement(newicons, 0, 9, 9, 9, true));
+			StatFillBar<SimpleStatRecord> bar = new StatFillBar<SimpleStatRecord>(HydrationModifier.instance, SimpleStatRecord.class, Direction2D.RIGHT, new TexturedElement(newicons, 0, 9, 9, 9, true));
 			bar.addOverlay(new TexturedElement(newicons, 9, 9, 9, 9, true), SimpleStatRecord::getNormalizedValue);
 			bar.setCapacity(10);
 			bar.setSpacing(-1);
-			RenderHUD.instance.addIndependent(bar, new ImmutableElementPosition(0.5F, 1F, -92, -49));
+			RenderHUD.instance.addIndependent(bar, new ElementPositioner(0.5F, 1F, 10, -59));
 		}
 		if(ModConfig.SANITY.enabled)
 		{
-			StatFillBar<SanityRecord> bar = new StatFillBar<SanityRecord>(SanityModifier.instance, SanityRecord.class, new TexturedElement(sanityicon, 0, 0, 20, 20, true));
+			StatFillBar<SanityRecord> bar = new StatFillBar<SanityRecord>(SanityModifier.instance, SanityRecord.class, Direction2D.UP, new TexturedElement(sanityicon, 0, 0, 20, 20, true));
 			bar.addOverlay(new TexturedElement(sanityicon, 20, 0, 20, 20, true), SimpleStatRecord::getNormalizedValue);
 			bar.setCapacity(1);
-			RenderHUD.instance.addIndependent(bar, new ImmutableElementPosition(0.5F, 1F, -10, -59));
+			RenderHUD.instance.addIndependent(bar, new ElementPositioner(0.5F, 1F, -10, -59));
 		}
-		if(ModConfig.GHOST.enabled) RenderHUD.instance.addIndependent(new GhostEnergyBar(), new ImmutableElementPosition(0.5F, 1F, -91, -39));
+		if(ModConfig.GHOST.enabled) RenderHUD.instance.addIndependent(new GhostEnergyBar(), new ElementPositioner(0.5F, 1F, -91, -39));
 	}
 	
 	@Override

@@ -8,12 +8,14 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 
 public class SymbolFillBar implements OverlayElement<Float> {	
 	public final TexturedElement symbol;
+	public final Direction2D direction;
 	
 	protected int capacity;
 	protected int spacing;
 	
-	public SymbolFillBar(TexturedElement symbol)
+	public SymbolFillBar(TexturedElement symbol, Direction2D direction)
 	{
+		this.direction = direction;
 		this.symbol = symbol;
 		
 		this.capacity = 1;
@@ -40,14 +42,51 @@ public class SymbolFillBar implements OverlayElement<Float> {
 		return this.spacing;
 	}
 	
-	protected int calculateOffset(int index)
+	protected int calculateOffsetOn(float fill, int index, Axis2D axis)
 	{
-		return index * (this.symbol.getWidth() + this.spacing);
+		int offset = 0;
+		if(this.direction.axis == axis)
+		{
+			offset = index * (axis.getAxialDimension(this.symbol) + this.spacing);
+			if(this.direction.requiresOffseting())
+			{
+				offset += Math.round((1F - fill) * axis.getAxialDimension(this.symbol));
+			}
+		}
+		return offset;
 	}
 	
-	protected int calculateWidthFor(float length, int piece)
+	protected int calculateDimensionOn(float fill, int piece, Axis2D axis)
 	{
-		return Math.round((float)this.symbol.width * Math.min(1F, length - piece));
+		int dimension = axis.getAxialDimension(this.symbol);
+		if(this.direction.axis == axis)
+			dimension = Math.round((float)dimension * fill);
+		return dimension;
+	}
+	
+	protected void drawSymbol(TexturedElement.TextureDrawingContext context, int index, int x, int y, float fill)
+	{
+		int width = this.calculateDimensionOn(fill, index, Axis2D.HORIZONTAL);
+		int height = this.calculateDimensionOn(fill, index, Axis2D.VERTICAL);
+		int offx = 0, offy = 0;
+		
+		if(this.direction.requiresOffseting())
+		{
+			offx = context.width - width;
+			offy = context.height - height;
+		}
+		
+		x += this.calculateOffsetOn(fill, index, Axis2D.HORIZONTAL);
+		y += this.calculateOffsetOn(fill, index, Axis2D.VERTICAL);
+		context.drawPartial(x, y, offx, offy, width, height);
+	}
+	
+	private int getDimensionOn(Axis2D axis)
+	{
+		int dimension = axis.getAxialDimension(this.symbol);
+		if(this.direction.axis == axis)
+			dimension = this.capacity * (dimension + this.spacing);
+		return dimension;
 	}
 	
 	@Override
@@ -59,13 +98,13 @@ public class SymbolFillBar implements OverlayElement<Float> {
 	@Override
 	public int getHeight()
 	{
-		return this.symbol.getHeight();
+		return this.getDimensionOn(Axis2D.VERTICAL);
 	}
 	
 	@Override
 	public int getWidth()
 	{
-		return this.calculateOffset(this.capacity);
+		return this.getDimensionOn(Axis2D.HORIZONTAL);
 	}
 	
 	@Override
@@ -79,7 +118,7 @@ public class SymbolFillBar implements OverlayElement<Float> {
 		TexturedElement.TextureDrawingContext context = this.symbol.createContext(Minecraft.getMinecraft().getTextureManager());
 		for(int piece = 0; piece <= steps; piece++)
 		{
-			context.drawScaled(x + this.calculateOffset(piece), y, this.calculateWidthFor(length, piece), this.getHeight());
+			this.drawSymbol(context, piece, x, y, Math.min(1F, length - piece));
 		}
 		context.close();
 	}

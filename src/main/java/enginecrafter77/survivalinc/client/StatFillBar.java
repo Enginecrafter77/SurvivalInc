@@ -19,10 +19,10 @@ public class StatFillBar<RECORD extends StatRecord> implements OverlayElement<St
 	
 	protected final Map<SymbolFillBar, Function<RECORD, Float>> bars;
 	
-	public StatFillBar(StatProvider<RECORD> provider, Class<RECORD> record, TexturedElement base)
+	public StatFillBar(StatProvider<RECORD> provider, Class<RECORD> record, Direction2D direction, TexturedElement base)
 	{
 		this.bars = new LinkedHashMap<SymbolFillBar, Function<RECORD, Float>>();
-		this.background = new SymbolFillBar(base);
+		this.background = new SymbolFillBar(base, direction);
 		this.provider = provider;
 	}
 	
@@ -56,16 +56,12 @@ public class StatFillBar<RECORD extends StatRecord> implements OverlayElement<St
 		for(SymbolFillBar bar : this.bars.keySet()) bar.setCapacity(capacity);
 	}
 	
-	public void addOverlay(SymbolFillBar bar, Function<RECORD, Float> getter)
+	public void addOverlay(TexturedElement texture, Function<RECORD, Float> getter)
 	{
+		SymbolFillBar bar = new SymbolFillBar(texture, this.background.direction);
 		bar.setCapacity(this.background.getCapacity());
 		bar.setSpacing(this.background.getSpacing());
 		this.bars.put(bar, getter);
-	}
-	
-	public void addOverlay(TexturedElement texture, Function<RECORD, Float> getter)
-	{
-		this.addOverlay(new SymbolFillBar(texture), getter);
 	}
 	
 	@Override
