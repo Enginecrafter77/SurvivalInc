@@ -15,7 +15,7 @@ import net.minecraftforge.registries.IForgeRegistry;
 @Mod.EventBusSubscriber
 public enum ModItems {
 	
-	CANTEEN(new ItemCanteen(), "canteen"),
+	CANTEEN(new ItemCanteen(), "canteen_drain", "canteen_refill"),
 	FEATHER_FAN(new ItemFeatherFan(), "feather_fan"),
 	TOWEL(new ItemTowel(), "towel_dry", "towel_wet");
 	

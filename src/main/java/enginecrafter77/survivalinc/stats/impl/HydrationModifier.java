@@ -19,8 +19,13 @@ import enginecrafter77.survivalinc.stats.effect.ValueStatEffect;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Items;
 import net.minecraft.init.MobEffects;
+import net.minecraft.init.PotionTypes;
 import net.minecraft.init.SoundEvents;
+import net.minecraft.item.ItemStack;
+import net.minecraft.potion.PotionType;
+import net.minecraft.potion.PotionUtils;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
@@ -31,6 +36,7 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -113,7 +119,7 @@ public class HydrationModifier implements IMessageHandler<WaterDrinkMessage, IMe
 			SurvivalInc.logger.info("Player drink request authorized.");
 			StatTracker tracker = player.getCapability(StatCapability.target, null);
 			SimpleStatRecord hydration = tracker.getRecord(HydrationModifier.instance);
-			hydration.addToValue((float)ModConfig.HYDRATION.drinkAmount);
+			hydration.addToValue((float)ModConfig.HYDRATION.sipVolume);
 			HydrationModifier.spawnWaterDrinkParticles(world, water_rt.hitVec);
 		}
 		else SurvivalInc.logger.warn("Player {}'s client issued a fake WaterDrinkMessage.");
@@ -161,7 +167,7 @@ public class HydrationModifier implements IMessageHandler<WaterDrinkMessage, IMe
 			// Modify the client tracker
 			StatTracker tracker = player.getCapability(StatCapability.target, null);
 			SimpleStatRecord hydration = tracker.getRecord(HydrationModifier.instance);
-			hydration.addToValue((float)ModConfig.HYDRATION.drinkAmount);
+			hydration.addToValue((float)ModConfig.HYDRATION.sipVolume);
 			SurvivalInc.proxy.net.sendToServer(new WaterDrinkMessage(event.getHand()));
 		}
 	}
@@ -185,8 +191,28 @@ public class HydrationModifier implements IMessageHandler<WaterDrinkMessage, IMe
 		{
 			StatTracker tracker = player.getCapability(StatCapability.target, null);
 			SimpleStatRecord hydration = tracker.getRecord(HydrationModifier.instance);
-			hydration.addToValue((float)ModConfig.HYDRATION.drinkAmount);
+			hydration.addToValue((float)ModConfig.HYDRATION.sipVolume);
 			if(!player.world.isRemote) HydrationModifier.spawnWaterDrinkParticles((WorldServer)player.world, water_rt.hitVec);
+		}
+	}
+	
+	/**
+	 * Add handler for water bottles, so that drinking water
+	 * from vanilla glass bottles adds hydration points as well.
+	 * @param event The event
+	 */
+	@SubscribeEvent
+	public static void onItemConsumed(LivingEntityUseItemEvent.Finish event)
+	{
+		ItemStack stack = event.getItem();
+		if(stack.getItem() == Items.POTIONITEM)
+		{
+			PotionType potion = PotionUtils.getPotionFromItem(stack);
+			if(potion == PotionTypes.WATER)
+			{
+				StatTracker stats = event.getEntityLiving().getCapability(StatCapability.target, null);
+				if(stats != null) stats.getRecord(HydrationModifier.instance).addToValue((float)ModConfig.HYDRATION.sipVolume * 2F);
+			}
 		}
 	}
 	

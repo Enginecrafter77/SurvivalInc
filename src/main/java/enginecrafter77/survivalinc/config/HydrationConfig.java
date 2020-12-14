@@ -25,7 +25,11 @@ public class HydrationConfig {
 	@Config.RangeDouble(min = 0)
 	public double sweatingMultiplier = 4;
 	
-	@Config.LangKey("config.survivalinc:hydration.drinkAmount")
+	@Config.LangKey("config.survivalinc:hydration.sipVolume")
 	@Config.RangeDouble(min = 0)
-	public double drinkAmount = 5;
+	public double sipVolume = 5;
+	
+	@Config.LangKey("config.survivalinc:hydration.canteenCapacity")
+	@Config.RangeInt(min = 1)
+	public int canteenCapacity = 32;
 }
