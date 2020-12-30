@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
-
 import com.google.common.collect.Range;
 
 import enginecrafter77.survivalinc.SurvivalInc;
@@ -18,7 +17,9 @@ import enginecrafter77.survivalinc.stats.effect.FunctionalEffectFilter;
 import enginecrafter77.survivalinc.stats.effect.SideEffectFilter;
 import enginecrafter77.survivalinc.stats.effect.ValueStatEffect;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -66,11 +67,10 @@ public class WetnessModifier implements StatProvider<SimpleStatRecord> {
 		this.effects.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, -0.8F)).addFilter(FunctionalEffectFilter.byPlayer(EntityPlayer::isBurning));
 		this.effects.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, -0.08F)).addFilter(HydrationModifier.isOutsideOverworld);
 		
-		this.effects.add(WetnessModifier::causeDripping).addFilter(SideEffectFilter.CLIENT);
-		this.effects.add(WetnessModifier::slowDown).addFilter(SideEffectFilter.SERVER);
 		this.effects.add(WetnessModifier::scanSurroundings);
-		this.effects.add(WetnessModifier::naturalDrying);
-		this.effects.add(WetnessModifier::whenInWater);
+		this.effects.add(WetnessModifier::naturalDrying).addFilter(FunctionalEffectFilter.byPlayer(EntityPlayer::isWet).invert());
+		this.effects.add(WetnessModifier::whenInWater).addFilter(FunctionalEffectFilter.byPlayer(EntityPlayer::isInWater));
+		this.effects.add(WetnessModifier::slowDown).addFilter(SideEffectFilter.SERVER);
 		
 		this.humiditymap.put(Blocks.FIRE, -0.5F);
 		this.humiditymap.put(Blocks.LAVA, -1F);
@@ -115,70 +115,47 @@ public class WetnessModifier implements StatProvider<SimpleStatRecord> {
 	
 	public static void slowDown(SimpleStatRecord record, EntityPlayer player)
 	{
-		float current = record.getValue(), max = record.getValueRange().upperEndpoint();
-		float threshold = (float)ModConfig.WETNESS.slowdownThreshold / 100F;
-		
-		// This is the math part. I am way less worried about impact of this. Mmmm math...
-		float mod = 0F;
-		if(current > (threshold * max))
-		{
-			/*
-			 * We want to achieve following scenario:
-			 * 	When the wetness is just at the slowdown threshold, apply zero slowdown (closest 0)
-			 * 	As the wetness is rising, slow the player down in linear manner (which implies using direct relationship function)
-			 * 	When the wetness is at maximum, the value should be just above -1 (to avoid total nullification of the speed)
-			 * After some experimentation and calculations, I came up with this little equation:
-			 * 	      1 - g           g - 1
-			 * 	y = ---------- x + t -------
-			 * 	     m(t - 1)         t - 1
-			 * It may seem a little bit complicated, but you would get to that anyways if you would try to solve it.
-			 */
-			float correction = (float)ModConfig.WETNESS.minimalWalkSpeed;
-			float inclination = (1 - correction) / (max * (threshold - 1)); // The inclination of the graph, aka the A
-			float offset = threshold * ((correction - 1) / (threshold - 1)); // The offset of the graph, aka the B
-			mod += inclination * current + offset; // Direct relationship formula
-		}
-		
-		if(player.isInWater()) mod *= (float)ModConfig.WETNESS.submergedSlowdownFactor;
-		
-		// Ugh I really hate this code. It's damn ineffective. So much list IO to handle every single tick.
+		// Ugh I really hate this code. It's damn ineffective. So much list IO to handle every single tick. In any case, remove the modifier.
 		IAttributeInstance inst = player.getAttributeMap().getAttributeInstance(SharedMonsterAttributes.MOVEMENT_SPEED);
 		inst.removeModifier(WetnessModifier.instance.wetnessSlowdown);
-		inst.applyModifier(new AttributeModifier(WetnessModifier.instance.wetnessSlowdown, "wetnessSlowdown", mod, 1).setSaved(false));
-	}
-	
-	/**
-	 * Causes client-side dripping effect
-	 * @param player The player to apply for
-	 * @param current The current level of wetness
-	 */
-	public static void causeDripping(SimpleStatRecord record, EntityPlayer player)
-	{
-		WorldClient world = (WorldClient)player.world;
-		Random rng = world.rand;
-		for(int index = Math.round(4F * record.getNormalizedValue()); index > 0; index--)
+		
+		// Check if there is actually a floor to put up contradicting force acting against gravity.
+		IBlockState ground = player.world.getBlockState(player.getPosition().down());
+		if(!(ground.getBlock() instanceof BlockLiquid || player.isInWater())) // Or, if the player is simply in water.
 		{
-			world.spawnParticle(EnumParticleTypes.DRIP_WATER, player.posX + (rng.nextFloat() * 0.5 - 0.25), player.posY + (rng.nextFloat() * 1 + 0.25), player.posZ + (rng.nextFloat() * 0.5 - 0.25), player.motionX, -0.5, player.motionZ);
+			// This is the math part. I am way less worried about impact of this. Mmmm math...
+			float mod = (float)(-Math.pow(record.getNormalizedValue(), 0.333333333F) * (1D - ModConfig.WETNESS.minimalWalkSpeed));
+			
+			// Squash the modifier if it's too small to avoid the Aristotle's Turtle problem
+			if(Math.log10(mod) < -3) mod = 0F;
+			
+			// Apply the modifier
+			inst.applyModifier(new AttributeModifier(WetnessModifier.instance.wetnessSlowdown, "wetnessSlowdown", mod, 2).setSaved(false));
 		}
 	}
 	
 	public static void whenInWater(SimpleStatRecord record, EntityPlayer player)
 	{
-		if(player.isInWater())
-		{
-			Material headBlockMaterial = player.world.getBlockState(new BlockPos(player).up()).getMaterial();
-			if(headBlockMaterial == Material.WATER) record.addToValue(5F);
-			else if(record.getNormalizedValue() < 0.4F) record.addToValue(1.25F);
-		}
+		Material headBlockMaterial = player.world.getBlockState(new BlockPos(player).up()).getMaterial();
+		if(headBlockMaterial == Material.WATER) record.addToValue(5F);
+		else if(record.getNormalizedValue() < 0.4F) record.addToValue(1.25F);
 	}
 	
 	public static void naturalDrying(SimpleStatRecord record, EntityPlayer player)
 	{
-		if(!player.isWet())
+		// Subdivision-based draining; Always drains a fixed proportion based on the current value, producing a 1/x like curve.
+		float difference = record.getValue() / (float)ModConfig.WETNESS.drainingFactor;
+		record.addToValue(-difference);
+		
+		// Spawn the particles on client side
+		if(player.world.isRemote)
 		{
-			float rate = (float)ModConfig.WETNESS.passiveDryRate;
-			if(player.world.isDaytime() && player.world.canBlockSeeSky(player.getPosition())) rate *= ModConfig.WETNESS.sunlightMultiplier;
-			record.addToValue(-rate);
+			WorldClient world = (WorldClient)player.world;
+			Random rng = world.rand;
+			for(int index = Math.round(4F * difference); index > 0; index--)
+			{
+				world.spawnParticle(EnumParticleTypes.DRIP_WATER, player.posX + (rng.nextFloat() * 0.5 - 0.25), player.posY + (rng.nextFloat() * 1 + 0.25), player.posZ + (rng.nextFloat() * 0.5 - 0.25), player.motionX, -0.5D, player.motionZ);
+			}
 		}
 	}
 	

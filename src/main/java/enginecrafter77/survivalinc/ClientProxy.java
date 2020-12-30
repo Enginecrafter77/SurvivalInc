@@ -77,6 +77,8 @@ public class ClientProxy extends CommonProxy {
 			RenderHUD.instance.addIndependent(new GhostEnergyBar(), new ElementPositioner(0.5F, 1F, -91, -39));
 			RenderHUD.instance.addFilterToAll(new HideRenderFilter<StatTracker>(isGhostActive), ElementType.HEALTH, ElementType.AIR, ElementType.ARMOR, ElementType.FOOD);
 		}
+		
+		if(ModConfig.HEAT.enabled || ModConfig.HYDRATION.enabled) RenderHUD.instance.addFilterToAll(moveup, ElementType.CHAT);
 	}
 	
 	@Override

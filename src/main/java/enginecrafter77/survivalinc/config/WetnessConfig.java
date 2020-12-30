@@ -9,25 +9,13 @@ public class WetnessConfig {
 	@Config.RequiresMcRestart
 	public boolean enabled = true;
 	
-	@Config.LangKey("config.survivalinc:wetness.passiveDryRate")
+	@Config.LangKey("config.survivalinc:wetness.drainingFactor")
 	@Config.RangeDouble(min = 0)
-	public double passiveDryRate = 0.005;
-	
-	@Config.LangKey("config.survivalinc:wetness.sunlightMultiplier")
-	@Config.RangeDouble(min = 0)
-	public double sunlightMultiplier = 2;
+	public double drainingFactor = 64;
 	
 	@Config.LangKey("config.survivalinc:wetness.minimalWalkSpeed")
 	@Config.RangeDouble(min = 0, max = 1)
 	public double minimalWalkSpeed = 0.25;
-	
-	@Config.LangKey("config.survivalinc:wetness.submergedSlowdownFactor")
-	@Config.RangeDouble(min = 0, max = 1)
-	public double submergedSlowdownFactor = 0.25;
-	
-	@Config.LangKey("config.survivalinc:wetness.slowdownThreshold")
-	@Config.RangeDouble(min = 0, max = 100)
-	public double slowdownThreshold = 60;
 	
 	@Config.LangKey("config.survivalinc:wetness.towelCapacity")
 	@Config.RangeDouble(min = 0)

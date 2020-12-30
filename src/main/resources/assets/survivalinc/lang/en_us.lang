@@ -130,20 +130,14 @@ survivalinc.wetness=Wetness
 survivalinc.wetness.tooltip=Settings regarding Wetness mechanics
 config.survivalinc:wetness.enable=Enable Wetness
 config.survivalinc:wetness.enable.tooltip=Determines if the wetness mechanics should take part in the game.
+config.survivalinc:wetness.drainingFactor=Draining Factor
+config.survivalinc:wetness.drainingFactor.tooltip=The fraction of the total wetness that is dissipated each tick.
 config.survivalinc:wetness.minimalWalkSpeed=Minimal Walk Speed
 config.survivalinc:wetness.minimalWalkSpeed.tooltip=The maximum slowdown debuff that can be applied (fraction of the original speed)
-config.survivalinc:wetness.slowdownThreshold=Slowdown Threshold
-config.survivalinc:wetness.slowdownThreshold.tooltip=The percentage of wetness that should start weighing the player down
-config.survivalinc:wetness.sunlightMultiplier=Sunlight Multiplier
-config.survivalinc:wetness.sunlightMultiplier.tooltip=The multiplier applied to passive drying rate when the player is exposed to sunlight
 config.survivalinc:wetness.towelCapacity=Towel Capacity
 config.survivalinc:wetness.towelCapacity.tooltip=The capacity of towel in % of the player's wetness
 config.survivalinc:wetness.towelDryRate=Towel Dry Rate
 config.survivalinc:wetness.towelDryRate.tooltip=The rate at which towels dry when placed on top of operating furnace
-config.survivalinc:wetness.passiveDryRate=Passive Drying Rate
-config.survivalinc:wetness.passiveDryRate.tooltip=The rate at which wetness passively decreases
-config.survivalinc:wetness.submergedSlowdownFactor=Submerged Slowdown
-config.survivalinc:wetness.submergedSlowdownFactor.tooltip=A number by which the wetness slowdown is multiplied in water.
 
 # Season config
 survivalinc.seasons=Seasons
