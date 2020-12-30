@@ -39,14 +39,19 @@ some code should strictly follow the mentioned guidelines.
     * Use TABS instead of SPACES. If you IDE expands TABS to SPACES, disable that feature.
     * Use standard indentation. Weird indentation patterns will not be accepted.
     * Function and nested class curly brackets should be in new line. Public class (in separate file) curly brackets sould be in same line.
+    * Method names are in camelCase beginning with lower-case letter. Class names are in CamelCase beginning with upper-case letter.
     * For more details, see the existing code.
  * Document your code. Documented code receives far better rating than undocumented code.
     * Use normal comments (/\*...\*/ or //...) only for inner code comments.
     * Javadoc-capable elements, such as classes, methods, variables etc. should use Javadoc comment blocks (/\*\*...\*/) 
  * The code should be clean, and easy to understand
     * In case your code is not easily understandable, make sure you document what it does, how it works, and why it works. Obscure undocumented code will **NOT** be tolerated!
- * Aim for elegant, extensible and performant solutions.
-    * This includes using preferable algorithms and data structures. 
+    * Aim for elegant, extensible and performant solutions.
+    * This includes using preferable algorithms and data structures.
+    * Avoid procedural-style class formations. That means classes like "Util" with unrelated methods used as shortcurs will be rejected.
+    * Try to make each class do it's own thing. Each class should have it's own purpose.
+    * Avoid creating cryptic methods and/or classes with loosely definied or unclear purpose.
+    * Whenever you design a structure, you should be able to say **why** you designed it the way you did.
 
 ## Art
 If you would like to contribute some artwork, open up a new issue labeled with "enhancement" and describe
