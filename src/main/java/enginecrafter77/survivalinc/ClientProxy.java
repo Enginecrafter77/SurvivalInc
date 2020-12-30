@@ -48,7 +48,7 @@ public class ClientProxy extends CommonProxy {
 		if(ModConfig.HEAT.enabled)
 		{
 			StatFillBar<SimpleStatRecord> bar = new StatFillBar<SimpleStatRecord>(HeatModifier.instance, Direction2D.RIGHT, new TexturedElement(newicons, 0, 0, 9, 9, true));
-			bar.addOverlay(new TexturedElement(newicons, 9, 0, 9, 9, true), SimpleStatRecord::getNormalizedValue);
+			bar.addLayer(new TexturedElement(newicons, 9, 0, 9, 9, true), SimpleStatRecord::getNormalizedValue);
 			bar.setCapacity(10);
 			bar.setSpacing(-1);
 			RenderHUD.instance.addIndependent(bar, new ElementPositioner(0.5F, 1F, -91, -49));
@@ -57,7 +57,7 @@ public class ClientProxy extends CommonProxy {
 		if(ModConfig.HYDRATION.enabled)
 		{
 			StatFillBar<SimpleStatRecord> bar = new StatFillBar<SimpleStatRecord>(HydrationModifier.instance, Direction2D.LEFT, new TexturedElement(newicons, 0, 9, 9, 9, true));
-			bar.addOverlay(new TexturedElement(newicons, 9, 9, 9, 9, true), SimpleStatRecord::getNormalizedValue);
+			bar.addLayer(new TexturedElement(newicons, 9, 9, 9, 9, true), SimpleStatRecord::getNormalizedValue);
 			bar.setCapacity(10);
 			bar.setSpacing(-1);
 			RenderHUD.instance.addIndependent(bar, new ElementPositioner(0.5F, 1F, 10, -49));
@@ -66,7 +66,7 @@ public class ClientProxy extends CommonProxy {
 		if(ModConfig.SANITY.enabled)
 		{
 			StatFillBar<SanityRecord> bar = new StatFillBar<SanityRecord>(SanityModifier.instance, Direction2D.UP, new TexturedElement(sanityicon, 0, 0, 16, 16, true));
-			bar.addOverlay(new TexturedElement(sanityicon, 16, 0, 16, 16, true), SimpleStatRecord::getNormalizedValue);
+			bar.addLayer(new TexturedElement(sanityicon, 16, 0, 16, 16, true), SimpleStatRecord::getNormalizedValue);
 			bar.setCapacity(1);
 			RenderHUD.instance.addIndependent(bar, new ElementPositioner(0.5F, 1F, -8, -51));
 			RenderHUD.instance.addFilter(moveup, ElementType.SUBTITLES);

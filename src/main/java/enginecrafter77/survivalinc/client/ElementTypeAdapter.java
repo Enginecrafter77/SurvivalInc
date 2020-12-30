@@ -3,7 +3,18 @@ package enginecrafter77.survivalinc.client;
 import java.util.function.Function;
 
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * ElementTypeAdapter serves as a simple transformer of the argument.
+ * It is basically a delegate class that uses a {@link Function} to
+ * transform it's input to the input accepted by it's target.
+ * @author Enginecrafter77
+ * @param <INPUT> The argument type accepted by this adapter
+ * @param <FORWARD> The argument type of the target
+ */
+@SideOnly(Side.CLIENT)
 public class ElementTypeAdapter<INPUT, FORWARD> implements OverlayElement<INPUT> {
 	public final Function<INPUT, FORWARD> transformer;
 	public final OverlayElement<FORWARD> target;

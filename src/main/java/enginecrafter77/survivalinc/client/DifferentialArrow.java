@@ -11,20 +11,43 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-@Deprecated
+/**
+ * DifferentialArrow is a little overlay element
+ * designed to show a change in value of a certain
+ * stat. The arrow has two modes: logarithmic and
+ * linear. In logarithmic mode, the change in the
+ * arrow's size becomes less noticeable for larger
+ * values. This allows the user to spot fine changes
+ * in the value. In linear mode, the size of the arrow
+ * always reflects the real change in value. The base
+ * position for the arrow is pointing up. If the value
+ * change is negative, the arrow flips it's direction,
+ * pointing downwards.
+ * @author Enginecrafter77
+ */
 @SideOnly(Side.CLIENT)
 public class DifferentialArrow extends SimpleOverlayElement<StatTracker> {
 	public static final ResourceLocation arrowtexture = new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/arrow.png");
 	
+	/** The provider to use to get the stat record */
 	public final StatProvider<? extends SimpleStatRecord> provider;
-	public final boolean exponential;
 	
-	protected float amplitude, min_scale, max_scale;
+	/** Scaling operation mode. True for logarithmic, false for linear. */
+	public final boolean logarithmic;
 	
-	public DifferentialArrow(StatProvider<? extends SimpleStatRecord> provider, int width, int height, boolean exponential)
+	/** The base multiplier applied to the value change */
+	protected float amplitude;
+	
+	/** The minimum scale of the arrow. Beyond this value, the arrow won't shrink. */
+	protected float min_scale;
+	
+	/** The maximum scale of the arrow. Beyond this value, the arrow won't grow. */
+	protected float max_scale;
+	
+	public DifferentialArrow(StatProvider<? extends SimpleStatRecord> provider, int width, int height, boolean logarithmic)
 	{
 		super(width, height);
-		this.exponential = exponential;
+		this.logarithmic = logarithmic;
 		this.provider = provider;
 		
 		this.amplitude = 10F;
@@ -67,10 +90,10 @@ public class DifferentialArrow extends SimpleOverlayElement<StatTracker> {
 		SimpleStatRecord record = tracker.getRecord(provider);
 		
 		float scale = Math.abs(record.getLastChange() * this.amplitude);
-		if(this.exponential)
+		if(this.logarithmic)
 		{
 			/*
-			 * The scale is calculated using this relatively simple exponential formula:
+			 * The scale is calculated using this relatively simple formula:
 			 *      1 - n^(r|x * a|)
 			 * y = ------------
 			 *      1 - n^(r)

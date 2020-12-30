@@ -5,13 +5,12 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
- * ScalableOverlayElement specifies an element, which can be dynamically
- * positioned on the screen using simple mathematics. The element basically
- * uses four variables: {@link #mulX}, {@link #mulY}, {@link #offX}, {@link #offY}.
- * Each of these variables are used to compute the resultant X and Y positions
- * in {@link #calculateX(ScaledResolution)} and {@link #calculateY(ScaledResolution)}
- * respectively. The position is only recalculated when the element detects a change
- * in resolution.
+ * ElementPositioner is a class used to dynamically compute position
+ * of an on-screen element, using simple mathematical formula. Each
+ * ElementPositioner instance can be described by four variables: {@link #mulX},
+ * {@link #mulY}, {@link #offX}, {@link #offY}. Each of these variables are used
+ * to compute the resultant X and Y positions in {@link #calculateX(ScaledResolution)}
+ * and {@link #calculateY(ScaledResolution)} respectively.
  * @author Enginecrafter77
  */
 @SideOnly(Side.CLIENT)
@@ -37,6 +36,12 @@ public class ElementPositioner {
 		this.offY = oy;
 	}
 	
+	/**
+	 * Creates a new ElementPositioner relative to the origin point.
+	 * @param origin
+	 * @param x
+	 * @param y
+	 */
 	public ElementPositioner(ElementPositioner origin, int x, int y)
 	{
 		this(origin.mulX, origin.mulY, origin.offX + x, origin.offY + y);

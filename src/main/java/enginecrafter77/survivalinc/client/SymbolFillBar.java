@@ -2,12 +2,33 @@ package enginecrafter77.survivalinc.client;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class SymbolFillBar implements OverlayElement<Float> {	
+/**
+ * SymbolFillBar is a simple element that allows for
+ * symbols to be drawn stacked next to each other.
+ * Each SymbolFillBar has it's own capacity. The
+ * capacity indicates how many of the symbols are drawn
+ * when the input number is 1. The input float is normally
+ * a value between 0 and 1. When 0 is the input value, no
+ * symbols are drawn at all. The symbol fill bar may span
+ * to whatever direction the user wishes, although the drawing
+ * still starts in the top left corner (according to standards).
+ * @author Enginecrafter77
+ */
+@SideOnly(Side.CLIENT)
+public class SymbolFillBar implements OverlayElement<Float> {
+	/** The symbol to draw */
 	public final TexturedElement symbol;
+	
+	/** The direction of drawing */
 	public final Direction2D direction;
 	
+	/** The maximal number of symbols drawn */
 	protected int capacity;
+	
+	/** The spacing between the elements */
 	protected int spacing;
 	
 	public SymbolFillBar(TexturedElement symbol, Direction2D direction)
@@ -19,33 +40,54 @@ public class SymbolFillBar implements OverlayElement<Float> {
 		this.spacing = 0;
 	}
 	
+	/**
+	 * Sets the spacing between the elements.
+	 * @param spacing The spacing in pixels.
+	 */
 	public void setSpacing(int spacing)
 	{
 		this.spacing = spacing;
 	}
 	
+	/**
+	 * Sets the bar's {@link #capacity}.
+	 * @param count The capacity of the bar.
+	 */
 	public void setCapacity(int count)
 	{
 		this.capacity = count;
 	}
 	
+	/**
+	 * @return The current capacity of the bar.
+	 */
 	public int getCapacity()
 	{
 		return this.capacity;
 	}
 	
+	/**
+	 * @return The current spacing of the bar.
+	 */
 	public int getSpacing()
 	{
 		return this.spacing;
 	}
 	
+	/**
+	 * Calculates offset of the item at <i>index</i> on the target axis based on the fill ratio.
+	 * @param fill The fill ratio of the symbol. Value of 1 means full, 0 means empty.
+	 * @param index The index of the symbol.
+	 * @param axis The axis to get the offset on.
+	 * @return The absolute offset from the origin point on the target axis.
+	 */
 	protected int calculateOffsetOn(float fill, int index, Axis2D axis)
 	{
 		int offset = 0;
 		int size = this.symbol.getSize(axis);
 		if(this.direction.axis == axis)
 		{
-			if(this.direction.isReverse()) // If the direction is in reverse, we need to follow some other rules.
+			if(!this.direction.isNormal()) // If the direction is in reverse, we need to follow some other rules.
 			{
 				/*
 				 * Since every position is in the top left corner, start the offset at the other end (O1).
@@ -95,7 +137,7 @@ public class SymbolFillBar implements OverlayElement<Float> {
 		int offx = 0, offy = 0;
 		
 		// If the direction is reverse, we also need to shift the texture
-		if(this.direction.isReverse())
+		if(!this.direction.isNormal())
 		{
 			offx = context.width - width;
 			offy = context.height - height;

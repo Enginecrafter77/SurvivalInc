@@ -26,8 +26,8 @@ public class GhostEnergyBar extends StatFillBar<GhostEnergyRecord> {
 	public GhostEnergyBar()
 	{
 		super(GhostProvider.instance, Direction2D.RIGHT, new TexturedElement(texture, 0, 0, 9, 9, true));
-		this.addOverlay(new TexturedElement(texture, 0, 9, 9, 9, true), GhostEnergyRecord::getNormalizedValue);
-		this.addOverlay(new TexturedElement(texture, 0, 18, 9, 9, true), GhostEnergyBar::ressurectionValue);
+		this.addLayer(new TexturedElement(texture, 0, 9, 9, 9, true), GhostEnergyRecord::getNormalizedValue);
+		this.addLayer(new TexturedElement(texture, 0, 18, 9, 9, true), GhostEnergyBar::ressurectionValue);
 		this.setCapacity(10);
 		this.setSpacing(-1);
 	}

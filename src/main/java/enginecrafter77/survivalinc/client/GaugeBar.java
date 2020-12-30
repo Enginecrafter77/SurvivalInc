@@ -11,6 +11,10 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * GaugeBar is a simple overlay element
+ * @author Enginecrafter77
+ */
 @SideOnly(Side.CLIENT)
 public class GaugeBar extends SimpleOverlayElement<Float> {
 	private static final ResourceLocation bartemplate = new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/statusbar.png");
