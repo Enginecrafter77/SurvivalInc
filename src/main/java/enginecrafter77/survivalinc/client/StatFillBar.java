@@ -18,11 +18,29 @@ public class StatFillBar<RECORD extends StatRecord> implements OverlayElement<St
 	
 	protected final Map<SymbolFillBar, Function<RECORD, Float>> bars;
 	
-	public StatFillBar(StatProvider<RECORD> provider, Class<RECORD> record, Direction2D direction, TexturedElement base)
+	/**
+	 * @param provider The provider to get the value from
+	 * @param direction The direction of drawing
+	 * @param base The icon
+	 */
+	public StatFillBar(StatProvider<RECORD> provider, Direction2D direction, TexturedElement base)
 	{
 		this.bars = new LinkedHashMap<SymbolFillBar, Function<RECORD, Float>>();
 		this.background = new SymbolFillBar(base, direction);
 		this.provider = provider;
+	}
+	
+	/**
+	 * @param provider
+	 * @param recordclass
+	 * @param direction
+	 * @param base
+	 * @deprecated Use {@link #StatFillBar(StatProvider, Direction2D, TexturedElement)} instead
+	 */
+	@Deprecated
+	public StatFillBar(StatProvider<RECORD> provider, Class<RECORD> recordclass, Direction2D direction, TexturedElement base)
+	{
+		this(provider, direction, base);
 	}
 	
 	public void setSpacing(int spacing)
