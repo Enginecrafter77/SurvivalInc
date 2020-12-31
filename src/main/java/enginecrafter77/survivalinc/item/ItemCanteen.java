@@ -51,25 +51,28 @@ public class ItemCanteen extends Item {
 	@Override
 	public ItemStack onItemUseFinish(ItemStack stack, World world, EntityLivingBase entity)
 	{
-		NBTTagCompound nbt = stack.getTagCompound();
-		int stored = nbt.getInteger("stored");
-		
-		if(nbt.getBoolean("refill"))
+		if(stack.hasTagCompound())
 		{
-			stored = ModConfig.HYDRATION.canteenCapacity;
-			if(!world.isRemote) ((WorldServer)world).playSound(null, entity.getPosition(), SoundEvents.ENTITY_GENERIC_SWIM, SoundCategory.PLAYERS, 0.25F, 1.5F);
-		}
-		else
-		{
-			StatTracker stats = entity.getCapability(StatCapability.target, null);
-			if(stats != null)
+			NBTTagCompound nbt = stack.getTagCompound();
+			int stored = nbt.getInteger("stored");
+			
+			if(nbt.getBoolean("refill"))
 			{
-				stats.getRecord(HydrationModifier.instance).addToValue((float)ModConfig.HYDRATION.sipVolume);
-				--stored;
+				stored = ModConfig.HYDRATION.canteenCapacity;
+				if(!world.isRemote) ((WorldServer)world).playSound(null, entity.getPosition(), SoundEvents.ENTITY_GENERIC_SWIM, SoundCategory.PLAYERS, 0.25F, 1.5F);
 			}
+			else
+			{
+				StatTracker stats = entity.getCapability(StatCapability.target, null);
+				if(stats != null)
+				{
+					stats.getRecord(HydrationModifier.instance).addToValue((float)ModConfig.HYDRATION.sipVolume);
+					--stored;
+				}
+			}
+			
+			nbt.setInteger("stored", stored);
 		}
-		
-		nbt.setInteger("stored", stored);
 		return stack;
 	}
 	
@@ -77,6 +80,10 @@ public class ItemCanteen extends Item {
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
 	{
 		ItemStack item = player.getHeldItem(hand);
+		
+		// Fail prematurely if the stack has no tag compound
+		if(!item.hasTagCompound()) return new ActionResult<ItemStack>(EnumActionResult.FAIL, item);
+		
 		NBTTagCompound nbt = item.getTagCompound();
 		
 		// First check if the player just wants to switch modes
@@ -128,14 +135,14 @@ public class ItemCanteen extends Item {
 	@Override
 	public EnumAction getItemUseAction(ItemStack stack)
 	{
-		return stack.getTagCompound().getBoolean("refill") ? EnumAction.BOW : EnumAction.DRINK;
+		return stack.hasTagCompound() && stack.getTagCompound().getBoolean("refill") ? EnumAction.BOW : EnumAction.DRINK;
 	}
 
 	@Override
 	public int getMaxItemUseDuration(ItemStack stack)
 	{
 		int duration = 32;
-		if(stack.getTagCompound().getBoolean("refill")) duration /= 2;
+		if(stack.hasTagCompound() && stack.getTagCompound().getBoolean("refill")) duration /= 2;
 		return duration;
 	}
 
@@ -148,8 +155,12 @@ public class ItemCanteen extends Item {
 	@Override
 	public double getDurabilityForDisplay(ItemStack stack)
 	{
-		NBTTagCompound tag = stack.getTagCompound();
-		return 1 - (double)tag.getInteger("stored") / (double)ModConfig.HYDRATION.canteenCapacity;
+		double damage = 1;
+		if(stack.hasTagCompound())
+		{
+			damage -= (double)stack.getTagCompound().getInteger("stored") / (double)ModConfig.HYDRATION.canteenCapacity;
+		}
+		return damage;
 	}
 	
 	@Override
