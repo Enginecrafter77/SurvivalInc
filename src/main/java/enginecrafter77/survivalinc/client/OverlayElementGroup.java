@@ -2,7 +2,6 @@ package enginecrafter77.survivalinc.client;
 
 import java.util.LinkedList;
 import java.util.List;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -25,6 +24,8 @@ public class OverlayElementGroup<TYPE> implements OverlayElement<TYPE> {
 	
 	/** Spacing between each two elements */
 	public int spacing;
+	
+	private final Direction2D[] naturals = {Direction2D.RIGHT, Direction2D.DOWN}; 
 	
 	public OverlayElementGroup(Axis2D axis)
 	{
@@ -62,14 +63,13 @@ public class OverlayElementGroup<TYPE> implements OverlayElement<TYPE> {
 	}
 	
 	@Override
-	public void draw(ScaledResolution resolution, ElementPositioner position, float partialTicks, TYPE arg)
+	public void draw(Position2D position, float partialTicks, TYPE arg)
 	{
+		Position2D.MutablePosition elementpos = new Position2D.MutablePosition(position);
 		for(OverlayElement<? super TYPE> element : this.elements)
 		{
-			element.draw(resolution, position, partialTicks, arg);
-			int offx = this.axis == Axis2D.HORIZONTAL ? element.getSize(Axis2D.HORIZONTAL) + this.spacing : 0;
-			int offy = this.axis == Axis2D.VERTICAL ? element.getSize(Axis2D.VERTICAL) + this.spacing : 0;
-			position = new ElementPositioner(position, offx, offy);
+			element.draw(elementpos, partialTicks, arg);
+			elementpos.move(this.naturals[this.axis.ordinal()], element.getSize(this.axis) + this.spacing);
 		}
 	}
 }

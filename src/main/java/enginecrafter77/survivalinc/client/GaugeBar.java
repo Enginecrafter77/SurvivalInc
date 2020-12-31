@@ -5,7 +5,6 @@ import java.awt.color.ColorSpace;
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
@@ -38,7 +37,7 @@ public class GaugeBar extends SimpleOverlayElement<Float> {
 	}
 	
 	@Override
-	public void draw(ScaledResolution resolution, ElementPositioner position, float partialTicks, Float prop)
+	public void draw(Position2D position, float partialTicks, Float prop)
 	{	
 		float propheight = this.getHeight() * prop;
 		int bar_bottom_dist = Math.round(propheight), bar_top_dist = Math.round((float)this.getHeight() - propheight);
@@ -53,13 +52,12 @@ public class GaugeBar extends SimpleOverlayElement<Float> {
 		GlStateManager.enableAlpha();
 		// Draw the gauge frame
 		this.texturer.bindTexture(bartemplate);
-		int x = position.getX(resolution), y = position.getY(resolution);
-		Gui.drawModalRectWithCustomSizedTexture(x, y, 0, 0, this.getWidth(), this.getHeight(), GaugeBar.bartemplate_width, GaugeBar.bartemplate_height);
+		Gui.drawModalRectWithCustomSizedTexture(position.getX(), position.getY(), 0, 0, this.getWidth(), this.getHeight(), GaugeBar.bartemplate_width, GaugeBar.bartemplate_height);
 		
 		// Draw the gauge infill (colored using OpenGL)
 		GlStateManager.pushMatrix();
 		GlStateManager.color(this.colorcomponents[0], this.colorcomponents[1], this.colorcomponents[2], this.colorcomponents[3]);
-		Gui.drawModalRectWithCustomSizedTexture(x, y + bar_top_dist, this.getWidth(), bar_top_dist, this.getWidth(), bar_bottom_dist, GaugeBar.bartemplate_width, GaugeBar.bartemplate_height);
+		Gui.drawModalRectWithCustomSizedTexture(position.getX(), position.getY() + bar_top_dist, this.getWidth(), bar_top_dist, this.getWidth(), bar_bottom_dist, GaugeBar.bartemplate_width, GaugeBar.bartemplate_height);
 		GlStateManager.color(1F, 1F, 1F);
 		GlStateManager.popMatrix();
 		GlStateManager.disableAlpha();

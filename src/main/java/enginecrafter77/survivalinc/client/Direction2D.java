@@ -38,18 +38,6 @@ public enum Direction2D {
 	}
 	
 	/**
-	 * Moves the specified {@link ElementPositoner} by the
-	 * specified amount of steps in the local direction.
-	 * @param subject Origin ElementPositioner, to which the offset is applied
-	 * @param steps The number of steps in the local direction to take
-	 * @return ElementPositioner offset by X steps in the local directions
-	 */
-	public ElementPositioner move(ElementPositioner subject, int steps)
-	{
-		return new ElementPositioner(subject, axis == Axis2D.HORIZONTAL ? this.delta * steps : 0, axis == Axis2D.VERTICAL ? this.delta * steps : 0);
-	}
-	
-	/**
 	 * Returns true if the direction moves the target coordinate towards positive infinity, false otherwise.
 	 * In other words, this method checks whether this direction is the axis' natural direction or not. 
 	 * @return True if this direction is normal, false otherwise.

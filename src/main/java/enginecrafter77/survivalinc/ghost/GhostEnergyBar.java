@@ -8,10 +8,9 @@ import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.client.TextureResource;
 import enginecrafter77.survivalinc.client.TexturedElement;
 import enginecrafter77.survivalinc.client.Direction2D;
-import enginecrafter77.survivalinc.client.ElementPositioner;
+import enginecrafter77.survivalinc.client.Position2D;
 import enginecrafter77.survivalinc.client.StatFillBar;
 import enginecrafter77.survivalinc.stats.StatTracker;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.fml.relauncher.Side;
@@ -38,11 +37,11 @@ public class GhostEnergyBar extends StatFillBar<GhostEnergyRecord> {
 	}
 	
 	@Override
-	public void draw(ScaledResolution resolution, ElementPositioner position, float partialTicks, StatTracker tracker)
+	public void draw(Position2D position, float partialTicks, StatTracker tracker)
 	{
 		if(tracker.getRecord(this.provider).isActive())
 		{
-			super.draw(resolution, position, partialTicks, tracker);
+			super.draw(position, partialTicks, tracker);
 		}
 	}
 

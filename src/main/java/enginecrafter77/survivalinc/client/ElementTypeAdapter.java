@@ -2,7 +2,6 @@ package enginecrafter77.survivalinc.client;
 
 import java.util.function.Function;
 
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -37,9 +36,9 @@ public class ElementTypeAdapter<INPUT, FORWARD> implements OverlayElement<INPUT>
 	}
 	
 	@Override
-	public void draw(ScaledResolution resolution, ElementPositioner position, float partialTicks, INPUT arg)
+	public void draw(Position2D position, float partialTicks, INPUT arg)
 	{
-		this.target.draw(resolution, position, partialTicks, this.transformArgument(arg));
+		this.target.draw(position, partialTicks, this.transformArgument(arg));
 	}
 
 	@Override

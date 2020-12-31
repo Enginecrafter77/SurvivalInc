@@ -11,18 +11,18 @@ import net.minecraft.client.renderer.GlStateManager;
 public class TranslateRenderFilter implements ElementRenderFilter<Object> {
 	
 	/** The element position to shift the element by */
-	public ElementPositioner position;
+	public Position2D offset;
 	
-	public TranslateRenderFilter(ElementPositioner position)
+	public TranslateRenderFilter(Position2D offset)
 	{
-		this.position = position;
+		this.offset = offset;
 	}
 
 	@Override
 	public boolean begin(ScaledResolution resolution, Object arg)
 	{
 		GlStateManager.pushMatrix();
-		GlStateManager.translate(position.getX(resolution), position.getY(resolution), 0D);
+		GlStateManager.translate(offset.getX(), offset.getY(), 0D);
 		return true;
 	}
 

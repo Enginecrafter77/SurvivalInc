@@ -2,7 +2,6 @@ package enginecrafter77.survivalinc.client;
 
 import java.io.Closeable;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraftforge.fml.relauncher.Side;
@@ -43,10 +42,10 @@ public class TexturedElement extends SimpleOverlayElement<Object> {
 	}
 	
 	@Override
-	public void draw(ScaledResolution resolution, ElementPositioner position, float partialTicks, Object arg)
+	public void draw(Position2D position, float partialTicks, Object arg)
 	{
 		TextureDrawingContext context = this.createContext(this.texturer);
-		context.draw(resolution, position, partialTicks, arg);
+		context.draw(position, partialTicks, arg);
 		context.close();
 	}
 	
@@ -87,20 +86,20 @@ public class TexturedElement extends SimpleOverlayElement<Object> {
 			if(hasAlpha) GlStateManager.disableAlpha();
 		}
 
-		public void drawPartial(int x, int y, int offx, int offy, int width, int height)
+		public void drawPartial(Position2D position, Position2D offset, int width, int height)
 		{
-			Gui.drawModalRectWithCustomSizedTexture(x, y, offset_x + offx, offset_y + offy, width, height, resource.texture_width, resource.texture_height);
+			Gui.drawModalRectWithCustomSizedTexture(position.getX(), position.getY(), offset_x + offset.getX(), offset_y + offset.getY(), width, height, resource.texture_width, resource.texture_height);
 		}
 		
-		public void draw(int x, int y)
+		public void draw(Position2D position)
 		{
-			this.drawPartial(x, y, 0, 0, this.width, this.height);
+			this.drawPartial(position, Position2D.ZERO, this.width, this.height);
 		}
 		
 		@Override
-		public void draw(ScaledResolution resolution, ElementPositioner position, float partialTicks, Object arg)
+		public void draw(Position2D position, float partialTicks, Object arg)
 		{
-			this.draw(position.getX(resolution), position.getY(resolution));
+			this.draw(position);
 		}
 		
 		@Override

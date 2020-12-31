@@ -8,7 +8,6 @@ import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatRecord;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -100,18 +99,18 @@ public class StatFillBar<RECORD extends StatRecord> implements OverlayElement<St
 	}
 	
 	@Override
-	public void draw(ScaledResolution resolution, ElementPositioner position, float partialTicks, StatTracker arg)
+	public void draw(Position2D position, float partialTicks, StatTracker arg)
 	{
 		if(arg.isActive(this.provider, Minecraft.getMinecraft().player))
 		{
-			this.background.draw(resolution, position, partialTicks, 1F);
+			this.background.draw(position, partialTicks, 1F);
 			
 			RECORD record = arg.getRecord(this.provider);
 			for(Map.Entry<SymbolFillBar, Function<RECORD, Float>> entry : this.layers.entrySet())
 			{
 				Function<RECORD, Float> transformer = entry.getValue();
 				Float value = transformer.apply(record);
-				if(value != null) entry.getKey().draw(resolution, position, partialTicks, value);
+				if(value != null) entry.getKey().draw(position, partialTicks, value);
 			}
 		}
 	}

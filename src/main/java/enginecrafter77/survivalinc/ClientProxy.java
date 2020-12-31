@@ -5,6 +5,7 @@ import java.util.function.Predicate;
 import enginecrafter77.survivalinc.client.Direction2D;
 import enginecrafter77.survivalinc.client.ElementPositioner;
 import enginecrafter77.survivalinc.client.HideRenderFilter;
+import enginecrafter77.survivalinc.client.Position2D;
 import enginecrafter77.survivalinc.client.RenderHUD;
 import enginecrafter77.survivalinc.client.StatFillBar;
 import enginecrafter77.survivalinc.client.TextureResource;
@@ -44,7 +45,7 @@ public class ClientProxy extends CommonProxy {
 		
 		TextureResource newicons = new TextureResource(new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/staticons.png"), 18, 18);
 		TextureResource sanityicon = new TextureResource(new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/sanity.png"), 32, 16);
-		TranslateRenderFilter moveup = new TranslateRenderFilter(new ElementPositioner(0F, 0F, 0, -10));
+		TranslateRenderFilter moveup = new TranslateRenderFilter(new Position2D(0, -10));
 		if(ModConfig.HEAT.enabled)
 		{
 			StatFillBar<SimpleStatRecord> bar = new StatFillBar<SimpleStatRecord>(HeatModifier.instance, Direction2D.RIGHT, new TexturedElement(newicons, 0, 0, 9, 9, true));

@@ -110,7 +110,8 @@ public class RenderHUD {
 		{
 			for(Map.Entry<OverlayElement<? super StatTracker>, ElementPositioner> entry : this.elements.entrySet())
 			{
-				entry.getKey().draw(event.getResolution(), entry.getValue(), event.getPartialTicks(), tracker);
+				Position2D position = entry.getValue().getPositionOn(event.getResolution());
+				entry.getKey().draw(position, event.getPartialTicks(), tracker);
 			}
 		}
 		this.runEndFilters(event.getResolution(), type, tracker);

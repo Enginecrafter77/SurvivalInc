@@ -5,7 +5,6 @@ import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -25,11 +24,11 @@ public class SimpleStatBar extends OverlayElementGroup<StatTracker> {
 	}
 
 	@Override
-	public void draw(ScaledResolution resolution, ElementPositioner position, float partialTicks, StatTracker tracker)
+	public void draw(Position2D position, float partialTicks, StatTracker tracker)
 	{
 		if(tracker.isActive(this.provider, Minecraft.getMinecraft().player))
 		{
-			super.draw(resolution, position, partialTicks, tracker);
+			super.draw(position, partialTicks, tracker);
 		}
 	}
 

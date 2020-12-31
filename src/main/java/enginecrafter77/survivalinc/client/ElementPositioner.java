@@ -1,5 +1,9 @@
 package enginecrafter77.survivalinc.client;
 
+import java.util.EnumMap;
+
+import com.google.common.collect.ImmutableMap;
+
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -16,66 +20,25 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class ElementPositioner {
 	
-	/** The X offset from the {@link #mulX X position origin} */
-	protected final int offX;
-	
-	/** The Y offset from the {@link #mulY Y position origin} */
-	protected final int offY;
-	
-	/** The X position origin */
-	protected final float mulX;
-	
-	/** The Y position origin */
-	protected final float mulY;
+	protected final ImmutableMap<Axis2D, Integer> offset;
+	protected final ImmutableMap<Axis2D, Float> origin;
 	
 	public ElementPositioner(float mx, float my, int ox, int oy)
 	{
-		this.mulX = mx;
-		this.mulY = my;
-		this.offX = ox;
-		this.offY = oy;
+		this.offset = ImmutableMap.of(Axis2D.HORIZONTAL, ox, Axis2D.VERTICAL, oy);
+		this.origin = ImmutableMap.of(Axis2D.HORIZONTAL, mx, Axis2D.VERTICAL, my);
 	}
 	
-	/**
-	 * Creates a new ElementPositioner relative to the origin point.
-	 * @param origin
-	 * @param x
-	 * @param y
-	 */
-	public ElementPositioner(ElementPositioner origin, int x, int y)
+	public Position2D getPositionOn(ScaledResolution resolution)
 	{
-		this(origin.mulX, origin.mulY, origin.offX + x, origin.offY + y);
-	}
-	
-	/**
-	 * Calculates the X position of the element with regards to the
-	 * supplied resolution. By default, this equals to:
-	 * <pre>
-	 * 	x = w.m + o
-	 * </pre>
-	 * Where w is the width of the screen, m is the {@link #mulX origin}
-	 * and o is the {@link #offX offset}.
-	 * @param resolution The resolution to compute for
-	 * @return Absolute X coordinate relative to the top left screen corner
-	 */
-	public int getX(ScaledResolution resolution)
-	{
-		return (int)((float)resolution.getScaledWidth() * this.mulX) + this.offX;
-	}
-	
-	/**
-	 * Calculates the Y position of the element with regards to the
-	 * supplied resolution. By default, this equals to:
-	 * <pre>
-	 * 	y = h.m + o
-	 * </pre>
-	 * Where h is the width of the screen, m is the {@link #mulY origin}
-	 * and o is the {@link #offY offset}.
-	 * @param resolution The resolution to compute for
-	 * @return Absolute Y coordinate relative to the top left screen corner
-	 */
-	public int getY(ScaledResolution resolution)
-	{
-		return (int)((float)resolution.getScaledHeight() * this.mulY) + this.offY;
+		EnumMap<Axis2D, Integer> position = new EnumMap<Axis2D, Integer>(Axis2D.class);
+		
+		for(Axis2D axis : Axis2D.values())
+		{
+			int axialpos = (int)((float)axis.getResolutionDimension(resolution) * this.origin.get(axis)) + this.offset.get(axis);
+			position.put(axis, axialpos);
+		}
+		
+		return new Position2D(position);
 	}
 }

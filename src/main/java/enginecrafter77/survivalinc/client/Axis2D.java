@@ -1,5 +1,8 @@
 package enginecrafter77.survivalinc.client;
 
+import java.util.function.Function;
+
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -11,6 +14,18 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  */
 @SideOnly(Side.CLIENT)
 public enum Axis2D {
-	HORIZONTAL,
-	VERTICAL;
+	HORIZONTAL(ScaledResolution::getScaledWidth),
+	VERTICAL(ScaledResolution::getScaledHeight);
+	
+	private final Function<ScaledResolution, Integer> dimensionExtractor;
+	
+	private Axis2D(Function<ScaledResolution, Integer> dimensionExtractor)
+	{
+		this.dimensionExtractor = dimensionExtractor;
+	}
+	
+	public int getResolutionDimension(ScaledResolution resolution)
+	{
+		return this.dimensionExtractor.apply(resolution);
+	}
 }

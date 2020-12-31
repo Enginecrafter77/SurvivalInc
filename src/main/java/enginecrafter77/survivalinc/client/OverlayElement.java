@@ -19,11 +19,24 @@ public interface OverlayElement<RENDER_ARGUMENT> {
 	 * @param partialTicks Fraction of time between one tick and another
 	 * @param arg The render argument
 	 */
-	public void draw(ScaledResolution resolution, ElementPositioner position, float partialTicks, RENDER_ARGUMENT arg);
+	public void draw(Position2D position, float partialTicks, RENDER_ARGUMENT arg);
 	
 	/**
 	 * @param axis The axis of the element.
 	 * @return The size of the element along the specified axis.
 	 */
 	public int getSize(Axis2D axis);
+	
+	/**
+	 * @deprecated Use {@link #draw(Position2D, float, Object)} instead.
+	 * @param resolution The screen resolution
+	 * @param position The element positioner
+	 * @param partialTicks Fraction of time between one tick and another
+	 * @param arg The render argument
+	 */
+	@Deprecated
+	public default void draw(ScaledResolution resolution, ElementPositioner position, float partialTicks, RENDER_ARGUMENT arg)
+	{
+		this.draw(position.getPositionOn(resolution), partialTicks, arg);
+	}
 }
