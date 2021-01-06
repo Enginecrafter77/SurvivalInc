@@ -8,10 +8,12 @@ buildscript {
 	dependencies {
 		classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
 		classpath 'com.palantir.gradle.gitversion:gradle-git-version:0.12.3'
+		classpath 'gradle.plugin.com.matthewprenger:CurseGradle:1.4.0'
 	}
 }
 
 apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'com.matthewprenger.cursegradle'
 apply plugin: 'com.palantir.git-version'
 apply plugin: 'maven-publish'
 
@@ -85,4 +87,29 @@ publishing {
 			artifact sourceJar
 		}
 	}
+}
+
+// Curseforge publishing
+curseforge {	
+	def gitvd = versionDetails()
+	apiKey = project.properties["curseforge.apikey"]
+	project {
+		id = project.properties["curseforge.project"]
+		releaseType = System.getenv("CF_RTYPE") ?: 'release'
+		changelogType = 'markdown'
+		changelog = 'For changelog, see the [github release page](https://github.com/Enginecrafter77/SurvivalInc' + (gitvd.isCleanTag ? "/releases/tag/$gitvd.lastTag" : "/commit/$gitvd.gitHashFull") + ').'
+		
+		mainArtifact(jar) {
+			displayName = "$project.archivesBaseName-$project.version-$project.minecraft.version" + ".jar"
+		}
+	}
+	options {
+		debug = true
+	}
+}
+
+// Check if we are not trying to push dirty tree by accident.
+tasks.curseforge.doFirst {
+	if(project.version.endsWith(".dirty") && System.getenv("CF_FORCE_PUSH_DIRTY_TREE") == null)
+		throw new GradleException("Cowardly refusing to publish dirty work tree. Commit your changes before!");
 }
