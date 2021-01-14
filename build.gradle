@@ -9,17 +9,22 @@ buildscript {
 		classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
 		classpath 'com.palantir.gradle.gitversion:gradle-git-version:0.12.3'
 		classpath 'gradle.plugin.com.matthewprenger:CurseGradle:1.4.0'
+		classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+'
 	}
 }
 
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'com.matthewprenger.cursegradle'
 apply plugin: 'com.palantir.git-version'
+apply plugin: 'com.jfrog.bintray'
 apply plugin: 'maven-publish'
 
 group = "enginecrafter77.survivalinc" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "SurvivalInc"
-version gitVersion().substring(1)
+version gitVersion().substring(1) // Remove the 'v' in the tag name
+
+// Define the version details in case they are needed later
+def gitvd = versionDetails()
 
 // Need this here so eclipse task generates correctly.
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
@@ -79,23 +84,46 @@ processResources {
 // Maven publishing
 publishing {
 	publications {
-		maven(MavenPublication) {
-			groupId = 'enginecrafter77.survivalinc'
-			version = System.getenv("MVN_VER") ?: project.version
-			artifactId = 'survivalinc_' + project.minecraft.version
+		bintray_maven(MavenPublication) {
+			groupId 'enginecrafter77.survivalinc'
+			version project.version
+			artifactId 'survivalinc_' + project.minecraft.version
 			from components.java
 			artifact sourceJar
 		}
 	}
 }
 
+// Publishing to bintray using the maven publications above
+bintray {
+	user = project.properties['bintray.user']
+	key = project.properties['bintray.key']
+	dryRun = System.getenv("DRY_RUN") != null
+	
+	publications = ['bintray_maven']
+	
+	pkg {
+		repo = 'mods'
+		name = 'survivalinc'
+		licenses = ['MIT']
+		vcsUrl = 'https://github.com/Enginecrafter77/SurvivalInc.git'
+		issueTrackerUrl = 'https://github.com/Enginecrafter77/SurvivalInc/issues'
+		
+		version {
+			name = project.version
+			desc = "Survival Inc. version $project.version"
+			released = new Date()
+			vcsTag = gitvd.isCleanTag ? project.version : gitvd.gitHash
+		}
+	}
+}
+
 // Curseforge publishing
-curseforge {	
-	def gitvd = versionDetails()
+curseforge {
 	apiKey = project.properties["curseforge.apikey"]
 	project {
 		id = project.properties["curseforge.project"]
-		releaseType = System.getenv("CF_RTYPE") ?: 'release'
+		releaseType = System.getenv("GRADLE_RELEASE_TYPE") ?: 'release'
 		changelogType = 'markdown'
 		changelog = 'For changelog, see the [github release page](https://github.com/Enginecrafter77/SurvivalInc' + (gitvd.isCleanTag ? "/releases/tag/$gitvd.lastTag" : "/commit/$gitvd.gitHashFull") + ').'
 		
@@ -104,12 +132,25 @@ curseforge {
 		}
 	}
 	options {
-		debug = System.getenv("CF_DEBUG") != null
+		debug = System.getenv("DRY_RUN") != null
 	}
 }
 
 // Check if we are not trying to push dirty tree by accident.
-tasks.curseforge.doFirst {
-	if(project.version.endsWith(".dirty") && System.getenv("CF_FORCE_PUSH_DIRTY_TREE") == null)
-		throw new GradleException("Cowardly refusing to publish dirty work tree. Commit your changes before!");
+task checkTreeState {
+	doFirst {
+		if(project.version.endsWith(".dirty") && System.getenv("GRADLE_FORCE_PUSH_DIRTY_TREE") == null)
+			throw new GradleException("Cowardly refusing to publish dirty work tree. Commit your changes before!");
+	}
 }
+
+// A simple utility task to check the version details. Useful for debugging the build script.
+task gitVersionDetails {
+	doFirst {
+		println "lastTag = $gitvd.lastTag\ncommitDistance = $gitvd.commitDistance\ngitHash = $gitvd.gitHash\ngitHashFull = $gitvd.gitHashFull\nbranchName = $gitvd.branchName\nisCleanTag = $gitvd.isCleanTag"
+	}
+}
+
+// Add task dependencies
+tasks.publishBintray_mavenPublicationToMavenLocal.dependsOn += checkTreeState
+tasks.curseforge.dependsOn += checkTreeState
