@@ -9,9 +9,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @Config(modid = SurvivalInc.MOD_ID, name = SurvivalInc.MOD_ID, category = "")
 public class ModConfig {
-
-	// The values in the config file. Add on more as needed.
-	// Sub-categories
+	
 	@Config.Name("general")
 	public static final GeneralConfig GENERAL = new GeneralConfig();
 	
@@ -29,13 +27,13 @@ public class ModConfig {
 	
 	@Config.Name("wetness")
 	public static final WetnessConfig WETNESS = new WetnessConfig();
-
+	
 	@Config.Name("ghost")
 	public static final GhostConfig GHOST = new GhostConfig();
 	
 	@Config.Name("seasons")
 	public static final SeasonConfig SEASONS = new SeasonConfig();
-
+	
 	// This deals with changed the config values in Forge's GUI in-game.
 	// It also deals with syncing some config values from the server to the
 	// client, so everything doesn't get messed up.
