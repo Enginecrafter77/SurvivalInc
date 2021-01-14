@@ -2,9 +2,10 @@ package enginecrafter77.survivalinc.client;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+
 import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import net.minecraft.client.Minecraft;
@@ -16,27 +17,38 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class RenderHUD {
-	public static final RenderHUD instance = new RenderHUD(ElementType.ALL);
-	
-	protected final Map<OverlayElement<? super StatTracker>, ElementPositioner> elements;
+public class RenderHUD {	
+	protected final Collection<HUDEntry> elements;
 	protected final Map<ElementType, Collection<ElementRenderFilter<? super StatTracker>>> filters;
 	protected final ElementType trigger;
 	
 	public RenderHUD(ElementType trigger)
 	{
-		this.elements = new LinkedHashMap<OverlayElement<? super StatTracker>, ElementPositioner>();
 		this.filters = new HashMap<ElementType, Collection<ElementRenderFilter<? super StatTracker>>>();
+		this.elements = new LinkedList<HUDEntry>();
 		this.trigger = trigger;
 	}
 	
+	/**
+	 * @deprecated Naming, use {@link #addElement(OverlayElement, ElementPositioner)}
+	 * @param element
+	 * @param position
+	 */
+	@Deprecated
 	public void addIndependent(OverlayElement<? super StatTracker> element, ElementPositioner position)
 	{
-		this.elements.put(element, position);
+		this.addElement(element, position);
+	}
+	
+	public HUDEntry addElement(OverlayElement<? super StatTracker> element, ElementPositioner position)
+	{
+		HUDEntry entry = new HUDEntry(element, position);
+		this.elements.add(entry);
+		return entry;
 	}
 	
 	public void addFilter(ElementRenderFilter<? super StatTracker> filter, ElementType element)
-	{
+	{		
 		Collection<ElementRenderFilter<? super StatTracker>> filters = this.filters.get(element);
 		if(filters == null)
 		{
@@ -52,6 +64,12 @@ public class RenderHUD {
 		{
 			this.addFilter(filter, element);
 		}
+	}
+	
+	public void reset()
+	{
+		this.elements.clear();
+		this.filters.clear();
 	}
 	
 	/**
@@ -105,15 +123,52 @@ public class RenderHUD {
 	public void renderOverlayPost(RenderGameOverlayEvent.Post event)
 	{
 		StatTracker tracker = Minecraft.getMinecraft().player.getCapability(StatCapability.target, null);
+		ScaledResolution resolution = event.getResolution();
 		ElementType type = event.getType();
 		if(this.trigger == type)
 		{
-			for(Map.Entry<OverlayElement<? super StatTracker>, ElementPositioner> entry : this.elements.entrySet())
+			for(HUDEntry entry : this.elements)
 			{
-				Position2D position = entry.getValue().getPositionOn(event.getResolution());
-				entry.getKey().draw(position, event.getPartialTicks(), tracker);
+				entry.draw(resolution, tracker, event.getPartialTicks());
 			}
 		}
-		this.runEndFilters(event.getResolution(), type, tracker);
+		this.runEndFilters(resolution, type, tracker);
+	}
+	
+	public class HUDEntry
+	{
+		public final OverlayElement<? super StatTracker> element;
+		public final ElementPositioner positioner;
+		public final List<ElementRenderFilter<? super StatTracker>> filters;
+		
+		protected HUDEntry(OverlayElement<? super StatTracker> element, ElementPositioner positioner)
+		{
+			this.filters = new LinkedList<ElementRenderFilter<? super StatTracker>>();
+			this.positioner = positioner;
+			this.element = element;
+		}
+		
+		public HUDEntry addFilter(ElementRenderFilter<? super StatTracker> filter)
+		{
+			this.filters.add(filter);
+			return this;
+		}
+		
+		public void draw(ScaledResolution resolution, StatTracker tracker, float partialTicks)
+		{
+			boolean draw = true;
+			for(ElementRenderFilter<? super StatTracker> filter : this.filters)
+			{
+				if(!filter.begin(resolution, tracker)) draw = false;
+			}
+			
+			if(draw)
+			{
+				Position2D position = this.positioner.getPositionOn(resolution);
+				this.element.draw(position, partialTicks, tracker);
+			}
+			
+			filters.forEach((ElementRenderFilter<? super StatTracker> filter) -> filter.end(resolution, tracker));
+		}
 	}
 }

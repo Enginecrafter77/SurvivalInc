@@ -104,7 +104,7 @@ curseforge {
 		}
 	}
 	options {
-		debug = true
+		debug = System.getenv("CF_DEBUG") != null
 	}
 }
 

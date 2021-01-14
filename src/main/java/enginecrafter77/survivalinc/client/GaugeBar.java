@@ -3,7 +3,6 @@ package enginecrafter77.survivalinc.client;
 import java.awt.Color;
 import java.awt.color.ColorSpace;
 import enginecrafter77.survivalinc.SurvivalInc;
-import enginecrafter77.survivalinc.config.ModConfig;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
@@ -79,7 +78,7 @@ public class GaugeBar extends SimpleOverlayElement<Float> {
 	protected void calculateRGBColor(float fraction)
 	{
 		this.getColor(fraction).getColorComponents(ColorSpace.getInstance(ColorSpace.CS_sRGB), this.colorcomponents);
-		this.colorcomponents[3] = 1F - (float)ModConfig.CLIENT.barTransparency;
+		this.colorcomponents[3] = 1F;
 	}
 	
 	/**
