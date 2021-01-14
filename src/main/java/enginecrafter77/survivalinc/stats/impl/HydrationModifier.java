@@ -8,7 +8,6 @@ import enginecrafter77.survivalinc.net.WaterDrinkMessage;
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatProvider;
-import enginecrafter77.survivalinc.stats.StatRecord;
 import enginecrafter77.survivalinc.stats.StatRegisterEvent;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import enginecrafter77.survivalinc.stats.effect.DamageStatEffect;
@@ -72,9 +71,8 @@ public class HydrationModifier implements IMessageHandler<WaterDrinkMessage, IMe
 	}
 	
 	@Override
-	public void update(EntityPlayer target, StatRecord record)
+	public void update(EntityPlayer target, SimpleStatRecord hydration)
 	{
-		SimpleStatRecord hydration = (SimpleStatRecord)record;
 		this.effects.apply(hydration, target);
 		hydration.checkoutValueChange();
 	}

@@ -2,7 +2,6 @@ package enginecrafter77.survivalinc.ghost;
 
 import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatProvider;
-import enginecrafter77.survivalinc.stats.StatRecord;
 import enginecrafter77.survivalinc.stats.StatRegisterEvent;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import enginecrafter77.survivalinc.stats.effect.EffectApplicator;
@@ -96,10 +95,8 @@ public class GhostProvider implements StatProvider<GhostEnergyRecord> {
 	}
 	
 	@Override
-	public void update(EntityPlayer target, StatRecord record)
-	{
-		GhostEnergyRecord ghost = (GhostEnergyRecord)record;
-		
+	public void update(EntityPlayer target, GhostEnergyRecord ghost)
+	{		
 		if(ghost.shouldReceiveTicks())
 		{
 			this.applicator.apply(ghost, target);

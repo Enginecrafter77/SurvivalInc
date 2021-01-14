@@ -149,7 +149,7 @@ public class SimpleStatRegister implements StatTracker {
 		{
 			if(this.isActiveFor(player))
 			{
-				this.provider.update(player, this.record);
+				this.updateGeneric(player, this.provider);
 			}
 		}
 		
@@ -176,6 +176,12 @@ public class SimpleStatRegister implements StatTracker {
 		public boolean isActive()
 		{
 			return this.shouldTick;
+		}
+		
+		private <RECORD extends StatRecord> void updateGeneric(EntityPlayer target, StatProvider<RECORD> provider)
+		{
+			RECORD specificrecord = provider.getRecordClass().cast(this.record);
+			provider.update(target, specificrecord);
 		}
 	}
 }

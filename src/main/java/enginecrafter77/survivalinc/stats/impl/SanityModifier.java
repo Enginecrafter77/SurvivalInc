@@ -35,7 +35,6 @@ import enginecrafter77.survivalinc.net.StatSyncMessage;
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatProvider;
-import enginecrafter77.survivalinc.stats.StatRecord;
 import enginecrafter77.survivalinc.stats.StatRegisterEvent;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import enginecrafter77.survivalinc.stats.effect.EffectApplicator;
@@ -80,11 +79,10 @@ public class SanityModifier implements StatProvider<SanityRecord> {
 	}
 	
 	@Override
-	public void update(EntityPlayer target, StatRecord record)
+	public void update(EntityPlayer target, SanityRecord sanity)
 	{
 		if(target.isCreative() || target.isSpectator()) return;
 		
-		SanityRecord sanity = (SanityRecord)record;
 		++sanity.ticksAwake;
 		this.effects.apply(sanity, target);
 		sanity.checkoutValueChange();

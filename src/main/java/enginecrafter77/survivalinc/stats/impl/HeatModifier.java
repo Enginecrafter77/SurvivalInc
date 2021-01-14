@@ -102,7 +102,7 @@ public class HeatModifier implements StatProvider<SimpleStatRecord> {
 	}
 	
 	@Override
-	public void update(EntityPlayer player, StatRecord record)
+	public void update(EntityPlayer player, SimpleStatRecord heat)
 	{
 		if(player.isCreative() || player.isSpectator()) return;
 		
@@ -117,7 +117,6 @@ public class HeatModifier implements StatProvider<SimpleStatRecord> {
 		}
 		target = targettemp.apply(player, target * (float)ModConfig.HEAT.tempCoefficient);
 		
-		SimpleStatRecord heat = (SimpleStatRecord)record;
 		float difference = Math.abs(target - heat.getValue());
 		float rate = difference * (float)ModConfig.HEAT.heatExchangeFactor;
 		rate = this.exchangerate.apply(player, rate);

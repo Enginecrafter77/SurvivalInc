@@ -10,7 +10,6 @@ import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import enginecrafter77.survivalinc.stats.StatProvider;
-import enginecrafter77.survivalinc.stats.StatRecord;
 import enginecrafter77.survivalinc.stats.StatRegisterEvent;
 import enginecrafter77.survivalinc.stats.effect.EffectApplicator;
 import enginecrafter77.survivalinc.stats.effect.FunctionalEffectFilter;
@@ -80,9 +79,8 @@ public class WetnessModifier implements StatProvider<SimpleStatRecord> {
 	}
 	
 	@Override
-	public void update(EntityPlayer target, StatRecord record)
+	public void update(EntityPlayer target, SimpleStatRecord wetness)
 	{
-		SimpleStatRecord wetness = (SimpleStatRecord)record;
 		this.effects.apply(wetness, target);
 		wetness.checkoutValueChange();
 	}

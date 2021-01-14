@@ -24,7 +24,7 @@ public interface StatProvider<RECORD extends StatRecord> extends Serializable {
 	 * @param current The current value of the stat
 	 * @return The new value of the stat
 	 */
-	public void update(EntityPlayer target, StatRecord record);
+	public void update(EntityPlayer target, RECORD record);
 	
 	/**
 	 * Returns a {@link ResourceLocation} based
