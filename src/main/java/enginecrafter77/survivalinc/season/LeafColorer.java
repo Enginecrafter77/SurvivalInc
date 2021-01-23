@@ -56,7 +56,7 @@ public class LeafColorer implements IBlockColor {
 		WorldClient world = Minecraft.getMinecraft().world;
 		if(!this.persistentTypes.contains(treetype) && world != null)
 		{
-			SeasonProvider ssn = SeasonData.load(world).getCurrentDate().getSeason();
+			SeasonProvider ssn = SeasonData.load(world).getCurrentDate().getCalendarEntry().getSeason();
 			
 			if(ssn.getPeakTemperature() < 0F)
 			{

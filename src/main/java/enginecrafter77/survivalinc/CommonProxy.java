@@ -71,10 +71,8 @@ public class CommonProxy {
 		if(ModConfig.GHOST.enabled) GhostProvider.instance.init();
 		
 		SeasonCalendar calendar = SeasonController.instance.calendar;
-		calendar.registerSeason(new SurvivalIncSeason("winter", 0));
-		calendar.registerSeason(new SurvivalIncSeason("spring", 1));
-		calendar.registerSeason(new SurvivalIncSeason("summer", 2));
-		calendar.registerSeason(new SurvivalIncSeason("autumn", 3));
+		for(SurvivalIncSeason season : SurvivalIncSeason.values())
+			calendar.registerSeason(season);
 	}
 	
 	public void postInit(FMLPostInitializationEvent event)

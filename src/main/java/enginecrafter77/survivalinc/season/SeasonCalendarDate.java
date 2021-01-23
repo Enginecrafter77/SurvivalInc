@@ -1,24 +1,20 @@
 package enginecrafter77.survivalinc.season;
 
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.common.util.INBTSerializable;
+import javax.annotation.Nonnull;
 
-public class SeasonCalendarDate implements INBTSerializable<NBTTagCompound>, Comparable<SeasonCalendarDate> {
-	public final SeasonCalendar calendar;
-	
-	private int season;
+public class SeasonCalendarDate implements Comparable<SeasonCalendarDate> {
+	private SeasonCalendar.SeasonCalendarEntry season;
 	private int day;
 	
-	public SeasonCalendarDate(SeasonCalendar calendar, int season, int day)
+	public SeasonCalendarDate(@Nonnull SeasonCalendar.SeasonCalendarEntry season, int day)
 	{
-		this.calendar = calendar;
 		this.season = season;
 		this.day = day;
 	}
 	
-	public SeasonProvider getSeason()
+	public SeasonCalendar.SeasonCalendarEntry getCalendarEntry()
 	{
-		return this.calendar.valueOf(season);
+		return this.season;
 	}
 	
 	public int getDay()
@@ -28,15 +24,12 @@ public class SeasonCalendarDate implements INBTSerializable<NBTTagCompound>, Com
 	
 	public int getDayInYear()
 	{
-		int day = this.day;
-		for(SeasonProvider season : this.calendar.getPreceding(this.season))
-			day += season.getLength();
-		return day;
+		return this.season.getStartingDay() + this.getDay();
 	}
 	
-	public void setSeason(SeasonProvider season)
+	public void setSeason(SeasonCalendar.SeasonCalendarEntry season)
 	{
-		this.season = this.calendar.indexOf(season);
+		this.season = season;
 	}
 	
 	public void setDay(int day)
@@ -59,53 +52,27 @@ public class SeasonCalendarDate implements INBTSerializable<NBTTagCompound>, Com
 	 */
 	public int advance(int days)
 	{
-		int traversed = 0;
-		
 		this.day += days;
-		
-		SeasonProvider current = this.getSeason();
-		while(this.day >= current.getLength());
+		int traversed = 0;
+		while(this.day >= this.getCalendarEntry().getSeason().getLength())
 		{
-			this.day -= current.getLength();
-			this.season = (this.season + 1) % this.calendar.getSeasonCount();
-			current = this.getSeason();
+			this.day -= this.getCalendarEntry().getSeason().getLength();
+			this.season = this.season.getFollowing(1);
 			traversed++;
 		}
 		return traversed;
 	}
 	
-	public SeasonProvider getNextSeason(int steps)
-	{
-		int season = this.season + steps;
-		return this.calendar.valueOf(season % this.calendar.getSeasonCount());
-	}
-	
 	@Override
 	public SeasonCalendarDate clone()
 	{
-		return new SeasonCalendarDate(this.calendar, this.season, this.day);
-	}
-
-	@Override
-	public NBTTagCompound serializeNBT()
-	{
-		NBTTagCompound tag = new NBTTagCompound();
-		tag.setInteger("season", this.season);
-		tag.setInteger("day", this.day);
-		return tag;
-	}
-
-	@Override
-	public void deserializeNBT(NBTTagCompound nbt)
-	{
-		this.season = nbt.getInteger("season");
-		this.day = nbt.getInteger("day");
+		return new SeasonCalendarDate(this.season, this.day);
 	}
 
 	@Override
 	public String toString()
 	{
-		return String.format("%s(%s/%d)", this.getClass().getSimpleName(), this.getSeason().getLocalizedName(), this.day);
+		return String.format("%s(%s/%d)", this.getClass().getSimpleName(), this.getCalendarEntry().getSeason().getName().toString(), this.day);
 	}
 	
 	@Override

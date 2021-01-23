@@ -3,35 +3,57 @@ package enginecrafter77.survivalinc.season;
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
 
-public class SurvivalIncSeason extends SeasonProvider {
+public enum SurvivalIncSeason implements SeasonProvider {
 
-	private final int index;
+	WINTER,
+	SPRING,
+	SUMMER,
+	AUTUMN;
 	
-	public SurvivalIncSeason(String name, int index)
-	{
-		super(new ResourceLocation(SurvivalInc.MOD_ID, name));
-		this.index = index;
-	}
-
 	@Override
 	public float getPeakTemperature()
 	{
-		return (float)ModConfig.SEASONS.temperatures[index];
+		return (float)ModConfig.SEASONS.temperatures[this.ordinal()];
 	}
 
 	@Override
 	public int getLength()
 	{
-		return ModConfig.SEASONS.durations[this.index];
+		return ModConfig.SEASONS.durations[this.ordinal()];
 	}
 
 	@Override
 	public boolean allowCropGrowth()
 	{
-		return true;
+		return this != WINTER;
 	}
-	
-	
-	
+
+	@Override
+	public ResourceLocation getName()
+	{
+		return new ResourceLocation(SurvivalInc.MOD_ID, this.name().toLowerCase());
+	}
+
+	@Override
+	public String getTranslationKey()
+	{
+		return "season." + this.name().toLowerCase() + ".name";
+	}
+
+	@Override
+	public int getPeakDay()
+	{
+		return this.getLength() / 2;
+	}
+
+	@Override
+	public void applySeason(World world, int day) {}
+
+	@Override
+	public float getCustomTemperatureOn(int day)
+	{
+		return Float.NaN;
+	}
 }

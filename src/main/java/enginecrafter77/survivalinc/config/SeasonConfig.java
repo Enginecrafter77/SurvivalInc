@@ -14,7 +14,7 @@ public class SeasonConfig {
 	@Config.LangKey("config.survivalinc.seasons.startingSeason")
 	@Config.Comment("The season the player starts in")
 	@Config.RequiresWorldRestart
-	public int startingSeason = 1;
+	public String startingSeason = "survivalinc:spring";
 	
 	@Config.LangKey("config.survivalinc.seasons.startingDay")
 	@Config.Comment("The day in the target season the player starts in")

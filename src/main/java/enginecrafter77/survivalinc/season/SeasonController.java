@@ -182,7 +182,7 @@ public class SeasonController implements IMessageHandler<SeasonSyncMessage, IMes
 		
 		SeasonData data = SeasonData.load(world);
 		Event.Result result = Event.Result.DEFAULT;
-		if(!data.getCurrentDate().getSeason().allowCropGrowth())
+		if(!data.getCurrentDate().getCalendarEntry().getSeason().allowCropGrowth())
 			result = Event.Result.DENY;
 		event.setResult(result);
 	}

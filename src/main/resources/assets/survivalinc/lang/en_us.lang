@@ -25,6 +25,12 @@ stat.survivalinc:wetness.name=Wetness
 stat.survivalinc:sanity.name=Sanity
 stat.survivalinc:ghostenergy.name=Ghost Energy
 
+# Season names
+season.spring.name=Spring
+season.summer.name=Summer
+season.autumn.name=Autumn
+season.winter.name=Winter
+
 # General config
 survivalinc.general=General
 survivalinc.general.tooltip=General Settings

@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import enginecrafter77.survivalinc.SurvivalInc;
+import enginecrafter77.survivalinc.season.SeasonCalendar.SeasonCalendarEntry;
 
 /**
  * This stores the original biome temperatures, modifying the base temps if
@@ -115,11 +116,6 @@ public class BiomeTempController {
 		SurvivalInc.logger.info("Processed {} biomes in {} ms", processed, time);
 	}
 	
-	private SeasonCalendarDate getSeasonPeak(SeasonCalendar calendar, SeasonProvider season)
-	{
-		return new SeasonCalendarDate(calendar, calendar.indexOf(season), season.getPeakDay());
-	}
-	
 	/**
 	 * Calculates the temperature offset in the
 	 * specified day in the current season.
@@ -130,32 +126,31 @@ public class BiomeTempController {
 	 */
 	public float getTemperatureOffset(SeasonCalendarDate date)
 	{
-		SeasonProvider season = date.getSeason();
-		int day = date.getDay();
+		SeasonCalendarEntry local_season = date.getCalendarEntry();
 		
 		// Indicates which way around we are going. 1 means forward while -1 means backward.
-		int way = day > season.getPeakDay() ? 1 : -1;
+		int way = date.getDay() > local_season.getSeason().getPeakDay() ? 1 : -1;
 		
 		// The season we are aiming at with our calculations (e.g. Spring day 10 is beyond half, so temperature shifts towards summer)
-		SeasonProvider target_season = date.getNextSeason(way);
+		SeasonCalendarEntry target_season = date.getCalendarEntry().getFollowing(way);
+		
+		// The absolute day of half of this season (where temperature is supposed to achieve the specified value)
+		SeasonCalendarDate local = new SeasonCalendarDate(local_season, local_season.getSeason().getPeakDay());
+		
+		// The absolute day of half of the target season (where temperature is supposed to achieve the specified value)
+		SeasonCalendarDate target = new SeasonCalendarDate(target_season, target_season.getSeason().getPeakDay());
 		
 		// The current absolute day of year
 		int absolute_day = date.getDayInYear();
-		
-		// The absolute day of half of this season (where temperature is supposed to achieve the specified value)
-		SeasonCalendarDate local = this.getSeasonPeak(date.calendar, season);
-		
-		// The absolute day of half of the target season (where temperature is supposed to achieve the specified value)
-		SeasonCalendarDate target = this.getSeasonPeak(date.calendar, target_season);
-		
 		int localpeak = local.getDayInYear();
 		int targetpeak = target.getDayInYear();
 		
 		/*
-		 * Remember your math teacher saying that when you multiply
-		 * inequality with negative number, it flips around?
-		 * This basically checks if we are wrapping around the year
-		 * edge, and if so, adds/subtracts a whole year length.
+		 * We always assume that the target date is in the direction
+		 * specified by "way" ahead of local. If this is not the case,
+		 * we are most probably flipping around the year boundary. If
+		 * so, we need to adjust the date accordingly so that the interpolation
+		 * works reliably.
 		 */
 		if(target.compareTo(local) != way)
 		{
@@ -190,10 +185,10 @@ public class BiomeTempController {
 			 * as far away from the edge as the original number.
 			 * It may be hard to imagine, but it works perfectly.
 			 */
-			targetpeak += way * date.calendar.getYearLength();
+			targetpeak += way * local_season.getCalendar().getYearLength();
 		}
 		
-		float value = BiomeTempController.interpolateTemperature(absolute_day, localpeak, targetpeak, season.getPeakTemperature(), target_season.getPeakTemperature());
+		float value = BiomeTempController.interpolateTemperature(absolute_day, localpeak, targetpeak, local_season.getSeason().getPeakTemperature(), target_season.getSeason().getPeakTemperature());
 		SurvivalInc.logger.debug("{} --> {} / {} --> {}", date.toString(), local.toString(), target.toString(), value);
 		return value;
 	}

@@ -1,7 +1,9 @@
 package enginecrafter77.survivalinc.season;
 
 import enginecrafter77.survivalinc.SurvivalInc;
+import enginecrafter77.survivalinc.config.ModConfig;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraft.world.storage.MapStorage;
 import net.minecraft.world.storage.WorldSavedData;
@@ -21,25 +23,29 @@ public class SeasonData extends WorldSavedData {
 	public SeasonData(String id)
 	{
 		super(id);
-		this.date = new SeasonCalendarDate(SeasonController.instance.calendar, 0, 0);
+		this.date = new SeasonCalendarDate(SeasonController.instance.calendar.getSeason(new ResourceLocation(ModConfig.SEASONS.startingSeason)), ModConfig.SEASONS.startingDay);
 	}
 
 	@Override
 	public void readFromNBT(NBTTagCompound nbt)
 	{
-		this.date.deserializeNBT(nbt);
+		ResourceLocation id = new ResourceLocation(nbt.getString("season"));		
+		this.date.setSeason(SeasonController.instance.calendar.getSeason(id));
+		this.date.setDay(nbt.getInteger("day"));
 	}
 	
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound nbt)
 	{
-		return this.date.serializeNBT();
+		nbt.setString("season", this.date.getCalendarEntry().getSeason().getName().toString());
+		nbt.setInteger("day", this.date.getDay());
+		return nbt;
 	}
 	
 	@Override
 	public String toString()
 	{
-		return this.date.toString();
+		return String.format("%s(%d)", this.date.getCalendarEntry().getSeason().getTranslationKey(), this.date.getDay());
 	}
 	
 	public SeasonCalendarDate getCurrentDate()
