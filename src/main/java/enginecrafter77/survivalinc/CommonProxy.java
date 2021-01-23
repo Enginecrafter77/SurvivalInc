@@ -9,9 +9,11 @@ import enginecrafter77.survivalinc.net.EntityItemUpdater;
 import enginecrafter77.survivalinc.net.StatSyncMessage;
 import enginecrafter77.survivalinc.net.StatSyncHandler;
 import enginecrafter77.survivalinc.net.WaterDrinkMessage;
+import enginecrafter77.survivalinc.season.SeasonCalendar;
 import enginecrafter77.survivalinc.season.SeasonCommand;
 import enginecrafter77.survivalinc.season.SeasonController;
 import enginecrafter77.survivalinc.season.SeasonSyncMessage;
+import enginecrafter77.survivalinc.season.SurvivalIncSeason;
 import enginecrafter77.survivalinc.season.melting.MeltingController;
 import enginecrafter77.survivalinc.season.melting.MeltingController.MelterEntry;
 import enginecrafter77.survivalinc.stats.StatCommand;
@@ -67,6 +69,12 @@ public class CommonProxy {
 		if(ModConfig.SANITY.enabled) SanityModifier.instance.init();
 		if(ModConfig.WETNESS.enabled) WetnessModifier.instance.init();
 		if(ModConfig.GHOST.enabled) GhostProvider.instance.init();
+		
+		SeasonCalendar calendar = SeasonController.instance.calendar;
+		calendar.registerSeason(new SurvivalIncSeason("winter", 0));
+		calendar.registerSeason(new SurvivalIncSeason("spring", 1));
+		calendar.registerSeason(new SurvivalIncSeason("summer", 2));
+		calendar.registerSeason(new SurvivalIncSeason("autumn", 3));
 	}
 	
 	public void postInit(FMLPostInitializationEvent event)

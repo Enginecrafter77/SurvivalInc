@@ -56,18 +56,13 @@ public class LeafColorer implements IBlockColor {
 		WorldClient world = Minecraft.getMinecraft().world;
 		if(!this.persistentTypes.contains(treetype) && world != null)
 		{
-			Season ssn = SeasonData.load(world).season;
+			SeasonProvider ssn = SeasonData.load(world).getCurrentDate().getSeason();
 			
-			switch(ssn)
+			if(ssn.getPeakTemperature() < 0F)
 			{
-			case WINTER:
-			case AUTUMN:
 				int component = 0;
 				for(double multiplier : ModConfig.CLIENT.autumnLeafColor)
 					rgb = multiplyColor(rgb, component++, (float)multiplier);
-				break;
-			default:
-				break;
 			}
 		}
 		

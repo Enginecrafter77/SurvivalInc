@@ -1,17 +1,13 @@
 package enginecrafter77.survivalinc.season;
 
-import net.minecraft.block.BlockCrops;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.ItemStack;
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeEnd;
 import net.minecraft.world.biome.BiomeHell;
 import net.minecraft.world.biome.BiomeOcean;
-import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.terraingen.BiomeEvent;
 import net.minecraftforge.event.world.BlockEvent;
@@ -26,7 +22,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import java.util.List;
+import com.google.common.collect.Range;
 
 import enginecrafter77.survivalinc.SurvivalInc;
 
@@ -41,10 +37,13 @@ public class SeasonController implements IMessageHandler<SeasonSyncMessage, IMes
 	/** The biome temperature controller instance */
 	public BiomeTempController biomeTemp;
 	
+	public SeasonCalendar calendar;
+	
 	private SeasonController()
 	{
 		try
 		{
+			this.calendar = new SeasonCalendar();
 			this.biomeTemp = new BiomeTempController();
 			this.biomeTemp.excluded.add(BiomeOcean.class);
 			this.biomeTemp.excluded.add(BiomeHell.class);
@@ -77,7 +76,7 @@ public class SeasonController implements IMessageHandler<SeasonSyncMessage, IMes
 		{
 			SurvivalInc.logger.info("Updateding client's world season data to {}...", message.data.toString());
 			world.setData(SeasonData.datakey, message.data);
-			MinecraftForge.EVENT_BUS.post(new SeasonChangedEvent(world, message.data));
+			MinecraftForge.EVENT_BUS.post(new SeasonChangedEvent(world, message.data.getCurrentDate()));
 			SurvivalInc.logger.info("Updated client's world season data to {}", message.data.toString());
 		}
 		return null;
@@ -132,11 +131,11 @@ public class SeasonController implements IMessageHandler<SeasonSyncMessage, IMes
 			{
 				SurvivalInc.logger.info("Season update triggered in {} on {}", dimension.name(), event.side.name());
 				SeasonData data = SeasonData.load(event.world);
-				data.advance(1);
+				data.getCurrentDate().advance(1);
 				data.markDirty();
 				
 				SurvivalInc.proxy.net.sendToDimension(new SeasonSyncMessage(data), DimensionType.OVERWORLD.getId()); // Synchronize the data with clients, so they being processing on their side
-				MinecraftForge.EVENT_BUS.post(new SeasonChangedEvent(event.world, data)); // Broadcast and process the event on server side
+				MinecraftForge.EVENT_BUS.post(new SeasonChangedEvent(event.world, data.getCurrentDate())); // Broadcast and process the event on server side
 			}
 		}
 	}
@@ -148,15 +147,8 @@ public class SeasonController implements IMessageHandler<SeasonSyncMessage, IMes
 	@SubscribeEvent
 	public void applySeasonData(SeasonChangedEvent event)
 	{
-		WorldInfo info = event.getWorld().getWorldInfo();
-		this.biomeTemp.applySeason(event.data);
-		
-		// Determine the weather. The season is the main factor.
-		float randWeather = (float) Math.random();
-		if(randWeather < event.getSeason().rainfallchance && info.isRaining())
-			info.setRaining(true);
-		
-		SurvivalInc.logger.info("Applied biome temperatures for season {}", event.data.toString());
+		this.biomeTemp.applySeason(event.date);
+		SurvivalInc.logger.info("Applied biome temperatures for season {}", event.date.toString());
 	}
 	
 	/**
@@ -167,47 +159,15 @@ public class SeasonController implements IMessageHandler<SeasonSyncMessage, IMes
 	@SideOnly(Side.CLIENT)
 	public void biomeGrass(BiomeEvent.GetGrassColor event)
 	{
+		Range<Float> temperature_range = this.calendar.getTemperatureRange();
 		float deftemp = event.getBiome().getDefaultTemperature();
 		
 		// If the current biome is permafrost
-		if((deftemp + Season.SUMMER.getPeakTemperatureOffset()) < 0F)
-			event.setNewColor(Season.WINTER.grasscolor);
-		else if((deftemp + Season.WINTER.getPeakTemperatureOffset()) > 1F)
-			event.setNewColor(Season.SUMMER.grasscolor);
-		else
-		{
-			WorldClient world = Minecraft.getMinecraft().world;
-			SeasonData data = SeasonData.load(world);
-			
-			if(data.season.grasscolor != 0)
-				event.setNewColor(data.season.grasscolor);
-		}
+		if((deftemp + temperature_range.upperEndpoint()) < 0F)
+			event.setNewColor(0x5BAE92);
+		else if((deftemp + temperature_range.lowerEndpoint()) > 1F)
+			event.setNewColor(0xCAE24E);
 		
-	}
-
-	/**
-	 * Add bonus harvest drops from crops in the Autumn.
-	 * @param event The block harvest drops event
-	 */
-	@SubscribeEvent
-	public void onCropHarvest(BlockEvent.HarvestDropsEvent event)
-	{
-		World world = event.getWorld();
-		IBlockState state = event.getState();
-		
-		// Is (was?) the harvested block really a crop?
-		if(state.getBlock() instanceof BlockCrops && !world.isRemote)
-		{
-			SeasonData data = SeasonData.load(event.getWorld());
-			BlockCrops crop = (BlockCrops)state.getBlock();
-			List<ItemStack> drops = event.getDrops();
-			if(!crop.isMaxAge(event.getState())) drops.clear();
-			else if(data.season == Season.AUTUMN)
-			{
-				for(ItemStack drop : drops) // Double the outcome
-					drop.grow(drop.getCount());
-			}
-		}
 	}
 
 	/**
@@ -222,7 +182,7 @@ public class SeasonController implements IMessageHandler<SeasonSyncMessage, IMes
 		
 		SeasonData data = SeasonData.load(world);
 		Event.Result result = Event.Result.DEFAULT;
-		if(data.season == Season.WINTER)
+		if(!data.getCurrentDate().getSeason().allowCropGrowth())
 			result = Event.Result.DENY;
 		event.setResult(result);
 	}

@@ -32,7 +32,7 @@ public class SeasonSyncMessage implements IMessage {
 	public void toBytes(ByteBuf buf)
 	{
 		NBTTagCompound tag = new NBTTagCompound();
-		data.writeToNBT(tag);
+		tag = data.writeToNBT(tag);
 		ByteBufUtils.writeTag(buf, tag);
 	}
 	

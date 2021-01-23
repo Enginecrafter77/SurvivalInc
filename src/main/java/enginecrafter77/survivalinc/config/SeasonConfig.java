@@ -1,6 +1,5 @@
 package enginecrafter77.survivalinc.config;
 
-import enginecrafter77.survivalinc.season.Season;
 import enginecrafter77.survivalinc.season.melting.MeltingController;
 import net.minecraftforge.common.config.Config;
 
@@ -15,7 +14,7 @@ public class SeasonConfig {
 	@Config.LangKey("config.survivalinc.seasons.startingSeason")
 	@Config.Comment("The season the player starts in")
 	@Config.RequiresWorldRestart
-	public Season startingSeason = Season.SPRING;
+	public int startingSeason = 1;
 	
 	@Config.LangKey("config.survivalinc.seasons.startingDay")
 	@Config.Comment("The day in the target season the player starts in")

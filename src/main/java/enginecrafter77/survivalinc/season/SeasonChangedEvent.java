@@ -4,17 +4,17 @@ import net.minecraft.world.World;
 import net.minecraftforge.event.world.WorldEvent;
 
 public class SeasonChangedEvent extends WorldEvent {
-	public final SeasonData data;
+	public final SeasonCalendarDate date;
 	
-	public SeasonChangedEvent(World world, SeasonData data)
+	public SeasonChangedEvent(World world, SeasonCalendarDate date)
 	{
 		super(world);
-		this.data = data;
+		this.date = date;
 	}
 	
 	public SeasonChangedEvent(World world)
 	{
-		this(world, SeasonData.load(world));
+		this(world, SeasonData.load(world).getCurrentDate());
 	}
 	
 	/**
@@ -22,16 +22,6 @@ public class SeasonChangedEvent extends WorldEvent {
 	 */
 	public boolean hasSeasonAdvanced()
 	{
-		return data.day == 0;
-	}
-	
-	public Season getSeason()
-	{
-		return data.season;
-	}
-	
-	public int getDay()
-	{
-		return data.day;
+		return date.getDay() == 0;
 	}
 }

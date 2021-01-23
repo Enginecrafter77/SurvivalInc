@@ -39,8 +39,9 @@ public class SeasonCommand extends CommandBase {
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
 	{
-		WorldServer world = server.getWorld(DimensionType.OVERWORLD.getId());		
+		WorldServer world = server.getWorld(DimensionType.OVERWORLD.getId());
 		SeasonData data = SeasonData.load(world);
+		SeasonCalendarDate date = data.getCurrentDate();
 		
 		if(args.length < 1) throw new WrongUsageException("Insufficient arguments\nUsgae: " + this.getUsage(sender));
 		
@@ -48,27 +49,31 @@ public class SeasonCommand extends CommandBase {
 		{
 		case "set":
 			if(args.length < 3) throw new WrongUsageException("Insufficient arguments\nUsage: " + this.getUsage(sender));
-			data.season = Season.valueOf(args[1]);
-			data.day = Integer.parseInt(args[2]);
-			sender.sendMessage(new TextComponentString("Set calendar time to " + data.toString()));
+			//TODO fix
+			//date.setSeason(date.calendar.locateSeasonByName(new ResourceLocation(args[1])));
+			//date.setDay(Integer.parseInt(args[2]));
+			sender.sendMessage(new TextComponentString("Set calendar time to " + date.toString()));
 			data.markDirty();
 			break;
 		case "advance":
 			int days = 1;
 			if(args.length >= 2) days = CommandBase.parseInt(args[1]);
-			data.advance(days);
-			sender.sendMessage(new TextComponentString("Advancing season by " + days + " days --> " + data.toString()));
+			date.advance(days);
+			sender.sendMessage(new TextComponentString("Advancing season by " + days + " days --> " + date.toString()));
 			data.markDirty();
 			break;
 		case "info":
-			float currentoffset = data.season.getTemperatureOffset(data.day);
+			float currentoffset = SeasonController.instance.biomeTemp.getTemperatureOffset(date);
+			SeasonCalendarDate next = date.clone();
+			next.advance(1);
+			
 			ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 			PrintStream message = new PrintStream(buffer);
-			message.format("$aCurrent season:$r %s\n", data.toString());
-			message.format("$aSeason Length:$r %d\n", data.season.getLength());
-			message.format("$aTemperature Offset on $eDay %d$a:$r %.03f\n", data.day, currentoffset);
-			message.format("$aPeak Temperature Offset in $e%s$a:$r %f\n", data.season.name(), data.season.getPeakTemperatureOffset());
-			message.format("$aCurrent Temperature Inclination:$r %.03f", data.season.getTemperatureOffset(data.day + 1) - currentoffset);
+			message.format("$aCurrent season:$r %s\n", date.toString());
+			message.format("$aSeason Length:$r %d\n", date.getSeason().getLength());
+			message.format("$aTemperature Offset on $eDay %d$a:$r %.03f\n", date.getDay(), currentoffset);
+			message.format("$aPeak Temperature Offset in $e%s$a:$r %f\n", date.getSeason().getLocalizedName(), date.getSeason().getPeakTemperature());
+			message.format("$aCurrent Temperature Inclination:$r %.03f", SeasonController.instance.biomeTemp.getTemperatureOffset(next) - currentoffset);
 			if(sender instanceof Entity)
 			{
 				BlockPos position = new BlockPos(sender.getPositionVector());
@@ -87,7 +92,7 @@ public class SeasonCommand extends CommandBase {
 		if(data.isDirty())
 		{
 			SurvivalInc.proxy.net.sendToDimension(new SeasonSyncMessage(data), DimensionType.OVERWORLD.getId());
-			MinecraftForge.EVENT_BUS.post(new SeasonChangedEvent(world, data));
+			MinecraftForge.EVENT_BUS.post(new SeasonChangedEvent(world, date));
 		}
 	}
 	
