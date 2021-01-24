@@ -4,8 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.List;
 
-import javax.print.attribute.standard.DateTimeAtCompleted;
-
 import enginecrafter77.survivalinc.SurvivalInc;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.command.CommandBase;
@@ -70,7 +68,7 @@ public class SeasonCommand extends CommandBase {
 			data.markDirty();
 			break;
 		case "info":
-			float currentoffset = SeasonController.instance.biomeTemp.getTemperatureOffset(date);
+			float currentoffset = SeasonController.instance.biomeTemp.getSeasonalTemperatureOffset(date);
 			SeasonCalendarDate next = date.clone();
 			next.advance(1);
 			
@@ -78,7 +76,7 @@ public class SeasonCommand extends CommandBase {
 			message.format("$aSeason Length:$r %d\n", date.getCalendarEntry().getSeason().getLength());
 			message.format("$aTemperature Offset on $eDay %d$a:$r %.03f\n", date.getDay(), currentoffset);
 			message.format("$aPeak Temperature Offset in $e%s$a:$r %f\n", localizeSeasonName(date.getCalendarEntry()), date.getCalendarEntry().getSeason().getPeakTemperature());
-			message.format("$aCurrent Temperature Inclination:$r %.03f", SeasonController.instance.biomeTemp.getTemperatureOffset(next) - currentoffset);
+			message.format("$aCurrent Temperature Inclination:$r %.03f", SeasonController.instance.biomeTemp.getSeasonalTemperatureOffset(next) - currentoffset);
 			if(sender instanceof Entity)
 			{
 				BlockPos position = new BlockPos(sender.getPositionVector());

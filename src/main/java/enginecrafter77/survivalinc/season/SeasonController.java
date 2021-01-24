@@ -9,10 +9,7 @@ import net.minecraft.world.biome.BiomeEnd;
 import net.minecraft.world.biome.BiomeHell;
 import net.minecraft.world.biome.BiomeOcean;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.terraingen.BiomeEvent;
-import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -21,8 +18,6 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
-import com.google.common.collect.Range;
 
 import enginecrafter77.survivalinc.SurvivalInc;
 
@@ -147,14 +142,15 @@ public class SeasonController implements IMessageHandler<SeasonSyncMessage, IMes
 	@SubscribeEvent
 	public void applySeasonData(SeasonChangedEvent event)
 	{
+		event.date.getCalendarEntry().getSeason().applySeason(event.getWorld(), event.date.getDay());
 		this.biomeTemp.applySeason(event.date);
 		SurvivalInc.logger.info("Applied biome temperatures for season {}", event.date.toString());
 	}
 	
-	/**
+	/*
 	 * Determines the color of the grass in the said biome
 	 * @param event The grass color event
-	 */
+	 *
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void biomeGrass(BiomeEvent.GetGrassColor event)
@@ -168,12 +164,12 @@ public class SeasonController implements IMessageHandler<SeasonSyncMessage, IMes
 		else if((deftemp + temperature_range.lowerEndpoint()) > 1F)
 			event.setNewColor(0xCAE24E);
 		
-	}
+	}*/
 
-	/**
+	/*
 	 * Make nothing grow in winter, and let crops grow faster in summer
 	 * @param event
-	 */
+	 *
 	@SubscribeEvent
 	public void affectGrowth(BlockEvent.CropGrowEvent.Pre event)
 	{		
@@ -185,5 +181,5 @@ public class SeasonController implements IMessageHandler<SeasonSyncMessage, IMes
 		if(!data.getCurrentDate().getCalendarEntry().getSeason().allowCropGrowth())
 			result = Event.Result.DENY;
 		event.setResult(result);
-	}
+	}*/
 }

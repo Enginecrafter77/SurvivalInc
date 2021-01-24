@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Range;
-
 import enginecrafter77.survivalinc.SurvivalInc;
 import net.minecraft.util.ResourceLocation;
 
@@ -55,12 +53,6 @@ public class SeasonCalendar {
 			SurvivalInc.logger.warn("Requested season entry with name \"{}\" not found.", name.toString());
 			return null;
 		}
-	}
-	
-	@Deprecated
-	public Range<Float> getTemperatureRange()
-	{
-		return Range.closed(Float.MIN_VALUE, Float.MAX_VALUE);
 	}
 	
 	public int getYearLength()

@@ -30,10 +30,6 @@ public interface SeasonProvider {
 	 */
 	public int getPeakDay();
 	
-	public boolean allowCropGrowth();
-	
 	public void applySeason(World world, int day);
-	
-	public float getCustomTemperatureOn(int day);
 	
 }

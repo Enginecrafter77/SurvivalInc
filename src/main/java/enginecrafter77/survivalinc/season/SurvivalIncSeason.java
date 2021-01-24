@@ -25,12 +25,6 @@ public enum SurvivalIncSeason implements SeasonProvider {
 	}
 
 	@Override
-	public boolean allowCropGrowth()
-	{
-		return this != WINTER;
-	}
-
-	@Override
 	public ResourceLocation getName()
 	{
 		return new ResourceLocation(SurvivalInc.MOD_ID, this.name().toLowerCase());
@@ -50,10 +44,4 @@ public enum SurvivalIncSeason implements SeasonProvider {
 
 	@Override
 	public void applySeason(World world, int day) {}
-
-	@Override
-	public float getCustomTemperatureOn(int day)
-	{
-		return Float.NaN;
-	}
 }

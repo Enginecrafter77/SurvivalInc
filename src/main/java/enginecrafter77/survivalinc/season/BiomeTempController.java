@@ -57,6 +57,7 @@ public class BiomeTempController {
 		}
 		catch(ReflectiveOperationException exc)
 		{
+			SurvivalInc.logger.error("Biome temperature injection failed!");
 			exc.printStackTrace();
 		}
 	}
@@ -77,7 +78,7 @@ public class BiomeTempController {
 	 * if you want to use a different type of calculation.
 	 * @param biome The biome to calculate new base temperature for
 	 * @param data The current season data
-	 * @param offset The calculated {@link SeasonProvider#getTemperatureOffset(int) standard universal temperature offset}
+	 * @param offset The calculated {@link SeasonProvider#getSeasonalTemperatureOffset(int) standard universal temperature offset}
 	 * @return A new base temperature for the provided biome
 	 */
 	public float calculateNewBiomeTemperature(Biome biome, SeasonCalendarDate date, float offset)
@@ -96,7 +97,7 @@ public class BiomeTempController {
 		long time = System.currentTimeMillis();
 		int processed = 0;
 		
-		float offset = this.getTemperatureOffset(date);
+		float offset = this.getSeasonalTemperatureOffset(date);
 		for(Biome biome : ForgeRegistries.BIOMES.getValuesCollection())
 		{
 			if(excluded.contains(biome.getClass())) continue;
@@ -116,34 +117,41 @@ public class BiomeTempController {
 		SurvivalInc.logger.info("Processed {} biomes in {} ms", processed, time);
 	}
 	
+	private static SeasonCalendarDate peakDate(SeasonCalendarEntry season)
+	{
+		return new SeasonCalendarDate(season, season.getSeason().getPeakDay());
+	}
+	
 	/**
-	 * Calculates the temperature offset in the
-	 * specified day in the current season.
-	 * Temperature offsets are designed to have
-	 * a fairly smooth transition between seasons.
-	 * @param days The day in the season
+	 * Calculates uniform temperature offset
+	 * on the specified date in calendar year.
+	 * Generally, this offset is applied to
+	 * every biome's base temperature.
+	 * @param date The current date in calendar yeat
 	 * @return The current temperature offset.
 	 */
-	public float getTemperatureOffset(SeasonCalendarDate date)
+	public float getSeasonalTemperatureOffset(SeasonCalendarDate date)
 	{
+		// The local season entry
 		SeasonCalendarEntry local_season = date.getCalendarEntry();
 		
+		// The absolute day of half of this season (where temperature is supposed to achieve the specified value)
+		SeasonCalendarDate local_peak = BiomeTempController.peakDate(local_season);
+		
 		// Indicates which way around we are going. 1 means forward while -1 means backward.
-		int way = date.getDay() > local_season.getSeason().getPeakDay() ? 1 : -1;
+		// This statement utilises the way comparables work. It decides whether the date is preceding (-1) or following (1) the local peak.
+		int way = date.compareTo(local_peak);
 		
 		// The season we are aiming at with our calculations (e.g. Spring day 10 is beyond half, so temperature shifts towards summer)
 		SeasonCalendarEntry target_season = date.getCalendarEntry().getFollowing(way);
 		
-		// The absolute day of half of this season (where temperature is supposed to achieve the specified value)
-		SeasonCalendarDate local = new SeasonCalendarDate(local_season, local_season.getSeason().getPeakDay());
-		
 		// The absolute day of half of the target season (where temperature is supposed to achieve the specified value)
-		SeasonCalendarDate target = new SeasonCalendarDate(target_season, target_season.getSeason().getPeakDay());
+		SeasonCalendarDate target_peak = BiomeTempController.peakDate(target_season);
 		
 		// The current absolute day of year
 		int absolute_day = date.getDayInYear();
-		int localpeak = local.getDayInYear();
-		int targetpeak = target.getDayInYear();
+		int localpeak = local_peak.getDayInYear();
+		int targetpeak = target_peak.getDayInYear();
 		
 		/*
 		 * We always assume that the target date is in the direction
@@ -152,7 +160,7 @@ public class BiomeTempController {
 		 * so, we need to adjust the date accordingly so that the interpolation
 		 * works reliably.
 		 */
-		if(target.compareTo(local) != way)
+		if(target_peak.compareTo(local_peak) != way)
 		{
 			/*
 			 * When we are wrapping positively across the
@@ -189,7 +197,7 @@ public class BiomeTempController {
 		}
 		
 		float value = BiomeTempController.interpolateTemperature(absolute_day, localpeak, targetpeak, local_season.getSeason().getPeakTemperature(), target_season.getSeason().getPeakTemperature());
-		SurvivalInc.logger.debug("{} --> {} / {} --> {}", date.toString(), local.toString(), target.toString(), value);
+		SurvivalInc.logger.debug("{} --[{}]--> {} => {}", local_peak.toString(), date.toString(), target_peak.toString(), value);
 		return value;
 	}
 	
@@ -219,7 +227,7 @@ public class BiomeTempController {
 	 * @param b The temperature of point B
 	 * @return The value linearly scaled between points A and B
 	 */
-	private static float interpolateTemperature(float x, float d0, float d1, float a, float b)
+	public static float interpolateTemperature(float x, float d0, float d1, float a, float b)
 	{
 		return (b - a) * ((x - d0) / (d1 - d0)) + a;
 	}
