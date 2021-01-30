@@ -37,7 +37,7 @@ public enum SurvivalIncSeason implements SeasonProvider {
 	}
 
 	@Override
-	public int getPeakDay()
+	public int getPeakTemperatureDay()
 	{
 		return this.getLength() / 2;
 	}

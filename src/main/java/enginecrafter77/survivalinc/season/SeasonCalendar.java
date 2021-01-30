@@ -34,8 +34,8 @@ public class SeasonCalendar {
 	
 	public SeasonCalendarEntry registerSeason(SeasonProvider season)
 	{
-		SeasonCalendarEntry entry = new SeasonCalendarEntry(season);
-		this.namemap.put(season.getName(), entry.index);
+		SeasonCalendarEntry entry = this.createNewEntry(season);
+		this.namemap.put(entry.getIdentifier(), entry.index);
 		this.entries.add(entry);
 		this.length += season.getLength();
 		return entry;
@@ -60,6 +60,11 @@ public class SeasonCalendar {
 		return this.length;
 	}
 	
+	protected SeasonCalendarEntry createNewEntry(SeasonProvider provider)
+	{
+		return new SeasonCalendarEntry(provider);
+	}
+	
 	private SeasonCalendarEntry at(int index)
 	{
 		index %= this.entries.size();
@@ -70,7 +75,8 @@ public class SeasonCalendar {
 	public class SeasonCalendarEntry
 	{
 		public final SeasonProvider instance;
-		public final int index;
+		
+		private final int index;
 		
 		public SeasonCalendarEntry(SeasonProvider instance)
 		{
@@ -88,6 +94,11 @@ public class SeasonCalendar {
 			return this.instance;
 		}
 		
+		public ResourceLocation getIdentifier()
+		{
+			return this.getSeason().getName();
+		}
+		
 		public int getStartingDay()
 		{
 			int day = 0;
@@ -99,6 +110,12 @@ public class SeasonCalendar {
 		public SeasonCalendarEntry getFollowing(int steps)
 		{
 			return SeasonCalendar.this.at(this.index + steps);
+		}
+		
+		@Override
+		public String toString()
+		{
+			return String.format("SeasonCalendarEntry(%s)", this.getSeason().getName().toString());
 		}
 	}
 }

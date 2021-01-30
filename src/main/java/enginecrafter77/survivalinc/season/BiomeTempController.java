@@ -117,9 +117,31 @@ public class BiomeTempController {
 		SurvivalInc.logger.info("Processed {} biomes in {} ms", processed, time);
 	}
 	
-	private static SeasonCalendarDate peakDate(SeasonCalendarEntry season)
+	/**
+	 * Gets the peak point for the specified calendar season.
+	 * @param season The season to get the peak for.
+	 * @return The date the temperature reaches it's extreme in the specified season.
+	 */
+	private static SeasonCalendarDate getPeak(SeasonCalendarEntry season)
 	{
-		return new SeasonCalendarDate(season, season.getSeason().getPeakDay());
+		return new SeasonCalendarDate(season, season.getSeason().getPeakTemperatureDay());
+	}
+	
+	/**
+	 * Returns the nearest peak point to the specified date.
+	 * @param date The date to find the nearest peak to
+	 * @param way The way of iteration. 1 means forward, while -1 means backward.
+	 * @return The nearest peak point in the specified direction.
+	 */
+	private static SeasonCalendarDate nearestPeak(SeasonCalendarDate date, int way)
+	{
+		SeasonCalendarEntry season = date.getCalendarEntry();
+		SeasonCalendarDate peak = BiomeTempController.getPeak(season);
+		
+		// Test if date is already past the local peak. If so, advance the season in the specified way
+		if(date.compareTo(peak) == way) peak = BiomeTempController.getPeak(season.getFollowing(way));
+		
+		return peak;
 	}
 	
 	/**
@@ -127,31 +149,30 @@ public class BiomeTempController {
 	 * on the specified date in calendar year.
 	 * Generally, this offset is applied to
 	 * every biome's base temperature.
-	 * @param date The current date in calendar yeat
+	 * @param date The current date in calendar year
 	 * @return The current temperature offset.
 	 */
 	public float getSeasonalTemperatureOffset(SeasonCalendarDate date)
 	{
-		// The local season entry
-		SeasonCalendarEntry local_season = date.getCalendarEntry();
+		// If the date is exactly on the peak date
+		if(BiomeTempController.getPeak(date.getCalendarEntry()).compareTo(date) == 0) return date.getCalendarEntry().getSeason().getPeakTemperature();
 		
 		// The absolute day of half of this season (where temperature is supposed to achieve the specified value)
-		SeasonCalendarDate local_peak = BiomeTempController.peakDate(local_season);
-		
-		// Indicates which way around we are going. 1 means forward while -1 means backward.
-		// This statement utilises the way comparables work. It decides whether the date is preceding (-1) or following (1) the local peak.
-		int way = date.compareTo(local_peak);
-		
-		// The season we are aiming at with our calculations (e.g. Spring day 10 is beyond half, so temperature shifts towards summer)
-		SeasonCalendarEntry target_season = date.getCalendarEntry().getFollowing(way);
+		SeasonCalendarDate previous_peak = BiomeTempController.nearestPeak(date, -1);
 		
 		// The absolute day of half of the target season (where temperature is supposed to achieve the specified value)
-		SeasonCalendarDate target_peak = BiomeTempController.peakDate(target_season);
+		SeasonCalendarDate next_peak = BiomeTempController.nearestPeak(date, 1);
+		
+		int year = date.getCalendarEntry().getCalendar().getYearLength();
 		
 		// The current absolute day of year
-		int absolute_day = date.getDayInYear();
-		int localpeak = local_peak.getDayInYear();
-		int targetpeak = target_peak.getDayInYear();
+		int a_day = date.getDayInYear();
+		int pp_day = previous_peak.getDayInYear();
+		int np_day = next_peak.getDayInYear();
+		
+		// Store the temperatures inside variables for easier access
+		float pp_temp = previous_peak.getCalendarEntry().getSeason().getPeakTemperature();
+		float np_temp = next_peak.getCalendarEntry().getSeason().getPeakTemperature();
 		
 		/*
 		 * We always assume that the target date is in the direction
@@ -159,45 +180,42 @@ public class BiomeTempController {
 		 * we are most probably flipping around the year boundary. If
 		 * so, we need to adjust the date accordingly so that the interpolation
 		 * works reliably.
+		 * 
+		 * When we are wrapping positively across the
+		 * year edge (way = 1), then the target absolute
+		 * day will be lower than the local absolute.
+		 * This assures that for current calculations,
+		 * the absolute day is shifted by the whole year
+		 * length. Imagine it as if the season is logically
+		 * following this (like in perpetual loop), but in
+		 * fact it gets wrapped around.
+		 * Consider this example:
+		 * 				|			#
+		 * -----------------------------------------
+		 * 	1	2	3	4	5	6	7	8	[9]	[10]
+		 * 
+		 * In this example, we are currently at day 7,
+		 * which is beyond the temperature amplitude day(4).
+		 * We are reaching the end of the year. So the absolute
+		 * days 1 and 2 are re-mapped to absolute days 9 and 10
+		 * respectively. Likewise, this happens at the very
+		 * beginning of new year.
+		 * 		#		|
+		 * -------------------------------
+		 * 	1	2	3	4	5	6	7	8
+		 * 
+		 * Here, the values lesser than 4 are subtracted by
+		 * the length of the year. Why? Because it puts
+		 * the numbers behind 0, which signifies their meaning
+		 * that they are beyond the edge of the year, and are
+		 * as far away from the edge as the original number.
+		 * It may be hard to imagine, but it works perfectly.
 		 */
-		if(target_peak.compareTo(local_peak) != way)
-		{
-			/*
-			 * When we are wrapping positively across the
-			 * year edge (way = 1), then the target absolute
-			 * day will be lower than the local absolute.
-			 * This assures that for current calculations,
-			 * the absolute day is shifted by the whole year
-			 * length. Imagine it as if the season is logically
-			 * following this (like in perpetual loop), but in
-			 * fact it gets wrapped around.
-			 * Consider this example:
-			 * 				|			#
-			 * -----------------------------------------
-			 * 	1	2	3	4	5	6	7	8	[9]	[10]
-			 * 
-			 * In this example, we are currently at day 7,
-			 * which is beyond the temperature amplitude day(4).
-			 * We are reaching the end of the year. So the absolute
-			 * days 1 and 2 are re-mapped to absolute days 9 and 10
-			 * respectively. Likewise, this happens at the very
-			 * beginning of new year.
-			 * 		#		|
-			 * -------------------------------
-			 * 	1	2	3	4	5	6	7	8
-			 * 
-			 * Here, the values lesser than 4 are subtracted by
-			 * the length of the year. Why? Because it puts
-			 * the numbers behind 0, which signifies their meaning
-			 * that they are beyond the edge of the year, and are
-			 * as far away from the edge as the original number.
-			 * It may be hard to imagine, but it works perfectly.
-			 */
-			targetpeak += way * local_season.getCalendar().getYearLength();
-		}
+		if(np_day < pp_day) np_day += year;
+		if(a_day < pp_day) a_day += year;
 		
-		float value = BiomeTempController.interpolateTemperature(absolute_day, localpeak, targetpeak, local_season.getSeason().getPeakTemperature(), target_season.getSeason().getPeakTemperature());
-		SurvivalInc.logger.debug("{} --[{}]--> {} => {}", local_peak.toString(), date.toString(), target_peak.toString(), value);
+		float value = BiomeTempController.interpolateTemperature(a_day, pp_day, np_day, pp_temp, np_temp);
+		SurvivalInc.logger.info("STI {}@{} --[{}]--> {}@{} => {}", previous_peak.toString(), pp_temp, date.toString(), next_peak.toString(), np_temp, value);
 		return value;
 	}
 	

@@ -54,10 +54,13 @@ public class SeasonCalendarDate implements Comparable<SeasonCalendarDate> {
 	{
 		this.day += days;
 		int traversed = 0;
-		while(this.day >= this.getCalendarEntry().getSeason().getLength())
+		while(this.day >= this.getCalendarEntry().getSeason().getLength() || this.day < 0)
 		{
-			this.day -= this.getCalendarEntry().getSeason().getLength();
-			this.season = this.season.getFollowing(1);
+			int length = this.getCalendarEntry().getSeason().getLength();
+			int way = Integer.compare(this.day, length - 1); // Length - 1 to avoid 0
+			
+			this.day -= way * length;
+			this.season = this.season.getFollowing(way);
 			traversed++;
 		}
 		return traversed;
@@ -72,7 +75,7 @@ public class SeasonCalendarDate implements Comparable<SeasonCalendarDate> {
 	@Override
 	public String toString()
 	{
-		return String.format("%s(%s/%d)", this.getClass().getSimpleName(), this.getCalendarEntry().getSeason().getName().toString(), this.day);
+		return String.format("%s(%s/%d|%d)", this.getClass().getSimpleName(), this.getCalendarEntry().getIdentifier().toString(), this.getDay(), this.getDayInYear());
 	}
 	
 	@Override

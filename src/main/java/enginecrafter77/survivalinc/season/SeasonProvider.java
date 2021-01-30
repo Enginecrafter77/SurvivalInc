@@ -17,7 +17,7 @@ public interface SeasonProvider {
 	 * The characteristic temperature offset is the offset with the
 	 * greatest deviation from the original biome temperature.
 	 * Generally, the characteristic temperature offset is achieved
-	 * on {@link #getPeakDay()}
+	 * on {@link #getPeakTemperatureDay()}
 	 * @return The peak temperature of the season. 
 	 */
 	public float getPeakTemperature();
@@ -28,7 +28,7 @@ public interface SeasonProvider {
 	 * temperature returned by {@link #getPeakTemperatureOffset()}
 	 * @return The day the temperature offset meets it's peak
 	 */
-	public int getPeakDay();
+	public int getPeakTemperatureDay();
 	
 	public void applySeason(World world, int day);
 	

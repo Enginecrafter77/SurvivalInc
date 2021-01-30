@@ -2,7 +2,10 @@ package enginecrafter77.survivalinc.season;
 
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagInt;
+import net.minecraft.nbt.NBTTagString;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraft.world.storage.MapStorage;
@@ -29,15 +32,31 @@ public class SeasonData extends WorldSavedData {
 	@Override
 	public void readFromNBT(NBTTagCompound nbt)
 	{
-		ResourceLocation id = new ResourceLocation(nbt.getString("season"));		
-		this.date.setSeason(SeasonController.instance.calendar.getSeason(id));
+		NBTBase tag = nbt.getTag("season");
+		SeasonCalendar.SeasonCalendarEntry season = null;
+		if(tag instanceof NBTTagString)
+		{
+			NBTTagString strtag = (NBTTagString)tag;
+			ResourceLocation id = new ResourceLocation(strtag.getString());		
+			season = SeasonController.instance.calendar.getSeason(id);
+		}
+		else if(tag instanceof NBTTagInt)
+		{
+			// For compatibility reasons
+			NBTTagInt inttag = (NBTTagInt)tag;
+			season = SeasonController.instance.calendar.getSeasons().get(inttag.getInt());
+			SurvivalInc.logger.warn("Legacy season data found! Legacy season ID {} will be mapped to season {}.", inttag.getInt(), season.toString());
+		}
+		else throw new UnsupportedOperationException("Invalid season data found!");
+		
+		this.date.setSeason(season);
 		this.date.setDay(nbt.getInteger("day"));
 	}
 	
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound nbt)
 	{
-		nbt.setString("season", this.date.getCalendarEntry().getSeason().getName().toString());
+		nbt.setString("season", this.date.getCalendarEntry().getIdentifier().toString());
 		nbt.setInteger("day", this.date.getDay());
 		return nbt;
 	}

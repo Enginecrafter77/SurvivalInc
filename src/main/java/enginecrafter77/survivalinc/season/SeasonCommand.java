@@ -46,6 +46,7 @@ public class SeasonCommand extends CommandBase {
 		WorldServer world = server.getWorld(DimensionType.OVERWORLD.getId());
 		SeasonData data = SeasonData.load(world);
 		SeasonCalendarDate date = data.getCurrentDate();
+		SeasonProvider season = date.getCalendarEntry().getSeason();
 		
 		if(args.length < 1) throw new WrongUsageException("Insufficient arguments\nUsgae: " + this.getUsage(sender));
 		
@@ -55,16 +56,18 @@ public class SeasonCommand extends CommandBase {
 		{
 		case "set":
 			if(args.length < 3) throw new WrongUsageException("Insufficient arguments\nUsage: " + this.getUsage(sender));
-			date.setSeason(date.getCalendarEntry().getCalendar().getSeason(new ResourceLocation(args[1])));
+			SeasonCalendar.SeasonCalendarEntry target = date.getCalendarEntry().getCalendar().getSeason(new ResourceLocation(args[1]));
+			if(target == null) throw new CommandException("Season \"" + args[1] + "\" not found.");
+			date.setSeason(target);
 			date.setDay(Integer.parseInt(args[2]));
-			message.format("Set calendar time to %s\n", date.toString());
+			message.format("Set calendar time to %s", date.toString());
 			data.markDirty();
 			break;
 		case "advance":
 			int days = 1;
 			if(args.length >= 2) days = CommandBase.parseInt(args[1]);
 			date.advance(days);
-			message.format("Advancing season by %d day(s) --> %s\n", days, date.toString());
+			message.format("Advancing season by %d day(s) --> %s", days, date.toString());
 			data.markDirty();
 			break;
 		case "info":
@@ -73,9 +76,9 @@ public class SeasonCommand extends CommandBase {
 			next.advance(1);
 			
 			message.format("$aCurrent season:$r %s (Day %d)\n", localizeSeasonName(date.getCalendarEntry()), date.getDay());
-			message.format("$aSeason Length:$r %d\n", date.getCalendarEntry().getSeason().getLength());
+			message.format("$aSeason Length:$r %d\n", season.getLength());
 			message.format("$aTemperature Offset on $eDay %d$a:$r %.03f\n", date.getDay(), currentoffset);
-			message.format("$aPeak Temperature Offset in $e%s$a:$r %f\n", localizeSeasonName(date.getCalendarEntry()), date.getCalendarEntry().getSeason().getPeakTemperature());
+			message.format("$aPeak Temperature Offset in $e%s$a:$r %f\n", localizeSeasonName(date.getCalendarEntry()), season.getPeakTemperature());
 			message.format("$aCurrent Temperature Inclination:$r %.03f", SeasonController.instance.biomeTemp.getSeasonalTemperatureOffset(next) - currentoffset);
 			if(sender instanceof Entity)
 			{
