@@ -1,8 +1,11 @@
 package enginecrafter77.survivalinc.config;
 
 import net.minecraftforge.common.config.Config;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 @Config.LangKey("config.survivalinc.client")
+@SideOnly(Side.CLIENT)
 public class ClientConfig {	
 	@Config.LangKey("config.survivalinc.client.autumnLeafColor")
 	@Config.Comment("The color multiplier of leaves during autumn and winter")

@@ -3,8 +3,11 @@ package enginecrafter77.survivalinc.config;
 import enginecrafter77.survivalinc.client.Direction2D;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.common.config.Config;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 @Config.LangKey("config.survivalinc.client.hud")
+@SideOnly(Side.CLIENT)
 public class HUDConfig {
 	
 	@Config.LangKey("config.survivalinc.client.hud.moveArmorBar")

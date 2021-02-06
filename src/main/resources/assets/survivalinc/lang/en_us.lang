@@ -116,8 +116,8 @@ survivalinc.hydration=Hydration
 survivalinc.hydration.tooltip=Settings regarding Hydration mechanics
 config.survivalinc.hydration.enable=Enable Hydration
 config.survivalinc.hydration.enable.tooltip=Determines if the hydration mechanics should take part in the game.
-config.survivalinc.hydration.drinkAmount=Sip Volume
-config.survivalinc.hydration.drinkAmount.tooltip=The amount of hydration recovered with each sip from water puddle
+config.survivalinc.hydration.sipVolume=Sip Volume
+config.survivalinc.hydration.sipVolume.tooltip=The amount of hydration recovered with each sip from water puddle/canteen
 config.survivalinc.hydration.sweatingMultiplier=Sweating Multiplier
 config.survivalinc.hydration.sweatingMultiplier.tooltip=The multiplier applied to passive drain when the sweating threshold heat is crossed
 config.survivalinc.hydration.sweatingThreshold=Sweating Threshold
@@ -126,6 +126,8 @@ config.survivalinc.hydration.passiveDrain=Passive Drain
 config.survivalinc.hydration.passiveDrain.tooltip=The rate at which hydration passively decreases
 config.survivalinc.hydration.startValue=Starting Value
 config.survivalinc.hydration.startValue.tooltip=The amount of hydration the player has upon spawn
+config.survivalinc.hydration.canteenCapacity=Canteen Capacity
+config.survivalinc.hydration.canteenCapacity.tooltip=The amount of water stored in canteen, measured in sip count.
 
 # Sanity config
 survivalinc.sanity=Sanity

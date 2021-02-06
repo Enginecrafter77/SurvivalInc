@@ -49,6 +49,8 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class GhostProvider implements StatProvider<GhostEnergyRecord> {
 	private static final long serialVersionUID = -2088047893866334112L;
@@ -264,6 +266,7 @@ public class GhostProvider implements StatProvider<GhostEnergyRecord> {
 	 * @param event The movement input update event
 	 */
 	@SubscribeEvent
+	@SideOnly(Side.CLIENT)
 	public static void blockMovementWhileResurrecting(InputUpdateEvent event)
 	{
 		if(ModConfig.GHOST.resurrectionBlocksMovement)
