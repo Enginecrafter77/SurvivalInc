@@ -222,10 +222,9 @@ public class GhostProvider implements StatProvider<GhostEnergyRecord> {
 	@SubscribeEvent
 	public static void onEntityDeath(LivingDeathEvent event)
 	{
-		Vec3d offset = new Vec3d(3D, 1D, 3D);
 		EntityLivingBase target = event.getEntityLiving();
 		Vec3d origin = target.getPositionVector().add(0D, target.height / 2D, 0D);
-		AxisAlignedBB box = new AxisAlignedBB(origin.subtract(offset), origin.add(offset));
+		AxisAlignedBB box = GhostProvider.boxAroundPoint(origin, new Vec3d(6D, 2D, 6D));
 		
 		List<EntityPlayer> players = target.world.getEntitiesWithinAABB(EntityPlayer.class, box);
 		for(EntityPlayer player : players)
@@ -421,6 +420,23 @@ public class GhostProvider implements StatProvider<GhostEnergyRecord> {
 	//=====================================
 	//=======[Miscellaneous Methods]=======
 	//=====================================
+	
+	/**
+	 * A simple method to return a box with the specified sizes
+	 * centered at the specified point. This method is used mainly
+	 * to circumvent the stupid forge's SideOnly restriction on
+	 * {@link AxisAlignedBB#AxisAlignedBB(Vec3d, Vec3d) AABB's Vec3D constructor}.
+	 * @param point The center of the box
+	 * @param size The size of the box
+	 * @return AxisAlignedBox with the specified size centered around the specified point
+	 */
+	public static AxisAlignedBB boxAroundPoint(Vec3d point, Vec3d size)
+	{
+		Vec3d offset = size.scale(0.5D);
+		Vec3d start = point.subtract(offset);
+		Vec3d end = point.add(offset);
+		return new AxisAlignedBB(start.x, start.y, start.z, end.x, end.y, end.z);
+	}
 	
 	/**
 	 * Spawns a cloud around the block the player has right-clicked.
