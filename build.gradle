@@ -9,14 +9,12 @@ buildscript {
 		classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
 		classpath 'com.palantir.gradle.gitversion:gradle-git-version:0.12.3'
 		classpath 'gradle.plugin.com.matthewprenger:CurseGradle:1.4.0'
-		classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+'
 	}
 }
 
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'com.matthewprenger.cursegradle'
 apply plugin: 'com.palantir.git-version'
-apply plugin: 'com.jfrog.bintray'
 apply plugin: 'maven-publish'
 
 group = "enginecrafter77.survivalinc" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
@@ -84,36 +82,12 @@ processResources {
 // Maven publishing
 publishing {
 	publications {
-		bintray_maven(MavenPublication) {
+		local(MavenPublication) {
 			groupId 'enginecrafter77.survivalinc'
 			version project.version
 			artifactId 'survivalinc_' + project.minecraft.version
 			from components.java
 			artifact sourceJar
-		}
-	}
-}
-
-// Publishing to bintray using the maven publications above
-bintray {
-	user = project.properties['bintray.user']
-	key = project.properties['bintray.key']
-	dryRun = System.getenv("DRY_RUN") != null
-	
-	publications = ['bintray_maven']
-	
-	pkg {
-		repo = 'mods'
-		name = 'survivalinc'
-		licenses = ['MIT']
-		vcsUrl = 'https://github.com/Enginecrafter77/SurvivalInc.git'
-		issueTrackerUrl = 'https://github.com/Enginecrafter77/SurvivalInc/issues'
-		
-		version {
-			name = project.version
-			desc = "Survival Inc. version $project.version"
-			released = new Date()
-			vcsTag = gitvd.isCleanTag ? project.version : gitvd.gitHash
 		}
 	}
 }
@@ -152,5 +126,5 @@ task gitVersionDetails {
 }
 
 // Add task dependencies
-tasks.publishBintray_mavenPublicationToMavenLocal.dependsOn += checkTreeState
+tasks.publishToMavenLocal.dependsOn += checkTreeState
 tasks.curseforge.dependsOn += checkTreeState
