@@ -1,6 +1,7 @@
 package enginecrafter77.survivalinc.config;
 
 import enginecrafter77.survivalinc.client.Direction2D;
+import enginecrafter77.survivalinc.client.StackingElementPositioner;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.fml.relauncher.Side;
@@ -9,14 +10,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @Config.LangKey("config.survivalinc.client.hud")
 @SideOnly(Side.CLIENT)
 public class HUDConfig {
-	
-	@Config.LangKey("config.survivalinc.client.hud.moveArmorBar")
-	@Config.Comment("Enable moving the Armor bar up to free up space when heat is enabled")
-	public boolean moveArmorBar = true;
-	
-	@Config.LangKey("config.survivalinc.client.hud.moveAirBar")
-	@Config.Comment("Enable moving the Air bubble bar up to free up space when hydration is enabled")
-	public boolean moveAirBar = true;
 	
 	@Config.LangKey("config.survivalinc.client.hud.originX")
 	@Config.Comment("The X-axis origin of the HUD represented as a fraction from the current screen resolution")
@@ -28,10 +21,29 @@ public class HUDConfig {
 	@Config.RangeDouble(min = 0, max = 1)
 	public double originY = 1D;
 	
-	@Config.LangKey("config.survivalinc.client.hud.renderTrigger")
-	@Config.Comment({"The element type to render the HUD in.", "Only change this if you are absolutely sure about what you are doing."})
-	@Config.RequiresMcRestart
-	public ElementType renderTrigger = ElementType.ALL;
+	@Config.LangKey("config.survivalinc.client.hud.stackHeatBar")
+	@Config.Comment({"Set to true to enable heat bar stacking.", "The stacking basically means that the bar is dynamically integrated into the vanilla HUD.", "Setting this to false enables absolute positioning using heatBarX and heatBarY"})
+	public boolean stackHeatBar = true;
+	
+	@Config.LangKey("config.survivalinc.client.hud.stackHydrationBar")
+	@Config.Comment({"Set to true to enable hydration bar stacking.", "The stacking basically means that the bar is dynamically integrated into the vanilla HUD.", "Setting this to false enables absolute positioning using hydrationBarX and hydrationBarY"})
+	public boolean stackHydrationBar = true;
+	
+	@Config.LangKey("config.survivalinc.client.hud.heatBarStack")
+	@Config.Comment("The side where the heat bar will be stacked in")
+	public StackingElementPositioner heatBarStack = StackingElementPositioner.LEFT;
+	
+	@Config.LangKey("config.survivalinc.client.hud.hydrationBarStack")
+	@Config.Comment("The side where the hydration bar will be stacked in")
+	public StackingElementPositioner hydrationBarStack = StackingElementPositioner.RIGHT;
+	
+	@Config.LangKey("config.survivalinc.client.hud.heatBarRenderTrigger")
+	@Config.Comment({"The element to render the heat bar after.", "This value is only relevant when heat bar stacking is enabled, and indicates the element the heat bar follows."})
+	public ElementType heatBarRenderTrigger = ElementType.HEALTH;
+	
+	@Config.LangKey("config.survivalinc.client.hud.hydrationBarRenderTrigger")
+	@Config.Comment({"The element to render the hydration bar after.", "This value is only relevant when hydration bar stacking is enabled, and indicates the element the heat bar follows."})
+	public ElementType hydrationBarRenderTrigger = ElementType.FOOD;
 	
 	@Config.LangKey("config.survivalinc.client.hud.heatBarDirection")
 	@Config.Comment({"The fill direction of the heat bar.", "For example, setting this to RIGHT means that the bar fills from left to right."})

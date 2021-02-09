@@ -20,13 +20,11 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class RenderHUD {	
 	protected final Collection<HUDEntry> elements;
 	protected final Map<ElementType, Collection<ElementRenderFilter<? super StatTracker>>> filters;
-	protected final ElementType trigger;
 	
-	public RenderHUD(ElementType trigger)
+	public RenderHUD()
 	{
 		this.filters = new HashMap<ElementType, Collection<ElementRenderFilter<? super StatTracker>>>();
 		this.elements = new LinkedList<HUDEntry>();
-		this.trigger = trigger;
 	}
 	
 	/**
@@ -125,13 +123,12 @@ public class RenderHUD {
 		StatTracker tracker = Minecraft.getMinecraft().player.getCapability(StatCapability.target, null);
 		ScaledResolution resolution = event.getResolution();
 		ElementType type = event.getType();
-		if(this.trigger == type)
+		
+		for(HUDEntry entry : this.elements)
 		{
-			for(HUDEntry entry : this.elements)
-			{
-				entry.draw(resolution, tracker, event.getPartialTicks());
-			}
+			if(entry.isTrigger(event)) entry.draw(resolution, tracker, event.getPartialTicks());
 		}
+		
 		this.runEndFilters(resolution, type, tracker);
 	}
 	
@@ -141,17 +138,31 @@ public class RenderHUD {
 		public final ElementPositioner positioner;
 		public final List<ElementRenderFilter<? super StatTracker>> filters;
 		
+		protected ElementType trigger;
+		
 		protected HUDEntry(OverlayElement<? super StatTracker> element, ElementPositioner positioner)
 		{
 			this.filters = new LinkedList<ElementRenderFilter<? super StatTracker>>();
 			this.positioner = positioner;
+			this.trigger = ElementType.ALL;
 			this.element = element;
+		}
+		
+		public HUDEntry setTrigger(ElementType trigger)
+		{
+			this.trigger = trigger;
+			return this;
 		}
 		
 		public HUDEntry addFilter(ElementRenderFilter<? super StatTracker> filter)
 		{
 			this.filters.add(filter);
 			return this;
+		}
+		
+		public boolean isTrigger(RenderGameOverlayEvent event)
+		{
+			return event.getType() == this.trigger;
 		}
 		
 		public void draw(ScaledResolution resolution, StatTracker tracker, float partialTicks)

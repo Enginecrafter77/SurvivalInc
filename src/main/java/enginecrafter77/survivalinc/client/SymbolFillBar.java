@@ -114,9 +114,10 @@ public class SymbolFillBar implements OverlayElement<Float> {
 		 * themselves are drawn from top left corner, we need to move n(w+s)-w pixels to the left, where w is
 		 * the width of each symbol (excluding spacing), s is the spacing and n is the number of symbols. Because we
 		 * can't simply reverse the direction, we need to enter negative number of steps (which effectively reverses
-		 * the direction). This lends us this formula: -n(w+s)+w, which can be written as w-n(w+s).
+		 * the direction). This lends us this formula: -n(w+s)+w, which can be written as w-n(w+s). Additionally,
+		 * move +1x spacing in the specified direction to negate the last spacing effect.
 		 */
-		if(!this.direction.isNormal()) current_position.move(this.direction, this.symbol.getSize(this.direction.axis) - this.getSize(this.direction.axis));
+		if(!this.direction.isNormal()) current_position.move(this.direction, this.symbol.getSize(this.direction.axis) - this.getSize(this.direction.axis) + this.spacing);
 		
 		for(int piece = 0; piece <= steps; piece++)
 		{
