@@ -37,6 +37,6 @@ public interface OverlayElement<RENDER_ARGUMENT> {
 	@Deprecated
 	public default void draw(ScaledResolution resolution, ElementPositioner position, float partialTicks, RENDER_ARGUMENT arg)
 	{
-		this.draw(position.getPositionOn(resolution), partialTicks, arg);
+		this.draw(position.getPositionFor(resolution, this), partialTicks, arg);
 	}
 }

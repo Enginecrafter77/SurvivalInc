@@ -2,8 +2,8 @@ package enginecrafter77.survivalinc;
 
 import java.util.function.Predicate;
 
+import enginecrafter77.survivalinc.client.AbsoluteElementPositioner;
 import enginecrafter77.survivalinc.client.Direction2D;
-import enginecrafter77.survivalinc.client.ElementPositioner;
 import enginecrafter77.survivalinc.client.HideRenderFilter;
 import enginecrafter77.survivalinc.client.Position2D;
 import enginecrafter77.survivalinc.client.RenderHUD;
@@ -89,7 +89,7 @@ public class ClientProxy extends CommonProxy {
 			bar.addLayer(new TexturedElement(newicons, 9, 0, 9, 9, true), SimpleStatRecord::getNormalizedValue);
 			bar.setCapacity(ModConfig.CLIENT.hud.heatBarCapacity);
 			bar.setSpacing(ModConfig.CLIENT.hud.heatBarSpacing);
-			hud.addElement(bar, new ElementPositioner(origin_x, origin_y, ModConfig.CLIENT.hud.heatBarX, ModConfig.CLIENT.hud.heatBarY));
+			hud.addElement(bar, new AbsoluteElementPositioner(origin_x, origin_y, ModConfig.CLIENT.hud.heatBarX, ModConfig.CLIENT.hud.heatBarY));
 			
 			if(ModConfig.CLIENT.hud.moveArmorBar) hud.addFilter(moveup, ElementType.ARMOR);
 		}
@@ -99,7 +99,7 @@ public class ClientProxy extends CommonProxy {
 			bar.addLayer(new TexturedElement(newicons, 9, 9, 9, 9, true), SimpleStatRecord::getNormalizedValue);
 			bar.setCapacity(ModConfig.CLIENT.hud.hydrationBarCapacity);
 			bar.setSpacing(ModConfig.CLIENT.hud.hydrationBarSpacing);
-			hud.addElement(bar, new ElementPositioner(origin_x, origin_y, ModConfig.CLIENT.hud.hydrationBarX, ModConfig.CLIENT.hud.hydrationBarY));
+			hud.addElement(bar, new AbsoluteElementPositioner(origin_x, origin_y, ModConfig.CLIENT.hud.hydrationBarX, ModConfig.CLIENT.hud.hydrationBarY));
 			
 			if(ModConfig.CLIENT.hud.moveAirBar) hud.addFilter(moveup, ElementType.AIR);
 		}
@@ -108,13 +108,13 @@ public class ClientProxy extends CommonProxy {
 			StatFillBar<SanityRecord> bar = new StatFillBar<SanityRecord>(SanityModifier.instance, Direction2D.UP, new TexturedElement(sanityicon, 0, 0, 16, 16, true));
 			bar.addLayer(new TexturedElement(sanityicon, 16, 0, 16, 16, true), SimpleStatRecord::getNormalizedValue);
 			bar.setCapacity(1);
-			hud.addElement(bar, new ElementPositioner(origin_x, origin_y, ModConfig.CLIENT.hud.sanityIconX, ModConfig.CLIENT.hud.sanityIconY));
+			hud.addElement(bar, new AbsoluteElementPositioner(origin_x, origin_y, ModConfig.CLIENT.hud.sanityIconX, ModConfig.CLIENT.hud.sanityIconY));
 			hud.addFilter(moveup, ElementType.SUBTITLES);
 		}
 		if(ModConfig.GHOST.enabled)
 		{
 			Predicate<StatTracker> isGhostActive = (StatTracker tracker) -> tracker.getRecord(GhostProvider.instance).isActive();
-			hud.addElement(new GhostEnergyBar(), new ElementPositioner(0.5F, 1F, -91, -39));
+			hud.addElement(new GhostEnergyBar(), new AbsoluteElementPositioner(0.5F, 1F, -91, -39));
 			hud.addFilterToAll(new HideRenderFilter<StatTracker>(isGhostActive), ElementType.HEALTH, ElementType.AIR, ElementType.ARMOR, ElementType.FOOD);
 		}
 		

@@ -164,7 +164,7 @@ public class RenderHUD {
 			
 			if(draw)
 			{
-				Position2D position = this.positioner.getPositionOn(resolution);
+				Position2D position = this.positioner.getPositionFor(resolution, this.element);
 				this.element.draw(position, partialTicks, tracker);
 			}
 			
