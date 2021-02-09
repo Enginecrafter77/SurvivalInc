@@ -74,7 +74,10 @@ public class HeatModifier implements StatProvider<SimpleStatRecord> {
 		this.consequences.add(new PotionStatEffect(MobEffects.MINING_FATIGUE, 0)).addFilter(FunctionalEffectFilter.byValue(Range.lessThan(20F)));
 		this.consequences.add(new PotionStatEffect(MobEffects.WEAKNESS, 0)).addFilter(FunctionalEffectFilter.byValue(Range.lessThan(25F)));
 		this.consequences.add(HeatModifier::onHighTemperature).addFilter(FunctionalEffectFilter.byValue(Range.greaterThan(110F)));
-		
+	}
+	
+	public void buildCompatMaps()
+	{
 		// Shit, these repeated parsers will surely get me a bad codefactor.io mark.
 		// Block temperature map
 		for(String entry : ModConfig.HEAT.blockHeatMap)

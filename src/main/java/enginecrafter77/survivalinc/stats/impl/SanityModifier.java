@@ -67,7 +67,10 @@ public class SanityModifier implements StatProvider<SanityRecord> {
 		this.effects.add(SanityModifier::playStaticNoise).addFilter(SideEffectFilter.CLIENT);
 		this.effects.add(SanityModifier::whenNearEntities);
 		this.effects.add(SanityModifier::sleepDeprivation);
-		
+	}
+	
+	public void buildCompatMaps()
+	{
 		// Compile food value list
 		for(String entry : ModConfig.SANITY.foodSanityMap)
 		{

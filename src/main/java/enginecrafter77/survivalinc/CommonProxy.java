@@ -82,6 +82,10 @@ public class CommonProxy {
 			MeltingController.compile(ModConfig.SEASONS.meltController);
 			MinecraftForge.EVENT_BUS.register(MeltingController.class);
 		}
+		
+		if(ModConfig.HEAT.enabled) HeatModifier.instance.buildCompatMaps();
+		if(ModConfig.HYDRATION.enabled) HydrationModifier.instance.buildCompatMaps();
+		if(ModConfig.SANITY.enabled) SanityModifier.instance.buildCompatMaps();
 	}
 
 	public void serverStarting(FMLServerStartingEvent event)
