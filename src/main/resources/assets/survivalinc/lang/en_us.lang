@@ -188,6 +188,12 @@ config.survivalinc.wetness.towelCapacity=Towel Capacity
 config.survivalinc.wetness.towelCapacity.tooltip=The capacity of towel in % of the player's wetness
 config.survivalinc.wetness.towelDryRate=Towel Dry Rate
 config.survivalinc.wetness.towelDryRate.tooltip=The rate at which towels dry when placed on top of operating furnace
+config.survivalinc.wetness.fullySubmergedRate=Fully Submerged Rate
+config.survivalinc.wetness.fullySubmergedRate.tooltip=The rate in units/tick at which wetness rises when fully submerged in water.
+config.survivalinc.wetness.partiallySubmergedRate=Partially Submerged Rate
+config.survivalinc.wetness.partiallySubmergedRate.tooltip=The rate in units/tick at which wetness rises when partially submerged in water.
+config.survivalinc.wetness.partiallySubmergedCap=Partially Submerged Cap
+config.survivalinc.wetness.partiallySubmergedCap.tooltip=The maximum fraction of wetness absorbed when partially submerged.
 
 # Season config
 survivalinc.seasons=Seasons

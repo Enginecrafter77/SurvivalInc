@@ -21,13 +21,29 @@ public class WetnessConfig {
 	public double minimalWalkSpeed = 0.25;
 	
 	@Config.LangKey("config.survivalinc.wetness.towelCapacity")
-	@Config.Comment("The capacity of a towel expressed as a percentage of player's maximum wetness")
+	@Config.Comment("The capacity of a towel expressed as a fraction of player's maximum wetness")
 	@Config.RangeDouble(min = 0)
-	public double towelCapacity = 40;
+	public double towelCapacity = 0.4;
 	
 	@Config.LangKey("config.survivalinc.wetness.towelDryRate")
 	@Config.Comment("The rate in units/tick at which a towel dries on top of a furnace")
 	@Config.RangeDouble(min = 0)
 	public double towelDryRate = 0.025;
+	
+	@Config.LangKey("config.survivalinc.wetness.fullySubmergedRate")
+	@Config.Comment({"The rate in units/tick at which wetness rises when fully submerged in water.", "The clothing soak-up is meant to be instant, so it makes sense for this value to be arbitrarily high."})
+	@Config.RangeDouble(min = 0)
+	public double fullySubmergedRate = 5;
+	
+	@Config.LangKey("config.survivalinc.wetness.partiallySubmergedRate")
+	@Config.Comment("The rate in units/tick at which wetness rises when partially submerged in water.")
+	@Config.RangeDouble(min = 0)
+	public double partiallySubmergedRate = 1.25;
+	
+	@Config.LangKey("config.survivalinc.wetness.partiallySubmergedCap")
+	@Config.Comment({"The maximum fraction of wetness absorbed when partially submerged.", "Setting this value to 0 disables partial submersion, while 1 disables full submersion."})
+	@Config.RangeDouble(min = 0, max = 1)
+	@Config.SlidingOption
+	public double partiallySubmergedCap = 0.4;
 	
 }

@@ -41,7 +41,7 @@ public class ItemTowel extends Item {
 	
 	public float getCapacity()
 	{
-		return (float)ModConfig.WETNESS.towelCapacity;
+		return 100F * (float)ModConfig.WETNESS.towelCapacity;
 	}
 	
 	@Override

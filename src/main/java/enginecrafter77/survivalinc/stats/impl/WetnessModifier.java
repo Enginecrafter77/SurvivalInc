@@ -135,8 +135,8 @@ public class WetnessModifier implements StatProvider<SimpleStatRecord> {
 	public static void whenInWater(SimpleStatRecord record, EntityPlayer player)
 	{
 		Material headBlockMaterial = player.world.getBlockState(new BlockPos(player).up()).getMaterial();
-		if(headBlockMaterial == Material.WATER) record.addToValue(5F);
-		else if(record.getNormalizedValue() < 0.4F) record.addToValue(1.25F);
+		if(headBlockMaterial == Material.WATER) record.addToValue((float)ModConfig.WETNESS.fullySubmergedRate);
+		else if(record.getNormalizedValue() < ModConfig.WETNESS.partiallySubmergedCap) record.addToValue((float)ModConfig.WETNESS.partiallySubmergedRate);
 	}
 	
 	public static void naturalDrying(SimpleStatRecord record, EntityPlayer player)
