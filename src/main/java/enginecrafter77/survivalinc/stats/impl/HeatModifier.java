@@ -19,6 +19,7 @@ import enginecrafter77.survivalinc.stats.effect.FunctionalCalculator;
 import enginecrafter77.survivalinc.stats.effect.FunctionalEffectFilter;
 import enginecrafter77.survivalinc.stats.effect.PotionStatEffect;
 import net.minecraft.block.Block;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemArmor;
@@ -65,7 +66,7 @@ public class HeatModifier implements StatProvider<SimpleStatRecord> {
 	{
 		MinecraftForge.EVENT_BUS.register(HeatModifier.class);
 		
-		this.targettemp.add(HeatModifier::whenNearHotBlock);
+		this.targettemp.add(HeatModifier::absorbRadiantHeat);
 		
 		if(ModConfig.WETNESS.enabled) this.exchangerate.add(HeatModifier::applyWetnessCooldown);
 		this.exchangerate.add(this.armorInsulation);
@@ -198,24 +199,24 @@ public class HeatModifier implements StatProvider<SimpleStatRecord> {
 	 * that players that use low block scan range to also use lower
 	 * gaussian constant.
 	 * @author Enginecrafter77
-	 * @param player The player to apply this function to
+	 * @param entity The target entity to apply this function to
 	 * @return The addition to the heat stat value
 	 */
-	public static float whenNearHotBlock(EntityPlayer player, float current)
+	public static float absorbRadiantHeat(Entity entity, float current)
 	{
 		Vec3i offset = new Vec3i(ModConfig.HEAT.blockScanRange, 1, ModConfig.HEAT.blockScanRange);
-		BlockPos originblock = player.getPosition();
+		BlockPos originblock = entity.getPosition();
 		
 		Iterable<BlockPos> blocks = BlockPos.getAllInBox(originblock.subtract(offset), originblock.add(offset));
 		
 		float heat = 0;
 		for(BlockPos position : blocks)
 		{
-			Block block = player.world.getBlockState(position).getBlock();
+			Block block = entity.world.getBlockState(position).getBlock();
 			if(HeatModifier.instance.blockHeatMap.containsKey(block))
 			{
 				float currentheat = HeatModifier.instance.blockHeatMap.get(block);
-				float proximity = (float)Math.sqrt(player.getPositionVector().squareDistanceTo(new Vec3d(position)));
+				float proximity = (float)Math.sqrt(entity.getPositionVector().squareDistanceTo(new Vec3d(position)));
 				currentheat *= (float)(ModConfig.HEAT.gaussScaling / (Math.pow(proximity, 2) + ModConfig.HEAT.gaussScaling));
 				if(currentheat > heat) heat = currentheat; // Use only the maximum value
 			}

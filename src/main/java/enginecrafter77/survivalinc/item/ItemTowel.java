@@ -6,14 +6,12 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.*;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.relauncher.Side;
@@ -21,15 +19,20 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.List;
 
+import com.google.common.collect.Range;
+
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.net.EntityItemUpdateMessage;
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatTracker;
+import enginecrafter77.survivalinc.stats.impl.HeatModifier;
 import enginecrafter77.survivalinc.stats.impl.WetnessModifier;
 
 public class ItemTowel extends Item {
+	
+	private static final Range<Long> daytime = Range.open(0L, 16000L);
 	
 	public ItemTowel()
 	{
@@ -120,41 +123,54 @@ public class ItemTowel extends Item {
 	@Override
 	public boolean onEntityItemUpdate(EntityItem entity)
 	{
-		World world = entity.world;
 		ItemStack stack = entity.getItem();
 		if(!stack.hasTagCompound()) return false;
 		
-		NBTTagCompound tag = stack.getTagCompound();
+		NBTTagCompound tag = entity.getItem().getTagCompound();
 		float stored = tag.getFloat("stored");
-		if(stored > 0)
+		
+		float heat = HeatModifier.absorbRadiantHeat(entity, 5F);
+		if(daytime.contains(entity.world.getWorldTime() % 24000) && entity.world.canBlockSeeSky(entity.getPosition()))
+			heat += 40F;
+		heat /= 100F;
+		
+		if(entity.world.isRemote)
 		{
-			BlockPos position = entity.getPosition().down();
-			if(world.getBlockState(position).getBlock() == Blocks.LIT_FURNACE)
+			if(stored > 0 && !entity.isInWater()) this.spawnDryingParticles(entity, Math.min(0.4F, 0.2F * heat));
+		}
+		else
+		{
+			float post = 0F;
+			
+			if(entity.isInWater()) post = stored + (float)ModConfig.WETNESS.fullySubmergedRate;
+			else if(stored > 0) post = stored - (float)ModConfig.WETNESS.towelDryRate * heat; // Cap to 0 from bottom
+			post = Math.max(0F, Math.min(this.getCapacity(), post)); // Clamp between 0F and capacity
+			
+			// To reduce IO stress
+			if(post != stored)
 			{
-				if(world.isRemote)
+				tag.setFloat("stored", post);
+				
+				// If the texture shall change (metadata changes), or the towel is completely dried (should stop emmiting steam), sync the ItemStack data
+				if(this.getMetadata(post) != this.getMetadata(stored) || post == 0)
 				{
-					WorldClient clientworld = (WorldClient)world;
-					// Spawn the particles on random ticks
-					if(clientworld.rand.nextFloat() < 0.2F)
-					{
-						clientworld.spawnParticle(EnumParticleTypes.CLOUD, entity.posX, entity.posY + 0.6, entity.posZ, 0, 0.1F, 0, null);
-						clientworld.playSound(entity.getPosition(), SoundEvents.BLOCK_LAVA_EXTINGUISH, SoundCategory.NEUTRAL, 0.05F, 1.5F, false);
-					}
-				}
-				else
-				{
-					WorldServer serverworld = (WorldServer)world;
-					float post = stored - (float)ModConfig.WETNESS.towelDryRate;
-					if(post < 0) post = 0; // Safety measure (mostly cosmetic feature)
-					tag.setFloat("stored", post);
-					
-					// If the texture shall change (metadata chandes), or the towel is completely dried (should stop emmiting steam), sync the ItemStack data
-					if(this.getMetadata(stored) != this.getMetadata(post) || post == 0)
-						serverworld.getEntityTracker().sendToTracking(entity, SurvivalInc.proxy.net.getPacketFrom(new EntityItemUpdateMessage(entity)));
+					WorldServer serverworld = (WorldServer)entity.world;
+					serverworld.getEntityTracker().sendToTracking(entity, SurvivalInc.proxy.net.getPacketFrom(new EntityItemUpdateMessage(entity)));
 				}
 			}
 		}
 		return super.onEntityItemUpdate(entity);
+	}
+	
+	protected void spawnDryingParticles(EntityItem entity, float chance)
+	{
+		WorldClient clientworld = (WorldClient)entity.world;
+		// Spawn the particles on random ticks
+		if(clientworld.rand.nextFloat() < chance)
+		{
+			clientworld.spawnParticle(EnumParticleTypes.CLOUD, entity.posX, entity.posY + 0.6, entity.posZ, 0, 0.1F, 0, null);
+			clientworld.playSound(entity.getPosition(), SoundEvents.BLOCK_LAVA_EXTINGUISH, SoundCategory.NEUTRAL, 0.05F, 1.5F, false);
+		}
 	}
 	
 	public int getMetadata(float stored)
