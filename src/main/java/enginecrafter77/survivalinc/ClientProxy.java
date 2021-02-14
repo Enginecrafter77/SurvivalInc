@@ -84,7 +84,7 @@ public class ClientProxy extends CommonProxy {
 	@SubscribeEvent
 	public void translateChat(RenderGameOverlayEvent.Chat event)
 	{
-		if((ModConfig.HEAT.enabled && ModConfig.CLIENT.hud.stackHeatBar) || (ModConfig.HYDRATION.enabled && ModConfig.CLIENT.hud.stackHydrationBar))
+		if((ModConfig.HEAT.enabled && ModConfig.CLIENT.hud.stackSanityBar) || (ModConfig.HYDRATION.enabled && ModConfig.CLIENT.hud.stackHydrationBar))
 		{
 			int height = Math.max(GuiIngameForge.left_height, GuiIngameForge.right_height) - 1;
 			event.setPosY(event.getResolution().getScaledHeight() - height);
@@ -96,25 +96,21 @@ public class ClientProxy extends CommonProxy {
 		float origin_x = (float)ModConfig.CLIENT.hud.originX;
 		float origin_y = (float)ModConfig.CLIENT.hud.originY;
 		
-		TextureResource newicons = new TextureResource(new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/staticons.png"), 18, 18);
-		TextureResource sanityicon = new TextureResource(new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/sanity.png"), 32, 16);
+		TextureResource newicons = new TextureResource(new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/staticons.png"), 18, 34);
 		
 		if(ModConfig.HEAT.enabled)
 		{
-			StatFillBar<SimpleStatRecord> bar = new StatFillBar<SimpleStatRecord>(HeatModifier.instance, ModConfig.CLIENT.hud.heatBarDirection, new TexturedElement(newicons, 0, 0, 9, 9, true));
-			bar.addLayer(new TexturedElement(newicons, 9, 0, 9, 9, true), SimpleStatRecord::getNormalizedValue);
-			bar.setCapacity(ModConfig.CLIENT.hud.heatBarCapacity);
-			bar.setSpacing(ModConfig.CLIENT.hud.heatBarSpacing);
+			StatFillBar<SimpleStatRecord> bar = new StatFillBar<SimpleStatRecord>(HeatModifier.instance, Direction2D.UP, new TexturedElement(newicons, 0, 18, 9, 16));
+			bar.addLayer(new TexturedElement(newicons, 9, 18, 9, 16), SimpleStatRecord::getNormalizedValue);
+			bar.setCapacity(1);
 			
-			if(ModConfig.CLIENT.hud.stackHeatBar)
-				hud.addElement(bar, ModConfig.CLIENT.hud.heatBarStack).setTrigger(ModConfig.CLIENT.hud.heatBarRenderTrigger).addFilter(TextureResetFilter.INSTANCE);
-			else
-				hud.addElement(bar, new AbsoluteElementPositioner(origin_x, origin_y, ModConfig.CLIENT.hud.heatBarX, ModConfig.CLIENT.hud.heatBarY));
+			hud.addElement(bar, new AbsoluteElementPositioner(origin_x, origin_y, ModConfig.CLIENT.hud.heatIconX, ModConfig.CLIENT.hud.heatIconY)).setTrigger(ElementType.EXPERIENCE);
+			hud.addFilter(new TranslateRenderFilter(new Position2D(0, -10)), ElementType.SUBTITLES);
 		}
 		if(ModConfig.HYDRATION.enabled)
 		{
-			StatFillBar<SimpleStatRecord> bar = new StatFillBar<SimpleStatRecord>(HydrationModifier.instance, ModConfig.CLIENT.hud.hydrationBarDirection, new TexturedElement(newicons, 0, 9, 9, 9, true));
-			bar.addLayer(new TexturedElement(newicons, 9, 9, 9, 9, true), SimpleStatRecord::getNormalizedValue);
+			StatFillBar<SimpleStatRecord> bar = new StatFillBar<SimpleStatRecord>(HydrationModifier.instance, ModConfig.CLIENT.hud.hydrationBarDirection, new TexturedElement(newicons, 0, 9, 9, 9));
+			bar.addLayer(new TexturedElement(newicons, 9, 9, 9, 9), SimpleStatRecord::getNormalizedValue);
 			bar.setCapacity(ModConfig.CLIENT.hud.hydrationBarCapacity);
 			bar.setSpacing(ModConfig.CLIENT.hud.hydrationBarSpacing);
 			
@@ -125,11 +121,15 @@ public class ClientProxy extends CommonProxy {
 		}
 		if(ModConfig.SANITY.enabled)
 		{
-			StatFillBar<SanityRecord> bar = new StatFillBar<SanityRecord>(SanityModifier.instance, Direction2D.UP, new TexturedElement(sanityicon, 0, 0, 16, 16, true));
-			bar.addLayer(new TexturedElement(sanityicon, 16, 0, 16, 16, true), SimpleStatRecord::getNormalizedValue);
-			bar.setCapacity(1);
-			hud.addElement(bar, new AbsoluteElementPositioner(origin_x, origin_y, ModConfig.CLIENT.hud.sanityIconX, ModConfig.CLIENT.hud.sanityIconY));
-			hud.addFilter(new TranslateRenderFilter(new Position2D(0, -10)), ElementType.SUBTITLES);
+			StatFillBar<SanityRecord> bar = new StatFillBar<SanityRecord>(SanityModifier.instance, ModConfig.CLIENT.hud.sanityBarDirection, new TexturedElement(newicons, 0, 0, 9, 9));
+			bar.addLayer(new TexturedElement(newicons, 9, 0, 9, 9), SimpleStatRecord::getNormalizedValue);
+			bar.setCapacity(ModConfig.CLIENT.hud.sanityBarCapacity);
+			bar.setSpacing(ModConfig.CLIENT.hud.sanityBarSpacing);
+			
+			if(ModConfig.CLIENT.hud.stackSanityBar)
+				hud.addElement(bar, ModConfig.CLIENT.hud.sanityBarStack).setTrigger(ModConfig.CLIENT.hud.sanityBarRenderTrigger).addFilter(TextureResetFilter.INSTANCE);
+			else
+				hud.addElement(bar, new AbsoluteElementPositioner(origin_x, origin_y, ModConfig.CLIENT.hud.sanityBarX, ModConfig.CLIENT.hud.sanityBarY));
 		}
 		if(ModConfig.GHOST.enabled)
 		{

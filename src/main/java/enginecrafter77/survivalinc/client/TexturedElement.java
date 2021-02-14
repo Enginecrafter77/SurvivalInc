@@ -22,23 +22,29 @@ public class TexturedElement extends SimpleOverlayElement<Object> {
 	public final TextureResource resource;
 	
 	/** The x offset of the texture */
-	public final int offset_x;
+	protected final int offset_x;
 	/** The y offset of the texture */
-	public final int offset_y;
+	protected final int offset_y;
 	
 	/** Whether this texutre should be drawn with alpha or not */
-	public final boolean hasAlpha;
+	private boolean hasAlpha;
 	
 	/** The current texture drawing context, might be replaced with stack in the future */
 	private static TextureDrawingContext current_context = null;
 	
-	public TexturedElement(TextureResource resource, int offset_x, int offset_y, int width, int height, boolean alpha)
+	public TexturedElement(TextureResource resource, int offset_x, int offset_y, int width, int height)
 	{
 		super(width, height);
 		this.resource = resource;
 		this.offset_x = offset_x;
 		this.offset_y = offset_y;
-		this.hasAlpha = alpha;
+		this.hasAlpha = true;
+	}
+	
+	public TexturedElement disableAlpha()
+	{
+		this.hasAlpha = false;
+		return this;
 	}
 	
 	@Override
