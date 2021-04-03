@@ -129,17 +129,24 @@ public class HydrationModifier implements IMessageHandler<WaterDrinkMessage, IMe
 		EntityPlayerMP player = ctx.getServerHandler().player;
 		WorldServer world = player.getServerWorld();
 		
+		RayTraceResult water_rt = null;
+		
 		// Verify if the client message is not fake (i.e. to artificially increase hydration)
-		RayTraceResult water_rt = raytraceWaterDrinking(player, message.getHand());
-		if(water_rt != null)
+		if(ModConfig.GENERAL.verifyClientDrinkingRequests)
 		{
-			SurvivalInc.logger.info("Player drink request authorized.");
-			StatTracker tracker = player.getCapability(StatCapability.target, null);
-			SimpleStatRecord hydration = tracker.getRecord(HydrationModifier.instance);
-			hydration.addToValue((float)ModConfig.HYDRATION.sipVolume);
-			HydrationModifier.spawnWaterDrinkParticles(world, water_rt.hitVec);
+			water_rt = raytraceWaterDrinking(player, message.getHand());
+			if(water_rt == null)
+			{
+				SurvivalInc.logger.warn("Player {}'s client probably issued a forged WaterDrinkMessage.");
+				return null;
+			}
+			else HydrationModifier.spawnWaterDrinkParticles(world, water_rt.hitVec);
 		}
-		else SurvivalInc.logger.warn("Player {}'s client issued a fake WaterDrinkMessage.");
+		
+		SurvivalInc.logger.info("Player drink request authorized.");
+		StatTracker tracker = player.getCapability(StatCapability.target, null);
+		SimpleStatRecord hydration = tracker.getRecord(HydrationModifier.instance);
+		hydration.addToValue((float)ModConfig.HYDRATION.sipVolume);
 		return null;
 	}
 	

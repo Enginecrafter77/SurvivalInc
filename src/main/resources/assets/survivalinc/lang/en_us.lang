@@ -36,6 +36,8 @@ survivalinc.general=General
 survivalinc.general.tooltip=General Settings
 config.survivalinc.general.serverSyncDelay=Server Sync Delay
 config.survivalinc.general.serverSyncDelay.tooltip=The delay between server-client sync in minecraft ticks (1t = 1/20s)
+config.survivalinc.general.verifyDrinkRequests=Verify Drink Packets
+config.survivalinc.general.verifyDrinkRequests.tooltip=Set this to true to verify water drink requests by doing independent server-side raytracing.
 
 # Client config
 survivalinc.client=Client
