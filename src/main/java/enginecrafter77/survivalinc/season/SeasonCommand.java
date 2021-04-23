@@ -93,7 +93,7 @@ public class SeasonCommand extends CommandBase {
 			for(SeasonCalendar.SeasonCalendarEntry entry : entries)
 			{
 				message.appendText("\n§e");
-				message.appendSibling(seasonname);
+				message.appendSibling(new TextComponentTranslation(entry.getSeason().getTranslationKey()));
 				message.appendText(String.format("§r (§e%s§r): §e%d§r days", entry.getSeason().getName().toString(), entry.getSeason().getLength()));
 			}
 			break;
