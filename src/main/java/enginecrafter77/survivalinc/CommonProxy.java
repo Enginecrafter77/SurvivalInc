@@ -1,5 +1,10 @@
 package enginecrafter77.survivalinc;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 import enginecrafter77.survivalinc.block.BlockMelting;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.ghost.GhostCommand;
@@ -20,6 +25,9 @@ import enginecrafter77.survivalinc.stats.StatCommand;
 import enginecrafter77.survivalinc.stats.StatRegisterDispatcher;
 import enginecrafter77.survivalinc.stats.StatStorage;
 import enginecrafter77.survivalinc.stats.StatTracker;
+import enginecrafter77.survivalinc.stats.effect.item.ItemInHandSituation;
+import enginecrafter77.survivalinc.stats.effect.item.ItemInInvSituation;
+import enginecrafter77.survivalinc.stats.effect.item.ItemSituationMapper;
 import enginecrafter77.survivalinc.stats.impl.HeatModifier;
 import enginecrafter77.survivalinc.stats.impl.HydrationModifier;
 import enginecrafter77.survivalinc.stats.impl.SanityModifier;
@@ -40,6 +48,8 @@ public class CommonProxy {
 	
 	public SimpleNetworkWrapper net;
 	
+	public ItemSituationMapper mapper;
+	
 	public void preInit(FMLPreInitializationEvent event)
 	{
 		// Register seasons if enabled
@@ -53,6 +63,28 @@ public class CommonProxy {
 		
 		// Register capabilities.
 		CapabilityManager.INSTANCE.register(StatTracker.class, StatStorage.instance, StatRegisterDispatcher.instance);
+		
+		this.mapper = new ItemSituationMapper();
+		this.mapper.addSituationFactory("hand", ItemInHandSituation::new);
+		this.mapper.addSituationFactory("inventory", ItemInInvSituation::new);
+		
+		try
+		{
+			File config = event.getModConfigurationDirectory().toPath().resolve("survivalinc/itemeffect.json").toFile();
+			if(config.exists())
+			{				
+				SurvivalInc.logger.info("");
+				InputStream input = new FileInputStream(config);
+				this.mapper.load(input);
+				input.close();
+				
+				MinecraftForge.EVENT_BUS.register(this.mapper);
+			}
+		}
+		catch(IOException exc)
+		{
+			throw new RuntimeException("Failed to load ISM JSON.");
+		}
 	}
 
 	public void init(FMLInitializationEvent event)
