@@ -1,5 +1,7 @@
 package enginecrafter77.survivalinc.client;
 
+import com.google.common.collect.ImmutableMap;
+
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -14,6 +16,10 @@ public enum Direction2D {
 	RIGHT(Axis2D.HORIZONTAL, 1),
 	DOWN(Axis2D.VERTICAL, 1),
 	UP(Axis2D.VERTICAL, -1);
+	
+	/** The natural direction for axes */
+	private static final ImmutableMap<Axis2D, Direction2D> naturals = ImmutableMap.of(Axis2D.HORIZONTAL, RIGHT, Axis2D.VERTICAL, DOWN);
+	private static final ImmutableMap<Direction2D, Direction2D> opposites = ImmutableMap.of(LEFT, RIGHT, RIGHT, LEFT, DOWN, UP, UP, DOWN);
 	
 	/** The axis on which this direction operates */
 	public final Axis2D axis;
@@ -42,18 +48,40 @@ public enum Direction2D {
 	 * In other words, this method checks whether this direction is the axis' natural direction or not. 
 	 * @return True if this direction is normal, false otherwise.
 	 */
-	public boolean isNormal()
+	public boolean isNatural()
 	{
 		return this.delta > 0;
 	}
 	
 	/**
 	 * @return True if the direction moves a coordinate closer towards negative infinity, false otherwise.
-	 * @deprecated Naming and usage don't make sense. Use negated {@link #isNormal()} instead.
+	 * @deprecated Naming and usage don't make sense. Use negated {@link #isNatural()} instead.
 	 */
 	@Deprecated
 	public boolean isReverse()
 	{
 		return this.delta < 0;
+	}
+	
+	/**
+	 * @return The opposite direction to the local one.
+	 */
+	public Direction2D opposite()
+	{
+		return Direction2D.opposites.get(this);
+	}
+	
+	/**
+	 * Returns the direction describing natural movement along the axis.
+	 * This means that a point on Cartesian plane will have the coordinate
+	 * on target axis increased by the returned direction. In other words,
+	 * the direction returned by this method will be the direction that
+	 * causes the coordinate to increase on given axis.
+	 * @param axis The axis to match the direction for
+	 * @return The direction natural to the axis
+	 */
+	public static Direction2D getNaturalDirection(Axis2D axis)
+	{
+		return Direction2D.naturals.get(axis);
 	}
 }

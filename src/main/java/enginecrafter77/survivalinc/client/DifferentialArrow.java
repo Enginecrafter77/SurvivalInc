@@ -67,11 +67,11 @@ public class DifferentialArrow extends SimpleOverlayElement<StatTracker> {
 		GlStateManager.enableAlpha();
 		GlStateManager.pushMatrix(); // Create new object by pushing matrix
 		// Offset this object into the desired position + centering offset
-		GlStateManager.translate(position.getX() + (this.width / 2), position.getY() + (this.height / 2), 0F);
+		GlStateManager.translate(position.getX() + (this.getWidth() / 2), position.getY() + (this.getHeight() / 2), 0F);
 		GlStateManager.pushMatrix(); // Create new object by pushing matrix
 		GlStateManager.scale(value, value, 1F); // Scale the arrow
 		if(inverse) GlStateManager.rotate(180F, 0F, 0F, 1F); // Rotate the arrow
-		Gui.drawModalRectWithCustomSizedTexture(-this.width / 2, -this.height / 2, 0, 0, this.width, this.height, 8, 12); // Draw the arrow (center at origin)
+		Gui.drawModalRectWithCustomSizedTexture(-this.getWidth() / 2, -this.getHeight() / 2, 0, 0, this.getWidth(), this.getHeight(), 8, 12); // Draw the arrow (center at origin)
 		GlStateManager.popMatrix(); // Render the scaled and rotated arrow
 		GlStateManager.popMatrix(); // Render the offset arrow in place
 		GlStateManager.disableAlpha();

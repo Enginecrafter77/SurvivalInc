@@ -1,5 +1,7 @@
 package enginecrafter77.survivalinc.client;
 
+import com.google.common.collect.ImmutableMap;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraftforge.fml.relauncher.Side;
@@ -18,16 +20,12 @@ public abstract class SimpleOverlayElement<ARGUMENT> implements OverlayElement<A
 	public final TextureManager texturer;
 	
 	/** Height of the element */
-	protected final int height;
-	
-	/** Width of the element */
-	protected final int width;
+	protected ImmutableMap<Axis2D, Integer> size;
 	
 	public SimpleOverlayElement(int width, int height)
 	{
+		this.size = ImmutableMap.of(Axis2D.HORIZONTAL, width, Axis2D.VERTICAL, height);
 		this.texturer = Minecraft.getMinecraft().renderEngine;
-		this.height = height;
-		this.width = width;
 	}
 
 	public int getWidth()
@@ -43,15 +41,7 @@ public abstract class SimpleOverlayElement<ARGUMENT> implements OverlayElement<A
 	@Override
 	public int getSize(Axis2D axis)
 	{
-		switch(axis)
-		{
-		case HORIZONTAL:
-			return this.width;
-		case VERTICAL:
-			return this.height;
-		default:
-			throw new UnsupportedOperationException("Axis " + axis.name() + " does not exist!");
-		}
+		return this.size.get(axis);
 	}
 
 }

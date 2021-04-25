@@ -30,8 +30,17 @@ public class ElementTypeAdapter<INPUT, FORWARD> implements OverlayElement<INPUT>
 		this.target = target;
 	}
 	
+	/**
+	 * Transforms the local argument type into the
+	 * argument type required by the delegated element.
+	 * @param input The input argument
+	 * @return The argument to feed the delegated element with
+	 */
 	public FORWARD transformArgument(INPUT input)
 	{
+		if(this.transformer == null)
+			throw new IllegalArgumentException("Delegated element can't be null!");
+		
 		return this.transformer.apply(input);
 	}
 	

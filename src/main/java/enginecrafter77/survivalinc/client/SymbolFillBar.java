@@ -117,7 +117,7 @@ public class SymbolFillBar implements OverlayElement<Float> {
 		 * the direction). This lends us this formula: -n(w+s)+w, which can be written as w-n(w+s). Additionally,
 		 * move +1x spacing in the specified direction to negate the last spacing effect.
 		 */
-		if(!this.direction.isNormal()) current_position.move(this.direction, this.symbol.getSize(this.direction.axis) - this.getSize(this.direction.axis) + this.spacing);
+		if(!this.direction.isNatural()) current_position.move(this.direction, this.symbol.getSize(this.direction.axis) - this.getSize(this.direction.axis) + this.spacing);
 		
 		for(int piece = 0; piece <= steps; piece++)
 		{
@@ -129,7 +129,7 @@ public class SymbolFillBar implements OverlayElement<Float> {
 			Position2D symbolpos = current_position; // The symbol position
 			
 			// If the direction is reverse, we also need to shift the texture
-			if(!this.direction.isNormal())
+			if(!this.direction.isNatural())
 			{
 				// Initialize the offset
 				offset = new Position2D(context.width - width, context.height - height);

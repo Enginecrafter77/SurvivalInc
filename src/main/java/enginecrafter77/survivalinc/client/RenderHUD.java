@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 
 import enginecrafter77.survivalinc.stats.StatCapability;
@@ -134,10 +135,26 @@ public class RenderHUD {
 	
 	public class HUDEntry
 	{
+		/** The rendered element itself */
 		public final OverlayElement<? super StatTracker> element;
-		public final ElementPositioner positioner;
-		public final List<ElementRenderFilter<? super StatTracker>> filters;
 		
+		/** The element positioner used to position the element on screen */
+		public final ElementPositioner positioner;
+		
+		/**
+		 * The list of the filters applies to the element.
+		 * The filters are applied in an orderly fashion
+		 * so that each subsequent filter is supposed to
+		 * work with element filtered throught the previous
+		 * filter.
+		 */
+		protected final List<ElementRenderFilter<? super StatTracker>> filters;
+		
+		/**
+		 * The render trigger specifies the moment when the element
+		 * is rendered. Generally speaking, the local element is
+		 * rendered AFTER the triggering element was fully rendered.
+		 */
 		protected ElementType trigger;
 		
 		protected HUDEntry(OverlayElement<? super StatTracker> element, ElementPositioner positioner)
@@ -148,29 +165,56 @@ public class RenderHUD {
 			this.element = element;
 		}
 		
+		/**
+		 * Sets the element render trigger.
+		 * @see #trigger
+		 * @param trigger The element that triggers the render of this element
+		 * @return The link to the local HUD Entry for easy chaining.
+		 */
 		public HUDEntry setTrigger(ElementType trigger)
 		{
 			this.trigger = trigger;
 			return this;
 		}
 		
+		/**
+		 * Attaches a {@link ElementRenderFilter} to this HUD entry.
+		 * @see #filters
+		 * @param filter The filter to add to the filter list
+		 * @return The link to the local HUD Entry for easy chaining
+		 */
 		public HUDEntry addFilter(ElementRenderFilter<? super StatTracker> filter)
 		{
 			this.filters.add(filter);
 			return this;
 		}
 		
+		/**
+		 * Tests whether the provided {@link RenderGameOverlayEvent} should trigger
+		 * the render of this HUD Entry.
+		 * @param event The examined event
+		 * @return True if the event should trigger the rendering of this element, false otherwise.
+		 */
 		public boolean isTrigger(RenderGameOverlayEvent event)
 		{
 			return event.getType() == this.trigger;
 		}
 		
+		/**
+		 * Draws the HUD Entry and filters it though all the filters in an orderly fashion.
+		 * @param resolution The resolution to draw the element in
+		 * @param tracker The stat tracker
+		 * @param partialTicks The partial ticks in the current render tick
+		 */
 		public void draw(ScaledResolution resolution, StatTracker tracker, float partialTicks)
 		{
+			// Due to the nature of OpenGL matrix pushing, we need to call ElementRenderFilter#begin on the last element first, so it's presumed pushMatrix runs first.
+			ListIterator<ElementRenderFilter<? super StatTracker>> itr = this.filters.listIterator(this.filters.size());
+			
 			boolean draw = true;
-			for(ElementRenderFilter<? super StatTracker> filter : this.filters)
+			while(itr.hasPrevious())
 			{
-				if(!filter.begin(resolution, tracker)) draw = false;
+				if(!itr.previous().begin(resolution, tracker)) draw = false;
 			}
 			
 			if(draw)
@@ -179,7 +223,11 @@ public class RenderHUD {
 				this.element.draw(position, partialTicks, tracker);
 			}
 			
-			filters.forEach((ElementRenderFilter<? super StatTracker> filter) -> filter.end(resolution, tracker));
+			// Now iterate the array back using normal order
+			while(itr.hasNext())
+			{
+				itr.next().end(resolution, tracker);
+			}
 		}
 	}
 }

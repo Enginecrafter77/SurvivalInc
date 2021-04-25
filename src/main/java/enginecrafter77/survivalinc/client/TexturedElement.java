@@ -63,7 +63,7 @@ public class TexturedElement extends SimpleOverlayElement<Object> {
 	public TextureDrawingContext createContext(TextureManager manager) throws IllegalStateException
 	{
 		if(TexturedElement.current_context != null) throw new IllegalStateException("Attempting to create a nested context!");
-		TexturedElement.current_context = new TextureDrawingContext(manager, this.width, this.height);
+		TexturedElement.current_context = new TextureDrawingContext(manager, this.getWidth(), this.getHeight());
 		TexturedElement.current_context.enable(manager);
 		return TexturedElement.current_context;
 	}

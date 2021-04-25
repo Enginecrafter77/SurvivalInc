@@ -25,8 +25,6 @@ public class OverlayElementGroup<TYPE> implements OverlayElement<TYPE> {
 	/** Spacing between each two elements */
 	public int spacing;
 	
-	private final Direction2D[] naturals = {Direction2D.RIGHT, Direction2D.DOWN}; 
-	
 	public OverlayElementGroup(Axis2D axis)
 	{
 		this.elements = new LinkedList<OverlayElement<? super TYPE>>();
@@ -69,7 +67,7 @@ public class OverlayElementGroup<TYPE> implements OverlayElement<TYPE> {
 		for(OverlayElement<? super TYPE> element : this.elements)
 		{
 			element.draw(elementpos, partialTicks, arg);
-			elementpos.move(this.naturals[this.axis.ordinal()], element.getSize(this.axis) + this.spacing);
+			elementpos.move(Direction2D.getNaturalDirection(this.axis), element.getSize(this.axis) + this.spacing);
 		}
 	}
 }
