@@ -16,7 +16,13 @@ import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.ghost.GhostEnergyBar;
 import enginecrafter77.survivalinc.ghost.GhostProvider;
 import enginecrafter77.survivalinc.ghost.RenderGhost;
+import enginecrafter77.survivalinc.net.EntityItemUpdateMessage;
+import enginecrafter77.survivalinc.net.EntityItemUpdater;
+import enginecrafter77.survivalinc.net.StatSyncHandler;
+import enginecrafter77.survivalinc.net.StatSyncMessage;
 import enginecrafter77.survivalinc.season.LeafColorer;
+import enginecrafter77.survivalinc.season.SeasonController;
+import enginecrafter77.survivalinc.season.SeasonSyncMessage;
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import enginecrafter77.survivalinc.stats.impl.HeatModifier;
@@ -36,6 +42,7 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
 
 public class ClientProxy extends CommonProxy {
 	public RenderHUD hud;
@@ -46,6 +53,14 @@ public class ClientProxy extends CommonProxy {
 		super.preInit(event);
 		this.hud = new RenderHUD();
 		if(ModConfig.SEASONS.enabled) MinecraftForge.EVENT_BUS.register(LeafColorer.instance);
+	}
+	
+	@Override
+	public void registerClientHandlers()
+	{
+		this.net.registerMessage(StatSyncHandler.class, StatSyncMessage.class, 0, Side.CLIENT);
+		this.net.registerMessage(SeasonController::onSyncDelivered, SeasonSyncMessage.class, 1, Side.CLIENT);
+		this.net.registerMessage(EntityItemUpdater.class, EntityItemUpdateMessage.class, 2, Side.CLIENT);
 	}
 	
 	@Override

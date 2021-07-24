@@ -2,6 +2,8 @@ package enginecrafter77.survivalinc.season;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.World;
@@ -9,19 +11,23 @@ import net.minecraft.world.biome.BiomeEnd;
 import net.minecraft.world.biome.BiomeHell;
 import net.minecraft.world.biome.BiomeOcean;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.util.function.Predicate;
+
 import enginecrafter77.survivalinc.SurvivalInc;
 
-public class SeasonController implements IMessageHandler<SeasonSyncMessage, IMessage> {
+public class SeasonController {
+	
+	private static final Predicate<Integer> isDimOverworld = (Integer dimID) -> dimID == DimensionType.OVERWORLD.getId();
+	private static final Predicate<World> isOverworld = (World world) -> isDimOverworld.test(world.provider.getDimension());
 	
 	/** The length of one full minecraft day/night cycle */
 	public static final int minecraftDayLength = 24000;
@@ -52,29 +58,28 @@ public class SeasonController implements IMessageHandler<SeasonSyncMessage, IMes
 		}
 	}
 	
-	public void notifyClient(EntityPlayerMP client)
-	{
-		SeasonData data = SeasonData.load(client.world);
-		SurvivalInc.logger.info("Sending season data ({}) to player \"{}\", who just entered overworld", data.toString(), client.getDisplayNameString());
-		SurvivalInc.proxy.net.sendTo(new SeasonSyncMessage(data), client);
-	}
-	
-	// Process the event and broadcast it on client
-	@Override
 	@SideOnly(Side.CLIENT)
-	public IMessage onMessage(SeasonSyncMessage message, MessageContext ctx)
+	public static IMessage onSyncDelivered(SeasonSyncMessage message, MessageContext ctx)
 	{
 		WorldClient world = Minecraft.getMinecraft().world;
 		if(world == null) SurvivalInc.logger.error("Minecraft remote world tracking instance is null. This is NOT a good thing. Season sync packet dropped...");
-		else if(world.provider.getDimensionType() != DimensionType.OVERWORLD) throw new RuntimeException("Received a stat update message from outside overworld.");
+		else if(SeasonController.isOverworld.negate().test(world)) throw new RuntimeException("Received a stat update message from outside overworld.");
 		else
 		{
-			SurvivalInc.logger.info("Updateding client's world season data to {}...", message.data.toString());
+			SurvivalInc.logger.info("Updating client's world season data to {}...", message.data.toString());
 			world.setData(SeasonData.datakey, message.data);
 			MinecraftForge.EVENT_BUS.post(new SeasonChangedEvent(world, message.data.getCurrentDate()));
-			SurvivalInc.logger.info("Updated client's world season data to {}", message.data.toString());
+			SurvivalInc.logger.info("Client-side season update to {} completed.", message.data.toString());
 		}
 		return null;
+	}
+	
+	public static SeasonSyncMessage onSyncRequest(SeasonSyncRequest message, MessageContext ctx)
+	{
+		EntityPlayerMP player = ctx.getServerHandler().player;
+		SeasonData data = SeasonData.load(player.world);
+		SurvivalInc.logger.info("Sending season data ({}) to player \"{}\" entering overworld.", data.toString(), player.getDisplayNameString());
+		return new SeasonSyncMessage(data);
 	}
 	
 	/**
@@ -82,21 +87,15 @@ public class SeasonController implements IMessageHandler<SeasonSyncMessage, IMes
 	 * @param event The player logged in event
 	 */
 	@SubscribeEvent
-	public void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event)
+	public void onPlayerJoined(EntityJoinWorldEvent event)
 	{
-		if(!event.player.world.isRemote && event.player.world.provider.getDimensionType() == DimensionType.OVERWORLD)
-			this.notifyClient((EntityPlayerMP)event.player);
-	}
-	
-	/**
-	 * Sends the season data to players entering overworld
-	 * @param event The player logged in event
-	 */
-	@SubscribeEvent
-	public void onPlayerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event)
-	{
-		if(!event.player.world.isRemote && event.toDim == DimensionType.OVERWORLD.getId())
-			this.notifyClient((EntityPlayerMP)event.player);
+		World world = event.getWorld();
+		Entity ent = event.getEntity();
+		if(ent instanceof EntityPlayer && world.isRemote && isOverworld.test(world))
+		{
+			SurvivalInc.logger.info("Requesting season data from server...");
+			SurvivalInc.proxy.net.sendToServer(new SeasonSyncRequest());
+		}
 	}
 	
 	/**
@@ -107,7 +106,7 @@ public class SeasonController implements IMessageHandler<SeasonSyncMessage, IMes
 	public void loadSeasonData(WorldEvent.Load event)
 	{
 		World world = event.getWorld();
-		if(!world.isRemote && world.provider.getDimensionType() == DimensionType.OVERWORLD) MinecraftForge.EVENT_BUS.post(new SeasonChangedEvent(world));
+		if(!world.isRemote && SeasonController.isOverworld.test(world)) MinecraftForge.EVENT_BUS.post(new SeasonChangedEvent(world));
 	}
 	
 	/**
@@ -118,18 +117,17 @@ public class SeasonController implements IMessageHandler<SeasonSyncMessage, IMes
 	@SubscribeEvent
 	public void onUpdate(TickEvent.WorldTickEvent event)
 	{
-		DimensionType dimension = event.world.provider.getDimensionType();
-		if(event.side == Side.SERVER && event.phase == TickEvent.Phase.START && dimension == DimensionType.OVERWORLD)
+		if(event.side == Side.SERVER && event.phase == TickEvent.Phase.START && SeasonController.isOverworld.test(event.world))
 		{
 			// Is it early morning? Also, before the player really joins, some time passes. Give the player some time to actually receive the update.
 			if(event.world.getWorldTime() % SeasonController.minecraftDayLength == 1200)
 			{
-				SurvivalInc.logger.info("Season update triggered in {} on {}", dimension.name(), event.side.name());
+				SurvivalInc.logger.info("Season update triggered on {}", event.side.name());
 				SeasonData data = SeasonData.load(event.world);
 				data.getCurrentDate().advance(1);
 				data.markDirty();
 				
-				SurvivalInc.proxy.net.sendToDimension(new SeasonSyncMessage(data), DimensionType.OVERWORLD.getId()); // Synchronize the data with clients, so they being processing on their side
+				SurvivalInc.proxy.net.sendToDimension(new SeasonSyncMessage(data), DimensionType.OVERWORLD.getId()); // Synchronize the data with clients, so they begin processing on their side
 				MinecraftForge.EVENT_BUS.post(new SeasonChangedEvent(event.world, data.getCurrentDate())); // Broadcast and process the event on server side
 			}
 		}

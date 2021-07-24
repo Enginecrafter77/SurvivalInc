@@ -28,7 +28,7 @@ public class SurvivalInc {
 	public static Logger logger;
 
 	// Create proxies to load stuff correctly.
-	@SidedProxy(clientSide = "enginecrafter77.survivalinc.ClientProxy", serverSide = "enginecrafter77.survivalinc.CommonProxy")
+	@SidedProxy(clientSide = "enginecrafter77.survivalinc.ClientProxy", serverSide = "enginecrafter77.survivalinc.ServerProxy")
 	public static CommonProxy proxy;
 	
 	// Basic event handlers. All of the work is done in the proxies.

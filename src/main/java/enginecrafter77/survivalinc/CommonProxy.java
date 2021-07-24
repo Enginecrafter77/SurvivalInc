@@ -12,17 +12,13 @@ import enginecrafter77.survivalinc.block.BlockMelting;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.ghost.GhostCommand;
 import enginecrafter77.survivalinc.ghost.GhostProvider;
-import enginecrafter77.survivalinc.net.EntityItemUpdateMessage;
-import enginecrafter77.survivalinc.net.EntityItemUpdater;
-import enginecrafter77.survivalinc.net.StatSyncMessage;
 import enginecrafter77.survivalinc.net.StatSyncRequestHandler;
 import enginecrafter77.survivalinc.net.StatSyncRequestMessage;
-import enginecrafter77.survivalinc.net.StatSyncHandler;
 import enginecrafter77.survivalinc.net.WaterDrinkMessage;
 import enginecrafter77.survivalinc.season.SeasonCalendar;
 import enginecrafter77.survivalinc.season.SeasonCommand;
 import enginecrafter77.survivalinc.season.SeasonController;
-import enginecrafter77.survivalinc.season.SeasonSyncMessage;
+import enginecrafter77.survivalinc.season.SeasonSyncRequest;
 import enginecrafter77.survivalinc.season.SurvivalIncSeason;
 import enginecrafter77.survivalinc.season.melting.MeltingController;
 import enginecrafter77.survivalinc.season.melting.MeltingController.MelterEntry;
@@ -53,7 +49,7 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
 
-public class CommonProxy {
+public abstract class CommonProxy {
 	
 	public SimpleNetworkWrapper net;
 	public ItemSituationContainer mapper;
@@ -80,15 +76,22 @@ public class CommonProxy {
 		
 		this.itemeffects = new File(event.getModConfigurationDirectory(), "survivalinc/item_effects.json");
 	}
+	
+	/**
+	 * A nifty hack method to avoid accessing client-only code from server.
+	 * Overridden on both client and server. Client places it's designated
+	 * handlers as expected, but server registers the message with dummy
+	 * handlers. This allows passing client-only handlers to client processed messages.
+	 */
+	public abstract void registerClientHandlers();
 
 	public void init(FMLInitializationEvent event)
 	{
 		this.net = NetworkRegistry.INSTANCE.newSimpleChannel(SurvivalInc.MOD_ID);
-		this.net.registerMessage(StatSyncHandler.class, StatSyncMessage.class, 0, Side.CLIENT);
-		this.net.registerMessage(SeasonController.instance, SeasonSyncMessage.class, 1, Side.CLIENT);
-		this.net.registerMessage(EntityItemUpdater.class, EntityItemUpdateMessage.class, 2, Side.CLIENT);
+		this.registerClientHandlers(); // Discriminators 0 1 2
 		this.net.registerMessage(HydrationModifier.class, WaterDrinkMessage.class, 3, Side.SERVER);
 		this.net.registerMessage(StatSyncRequestHandler.class, StatSyncRequestMessage.class, 4, Side.SERVER);
+		this.net.registerMessage(SeasonController::onSyncRequest, SeasonSyncRequest.class, 5, Side.SERVER);
 		
 		if(ModConfig.HEAT.enabled) HeatModifier.instance.init();
 		if(ModConfig.HYDRATION.enabled) HydrationModifier.instance.init();

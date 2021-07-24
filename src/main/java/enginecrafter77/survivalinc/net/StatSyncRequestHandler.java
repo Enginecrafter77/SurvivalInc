@@ -5,10 +5,6 @@ import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
-/**
- * A
- * @author Enginecrafter77
- */
 public class StatSyncRequestHandler implements IMessageHandler<StatSyncRequestMessage, StatSyncMessage> {
 	@Override
 	public StatSyncMessage onMessage(StatSyncRequestMessage message, MessageContext ctx)

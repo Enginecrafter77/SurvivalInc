@@ -80,13 +80,10 @@ public class StatCapability implements ICapabilitySerializable<NBTBase> {
 	public static void onClientJoin(EntityJoinWorldEvent event)
 	{
 		Entity ent = event.getEntity();
-		if(ent instanceof EntityPlayer)
+		if(ent instanceof EntityPlayer && ent.world.isRemote)
 		{
-			if(ent.world.isRemote)
-			{
-				SurvivalInc.logger.info("Sending stat sync request...");
-				SurvivalInc.proxy.net.sendToServer(new StatSyncRequestMessage());
-			}
+			SurvivalInc.logger.info("Sending stat sync request...");
+			SurvivalInc.proxy.net.sendToServer(new StatSyncRequestMessage());
 		}
 	}
 	

@@ -64,7 +64,7 @@ public class SeasonData extends WorldSavedData {
 	@Override
 	public String toString()
 	{
-		return String.format("%s(%d)", this.date.getCalendarEntry().getSeason().getTranslationKey(), this.date.getDay());
+		return String.format("%s/%d", this.date.getCalendarEntry().getSeason().getName(), this.date.getDay());
 	}
 	
 	public SeasonCalendarDate getCurrentDate()

@@ -8,6 +8,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
  * Updates the client representation of the {@link EntityItem}
@@ -19,6 +20,7 @@ import net.minecraftforge.fml.relauncher.Side;
  * @see Minecraft#getMinecraft()
  * @see EntityItemUpdateMessage
  */
+@SideOnly(Side.CLIENT)
 public class EntityItemUpdater implements IMessageHandler<EntityItemUpdateMessage, IMessage> {
 
 	@Override
