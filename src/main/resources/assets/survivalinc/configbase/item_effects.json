@@ -1,0 +1,146 @@
+[
+	{
+		"situation": "consumed",
+		"item": "minecraft:chicken",
+		"effects": {
+			"survivalinc:sanity": -5
+		}
+	},
+	{
+		"situation": "consumed",
+		"item": "minecraft:beef",
+		"effects": {
+			"survivalinc:sanity": -5
+		}
+	},
+	{
+		"situation": "consumed",
+		"item": "minecraft:rabbit",
+		"effects": {
+			"survivalinc:sanity": -5
+		}
+	},
+	{
+		"situation": "consumed",
+		"item": "minecraft:mutton",
+		"effects": {
+			"survivalinc:sanity": -5
+		}
+	},
+	{
+		"situation": "consumed",
+		"item": "minecraft:porkchop",
+		"effects": {
+			"survivalinc:sanity": -5
+		}
+	},
+	{
+		"situation": "consumed",
+		"item": "minecraft:fish",
+		"effects": {
+			"survivalinc:sanity": -5,
+			"survivalinc:hydration": 1
+		}
+	},
+	{
+		"situation": "consumed",
+		"item": "minecraft:rotten_flesh",
+		"effects": {
+			"survivalinc:sanity": -10
+		}
+	},
+	{
+		"situation": "consumed",
+		"item": "minecraft:spider_eye",
+		"effects": {
+			"survivalinc:sanity": -15
+		}
+	},
+	{
+		"situation": "consumed",
+		"item": "minecraft:cooked_chicken",
+		"effects": {
+			"survivalinc:sanity": 2,
+			"survivalinc:heat": 2
+		}
+	},
+	{
+		"situation": "consumed",
+		"item": "minecraft:cooked_beef",
+		"effects": {
+			"survivalinc:sanity": 2,
+			"survivalinc:hydration": -1,
+			"survivalinc:heat": 2
+		}
+	},
+	{
+		"situation": "consumed",
+		"item": "minecraft:cooked_rabbit",
+		"effects": {
+			"survivalinc:sanity": 2,
+			"survivalinc:heat": 2
+		}
+	},
+	{
+		"situation": "consumed",
+		"item": "minecraft:cooked_mutton",
+		"effects": {
+			"survivalinc:sanity": 2,
+			"survivalinc:hydration": -1,
+			"survivalinc:heat": 2
+		}
+	},
+	{
+		"situation": "consumed",
+		"item": "minecraft:cooked_porkchop",
+		"effects": {
+			"survivalinc:sanity": 2,
+			"survivalinc:hydration": -1,
+			"survivalinc:heat": 2
+		}
+	},
+	{
+		"situation": "consumed",
+		"item": "minecraft:cooked_fish",
+		"effects": {
+			"survivalinc:sanity": 2,
+			"survivalinc:heat": 2
+		}
+	},
+	{
+		"situation": "consumed",
+		"item": "minecraft:pumpkin_pie",
+		"effects": {
+			"survivalinc:sanity": 10,
+			"survivalinc:hydration": -1,
+			"survivalinc:heat": 1
+		}
+	},
+	{
+		"situation": "consumed",
+		"item": "minecraft:rabbit_stew",
+		"effects": {
+			"survivalinc:sanity": 6,
+			"survivalinc:hydration": 1,
+			"survivalinc:heat": 1
+		}
+	},
+	{
+		"situation": "consumed",
+		"item": "minecraft:mushroom_stew",
+		"effects": {
+			"survivalinc:sanity": 6,
+			"survivalinc:hydration": 4,
+			"survivalinc:heat": 1
+		}
+	},
+	{
+		"situation": "consumed",
+		"item": "minecraft:beetroot_soup",
+		"effects": {
+			"survivalinc:sanity": 5.75,
+			"survivalinc:hydration": 6,
+			"survivalinc:heat": 1
+		}
+	}
+]

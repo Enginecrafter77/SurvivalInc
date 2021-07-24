@@ -1,8 +1,5 @@
 package enginecrafter77.survivalinc.stats.impl;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.google.common.collect.Range;
 
 import enginecrafter77.survivalinc.SurvivalInc;
@@ -25,7 +22,6 @@ import net.minecraft.init.Items;
 import net.minecraft.init.MobEffects;
 import net.minecraft.init.PotionTypes;
 import net.minecraft.init.SoundEvents;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionType;
 import net.minecraft.potion.PotionUtils;
@@ -53,14 +49,11 @@ public class HydrationModifier implements IMessageHandler<WaterDrinkMessage, IMe
 	public static final DamageSource DEHYDRATION = new DamageSource("survivalinc_dehydration").setDamageIsAbsolute().setDamageBypassesArmor();
 	public static final HydrationModifier instance = new HydrationModifier();
 	
-	public final Map<Item, Float> foodHydrationMap;
-	
 	public final EffectApplicator<SimpleStatRecord> effects;
 	
 	public HydrationModifier()
 	{
 		this.effects = new EffectApplicator<SimpleStatRecord>();
-		this.foodHydrationMap = new HashMap<Item, Float>();
 	}
 	
 	public void init()
@@ -75,18 +68,6 @@ public class HydrationModifier implements IMessageHandler<WaterDrinkMessage, IMe
 		this.effects.add(new PotionStatEffect(MobEffects.MINING_FATIGUE, 5)).addFilter(nasfat);
 		this.effects.add(new PotionStatEffect(MobEffects.NAUSEA, 5)).addFilter(nasfat);
 		this.effects.add(HydrationModifier::naturalDrain);
-	}
-	
-	public void buildCompatMaps()
-	{
-		// Compile food value list
-		for(String entry : ModConfig.HYDRATION.foodHydrationMap)
-		{
-			int separator = entry.lastIndexOf(' ');
-			Item target = Item.getByNameOrId(entry.substring(0, separator));
-			Float value = Float.parseFloat(entry.substring(separator + 1));
-			this.foodHydrationMap.put(target, value);
-		}
 	}
 	
 	@Override
@@ -231,13 +212,6 @@ public class HydrationModifier implements IMessageHandler<WaterDrinkMessage, IMe
 		StatTracker stats = event.getEntityLiving().getCapability(StatCapability.target, null);		
 		SimpleStatRecord record = stats.getRecord(HydrationModifier.instance);
 		ItemStack stack = event.getItem();
-		
-		Float value = HydrationModifier.instance.foodHydrationMap.get(stack.getItem());
-		if(value != null)
-		{
-			record.addToValue(value);
-			return;
-		}
 		
 		// Water bottle
 		if(stack.getItem() == Items.POTIONITEM)

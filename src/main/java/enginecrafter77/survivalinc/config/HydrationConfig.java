@@ -39,9 +39,4 @@ public class HydrationConfig {
 	@Config.Comment("The amount of water indicated by number of sips the canteen can store")
 	@Config.RangeInt(min = 1)
 	public int canteenCapacity = 32;
-	
-	@Config.LangKey("config.survivalinc.hydration.foodMap")
-	@Config.Comment("A map of foods and their associated effects on hydration after consuming them")
-	@Config.RequiresMcRestart
-	public String[] foodHydrationMap = {};
 }

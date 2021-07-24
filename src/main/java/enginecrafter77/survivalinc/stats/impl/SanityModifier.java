@@ -8,7 +8,6 @@ import net.minecraft.entity.monster.*;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
@@ -18,17 +17,13 @@ import net.minecraft.util.math.Vec3i;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.living.AnimalTameEvent;
-import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.event.entity.player.PlayerWakeUpEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.net.StatSyncMessage;
@@ -50,12 +45,10 @@ public class SanityModifier implements StatProvider<SanityRecord> {
 	public static final SanityModifier instance = new SanityModifier();
 	
 	public final EffectApplicator<SanityRecord> effects;
-	public final Map<Item, Float> foodSanityMap;
 	
 	public SanityModifier()
 	{
 		this.effects = new EffectApplicator<SanityRecord>();
-		this.foodSanityMap = new HashMap<Item, Float>();
 	}
 	
 	public void init()
@@ -67,18 +60,6 @@ public class SanityModifier implements StatProvider<SanityRecord> {
 		this.effects.add(SanityModifier::playStaticNoise).addFilter(SideEffectFilter.CLIENT);
 		this.effects.add(SanityModifier::whenNearEntities);
 		this.effects.add(SanityModifier::sleepDeprivation);
-	}
-	
-	public void buildCompatMaps()
-	{
-		// Compile food value list
-		for(String entry : ModConfig.SANITY.foodSanityMap)
-		{
-			int separator = entry.lastIndexOf(' ');
-			Item target = Item.getByNameOrId(entry.substring(0, separator));
-			Float value = Float.parseFloat(entry.substring(separator + 1));
-			this.foodSanityMap.put(target, value);
-		}
 	}
 	
 	@Override
@@ -238,30 +219,6 @@ public class SanityModifier implements StatProvider<SanityRecord> {
 			sanity.resetSleep();
 			SurvivalInc.proxy.net.sendToAll(new StatSyncMessage().addPlayer(player));
 			player.getFoodStats().setFoodLevel(player.getFoodStats().getFoodLevel() - 8);
-		}
-	}
-	
-	@SubscribeEvent
-	public static void onConsumeItem(LivingEntityUseItemEvent.Finish event)
-	{		
-		Entity ent = event.getEntity();	
-		if(ent instanceof EntityPlayer)
-		{
-			try
-			{
-				// Try to get the modifier from the map (throws NPE when no such mapping exists)
-				float mod = SanityModifier.instance.foodSanityMap.get(event.getItem().getItem());
-				
-				// Modify the sanity value
-				EntityPlayer player = (EntityPlayer)ent;
-				StatTracker stats = player.getCapability(StatCapability.target, null);
-				SimpleStatRecord sanity = stats.getRecord(SanityModifier.instance);
-				sanity.addToValue(mod);
-			}
-			catch(NullPointerException exc)
-			{
-				// Food simply doesn't have any sanity mapping associated
-			}
 		}
 	}
 	

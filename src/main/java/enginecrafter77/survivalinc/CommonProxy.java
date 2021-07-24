@@ -2,9 +2,10 @@ package enginecrafter77.survivalinc;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
 import java.util.Collection;
 
 import enginecrafter77.survivalinc.block.BlockMelting;
@@ -108,9 +109,21 @@ public class CommonProxy {
 			MinecraftForge.EVENT_BUS.register(MeltingController.class);
 		}
 		
-		// Load the compatiblity maps
+		// Load the compatibility maps
 		try
 		{
+			if(!this.itemeffects.exists())
+			{
+				try
+				{
+					Files.copy(SurvivalInc.class.getResourceAsStream("/assets/survivalinc/configbase/item_effects.json"), this.itemeffects.toPath());
+				}
+				catch(FileAlreadyExistsException exc)
+				{
+					// Do nothing
+				}
+			}
+			
 			ItemSituationParserSetupEvent pse = new ItemSituationParserSetupEvent();
 			MinecraftForge.EVENT_BUS.post(pse);
 			
@@ -119,19 +132,13 @@ public class CommonProxy {
 			this.mapper.effects.addAll(effects);
 			input.close();
 		}
-		catch(FileNotFoundException exc)
-		{
-			SurvivalInc.logger.info("ISM JSON not found... :/");
-		}
 		catch(IOException exc)
 		{
 			throw new RuntimeException("Failed to load ISM JSON.");
 		}
 		
-		// Legacy compat maps
-		if(ModConfig.HEAT.enabled) HeatModifier.instance.buildCompatMaps();
-		if(ModConfig.HYDRATION.enabled) HydrationModifier.instance.buildCompatMaps();
-		if(ModConfig.SANITY.enabled) SanityModifier.instance.buildCompatMaps();
+		// Extra compatibility maps
+		if(ModConfig.HEAT.enabled || ModConfig.WETNESS.enabled) HeatModifier.instance.buildCompatMaps();
 	}
 	
 	public void serverStarting(FMLServerStartingEvent event)

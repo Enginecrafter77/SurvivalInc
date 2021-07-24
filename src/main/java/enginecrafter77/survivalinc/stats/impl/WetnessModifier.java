@@ -1,7 +1,5 @@
 package enginecrafter77.survivalinc.stats.impl;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 import com.google.common.collect.Range;
@@ -24,7 +22,6 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -48,7 +45,6 @@ public class WetnessModifier implements StatProvider<SimpleStatRecord> {
 	
 	public static final WetnessModifier instance = new WetnessModifier();
 	
-	public final Map<Block, Float> humiditymap = new HashMap<Block, Float>();
 	public final EffectApplicator<SimpleStatRecord> effects;
 	public final UUID wetnessSlowdown;
 	
@@ -70,12 +66,6 @@ public class WetnessModifier implements StatProvider<SimpleStatRecord> {
 		this.effects.add(WetnessModifier::naturalDrying).addFilter(FunctionalEffectFilter.byPlayer(EntityPlayer::isWet).invert());
 		this.effects.add(WetnessModifier::whenInWater).addFilter(FunctionalEffectFilter.byPlayer(EntityPlayer::isInWater));
 		this.effects.add(WetnessModifier::slowDown).addFilter(SideEffectFilter.SERVER);
-		
-		this.humiditymap.put(Blocks.FIRE, -0.5F);
-		this.humiditymap.put(Blocks.LAVA, -1F);
-		this.humiditymap.put(Blocks.FLOWING_LAVA, -1F);
-		this.humiditymap.put(Blocks.LIT_FURNACE, -0.4F);
-		this.humiditymap.put(Blocks.MAGMA, -0.4F);
 	}
 	
 	@Override
@@ -168,9 +158,9 @@ public class WetnessModifier implements StatProvider<SimpleStatRecord> {
 		for(BlockPos position : blocks)
 		{
 			Block block = player.world.getBlockState(position).getBlock();
-			if(WetnessModifier.instance.humiditymap.containsKey(block))
+			if(HeatModifier.instance.blockHeatMap.containsKey(block))
 			{
-				float basewetness = WetnessModifier.instance.humiditymap.get(block);
+				float basewetness = HeatModifier.instance.blockHeatMap.get(block) / -400F;
 				float proximity = (float)Math.sqrt(position.distanceSq(player.posX, player.posY, player.posZ));
 				diff += basewetness / proximity;
 			}
