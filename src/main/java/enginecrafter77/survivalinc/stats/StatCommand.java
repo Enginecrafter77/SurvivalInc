@@ -1,11 +1,14 @@
 package enginecrafter77.survivalinc.stats;
 
+import java.util.List;
+
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.net.StatSyncMessage;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
@@ -36,19 +39,26 @@ public class StatCommand extends CommandBase {
 	@Override
 	public String getUsage(ICommandSender sender)
 	{
-		return "/stat <player> [list|<get|set> [stat] [value]]";
+		return "/stat <player> [list|sync|<get|set> [stat] [value]]";
 	}
 	
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
-	{		
-		if(args.length < 1) throw new CommandException("Insufficient Arguments\nUsage: " + this.getUsage(sender));
-		
-		EntityPlayer player = CommandBase.getPlayer(server, sender, args[0]);
+	{
+		this.assertArguments(args, sender, 1);
+		List<EntityPlayerMP> affected = CommandBase.getPlayers(server, sender, args[0]);
+		for(EntityPlayerMP player : affected)
+			this.applyTo(player, sender, args);
+	}
+	
+	public void applyTo(EntityPlayer player, ICommandSender sender, String[] args) throws CommandException
+	{
 		StatTracker tracker = player.getCapability(StatCapability.target, null);
 		
-		if(args.length < 2 || args[1].equals("list"))
+		String cmd = args.length > 1 ? args[1] : "list";
+		switch(cmd)
 		{
+		case "list":
 			ITextComponent component = new TextComponentString(player.getDisplayNameString() + "'s stats:");
 			for(StatProvider<?> provider : tracker.getRegisteredProviders())
 			{
@@ -58,28 +68,41 @@ public class StatCommand extends CommandBase {
 				component.appendText(": " + tracker.getRecord(provider).toString());
 			}
 			sender.sendMessage(component);
-		}
-		else
-		{
-			if(args.length < 3) throw new CommandException("Insufficient Arguments\nUsage: " + this.getUsage(sender));
-			
+			break;
+		case "get":
+			this.assertArguments(args, sender, 3);
 			ResourceLocation res = new ResourceLocation(args[2]);
 			StatProvider<?> provider = tracker.getProvider(res);
 			if(provider == null) throw new CommandException("Stat " + res.toString() + " does not exist!");
-			
 			StatRecord record = tracker.getRecord(provider);
-			if(args[1].equals("set"))
+			sender.sendMessage(new TextComponentString(res + ": " + record.toString()));
+			break;
+		case "set":
+			this.assertArguments(args, sender, 4);
+			res = new ResourceLocation(args[2]);
+			provider = tracker.getProvider(res);
+			if(provider == null) throw new CommandException("Stat " + res.toString() + " does not exist!");
+			record = tracker.getRecord(provider);
+			
+			if(!(record instanceof SimpleStatRecord)) throw new CommandException("Stat " + provider.getStatID().toString() + " uses non-standard record type!");
+			SimpleStatRecord ssr = (SimpleStatRecord)record;
+			
+			String value = args[3];
+			if(value.startsWith("+") || value.startsWith("-"))
 			{
-				if(record instanceof SimpleStatRecord)
-				{
-					if(args.length < 4) throw new CommandException("Insufficient Arguments\nUsage: " + this.getUsage(sender));
-					((SimpleStatRecord)record).setValue(Float.parseFloat(args[3]));
-					SurvivalInc.proxy.net.sendToAll(new StatSyncMessage(player));
-				}
-				else throw new CommandException("Stat " + provider.getStatID().toString() + " uses non-standard record type!");
+				int operation = value.charAt(0) == '+' ? 1 : -1;
+				ssr.addToValue(Float.parseFloat(value.substring(1)) * operation);
 			}
-			else sender.sendMessage(new TextComponentString(provider.getStatID() + ": " + record.toString()));
+			else ssr.setValue(Float.parseFloat(value));
+		case "sync":
+			SurvivalInc.proxy.net.sendToAll(new StatSyncMessage().addPlayer(player));
+			break;
 		}
+	}
+	
+	public void assertArguments(String[] args, ICommandSender sender, int argc) throws CommandException
+	{
+		if(args.length < argc) throw new CommandException("Insufficient Arguments\nUsage: " + this.getUsage(sender));
 	}
 	
 }

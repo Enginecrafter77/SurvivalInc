@@ -3,6 +3,7 @@ package enginecrafter77.survivalinc.stats;
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.net.StatSyncMessage;
+import enginecrafter77.survivalinc.net.StatSyncRequestMessage;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -13,6 +14,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
@@ -65,13 +67,26 @@ public class StatCapability implements ICapabilitySerializable<NBTBase> {
 	}
 	
 	@SubscribeEvent
-	public static void refreshClientData(PlayerEvent event)
+	public static void onPlayerEnterDimension(PlayerEvent.PlayerChangedDimensionEvent event)
 	{
-		// Do this only on server side; Client will only receive the data
-		if((event instanceof PlayerEvent.PlayerLoggedInEvent || event instanceof PlayerEvent.PlayerChangedDimensionEvent) && !event.player.world.isRemote)
+		if(!event.player.world.isRemote)
 		{
-			SurvivalInc.logger.info("Sending stat tracker data to {}", event.player.getName());
-			SurvivalInc.proxy.net.sendTo(new StatSyncMessage(event.player.world), (EntityPlayerMP)event.player);
+			SurvivalInc.logger.info("Player {}({}) changed dimensions. Sending StatSyncMessage...", event.player.getName(),  event.player.getUniqueID().toString());
+			SurvivalInc.proxy.net.sendTo(new StatSyncMessage().addAllPlayers(event.player.world), (EntityPlayerMP)event.player);
+		}
+	}
+	
+	@SubscribeEvent
+	public static void onClientJoin(EntityJoinWorldEvent event)
+	{
+		Entity ent = event.getEntity();
+		if(ent instanceof EntityPlayer)
+		{
+			if(ent.world.isRemote)
+			{
+				SurvivalInc.logger.info("Sending stat sync request...");
+				SurvivalInc.proxy.net.sendToServer(new StatSyncRequestMessage());
+			}
 		}
 	}
 	
@@ -81,10 +96,10 @@ public class StatCapability implements ICapabilitySerializable<NBTBase> {
 		StatTracker stat = event.player.getCapability(StatCapability.target, null);
 		stat.update(event.player);
 		
-		if(event.side == Side.SERVER && event.player.world.getWorldTime() % ModConfig.GENERAL.serverSyncDelay == 0)
+		if(event.side == Side.SERVER && event.player.ticksExisted % ModConfig.GENERAL.serverSyncDelay == (ModConfig.GENERAL.serverSyncDelay - 1))
 		{
 			// Send update to all players about the currently processed player's stats
-			SurvivalInc.proxy.net.sendToAll(new StatSyncMessage(event.player));
+			SurvivalInc.proxy.net.sendToAll(new StatSyncMessage().addPlayer(event.player));
 		}
 	}
 }

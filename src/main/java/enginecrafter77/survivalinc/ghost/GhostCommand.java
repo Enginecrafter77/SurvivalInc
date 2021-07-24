@@ -58,7 +58,7 @@ public class GhostCommand extends CommandBase {
 			}
 			
 			record.setActive(status);
-			message.addPlayerTrackerData(player);
+			message.addPlayer(player);
 			sender.sendMessage(new TextComponentString(String.format("Transformed %s into %s", player.getName(), status ? "ghost" : "human")));
 		}
 		SurvivalInc.proxy.net.sendToAll(message);

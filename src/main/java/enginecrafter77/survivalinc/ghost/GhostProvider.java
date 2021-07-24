@@ -149,7 +149,7 @@ public class GhostProvider implements StatProvider<GhostEnergyRecord> {
 			GhostEnergyRecord record = tracker.getRecord(GhostProvider.instance);
 			record.setActive(true);
 			
-			SurvivalInc.proxy.net.sendToAll(new StatSyncMessage(player));
+			SurvivalInc.proxy.net.sendToAll(new StatSyncMessage().addPlayer(player));
 		}
 	}
 	

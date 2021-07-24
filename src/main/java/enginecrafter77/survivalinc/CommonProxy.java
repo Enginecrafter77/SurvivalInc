@@ -14,6 +14,8 @@ import enginecrafter77.survivalinc.ghost.GhostProvider;
 import enginecrafter77.survivalinc.net.EntityItemUpdateMessage;
 import enginecrafter77.survivalinc.net.EntityItemUpdater;
 import enginecrafter77.survivalinc.net.StatSyncMessage;
+import enginecrafter77.survivalinc.net.StatSyncRequestHandler;
+import enginecrafter77.survivalinc.net.StatSyncRequestMessage;
 import enginecrafter77.survivalinc.net.StatSyncHandler;
 import enginecrafter77.survivalinc.net.WaterDrinkMessage;
 import enginecrafter77.survivalinc.season.SeasonCalendar;
@@ -84,8 +86,8 @@ public class CommonProxy {
 		this.net.registerMessage(StatSyncHandler.class, StatSyncMessage.class, 0, Side.CLIENT);
 		this.net.registerMessage(SeasonController.instance, SeasonSyncMessage.class, 1, Side.CLIENT);
 		this.net.registerMessage(EntityItemUpdater.class, EntityItemUpdateMessage.class, 2, Side.CLIENT);
-		//this.net.registerMessage(GhostUpdateMessageHandler.class, GhostUpdateMessage.class, 3, Side.CLIENT);
 		this.net.registerMessage(HydrationModifier.class, WaterDrinkMessage.class, 3, Side.SERVER);
+		this.net.registerMessage(StatSyncRequestHandler.class, StatSyncRequestMessage.class, 4, Side.SERVER);
 		
 		if(ModConfig.HEAT.enabled) HeatModifier.instance.init();
 		if(ModConfig.HYDRATION.enabled) HydrationModifier.instance.init();
