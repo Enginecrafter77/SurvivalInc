@@ -1,8 +1,8 @@
 ![#Survival Inc.](https://dl.dropboxusercontent.com/s/encrgb3em88ess8/banner-main.png?dl=1)
 
 ![CodeFactor Code Quality](https://img.shields.io/codefactor/grade/github/Enginecrafter77/SurvivalInc/master?label=CodeFactor%20Quality%20Grade)
-![Curseforge Downloads](http://cf.way2muchnoise.eu/full_survival-inc_downloads.svg)
-![Curseforge Versions](http://cf.way2muchnoise.eu/versions/survival-inc.svg)
+![Curseforge Downloads](http://cf.way2muchnoise.eu/full_375921_downloads.svg)
+![Curseforge Versions](http://cf.way2muchnoise.eu/versions/375921.svg)
 
 Tired of the all-same routine every day? Do you want something more... let's say, special?
 Wait no more! Survival Inc. corporation, in association with Steve&Steve industries,
