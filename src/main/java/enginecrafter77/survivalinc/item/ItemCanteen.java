@@ -14,6 +14,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.*;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.relauncher.Side;
@@ -26,6 +27,7 @@ import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import enginecrafter77.survivalinc.stats.impl.HydrationModifier;
+import enginecrafter77.survivalinc.stats.impl.WaterVolume;
 
 import java.util.List;
 
@@ -54,24 +56,31 @@ public class ItemCanteen extends Item {
 		if(stack.hasTagCompound())
 		{
 			NBTTagCompound nbt = stack.getTagCompound();
-			int stored = nbt.getInteger("stored");
+			WaterVolume volume = new WaterVolume(nbt.getCompoundTag("storage"));
 			
 			if(nbt.getBoolean("refill"))
 			{
-				stored = ModConfig.HYDRATION.canteenCapacity;
+				Vec3d look = entity.getPositionEyes(1.0f).add(entity.getLookVec().add(entity.getLookVec().x < 0 ? -0.5 : 0.5, -1, entity.getLookVec().z < 0 ? -0.5 : 0.5));
+				RayTraceResult raytrace = world.rayTraceBlocks(entity.getPositionEyes(1.0f), look, true);
+				WaterVolume collected = null;
+				
+				if(raytrace != null) collected = WaterVolume.fromBlock(world, raytrace.getBlockPos(), ModConfig.HYDRATION.canteenCapacity);
+				if(collected == null) volume.empty();
+				else
+				{
+					volume.mix(collected);
+					volume.setVolume(ModConfig.HYDRATION.canteenCapacity);
+				}
+				
 				if(!world.isRemote) ((WorldServer)world).playSound(null, entity.getPosition(), SoundEvents.ENTITY_GENERIC_SWIM, SoundCategory.PLAYERS, 0.25F, 1.5F);
 			}
 			else
 			{
 				StatTracker stats = entity.getCapability(StatCapability.target, null);
-				if(stats != null)
-				{
-					stats.getRecord(HydrationModifier.instance).addToValue((float)ModConfig.HYDRATION.sipVolume);
-					--stored;
-				}
+				if(stats != null) volume.remove((float)ModConfig.HYDRATION.sipVolume).apply(stats.getRecord(HydrationModifier.instance), (EntityPlayer)entity);
 			}
 			
-			nbt.setInteger("stored", stored);
+			nbt.setTag("storage", volume.serializeNBT());
 		}
 		return stack;
 	}
@@ -94,15 +103,15 @@ public class ItemCanteen extends Item {
 			return new ActionResult<ItemStack>(EnumActionResult.PASS, item);
 		}
 		
-		int stored = nbt.getInteger("stored");
+		WaterVolume stored = new WaterVolume(nbt.getCompoundTag("storage"));
 		boolean result = false;
 		if(nbt.getBoolean("refill"))
 		{
 			Vec3d look = player.getPositionEyes(1.0f).add(player.getLookVec().add(player.getLookVec().x < 0 ? -0.5 : 0.5, -1, player.getLookVec().z < 0 ? -0.5 : 0.5));
 			RayTraceResult raytrace = player.world.rayTraceBlocks(player.getPositionEyes(1.0f), look, true);
-			result = raytrace != null && raytrace.typeOfHit == RayTraceResult.Type.BLOCK && world.getBlockState(raytrace.getBlockPos()).getMaterial() == Material.WATER && stored < ModConfig.HYDRATION.canteenCapacity;
+			result = (raytrace != null && raytrace.typeOfHit == RayTraceResult.Type.BLOCK && world.getBlockState(raytrace.getBlockPos()).getMaterial() == Material.WATER && stored.getVolume() < ModConfig.HYDRATION.canteenCapacity) || stored.getVolume() > 0;
 		}
-		else result = stored > 0;
+		else result = stored.getVolume() > 0;
 		
 		if(result) player.setActiveHand(hand);
 		return new ActionResult<ItemStack>(result ? EnumActionResult.SUCCESS : EnumActionResult.FAIL, item);
@@ -116,7 +125,7 @@ public class ItemCanteen extends Item {
 		{
 			NBTTagCompound nbt = new NBTTagCompound();
 			nbt.setBoolean("refill", false);
-			nbt.setInteger("stored", 0);
+			nbt.setTag("storage", new WaterVolume(0F, 0F, 0F, false).serializeNBT());
 			stack.setTagCompound(nbt);
 		}
 	}
@@ -128,8 +137,13 @@ public class ItemCanteen extends Item {
 		if(!stack.hasTagCompound()) return;
 		
 		NBTTagCompound nbt = stack.getTagCompound();
+		WaterVolume volume = new WaterVolume(nbt.getCompoundTag("storage"));
+		
 		tooltip.add(String.format("Mode: %s", nbt.getBoolean("refill") ? "REFILL" : "DRAIN"));
-		tooltip.add(String.format("Stored: %d/%d mb", nbt.getInteger("stored") * 8, ModConfig.HYDRATION.canteenCapacity * 8));
+		tooltip.add(String.format("Stored: %.01f/%d mb", volume.getVolume() * 8, ModConfig.HYDRATION.canteenCapacity * 8));
+		tooltip.add(String.format("Salinity: %.02f %%", volume.getSalinity()));
+		tooltip.add(String.format("Temperature: %.02f °C", volume.getTemperature() * 20F));
+		if(volume.isDirty()) tooltip.add(TextFormatting.RED.toString() + "DIRTY");
 	}
 
 	@Override
@@ -158,7 +172,8 @@ public class ItemCanteen extends Item {
 		double damage = 1;
 		if(stack.hasTagCompound())
 		{
-			damage -= (double)stack.getTagCompound().getInteger("stored") / (double)ModConfig.HYDRATION.canteenCapacity;
+			WaterVolume volume = new WaterVolume(stack.getTagCompound().getCompoundTag("storage"));
+			damage -= volume.getVolume() / (double)ModConfig.HYDRATION.canteenCapacity;
 		}
 		return damage;
 	}

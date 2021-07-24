@@ -127,7 +127,8 @@ public class HydrationModifier implements IMessageHandler<WaterDrinkMessage, IMe
 		SurvivalInc.logger.info("Player drink request authorized.");
 		StatTracker tracker = player.getCapability(StatCapability.target, null);
 		SimpleStatRecord hydration = tracker.getRecord(HydrationModifier.instance);
-		hydration.addToValue((float)ModConfig.HYDRATION.sipVolume);
+		WaterVolume volume = WaterVolume.fromBlock(player.world, water_rt.getBlockPos(), (float)ModConfig.HYDRATION.sipVolume);
+		volume.apply(hydration, player);
 		return null;
 	}
 	
@@ -172,7 +173,8 @@ public class HydrationModifier implements IMessageHandler<WaterDrinkMessage, IMe
 			// Modify the client tracker
 			StatTracker tracker = player.getCapability(StatCapability.target, null);
 			SimpleStatRecord hydration = tracker.getRecord(HydrationModifier.instance);
-			hydration.addToValue((float)ModConfig.HYDRATION.sipVolume);
+			WaterVolume volume = WaterVolume.fromBlock(player.world, water_rt.getBlockPos(), (float)ModConfig.HYDRATION.sipVolume);
+			volume.apply(hydration, player);
 			SurvivalInc.proxy.net.sendToServer(new WaterDrinkMessage(event.getHand()));
 		}
 	}
@@ -196,7 +198,8 @@ public class HydrationModifier implements IMessageHandler<WaterDrinkMessage, IMe
 		{
 			StatTracker tracker = player.getCapability(StatCapability.target, null);
 			SimpleStatRecord hydration = tracker.getRecord(HydrationModifier.instance);
-			hydration.addToValue((float)ModConfig.HYDRATION.sipVolume);
+			WaterVolume volume = WaterVolume.fromBlock(player.world, water_rt.getBlockPos(), (float)ModConfig.HYDRATION.sipVolume);
+			volume.apply(hydration, player);
 			if(!player.world.isRemote) HydrationModifier.spawnWaterDrinkParticles((WorldServer)player.world, water_rt.hitVec);
 		}
 	}
