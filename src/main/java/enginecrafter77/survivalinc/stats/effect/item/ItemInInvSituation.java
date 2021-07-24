@@ -1,24 +1,26 @@
 package enginecrafter77.survivalinc.stats.effect.item;
 
+import java.util.Properties;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 
-public class ItemInInvSituation implements EffectiveSituation<PlayerTickEvent> {
+public class ItemInInvSituation extends ItemSituation<PlayerTickEvent> {
 
-	public final ItemStack item;
+	public final ItemStack stack;
 	
-	public ItemInInvSituation(String[] parameters)
+	public ItemInInvSituation(Item item, Properties properties)
 	{
-		if(parameters.length < 1) throw new UnsupportedOperationException("At least 1 argument required!");
-		this.item = new ItemStack(Item.getByNameOrId(parameters[0]));
+		super(item, properties);
+		this.stack = new ItemStack(item);
 	}
 	
 	@Override
-	public boolean isTriggered(PlayerTickEvent event)
+	public boolean isTriggeredBy(PlayerTickEvent event)
 	{
-		return this.getPlayer(event).inventory.hasItemStack(this.item);
+		return this.getPlayer(event).inventory.hasItemStack(this.stack);
 	}
 
 	@Override

@@ -60,12 +60,10 @@ public class ClientProxy extends CommonProxy {
 	{
 		super.postInit(event);
 		
-		if(this.hud.isUseful())
-		{
-			MinecraftForge.EVENT_BUS.register(this.hud);
-			MinecraftForge.EVENT_BUS.register(this); // For config reloading
-		}
+		// Register HUD event handler
+		if(this.hud.isUseful()) MinecraftForge.EVENT_BUS.register(this.hud);
 		
+		// Register Ghost event handler
 		if(ModConfig.GHOST.enabled) MinecraftForge.EVENT_BUS.register(new RenderGhost());
 	}
 	

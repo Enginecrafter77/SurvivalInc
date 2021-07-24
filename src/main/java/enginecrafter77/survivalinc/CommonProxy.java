@@ -2,8 +2,10 @@ package enginecrafter77.survivalinc;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 
 import enginecrafter77.survivalinc.block.BlockMelting;
 import enginecrafter77.survivalinc.config.ModConfig;
@@ -25,9 +27,12 @@ import enginecrafter77.survivalinc.stats.StatCommand;
 import enginecrafter77.survivalinc.stats.StatRegisterDispatcher;
 import enginecrafter77.survivalinc.stats.StatStorage;
 import enginecrafter77.survivalinc.stats.StatTracker;
+import enginecrafter77.survivalinc.stats.effect.item.ItemConsumedSituation;
 import enginecrafter77.survivalinc.stats.effect.item.ItemInHandSituation;
 import enginecrafter77.survivalinc.stats.effect.item.ItemInInvSituation;
-import enginecrafter77.survivalinc.stats.effect.item.ItemSituationMapper;
+import enginecrafter77.survivalinc.stats.effect.item.ItemSituation;
+import enginecrafter77.survivalinc.stats.effect.item.ItemSituationContainer;
+import enginecrafter77.survivalinc.stats.effect.item.ItemSituationParserSetupEvent;
 import enginecrafter77.survivalinc.stats.impl.HeatModifier;
 import enginecrafter77.survivalinc.stats.impl.HydrationModifier;
 import enginecrafter77.survivalinc.stats.impl.SanityModifier;
@@ -40,6 +45,7 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
@@ -47,8 +53,9 @@ import net.minecraftforge.fml.relauncher.Side;
 public class CommonProxy {
 	
 	public SimpleNetworkWrapper net;
+	public ItemSituationContainer mapper;
 	
-	public ItemSituationMapper mapper;
+	public File itemeffects;
 	
 	public void preInit(FMLPreInitializationEvent event)
 	{
@@ -64,27 +71,11 @@ public class CommonProxy {
 		// Register capabilities.
 		CapabilityManager.INSTANCE.register(StatTracker.class, StatStorage.instance, StatRegisterDispatcher.instance);
 		
-		this.mapper = new ItemSituationMapper();
-		this.mapper.addSituationFactory("hand", ItemInHandSituation::new);
-		this.mapper.addSituationFactory("inventory", ItemInInvSituation::new);
+		this.mapper = new ItemSituationContainer();		
+		MinecraftForge.EVENT_BUS.register(this.mapper);
+		MinecraftForge.EVENT_BUS.register(this);
 		
-		try
-		{
-			File config = event.getModConfigurationDirectory().toPath().resolve("survivalinc/itemeffect.json").toFile();
-			if(config.exists())
-			{				
-				SurvivalInc.logger.info("");
-				InputStream input = new FileInputStream(config);
-				this.mapper.load(input);
-				input.close();
-				
-				MinecraftForge.EVENT_BUS.register(this.mapper);
-			}
-		}
-		catch(IOException exc)
-		{
-			throw new RuntimeException("Failed to load ISM JSON.");
-		}
+		this.itemeffects = new File(event.getModConfigurationDirectory(), "survivalinc/item_effects.json");
 	}
 
 	public void init(FMLInitializationEvent event)
@@ -115,11 +106,32 @@ public class CommonProxy {
 			MinecraftForge.EVENT_BUS.register(MeltingController.class);
 		}
 		
+		// Load the compatiblity maps
+		try
+		{
+			ItemSituationParserSetupEvent pse = new ItemSituationParserSetupEvent();
+			MinecraftForge.EVENT_BUS.post(pse);
+			
+			InputStream input = new FileInputStream(this.itemeffects);
+			Collection<ItemSituation<?>> effects = pse.getParser().parse(input);
+			this.mapper.effects.addAll(effects);
+			input.close();
+		}
+		catch(FileNotFoundException exc)
+		{
+			SurvivalInc.logger.info("ISM JSON not found... :/");
+		}
+		catch(IOException exc)
+		{
+			throw new RuntimeException("Failed to load ISM JSON.");
+		}
+		
+		// Legacy compat maps
 		if(ModConfig.HEAT.enabled) HeatModifier.instance.buildCompatMaps();
 		if(ModConfig.HYDRATION.enabled) HydrationModifier.instance.buildCompatMaps();
 		if(ModConfig.SANITY.enabled) SanityModifier.instance.buildCompatMaps();
 	}
-
+	
 	public void serverStarting(FMLServerStartingEvent event)
 	{
 		MinecraftServer server = event.getServer();
@@ -128,5 +140,13 @@ public class CommonProxy {
 		if(ModConfig.SEASONS.enabled) manager.registerCommand(new SeasonCommand());
 		if(ModConfig.GHOST.enabled) manager.registerCommand(new GhostCommand());
 		manager.registerCommand(new StatCommand());
+	}
+	
+	@SubscribeEvent
+	public void addParserSituations(ItemSituationParserSetupEvent event)
+	{
+		event.parser.addSituationFactory("in-hand", ItemInHandSituation::new);
+		event.parser.addSituationFactory("in-inventory", ItemInInvSituation::new);
+		event.parser.addSituationFactory("consumed", ItemConsumedSituation::new);
 	}
 }
