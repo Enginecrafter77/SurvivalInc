@@ -6,23 +6,19 @@ buildscript {
 		jcenter()
 	}
 	dependencies {
+		classpath 'gradle.plugin.fr.brouillard.oss.gradle:gradle-jgitver-plugin:0.10.0-rc03'
 		classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
-		classpath 'com.palantir.gradle.gitversion:gradle-git-version:0.12.3'
 		classpath 'gradle.plugin.com.matthewprenger:CurseGradle:1.4.0'
 	}
 }
 
+apply plugin: 'fr.brouillard.oss.gradle.jgitver'
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'com.matthewprenger.cursegradle'
-apply plugin: 'com.palantir.git-version'
 apply plugin: 'maven-publish'
 
-group = "enginecrafter77.survivalinc" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+group = "enginecrafter77.survivalinc"
 archivesBaseName = "SurvivalInc"
-version gitVersion().substring(1) // Remove the 'v' in the tag name
-
-// Define the version details in case they are needed later
-def gitvd = versionDetails()
 
 // Need this here so eclipse task generates correctly.
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
@@ -39,8 +35,8 @@ repositories {
 }
 
 dependencies {
-	runtime 'mezz.jei:jei_1.12.2:4.16.1.302'
-	runtime 'mcp.mobius.waila:Hwyla:1.8.26-B41_1.12.2'
+	runtimeOnly 'mezz.jei:jei_1.12.2:4.16.1.302'
+	runtimeOnly 'mcp.mobius.waila:Hwyla:1.8.26-B41_1.12.2'
 }
 
 jar {
@@ -60,7 +56,7 @@ jar {
 processResources {
 	// this will ensure that this task is redone when the versions change.
 	inputs.property "mcversion", project.minecraft.version
-	inputs.property "version", project.version
+	inputs.property "version", project.version.toString()
 	
 	// replace stuff in mcmod.info, nothing else
 	from(sourceSets.main.resources.srcDirs) {
@@ -70,39 +66,68 @@ processResources {
 		expand 'version': project.version, 'mcversion': project.minecraft.version
 	}
 	
-	// copy everything else except the mcmod.info
-	from(sourceSets.main.resources.srcDirs) {
-		exclude 'mcmod.info'
-	}
-	
 	// Move ATs to meta inf directory
 	rename '(.+_at.cfg)', 'META-INF/$1'
 }
 
 // Maven publishing
 publishing {
+	repositories {
+		maven {
+			name 'EC77-Maven'
+			url project.properties['ec77maven.url']
+			credentials {
+				username project.properties['ec77maven.username']
+				password project.properties['ec77maven.password']
+			}
+		}
+	}
 	publications {
-		local(MavenPublication) {
+		privateMaven(MavenPublication) {
 			groupId 'enginecrafter77.survivalinc'
 			version project.version
 			artifactId 'survivalinc_' + project.minecraft.version
 			from components.java
 			artifact sourceJar
+			
+			pom {
+				name = project.archivesBaseName
+				description = 'A Minecraft mod that aims to make your minecraft life a little bit more annoying'
+				licenses {
+					license {
+						name = 'MIT'
+						url = 'https://opensource.org/licenses/MIT'
+					}
+				}
+				developers {
+					developer {
+						id = 'enginecrafter77'
+						name = 'Michal Hutira'
+						email = 'hutiramichal@gmail.com'
+					}
+				}
+				scm {
+					connection = 'scm:git:https://github.com/Enginecrafter77/SurvivalInc.git'
+					url = 'https://github.com/Enginecrafter77/SurvivalInc'
+				}
+			}
 		}
 	}
 }
 
 // Curseforge publishing
 curseforge {
+	def cleanTag = Integer.parseInt(project.ext.commit_distance) == 0
+	
 	apiKey = project.properties["curseforge.apikey"]
 	project {
 		id = project.properties["curseforge.project"]
-		releaseType = System.getenv("GRADLE_RELEASE_TYPE") ?: 'release'
+		releaseType = System.getenv("GRADLE_RELEASE_TYPE") ?: (project.dirty ? 'alpha' : (cleanTag ? 'release' : 'beta'))
 		changelogType = 'markdown'
-		changelog = 'For changelog, see the [github release page](https://github.com/Enginecrafter77/SurvivalInc' + (gitvd.isCleanTag ? "/releases/tag/$gitvd.lastTag" : "/commit/$gitvd.gitHashFull") + ').'
+		changelog = 'For changelog, see the [github release page](https://github.com/Enginecrafter77/SurvivalInc' + (cleanTag ? "/releases/tag/$project.ext.base_tag" : "/commit/$project.ext.git_sha1_8") + ').'
 		
 		mainArtifact(jar) {
-			displayName = "$project.archivesBaseName-$project.version-$project.minecraft.version" + ".jar"
+			displayName = "${project.archivesBaseName}-${project.minecraft.version}-${project.version}.jar"
 		}
 	}
 	options {
@@ -113,18 +138,11 @@ curseforge {
 // Check if we are not trying to push dirty tree by accident.
 task checkTreeState {
 	doFirst {
-		if(project.version.endsWith(".dirty") && System.getenv("GRADLE_FORCE_PUSH_DIRTY_TREE") == null)
+		if(project.ext.dirty && System.getenv("GRADLE_FORCE_PUSH_DIRTY_TREE") == null)
 			throw new GradleException("Cowardly refusing to publish dirty work tree. Commit your changes before!");
 	}
 }
 
-// A simple utility task to check the version details. Useful for debugging the build script.
-task gitVersionDetails {
-	doFirst {
-		println "lastTag = $gitvd.lastTag\ncommitDistance = $gitvd.commitDistance\ngitHash = $gitvd.gitHash\ngitHashFull = $gitvd.gitHashFull\nbranchName = $gitvd.branchName\nisCleanTag = $gitvd.isCleanTag"
-	}
-}
-
 // Add task dependencies
-tasks.publishToMavenLocal.dependsOn += checkTreeState
 tasks.curseforge.dependsOn += checkTreeState
+tasks.publish.dependsOn += checkTreeState
