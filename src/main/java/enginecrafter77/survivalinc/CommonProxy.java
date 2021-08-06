@@ -119,6 +119,9 @@ public abstract class CommonProxy {
 			{
 				try
 				{
+					File dir = this.itemeffects.getParentFile();
+					if(!dir.exists()) dir.mkdir();
+					
 					Files.copy(SurvivalInc.class.getResourceAsStream("/assets/survivalinc/configbase/item_effects.json"), this.itemeffects.toPath());
 				}
 				catch(FileAlreadyExistsException exc)
@@ -137,7 +140,7 @@ public abstract class CommonProxy {
 		}
 		catch(IOException exc)
 		{
-			throw new RuntimeException("Failed to load ISM JSON.");
+			throw new RuntimeException("Failed to load ISM JSON.", exc);
 		}
 		
 		// Extra compatibility maps
