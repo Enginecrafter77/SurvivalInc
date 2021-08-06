@@ -3,6 +3,7 @@ package enginecrafter77.survivalinc.season;
 import java.util.List;
 
 import enginecrafter77.survivalinc.SurvivalInc;
+import enginecrafter77.survivalinc.util.FormattedTextComponent;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -15,6 +16,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.biome.Biome;
@@ -51,7 +53,7 @@ public class SeasonCommand extends CommandBase {
 		
 		ITextComponent seasonname = new TextComponentTranslation(season.getTranslationKey());
 		
-		TextComponentString message = null;
+		ITextComponent message = null;
 		switch(args[0])
 		{
 		case "set":
@@ -73,28 +75,28 @@ public class SeasonCommand extends CommandBase {
 		case "info":
 			float currentoffset = SeasonController.instance.biomeTemp.getSeasonalTemperatureOffset(date);
 			SeasonCalendarDate next = date.clone();
-			next.advance(1);			
-			message = new TextComponentString("§aCurrent season§r: ");
+			next.advance(1);
+			message = new FormattedTextComponent("${GREEN}Current season${RESET}: ");
 			message.appendSibling(seasonname);
-			message.appendText(String.format(" (Day %d)\n§aSeason Length§r: %d\n§aTemperature Offset on §eDay %1$d§r: %.03f\n§aPeak Temperature Offset in §e", date.getDay(), season.getLength(), currentoffset));
+			message.appendSibling(new FormattedTextComponent(" (Day %d)\n${GREEN}Season Length${RESET}: %d\n${GREEN}Temperature Offset on ${YELLOW}Day %1$d${RESET}: %.03f\n${GREEN}Peak Temperature Offset in ${YELLOW}", date.getDay(), season.getLength(), currentoffset));
 			message.appendSibling(seasonname);
-			message.appendText(String.format("§r: %f\n§aCurrent Temperature Inclination§r: %.03f", season.getPeakTemperature(), SeasonController.instance.biomeTemp.getSeasonalTemperatureOffset(next) - currentoffset));
+			message.appendSibling(new FormattedTextComponent("${RESET}: %f\n${GREEN}Current Temperature Inclination${RESET}: %.03f", season.getPeakTemperature(), SeasonController.instance.biomeTemp.getSeasonalTemperatureOffset(next) - currentoffset));
 			if(sender instanceof Entity)
 			{
 				BlockPos position = new BlockPos(sender.getPositionVector());
 				Biome biome = server.getWorld(0).getBiome(position);
 				float biometempdiff = biome.getTemperature(position) - biome.getDefaultTemperature();
-				message.appendText(String.format("\n§aNominal temperature in current biome§r: %.02f (§7%s§r)\n§aTemperature at §eX%d Y%d Z%d§r: %.02f (§7%s§r)", SeasonController.instance.biomeTemp.originals.get(biome), SeasonCommand.formatOffset("%.03f", currentoffset), position.getX(), position.getY(), position.getZ(), biome.getTemperature(position), SeasonCommand.formatOffset("%.03f", biometempdiff)));
+				message.appendSibling(new FormattedTextComponent("\n${GREEN}Nominal temperature in current biome${RESET}: %.02f (${GRAY}%s${RESET})\n${GREEN}Temperature at ${YELLOW}X%d Y%d Z%d${RESET}: %.02f (${GRAY}%s${RESET})", SeasonController.instance.biomeTemp.originals.get(biome), SeasonCommand.formatOffset("%.03f", currentoffset), position.getX(), position.getY(), position.getZ(), biome.getTemperature(position), SeasonCommand.formatOffset("%.03f", biometempdiff)));
 			}
 			break;
 		case "list":
 			List<SeasonCalendar.SeasonCalendarEntry> entries = date.getCalendarEntry().getCalendar().getSeasons();
-			message = new TextComponentString("§aAvailable seasons:§r");
+			message = new FormattedTextComponent("${GREEN}Available seasons:${RESET}");
 			for(SeasonCalendar.SeasonCalendarEntry entry : entries)
 			{
-				message.appendText("\n§e");
+				message.appendText("\n" + TextFormatting.YELLOW);
 				message.appendSibling(new TextComponentTranslation(entry.getSeason().getTranslationKey()));
-				message.appendText(String.format("§r (§e%s§r): §e%d§r days", entry.getSeason().getName().toString(), entry.getSeason().getLength()));
+				message.appendSibling(new FormattedTextComponent("${RESET} (${YELLOW}%s${RESET}): ${YELLOW}%d${RESET} days", entry.getSeason().getName().toString(), entry.getSeason().getLength()));
 			}
 			break;
 		default:

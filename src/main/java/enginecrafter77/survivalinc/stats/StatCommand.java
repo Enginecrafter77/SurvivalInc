@@ -4,6 +4,7 @@ import java.util.List;
 
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.net.StatSyncMessage;
+import enginecrafter77.survivalinc.util.FormattedTextComponent;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -64,8 +65,7 @@ public class StatCommand extends CommandBase {
 			{
 				component.appendText("\n ");
 				component.appendSibling(new TextComponentTranslation(String.format("stat.%s.name", provider.getStatID().toString())).setStyle(this.statNameStyle));
-				component.appendText("(" + TextFormatting.YELLOW + provider.getStatID().toString() + TextFormatting.RESET + ")");
-				component.appendText(": " + tracker.getRecord(provider).toString());
+				component.appendSibling(new FormattedTextComponent("(${YELLOW}%s${RESET}): %s", provider.getStatID().toString(), tracker.getRecord(provider).toString()));
 			}
 			sender.sendMessage(component);
 			break;
