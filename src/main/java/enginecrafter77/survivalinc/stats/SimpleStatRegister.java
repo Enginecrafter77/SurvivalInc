@@ -81,19 +81,7 @@ public class SimpleStatRegister implements StatTracker {
 	@Override
 	public String toString()
 	{
-		StringBuilder builder = new StringBuilder();
-		builder.append(this.getClass().getSimpleName());
-		builder.append('[');
-		for(Map.Entry<ResourceLocation, SimpleStatRegisterEntry> entry : this.statmap.entrySet())
-		{
-			builder.append(entry.getKey().toString());
-			builder.append(": ");
-			builder.append(entry.getValue().toString());
-			builder.append(", ");
-		}
-		builder.setLength(builder.length() - 2);
-		builder.append(']');
-		return builder.toString();
+		return this.statmap.toString();
 	}
 
 	@Override
@@ -182,6 +170,12 @@ public class SimpleStatRegister implements StatTracker {
 		{
 			RECORD specificrecord = provider.getRecordClass().cast(this.record);
 			provider.update(target, specificrecord);
+		}
+		
+		@Override
+		public String toString()
+		{
+			return String.format("%s(%s:%s; A: %b, C: %b)", this.provider.getClass().getSimpleName(), this.provider.getRecordClass().getSimpleName(), this.record.toString(), this.shouldTick, this.runInCreative);
 		}
 	}
 }

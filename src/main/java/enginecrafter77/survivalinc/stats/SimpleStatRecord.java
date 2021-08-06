@@ -41,17 +41,15 @@ public class SimpleStatRecord implements StatRecord {
 		Range<Float> range = this.getValueRange();
 		if(!range.contains(this.value))
 		{
-			Float midpoint = range.lowerEndpoint() + (range.upperEndpoint() - range.lowerEndpoint()) / 2F;
-			switch(midpoint.compareTo(this.value))
+			if(range.hasLowerBound() && this.value < range.lowerEndpoint())
 			{
-			case -1: // The midpoint is below the value, thus the value is greater than the range
-				this.value = range.upperEndpoint();
-				break;
-			case 1: // The midpoint is above the value, thus the value is less than the range
 				this.value = range.lowerEndpoint();
-				break;
-			default:
-				return;
+				return; // We can safely skip the next check
+			}
+			
+			if(range.hasUpperBound() && this.value > range.upperEndpoint())
+			{
+				this.value = range.upperEndpoint();
 			}
 		}
 	}
@@ -96,7 +94,8 @@ public class SimpleStatRecord implements StatRecord {
 	 * Returns a value between {@code 0.0} and {@code 1.0}, which
 	 * corresponds to the intermediate value in the specified range.
 	 * This method will throw {@link IllegalStateException} if the
-	 * range lacks either lower or upper endpoint. 
+	 * range lacks either lower or upper endpoint.
+	 * @throws IllegalStateException if the stat record doesn't have fully closed value range.
 	 * @return A value between {@code 0.0} and {@code 1.0} corresponding to the current value in the specified range
 	 */
 	public float getNormalizedValue() throws IllegalStateException
@@ -164,7 +163,7 @@ public class SimpleStatRecord implements StatRecord {
 	@Override
 	public String toString()
 	{
-		return String.format("%f (/\\: %f)", this.getValue(), this.getLastChange());
+		return String.format("%f <%f>", this.getValue(), this.getLastChange());
 	}
 	
 }
