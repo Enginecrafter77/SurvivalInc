@@ -1,5 +1,8 @@
 package enginecrafter77.survivalinc.client;
 
+import org.lwjgl.util.ReadableDimension;
+import org.lwjgl.util.ReadablePoint;
+
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import enginecrafter77.survivalinc.stats.StatProvider;
@@ -55,7 +58,7 @@ public class DifferentialArrow extends SimpleOverlayElement<StatTracker> {
 	}
 	
 	@Override
-	public void draw(Position2D position, float partialTicks, StatTracker tracker)
+	public void draw(ReadablePoint position, float partialTicks, StatTracker tracker)
 	{
 		// Bind the arrow texture
 		this.texturer.bindTexture(arrowtexture);
@@ -64,14 +67,16 @@ public class DifferentialArrow extends SimpleOverlayElement<StatTracker> {
 		boolean inverse = value < 0F;
 		value = Math.abs(value);
 		
+		ReadableDimension size = this.getSize();
+		
 		GlStateManager.enableAlpha();
 		GlStateManager.pushMatrix(); // Create new object by pushing matrix
 		// Offset this object into the desired position + centering offset
-		GlStateManager.translate(position.getX() + (this.getWidth() / 2), position.getY() + (this.getHeight() / 2), 0F);
+		GlStateManager.translate(position.getX() + (size.getWidth() / 2), position.getY() + (size.getHeight() / 2), 0F);
 		GlStateManager.pushMatrix(); // Create new object by pushing matrix
 		GlStateManager.scale(value, value, 1F); // Scale the arrow
 		if(inverse) GlStateManager.rotate(180F, 0F, 0F, 1F); // Rotate the arrow
-		Gui.drawModalRectWithCustomSizedTexture(-this.getWidth() / 2, -this.getHeight() / 2, 0, 0, this.getWidth(), this.getHeight(), 8, 12); // Draw the arrow (center at origin)
+		Gui.drawModalRectWithCustomSizedTexture(-size.getWidth() / 2, -size.getHeight() / 2, 0, 0, size.getWidth(), size.getHeight(), 8, 12); // Draw the arrow (center at origin)
 		GlStateManager.popMatrix(); // Render the scaled and rotated arrow
 		GlStateManager.popMatrix(); // Render the offset arrow in place
 		GlStateManager.disableAlpha();

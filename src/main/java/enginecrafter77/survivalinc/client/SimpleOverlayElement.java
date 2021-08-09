@@ -1,6 +1,7 @@
 package enginecrafter77.survivalinc.client;
 
-import com.google.common.collect.ImmutableMap;
+import org.lwjgl.util.Dimension;
+import org.lwjgl.util.ReadableDimension;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureManager;
@@ -19,29 +20,35 @@ public abstract class SimpleOverlayElement<ARGUMENT> implements OverlayElement<A
 	/** The texture manager instance used to bind textures */
 	public final TextureManager texturer;
 	
-	/** Height of the element */
-	protected ImmutableMap<Axis2D, Integer> size;
+	/** Size of the element */
+	protected final ReadableDimension size;
+	
+	public SimpleOverlayElement(ReadableDimension size)
+	{
+		this.size = size;
+		this.texturer = Minecraft.getMinecraft().renderEngine;
+	}
 	
 	public SimpleOverlayElement(int width, int height)
 	{
-		this.size = ImmutableMap.of(Axis2D.HORIZONTAL, width, Axis2D.VERTICAL, height);
-		this.texturer = Minecraft.getMinecraft().renderEngine;
+		this(new Dimension(width, height));
 	}
 
+	@Deprecated
 	public int getWidth()
 	{
-		return this.getSize(Axis2D.HORIZONTAL);
+		return this.getSize().getWidth();
 	}
 	
+	@Deprecated
 	public int getHeight()
 	{
-		return this.getSize(Axis2D.VERTICAL);
+		return this.getSize().getHeight();
 	}
 	
 	@Override
-	public int getSize(Axis2D axis)
+	public ReadableDimension getSize()
 	{
-		return this.size.get(axis);
+		return this.size;
 	}
-
 }

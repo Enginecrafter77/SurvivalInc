@@ -1,6 +1,9 @@
 package enginecrafter77.survivalinc.client;
 
 import java.awt.Color;
+
+import org.lwjgl.util.ReadablePoint;
+
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatTracker;
@@ -24,7 +27,7 @@ public class SimpleStatBar extends OverlayElementGroup<StatTracker> {
 	}
 
 	@Override
-	public void draw(Position2D position, float partialTicks, StatTracker tracker)
+	public void draw(ReadablePoint position, float partialTicks, StatTracker tracker)
 	{
 		if(tracker.isActive(this.provider, Minecraft.getMinecraft().player))
 		{

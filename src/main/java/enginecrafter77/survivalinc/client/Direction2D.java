@@ -1,5 +1,8 @@
 package enginecrafter77.survivalinc.client;
 
+import org.lwjgl.util.ReadablePoint;
+import org.lwjgl.util.WritablePoint;
+
 import com.google.common.collect.ImmutableMap;
 
 import net.minecraftforge.fml.relauncher.Side;
@@ -69,6 +72,21 @@ public enum Direction2D {
 	public Direction2D opposite()
 	{
 		return Direction2D.opposites.get(this);
+	}
+	
+	public <POINT extends ReadablePoint & WritablePoint> void movePoint(POINT point, int steps)
+	{
+		switch(this.axis)
+		{
+		case HORIZONTAL:
+			point.setX(point.getX() + this.getAxialDelta() * steps);
+			break;
+		case VERTICAL:
+			point.setY(point.getY() + this.getAxialDelta() * steps);
+			break;
+		default:
+			throw new IllegalStateException("Axis " + this.axis + " doesn't exist!");
+		}
 	}
 	
 	/**

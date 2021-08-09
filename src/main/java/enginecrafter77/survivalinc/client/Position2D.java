@@ -3,6 +3,9 @@ package enginecrafter77.survivalinc.client;
 import java.util.EnumMap;
 import java.util.Map;
 
+import org.lwjgl.util.ReadablePoint;
+import org.lwjgl.util.WritablePoint;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
@@ -12,7 +15,8 @@ import com.google.common.collect.Maps;
  * position is stored as integer.
  * @author Enginecrafter77
  */
-public class Position2D {
+@Deprecated
+public class Position2D implements ReadablePoint {
 	public static final Position2D ZERO = new Position2D(0, 0);
 	
 	/** The position map */
@@ -90,6 +94,7 @@ public class Position2D {
 	/**
 	 * @return The position on the {@link Axis2D#HORIZONTAL horizontal} axis
 	 */
+	@Override
 	public final int getX()
 	{
 		return this.getPositionOn(Axis2D.HORIZONTAL);
@@ -98,9 +103,17 @@ public class Position2D {
 	/**
 	 * @return The position on the {@link Axis2D#VERTICAL vertical} axis
 	 */
+	@Override
 	public final int getY()
 	{
 		return this.getPositionOn(Axis2D.VERTICAL);
+	}
+	
+	@Override
+	public void getLocation(WritablePoint dest)
+	{
+		dest.setX(this.getX());
+		dest.setY(this.getY());
 	}
 	
 	/**
@@ -108,7 +121,8 @@ public class Position2D {
 	 * creating new instance.
 	 * @author Enginecrafter77
 	 */
-	public static class MutablePosition extends Position2D
+	@Deprecated
+	public static class MutablePosition extends Position2D implements WritablePoint
 	{
 		private final EnumMap<Axis2D, Integer> mposition;
 		
@@ -132,6 +146,7 @@ public class Position2D {
 		 * Sets the X coordinate
 		 * @param x The X coordinate
 		 */
+		@Override
 		public void setX(int x)
 		{
 			this.set(Axis2D.HORIZONTAL, x);
@@ -141,6 +156,7 @@ public class Position2D {
 		 * Sets the Y coordinate
 		 * @param y The Y coordinate
 		 */
+		@Override
 		public void setY(int y)
 		{
 			this.set(Axis2D.VERTICAL, y);
@@ -198,6 +214,19 @@ public class Position2D {
 			value += direction.getAxialDelta() * steps;
 			position.put(direction.axis, value);
 			return this;
+		}
+
+		@Override
+		public void setLocation(int x, int y)
+		{
+			this.setX(x);
+			this.setY(y);
+		}
+
+		@Override
+		public void setLocation(ReadablePoint p)
+		{
+			this.setLocation(p.getX(), p.getY());
 		}
 	}
 }

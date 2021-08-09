@@ -2,13 +2,14 @@ package enginecrafter77.survivalinc.ghost;
 
 import java.util.Set;
 
+import org.lwjgl.util.ReadablePoint;
+import org.lwjgl.util.Rectangle;
+
 import com.google.common.collect.ImmutableSet;
 
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.client.TextureResource;
-import enginecrafter77.survivalinc.client.TexturedElement;
 import enginecrafter77.survivalinc.client.Direction2D;
-import enginecrafter77.survivalinc.client.Position2D;
 import enginecrafter77.survivalinc.client.StatFillBar;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import net.minecraft.util.ResourceLocation;
@@ -24,9 +25,9 @@ public class GhostEnergyBar extends StatFillBar<GhostEnergyRecord> {
 	
 	public GhostEnergyBar()
 	{
-		super(GhostProvider.instance, Direction2D.RIGHT, new TexturedElement(texture, 0, 0, 9, 9));
-		this.addLayer(new TexturedElement(texture, 0, 9, 9, 9), GhostEnergyRecord::getNormalizedValue);
-		this.addLayer(new TexturedElement(texture, 0, 18, 9, 9), GhostEnergyBar::ressurectionValue);
+		super(GhostProvider.instance, Direction2D.RIGHT, texture.region(new Rectangle(0, 0, 9, 9)));
+		this.addLayer(texture.region(new Rectangle(0, 9, 9, 9)), GhostEnergyRecord::getNormalizedValue);
+		this.addLayer(texture.region(new Rectangle(0, 18, 9, 9)), GhostEnergyBar::ressurectionValue);
 		this.setCapacity(10);
 		this.setSpacing(-1);
 	}
@@ -37,7 +38,7 @@ public class GhostEnergyBar extends StatFillBar<GhostEnergyRecord> {
 	}
 	
 	@Override
-	public void draw(Position2D position, float partialTicks, StatTracker tracker)
+	public void draw(ReadablePoint position, float partialTicks, StatTracker tracker)
 	{
 		if(tracker.getRecord(this.provider).isActive())
 		{

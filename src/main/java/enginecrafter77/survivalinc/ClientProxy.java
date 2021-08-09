@@ -2,15 +2,16 @@ package enginecrafter77.survivalinc;
 
 import java.util.function.Predicate;
 
+import org.lwjgl.util.Point;
+import org.lwjgl.util.Rectangle;
+
 import enginecrafter77.survivalinc.client.AbsoluteElementPositioner;
 import enginecrafter77.survivalinc.client.Direction2D;
 import enginecrafter77.survivalinc.client.ElementRenderFilter;
 import enginecrafter77.survivalinc.client.HideRenderFilter;
-import enginecrafter77.survivalinc.client.Position2D;
 import enginecrafter77.survivalinc.client.RenderHUD;
 import enginecrafter77.survivalinc.client.StatFillBar;
 import enginecrafter77.survivalinc.client.TextureResource;
-import enginecrafter77.survivalinc.client.TexturedElement;
 import enginecrafter77.survivalinc.client.TranslateRenderFilter;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.ghost.GhostEnergyBar;
@@ -113,17 +114,17 @@ public class ClientProxy extends CommonProxy {
 		
 		if(ModConfig.HEAT.enabled)
 		{
-			StatFillBar<SimpleStatRecord> bar = new StatFillBar<SimpleStatRecord>(HeatModifier.instance, Direction2D.UP, new TexturedElement(newicons, 0, 18, 9, 16));
-			bar.addLayer(new TexturedElement(newicons, 9, 18, 9, 16), SimpleStatRecord::getNormalizedValue);
+			StatFillBar<SimpleStatRecord> bar = new StatFillBar<SimpleStatRecord>(HeatModifier.instance, Direction2D.UP, newicons.region(new Rectangle(0, 18, 9, 16)));
+			bar.addLayer(newicons.region(new Rectangle(9, 18, 9, 16)), SimpleStatRecord::getNormalizedValue);
 			bar.setCapacity(1);
 			
 			hud.addElement(bar, new AbsoluteElementPositioner(origin_x, origin_y, ModConfig.CLIENT.hud.heatIconX, ModConfig.CLIENT.hud.heatIconY)).setTrigger(ElementType.EXPERIENCE);
-			hud.addFilter(new TranslateRenderFilter(new Position2D(0, -10)), ElementType.SUBTITLES);
+			hud.addFilter(new TranslateRenderFilter(new Point(0, -10)), ElementType.SUBTITLES);
 		}
 		if(ModConfig.HYDRATION.enabled)
 		{
-			StatFillBar<SimpleStatRecord> bar = new StatFillBar<SimpleStatRecord>(HydrationModifier.instance, ModConfig.CLIENT.hud.hydrationBarDirection, new TexturedElement(newicons, 0, 9, 9, 9));
-			bar.addLayer(new TexturedElement(newicons, 9, 9, 9, 9), SimpleStatRecord::getNormalizedValue);
+			StatFillBar<SimpleStatRecord> bar = new StatFillBar<SimpleStatRecord>(HydrationModifier.instance, ModConfig.CLIENT.hud.hydrationBarDirection, newicons.region(new Rectangle(0, 9, 9, 9)));
+			bar.addLayer(newicons.region(new Rectangle(9, 9, 9, 9)), SimpleStatRecord::getNormalizedValue);
 			bar.setCapacity(ModConfig.CLIENT.hud.hydrationBarCapacity);
 			bar.setSpacing(ModConfig.CLIENT.hud.hydrationBarSpacing);
 			
@@ -134,8 +135,8 @@ public class ClientProxy extends CommonProxy {
 		}
 		if(ModConfig.SANITY.enabled)
 		{
-			StatFillBar<SanityRecord> bar = new StatFillBar<SanityRecord>(SanityModifier.instance, ModConfig.CLIENT.hud.sanityBarDirection, new TexturedElement(newicons, 0, 0, 9, 9));
-			bar.addLayer(new TexturedElement(newicons, 9, 0, 9, 9), SimpleStatRecord::getNormalizedValue);
+			StatFillBar<SanityRecord> bar = new StatFillBar<SanityRecord>(SanityModifier.instance, ModConfig.CLIENT.hud.sanityBarDirection, newicons.region(new Rectangle(0, 0, 9, 9)));
+			bar.addLayer(newicons.region(new Rectangle(9, 0, 9, 9)), SimpleStatRecord::getNormalizedValue);
 			bar.setCapacity(ModConfig.CLIENT.hud.sanityBarCapacity);
 			bar.setSpacing(ModConfig.CLIENT.hud.sanityBarSpacing);
 			

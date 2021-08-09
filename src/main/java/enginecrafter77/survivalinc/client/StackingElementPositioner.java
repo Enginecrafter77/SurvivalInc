@@ -3,6 +3,9 @@ package enginecrafter77.survivalinc.client;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import org.lwjgl.util.Point;
+import org.lwjgl.util.ReadablePoint;
+
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.client.GuiIngameForge;
 
@@ -32,14 +35,14 @@ public enum StackingElementPositioner implements ElementPositioner {
 	}
 	
 	@Override
-	public Position2D getPositionFor(ScaledResolution resolution, OverlayElement<?> element)
+	public ReadablePoint getPositionFor(ScaledResolution resolution, OverlayElement<?> element)
 	{
 		int height = this.getter.get();
 		int y = resolution.getScaledHeight() - height;
-		height += element.getSize(Axis2D.VERTICAL) + 1; // 1 = spacing
+		height += element.getSize().getHeight() + 1; // 1 = spacing
 		this.setter.accept(height);
 		
-		return new Position2D(resolution.getScaledWidth() / 2 + this.x, y);
+		return new Point(resolution.getScaledWidth() / 2 + this.x, y);
 	}
 	
 }

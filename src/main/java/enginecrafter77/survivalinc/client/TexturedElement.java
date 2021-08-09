@@ -1,6 +1,12 @@
 package enginecrafter77.survivalinc.client;
 
 import java.io.Closeable;
+
+import org.lwjgl.util.Dimension;
+import org.lwjgl.util.Point;
+import org.lwjgl.util.ReadableDimension;
+import org.lwjgl.util.ReadablePoint;
+
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureManager;
@@ -14,8 +20,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * TexturedElement is designed to be easy to use, so the programmer
  * doesn't have to remember and specify the exact texture dimensions
  * each time a part of texture is drawn.
+ * @deprecated {@link TextureResource#region(org.lwjgl.util.ReadableRectangle)} now provides the same functionality
  * @author Enginecrafter77
  */
+@Deprecated
 @SideOnly(Side.CLIENT)
 public class TexturedElement extends SimpleOverlayElement<Object> {
 	/** The texture resource to pull the texture from */
@@ -41,14 +49,21 @@ public class TexturedElement extends SimpleOverlayElement<Object> {
 		this.hasAlpha = true;
 	}
 	
-	public TexturedElement disableAlpha()
+	public TexturedElement noAlpha()
 	{
-		this.hasAlpha = false;
-		return this;
+		TexturedElement newelement = this.clone();
+		newelement.hasAlpha = false;
+		return newelement;
 	}
 	
 	@Override
-	public void draw(Position2D position, float partialTicks, Object arg)
+	protected TexturedElement clone()
+	{
+		return new TexturedElement(this.resource, this.offset_x, this.offset_y, this.getWidth(), this.getHeight());
+	}
+	
+	@Override
+	public void draw(ReadablePoint position, float partialTicks, Object arg)
 	{
 		TextureDrawingContext context = this.createContext(this.texturer);
 		context.draw(position, partialTicks, arg);
@@ -71,14 +86,12 @@ public class TexturedElement extends SimpleOverlayElement<Object> {
 	public class TextureDrawingContext implements OverlayElement<Object>, Closeable {
 		public final TextureManager manager;
 		
-		protected final int width;
-		protected final int height;
+		protected final Dimension size;
 		
 		public TextureDrawingContext(TextureManager manager, int width, int height)
 		{
+			this.size = new Dimension(width, height);
 			this.manager = manager;
-			this.height = height;
-			this.width = width;
 		}
 		
 		protected void enable(TextureManager manager)
@@ -92,34 +105,26 @@ public class TexturedElement extends SimpleOverlayElement<Object> {
 			if(hasAlpha) GlStateManager.disableAlpha();
 		}
 
-		public void drawPartial(Position2D position, Position2D offset, int width, int height)
+		public void drawPartial(ReadablePoint position, ReadablePoint offset, int width, int height)
 		{
-			Gui.drawModalRectWithCustomSizedTexture(position.getX(), position.getY(), offset_x + offset.getX(), offset_y + offset.getY(), width, height, resource.texture_width, resource.texture_height);
+			Gui.drawModalRectWithCustomSizedTexture(position.getX(), position.getY(), offset_x + offset.getX(), offset_y + offset.getY(), width, height, resource.texturedim.getWidth(), resource.texturedim.getHeight());
 		}
 		
-		public void draw(Position2D position)
+		public void draw(ReadablePoint position)
 		{
-			this.drawPartial(position, Position2D.ZERO, this.width, this.height);
+			this.drawPartial(position, new Point(0, 0), this.size.getWidth(), this.size.getHeight());
 		}
 		
 		@Override
-		public void draw(Position2D position, float partialTicks, Object arg)
+		public void draw(ReadablePoint position, float partialTicks, Object arg)
 		{
 			this.draw(position);
 		}
 		
 		@Override
-		public int getSize(Axis2D axis)
+		public ReadableDimension getSize()
 		{
-			switch(axis)
-			{
-			case HORIZONTAL:
-				return this.width;
-			case VERTICAL:
-				return this.height;
-			default:
-				throw new UnsupportedOperationException("Axis " + axis.name() + " doesn't exist!");
-			}
+			return this.size;
 		}
 		
 		@Override

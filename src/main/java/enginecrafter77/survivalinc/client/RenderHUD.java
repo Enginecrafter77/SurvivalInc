@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
+import org.lwjgl.util.ReadablePoint;
+
 import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import net.minecraft.client.Minecraft;
@@ -219,7 +221,7 @@ public class RenderHUD {
 			
 			if(draw)
 			{
-				Position2D position = this.positioner.getPositionFor(resolution, this.element);
+				ReadablePoint position = this.positioner.getPositionFor(resolution, this.element);
 				this.element.draw(position, partialTicks, tracker);
 			}
 			

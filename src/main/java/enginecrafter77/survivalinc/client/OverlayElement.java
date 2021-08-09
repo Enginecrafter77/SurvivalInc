@@ -1,5 +1,9 @@
 package enginecrafter77.survivalinc.client;
 
+import org.lwjgl.util.Point;
+import org.lwjgl.util.ReadableDimension;
+import org.lwjgl.util.ReadablePoint;
+
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -12,6 +16,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  */
 @SideOnly(Side.CLIENT)
 public interface OverlayElement<RENDER_ARGUMENT> {
+	public static final ReadablePoint POINT_ZERO = new Point(0, 0);
+	
 	/**
 	 * Draws the element on the screen.
 	 * @param resolution The resolution to draw in
@@ -19,13 +25,18 @@ public interface OverlayElement<RENDER_ARGUMENT> {
 	 * @param partialTicks Fraction of time between one tick and another
 	 * @param arg The render argument
 	 */
-	public void draw(Position2D position, float partialTicks, RENDER_ARGUMENT arg);
+	public void draw(ReadablePoint position, float partialTicks, RENDER_ARGUMENT arg);
+	
+	public ReadableDimension getSize();
 	
 	/**
 	 * @param axis The axis of the element.
 	 * @return The size of the element along the specified axis.
 	 */
-	public int getSize(Axis2D axis);
+	public default int getSize(Axis2D axis)
+	{
+		return axis.getDimensionAxialValue(this.getSize());
+	}
 	
 	/**
 	 * @deprecated Use {@link #draw(Position2D, float, Object)} instead.

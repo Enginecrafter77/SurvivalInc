@@ -2,6 +2,9 @@ package enginecrafter77.survivalinc.client;
 
 import java.util.function.Function;
 
+import org.lwjgl.util.ReadableDimension;
+import org.lwjgl.util.ReadablePoint;
+
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -45,15 +48,15 @@ public class ElementTypeAdapter<INPUT, FORWARD> implements OverlayElement<INPUT>
 	}
 	
 	@Override
-	public void draw(Position2D position, float partialTicks, INPUT arg)
+	public void draw(ReadablePoint position, float partialTicks, INPUT arg)
 	{
 		this.target.draw(position, partialTicks, this.transformArgument(arg));
 	}
 
 	@Override
-	public int getSize(Axis2D axis)
+	public ReadableDimension getSize()
 	{
-		return target.getSize(axis);
+		return target.getSize();
 	}
 
 }

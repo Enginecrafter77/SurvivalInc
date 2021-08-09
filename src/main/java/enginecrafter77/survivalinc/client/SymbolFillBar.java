@@ -1,6 +1,10 @@
 package enginecrafter77.survivalinc.client;
 
-import net.minecraft.client.Minecraft;
+import org.lwjgl.util.Point;
+import org.lwjgl.util.ReadableDimension;
+import org.lwjgl.util.ReadablePoint;
+import org.lwjgl.util.Rectangle;
+
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -19,7 +23,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class SymbolFillBar implements OverlayElement<Float> {
 	/** The symbol to draw */
-	public final TexturedElement symbol;
+	public final TextureResource symbol;
 	
 	/** The direction of drawing */
 	public final Direction2D direction;
@@ -30,13 +34,18 @@ public class SymbolFillBar implements OverlayElement<Float> {
 	/** The spacing between the elements */
 	protected int spacing;
 	
-	public SymbolFillBar(TexturedElement symbol, Direction2D direction)
+	/** The size of the element */
+	private final AxisMappedDimension size;
+	
+	public SymbolFillBar(TextureResource symbol, Direction2D direction)
 	{
 		this.direction = direction;
 		this.symbol = symbol;
 		
 		this.capacity = 1;
 		this.spacing = 0;
+		
+		this.size = new AxisMappedDimension(symbol.getSize());
 	}
 	
 	/**
@@ -46,6 +55,7 @@ public class SymbolFillBar implements OverlayElement<Float> {
 	public void setSpacing(int spacing)
 	{
 		this.spacing = spacing;
+		this.recalculateMajorDimension();
 	}
 	
 	/**
@@ -55,6 +65,7 @@ public class SymbolFillBar implements OverlayElement<Float> {
 	public void setCapacity(int count)
 	{
 		this.capacity = count;
+		this.recalculateMajorDimension();
 	}
 	
 	/**
@@ -73,40 +84,36 @@ public class SymbolFillBar implements OverlayElement<Float> {
 		return this.spacing;
 	}
 	
-	/**
-	 * Calculates the axial dimension of the icon with the desired fill.
-	 * Basically if the axis matches the drawing direction's axis, the width
-	 * is multiplied by the fill ratio, otherwise it is returned as it is. 
-	 * @param fill
-	 * @param axis
-	 * @return
-	 */
-	protected int calculateDimensionOn(float fill, Axis2D axis)
+	protected void recalculateMajorDimension()
 	{
-		int dimension = this.symbol.getSize(axis);
-		if(this.direction.axis == axis)
-			dimension = Math.round((float)dimension * fill);
-		return dimension;
+		int majordim = this.symbol.getSize(this.direction.axis);
+		this.size.setSizeOn(this.direction.axis, this.capacity * (majordim + this.spacing));
+	}
+	
+	protected ReadableDimension calculateDimension(float fill)
+	{
+		AxisMappedDimension dim = new AxisMappedDimension(this.symbol.getSize());
+		
+		float orig = dim.getSizeOn(this.direction.axis);
+		dim.setSizeOn(this.direction.axis, Math.round(orig * fill));
+		
+		return dim;
 	}
 	
 	@Override
-	public int getSize(Axis2D axis)
+	public ReadableDimension getSize()
 	{
-		int dimension = this.symbol.getSize(axis);
-		if(this.direction.axis == axis)
-			dimension = this.capacity * (dimension + this.spacing);
-		return dimension;
+		return this.size;
 	}
 	
 	@Override
-	public void draw(Position2D position, float partialTicks, Float length)
+	public void draw(ReadablePoint position, float partialTicks, Float length)
 	{
 		length *= this.capacity;
 		
 		int steps = (int)Math.round(Math.floor(length)); // Number of full symbols
 		
-		TexturedElement.TextureDrawingContext context = this.symbol.createContext(Minecraft.getMinecraft().getTextureManager());
-		Position2D.MutablePosition current_position = new Position2D.MutablePosition(position);
+		Point current_position = new Point(position);
 		
 		/*
 		 * If the direction is not normal for the given axis, we need to shift the position, since drawing
@@ -117,34 +124,40 @@ public class SymbolFillBar implements OverlayElement<Float> {
 		 * the direction). This lends us this formula: -n(w+s)+w, which can be written as w-n(w+s). Additionally,
 		 * move +1x spacing in the specified direction to negate the last spacing effect.
 		 */
-		if(!this.direction.isNatural()) current_position.move(this.direction, this.symbol.getSize(this.direction.axis) - this.getSize(this.direction.axis) + this.spacing);
+		if(!this.direction.isNatural()) this.direction.movePoint(current_position, this.symbol.getSize(this.direction.axis) - this.getSize(this.direction.axis) + this.spacing);
 		
 		for(int piece = 0; piece <= steps; piece++)
 		{
 			float fill = Math.min(1F, length - piece);
 			
-			int width = this.calculateDimensionOn(fill, Axis2D.HORIZONTAL);
-			int height = this.calculateDimensionOn(fill, Axis2D.VERTICAL);
-			Position2D offset = Position2D.ZERO; // Stores the texture offset relative to it's base
-			Position2D symbolpos = current_position; // The symbol position
+			// The region of the texture to draw.
+			Rectangle region = new Rectangle(POINT_ZERO, this.calculateDimension(fill));
+			if(region.isEmpty()) continue; // Avoid IAE stemming from TextureResource#region
+			
+			// The position of the symbol on screen
+			ReadablePoint symbolpos = current_position;
 			
 			// If the direction is reverse, we also need to shift the texture
 			if(!this.direction.isNatural())
 			{
+				// Fetch the size of the symbol
+				ReadableDimension symbolsize = this.symbol.getSize();
+				
 				// Initialize the offset
-				offset = new Position2D(context.width - width, context.height - height);
+				region.setLocation(new Point(symbolsize.getWidth() - region.getWidth(), symbolsize.getHeight() - region.getHeight()));
 				
 				// Make corrections to the drawing position so the texture is drawn where it should be
-				symbolpos = current_position.toImmutable().move(this.direction, -offset.getPositionOn(this.direction.axis));
+				Point pt = new Point(symbolpos);
+				this.direction.movePoint(pt, -this.direction.axis.getPointAxialValue(region));
+				symbolpos = pt;
 			}
 			
 			// Draw the symbol
-			context.drawPartial(symbolpos, offset, width, height);
+			this.symbol.region(region).draw(symbolpos, partialTicks, null);
 			
 			// Move to the next position
-			current_position.move(this.direction, this.symbol.getSize(this.direction.axis) + this.spacing);
+			this.direction.movePoint(current_position, this.symbol.getSize(this.direction.axis) + this.spacing);
 		}
-		context.close();
 	}
 
 }

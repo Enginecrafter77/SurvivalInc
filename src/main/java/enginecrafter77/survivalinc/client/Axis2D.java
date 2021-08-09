@@ -2,6 +2,10 @@ package enginecrafter77.survivalinc.client;
 
 import java.util.function.Function;
 
+import org.lwjgl.util.Dimension;
+import org.lwjgl.util.ReadableDimension;
+import org.lwjgl.util.ReadablePoint;
+
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -14,18 +18,35 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  */
 @SideOnly(Side.CLIENT)
 public enum Axis2D {
-	HORIZONTAL(ScaledResolution::getScaledWidth),
-	VERTICAL(ScaledResolution::getScaledHeight);
+	HORIZONTAL(ReadableDimension::getWidth, ReadablePoint::getX),
+	VERTICAL(ReadableDimension::getHeight, ReadablePoint::getY);
 	
-	private final Function<ScaledResolution, Integer> dimensionExtractor;
+	private final Function<ReadableDimension, Integer> dimensionExtractor;
+	private final Function<ReadablePoint, Integer> positionExtractor;
 	
-	private Axis2D(Function<ScaledResolution, Integer> dimensionExtractor)
+	private Axis2D(Function<ReadableDimension, Integer> dimensionExtractor, Function<ReadablePoint, Integer> positionExtractor)
 	{
 		this.dimensionExtractor = dimensionExtractor;
+		this.positionExtractor = positionExtractor;
 	}
 	
-	public int getResolutionDimension(ScaledResolution resolution)
+	public int getResolutionAxialValue(ScaledResolution resolution)
 	{
-		return this.dimensionExtractor.apply(resolution);
+		return this.getDimensionAxialValue(Axis2D.getResolutionDimensions(resolution));
+	}
+	
+	public int getDimensionAxialValue(ReadableDimension dimension)
+	{
+		return this.dimensionExtractor.apply(dimension);
+	}
+	
+	public int getPointAxialValue(ReadablePoint point)
+	{
+		return this.positionExtractor.apply(point);
+	}
+	
+	public static ReadableDimension getResolutionDimensions(ScaledResolution resolution)
+	{
+		return new Dimension(resolution.getScaledWidth(), resolution.getScaledHeight());
 	}
 }

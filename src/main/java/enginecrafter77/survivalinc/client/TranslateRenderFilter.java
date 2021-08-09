@@ -1,5 +1,7 @@
 package enginecrafter77.survivalinc.client;
 
+import org.lwjgl.util.ReadablePoint;
+
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 
@@ -11,9 +13,9 @@ import net.minecraft.client.renderer.GlStateManager;
 public class TranslateRenderFilter implements ElementRenderFilter<Object> {
 	
 	/** The element position to shift the element by */
-	public Position2D offset;
+	public ReadablePoint offset;
 	
-	public TranslateRenderFilter(Position2D offset)
+	public TranslateRenderFilter(ReadablePoint offset)
 	{
 		this.offset = offset;
 	}

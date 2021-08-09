@@ -1,6 +1,6 @@
 package enginecrafter77.survivalinc.client;
 
-import java.util.EnumMap;
+import org.lwjgl.util.ReadablePoint;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -29,17 +29,15 @@ public class AbsoluteElementPositioner implements ElementPositioner {
 		this.origin = ImmutableMap.of(Axis2D.HORIZONTAL, mx, Axis2D.VERTICAL, my);
 	}
 	
-	public Position2D getPositionFor(ScaledResolution resolution, OverlayElement<?> element)
+	public int calculateAxialPosition(Axis2D axis, ScaledResolution resolution)
 	{
-		EnumMap<Axis2D, Integer> position = new EnumMap<Axis2D, Integer>(Axis2D.class);
-		
-		for(Axis2D axis : Axis2D.values())
-		{
-			int axialpos = (int)((float)axis.getResolutionDimension(resolution) * this.origin.get(axis)) + this.offset.get(axis);
-			position.put(axis, axialpos);
-		}
-		
-		return new Position2D(position);
+		return (int)((float)axis.getResolutionAxialValue(resolution) * this.origin.get(axis)) + this.offset.get(axis); 
+	}
+	
+	@Override
+	public ReadablePoint getPositionFor(ScaledResolution resolution, OverlayElement<?> element)
+	{
+		return ElementPositioner.fromFunction(this::calculateAxialPosition, resolution);
 	}
 	
 }

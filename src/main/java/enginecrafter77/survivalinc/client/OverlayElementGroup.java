@@ -2,6 +2,12 @@ package enginecrafter77.survivalinc.client;
 
 import java.util.LinkedList;
 import java.util.List;
+
+import org.lwjgl.util.Dimension;
+import org.lwjgl.util.Point;
+import org.lwjgl.util.ReadableDimension;
+import org.lwjgl.util.ReadablePoint;
+
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -42,6 +48,12 @@ public class OverlayElementGroup<TYPE> implements OverlayElement<TYPE> {
 	}
 	
 	@Override
+	public ReadableDimension getSize()
+	{
+		return new Dimension(this.getSize(Axis2D.HORIZONTAL), this.getSize(Axis2D.VERTICAL));
+	}
+	
+	@Override
 	public int getSize(Axis2D axis)
 	{
 		int size = 0;
@@ -61,13 +73,13 @@ public class OverlayElementGroup<TYPE> implements OverlayElement<TYPE> {
 	}
 	
 	@Override
-	public void draw(Position2D position, float partialTicks, TYPE arg)
+	public void draw(ReadablePoint position, float partialTicks, TYPE arg)
 	{
-		Position2D.MutablePosition elementpos = new Position2D.MutablePosition(position);
+		Point elementpos = new Point(position);
 		for(OverlayElement<? super TYPE> element : this.elements)
 		{
 			element.draw(elementpos, partialTicks, arg);
-			elementpos.move(Direction2D.getNaturalDirection(this.axis), element.getSize(this.axis) + this.spacing);
+			Direction2D.getNaturalDirection(this.axis).movePoint(elementpos, element.getSize(this.axis) + this.spacing);
 		}
 	}
 }

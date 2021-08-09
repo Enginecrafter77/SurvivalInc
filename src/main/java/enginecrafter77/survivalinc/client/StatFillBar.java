@@ -4,6 +4,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.lwjgl.util.ReadableDimension;
+import org.lwjgl.util.ReadablePoint;
+
 import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatRecord;
 import enginecrafter77.survivalinc.stats.StatTracker;
@@ -39,7 +42,7 @@ public class StatFillBar<RECORD extends StatRecord> implements OverlayElement<St
 	 * @param direction The direction of drawing
 	 * @param base The icon
 	 */
-	public StatFillBar(StatProvider<RECORD> provider, Direction2D direction, TexturedElement base)
+	public StatFillBar(StatProvider<RECORD> provider, Direction2D direction, TextureResource base)
 	{
 		this.layers = new LinkedHashMap<SymbolFillBar, Function<RECORD, Float>>();
 		this.background = new SymbolFillBar(base, direction);
@@ -54,7 +57,7 @@ public class StatFillBar<RECORD extends StatRecord> implements OverlayElement<St
 	 * @deprecated Use {@link #StatFillBar(StatProvider, Direction2D, TexturedElement)} instead
 	 */
 	@Deprecated
-	public StatFillBar(StatProvider<RECORD> provider, Class<RECORD> recordclass, Direction2D direction, TexturedElement base)
+	public StatFillBar(StatProvider<RECORD> provider, Class<RECORD> recordclass, Direction2D direction, TextureResource base)
 	{
 		this(provider, direction, base);
 	}
@@ -84,7 +87,7 @@ public class StatFillBar<RECORD extends StatRecord> implements OverlayElement<St
 	 * @param texture The symbol texture
 	 * @param getter A function to get the appropriate fill ratio from the record
 	 */
-	public void addLayer(TexturedElement texture, Function<RECORD, Float> getter)
+	public void addLayer(TextureResource texture, Function<RECORD, Float> getter)
 	{
 		SymbolFillBar bar = new SymbolFillBar(texture, this.background.direction);
 		bar.setCapacity(this.background.getCapacity());
@@ -93,13 +96,13 @@ public class StatFillBar<RECORD extends StatRecord> implements OverlayElement<St
 	}
 	
 	@Override
-	public int getSize(Axis2D axis)
+	public ReadableDimension getSize()
 	{
-		return this.background.getSize(axis);
+		return this.background.getSize();
 	}
 	
 	@Override
-	public void draw(Position2D position, float partialTicks, StatTracker arg)
+	public void draw(ReadablePoint position, float partialTicks, StatTracker arg)
 	{
 		if(arg.isActive(this.provider, Minecraft.getMinecraft().player))
 		{
