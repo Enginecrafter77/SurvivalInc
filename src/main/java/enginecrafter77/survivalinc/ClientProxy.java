@@ -8,8 +8,8 @@ import org.lwjgl.util.Rectangle;
 import enginecrafter77.survivalinc.client.AbsoluteElementPositioner;
 import enginecrafter77.survivalinc.client.Direction2D;
 import enginecrafter77.survivalinc.client.ElementRenderFilter;
+import enginecrafter77.survivalinc.client.HUDConstructEvent;
 import enginecrafter77.survivalinc.client.HideRenderFilter;
-import enginecrafter77.survivalinc.client.RenderHUD;
 import enginecrafter77.survivalinc.client.StatFillBar;
 import enginecrafter77.survivalinc.client.TextureResource;
 import enginecrafter77.survivalinc.client.TranslateRenderFilter;
@@ -46,13 +46,12 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 
 public class ClientProxy extends CommonProxy {
-	public RenderHUD hud;
+	private HUDConstructEvent.RenderHUD hud;
 	
 	@Override
 	public void preInit(FMLPreInitializationEvent event)
 	{
 		super.preInit(event);
-		this.hud = new RenderHUD();
 		if(ModConfig.SEASONS.enabled) MinecraftForge.EVENT_BUS.register(LeafColorer.instance);
 	}
 	
@@ -68,16 +67,16 @@ public class ClientProxy extends CommonProxy {
 	public void init(FMLInitializationEvent event)
 	{
 		super.init(event);
-		this.constructHUD();
+		
+		HUDConstructEvent hce = new HUDConstructEvent();
+		MinecraftForge.EVENT_BUS.post(hce);
+		if(!hce.isCanceled()) this.hud = hce.buildHUD();
 	}
 	
 	@Override
 	public void postInit(FMLPostInitializationEvent event)
 	{
 		super.postInit(event);
-		
-		// Register HUD event handler
-		if(this.hud.isEffective()) MinecraftForge.EVENT_BUS.register(this.hud);
 		
 		// Register Ghost event handler
 		if(ModConfig.GHOST.enabled) MinecraftForge.EVENT_BUS.register(new RenderGhost());
@@ -88,21 +87,35 @@ public class ClientProxy extends CommonProxy {
 	{
 		if(!event.getModID().equals(SurvivalInc.MOD_ID)) return;
 		
-		this.hud.reset();
-		this.constructHUD();
+		HUDConstructEvent hce = new HUDConstructEvent();
+		MinecraftForge.EVENT_BUS.post(hce);
+		if(!hce.isCanceled()) this.hud = hce.buildHUD();
 	}
 	
+	// A delegate event handler for RenderHUD#renderOverlayPre
+	@SubscribeEvent
+	public void renderOverlayPre(RenderGameOverlayEvent.Pre event)
+	{
+		if(this.hud != null) this.hud.renderOverlayPre(event);
+	}
+	
+	// A delegate event handler for RenderHUD#renderOverlayPost
+	@SubscribeEvent
+	public void renderOverlayPost(RenderGameOverlayEvent.Post event)
+	{
+		if(this.hud != null) this.hud.renderOverlayPost(event);
+	}
+	
+	// Fix the chat position so it's always above the last stacked element
 	@SubscribeEvent
 	public void translateChat(RenderGameOverlayEvent.Chat event)
 	{
-		if((ModConfig.HEAT.enabled && ModConfig.CLIENT.hud.stackSanityBar) || (ModConfig.HYDRATION.enabled && ModConfig.CLIENT.hud.stackHydrationBar))
-		{
-			int height = Math.max(GuiIngameForge.left_height, GuiIngameForge.right_height) - 1;
-			event.setPosY(event.getResolution().getScaledHeight() - height);
-		}
+		int height = Math.max(GuiIngameForge.left_height, GuiIngameForge.right_height) - 1;
+		event.setPosY(event.getResolution().getScaledHeight() - height);
 	}
 	
-	private void constructHUD()
+	@SubscribeEvent
+	public void constructHUD(HUDConstructEvent event)
 	{
 		float origin_x = (float)ModConfig.CLIENT.hud.originX;
 		float origin_y = (float)ModConfig.CLIENT.hud.originY;
@@ -115,8 +128,8 @@ public class ClientProxy extends CommonProxy {
 			bar.addLayer(newicons.region(new Rectangle(9, 18, 9, 16)), SimpleStatRecord::getNormalizedValue);
 			bar.setCapacity(1);
 			
-			hud.addElement(bar, new AbsoluteElementPositioner(origin_x, origin_y, ModConfig.CLIENT.hud.heatIconX, ModConfig.CLIENT.hud.heatIconY)).setTrigger(ElementType.EXPERIENCE);
-			hud.addFilter(new TranslateRenderFilter(new Point(0, -10)), ElementType.SUBTITLES);
+			event.addElement(bar, new AbsoluteElementPositioner(origin_x, origin_y, ModConfig.CLIENT.hud.heatIconX, ModConfig.CLIENT.hud.heatIconY)).setTrigger(ElementType.EXPERIENCE);
+			event.addRenderStageFilter(new TranslateRenderFilter(new Point(0, -10)), ElementType.SUBTITLES);
 		}
 		if(ModConfig.HYDRATION.enabled)
 		{
@@ -126,9 +139,9 @@ public class ClientProxy extends CommonProxy {
 			bar.setSpacing(ModConfig.CLIENT.hud.hydrationBarSpacing);
 			
 			if(ModConfig.CLIENT.hud.stackHydrationBar)
-				hud.addElement(bar, ModConfig.CLIENT.hud.hydrationBarStack).setTrigger(ModConfig.CLIENT.hud.hydrationBarRenderTrigger).addFilter(TextureResetFilter.INSTANCE);
+				event.addElement(bar, ModConfig.CLIENT.hud.hydrationBarStack).setTrigger(ModConfig.CLIENT.hud.hydrationBarRenderTrigger).addFilter(TextureResetFilter.INSTANCE);
 			else
-				hud.addElement(bar, new AbsoluteElementPositioner(origin_x, origin_y, ModConfig.CLIENT.hud.hydrationBarX, ModConfig.CLIENT.hud.hydrationBarY));
+				event.addElement(bar, new AbsoluteElementPositioner(origin_x, origin_y, ModConfig.CLIENT.hud.hydrationBarX, ModConfig.CLIENT.hud.hydrationBarY));
 		}
 		if(ModConfig.SANITY.enabled)
 		{
@@ -138,15 +151,15 @@ public class ClientProxy extends CommonProxy {
 			bar.setSpacing(ModConfig.CLIENT.hud.sanityBarSpacing);
 			
 			if(ModConfig.CLIENT.hud.stackSanityBar)
-				hud.addElement(bar, ModConfig.CLIENT.hud.sanityBarStack).setTrigger(ModConfig.CLIENT.hud.sanityBarRenderTrigger).addFilter(TextureResetFilter.INSTANCE);
+				event.addElement(bar, ModConfig.CLIENT.hud.sanityBarStack).setTrigger(ModConfig.CLIENT.hud.sanityBarRenderTrigger).addFilter(TextureResetFilter.INSTANCE);
 			else
-				hud.addElement(bar, new AbsoluteElementPositioner(origin_x, origin_y, ModConfig.CLIENT.hud.sanityBarX, ModConfig.CLIENT.hud.sanityBarY));
+				event.addElement(bar, new AbsoluteElementPositioner(origin_x, origin_y, ModConfig.CLIENT.hud.sanityBarX, ModConfig.CLIENT.hud.sanityBarY));
 		}
 		if(ModConfig.GHOST.enabled)
 		{
 			Predicate<StatTracker> isGhostActive = (StatTracker tracker) -> tracker.getRecord(GhostProvider.instance).isActive();
-			hud.addElement(new GhostEnergyBar(), new AbsoluteElementPositioner(0.5F, 1F, -91, -39));
-			hud.addFilterToAll(new HideRenderFilter<StatTracker>(isGhostActive), ElementType.HEALTH, ElementType.AIR, ElementType.ARMOR, ElementType.FOOD);
+			event.addElement(new GhostEnergyBar(), new AbsoluteElementPositioner(0.5F, 1F, -91, -39));
+			event.addRenderStageFilter(new HideRenderFilter<StatTracker>(isGhostActive), ElementType.HEALTH, ElementType.AIR, ElementType.ARMOR, ElementType.FOOD);
 		}
 	}
 	
