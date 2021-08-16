@@ -34,7 +34,7 @@ import net.minecraft.util.ResourceLocation;
  * {@link #region(ReadableRectangle)}.
  * @author Enginecrafter77
  */
-public class TextureResource extends SimpleOverlayElement<Object> {
+public class TextureResource extends SimpleOverlayElement {
 	
 	/** The {@link ResourceLocation} of the texture */
 	public final ResourceLocation texture;
@@ -128,7 +128,7 @@ public class TextureResource extends SimpleOverlayElement<Object> {
 	}
 
 	@Override
-	public void draw(ReadablePoint position, float partialTicks, Object arg)
+	public void draw(ReadablePoint position, float partialTicks, Object... args)
 	{
 		this.texturer.bindTexture(this.texture);
 		Gui.drawModalRectWithCustomSizedTexture(position.getX(), position.getY(), this.region.getX(), this.region.getY(), this.region.getWidth(), this.region.getHeight(), this.texturedim.getWidth(), this.texturedim.getHeight());

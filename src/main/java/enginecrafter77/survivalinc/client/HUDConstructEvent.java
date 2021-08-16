@@ -12,9 +12,6 @@ import org.lwjgl.util.ReadablePoint;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
-import enginecrafter77.survivalinc.stats.StatCapability;
-import enginecrafter77.survivalinc.stats.StatTracker;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
@@ -35,11 +32,11 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class HUDConstructEvent extends Event {
 	protected final Collection<HUDElement> elements;
-	protected final Map<ElementType, Collection<ElementRenderFilter<? super StatTracker>>> filters;
+	protected final Map<ElementType, Collection<RenderStageFilter>> filters;
 	
 	public HUDConstructEvent()
 	{
-		this.filters = new HashMap<ElementType, Collection<ElementRenderFilter<? super StatTracker>>>();
+		this.filters = new HashMap<ElementType, Collection<RenderStageFilter>>();
 		this.elements = new LinkedList<HUDElement>();
 	}
 	
@@ -55,7 +52,7 @@ public class HUDConstructEvent extends Event {
 	 * @param position The {@link ElementPositioner positioner} of the element
 	 * @return An instance of {@link HUDElement}, which can be used in a builder-like manner.
 	 */
-	public HUDElement addElement(OverlayElement<? super StatTracker> element, ElementPositioner position)
+	public HUDElement addElement(OverlayElement element, ElementPositioner position)
 	{
 		HUDElement entry = new HUDElement(element, position);
 		this.elements.add(entry);
@@ -67,14 +64,14 @@ public class HUDConstructEvent extends Event {
 	 * @param filter The render filter
 	 * @param elements The native elements to apply the filter to.
 	 */
-	public void addRenderStageFilter(ElementRenderFilter<? super StatTracker> filter, ElementType... elements)
+	public void addRenderStageFilter(RenderStageFilter filter, ElementType... elements)
 	{
 		for(ElementType element : elements)
 		{
-			Collection<ElementRenderFilter<? super StatTracker>> filters = this.filters.get(element);
+			Collection<RenderStageFilter> filters = this.filters.get(element);
 			if(filters == null)
 			{
-				filters = new LinkedList<ElementRenderFilter<? super StatTracker>>();
+				filters = new LinkedList<RenderStageFilter>();
 				this.filters.put(element, filters);
 			}
 			filters.add(filter);
@@ -103,7 +100,7 @@ public class HUDConstructEvent extends Event {
 	public static class HUDElement
 	{
 		/** The rendered element itself */
-		public final OverlayElement<? super StatTracker> element;
+		public final OverlayElement element;
 		
 		/** The element positioner used to position the element on screen */
 		public final ElementPositioner positioner;
@@ -115,7 +112,7 @@ public class HUDConstructEvent extends Event {
 		 * work with element filtered through the previous
 		 * filter.
 		 */
-		protected final List<ElementRenderFilter<? super StatTracker>> filters;
+		protected final List<ElementRenderFilter> filters;
 		
 		/**
 		 * The render trigger specifies the moment when the element
@@ -124,9 +121,9 @@ public class HUDConstructEvent extends Event {
 		 */
 		protected ElementType trigger;
 		
-		protected HUDElement(OverlayElement<? super StatTracker> element, ElementPositioner positioner)
+		protected HUDElement(OverlayElement element, ElementPositioner positioner)
 		{
-			this.filters = new LinkedList<ElementRenderFilter<? super StatTracker>>();
+			this.filters = new LinkedList<ElementRenderFilter>();
 			this.positioner = positioner;
 			this.trigger = ElementType.ALL;
 			this.element = element;
@@ -150,7 +147,7 @@ public class HUDConstructEvent extends Event {
 		 * @param filter The filter to add to the filter list
 		 * @return The link to the local HUD Entry for easy chaining
 		 */
-		public HUDElement addFilter(ElementRenderFilter<? super StatTracker> filter)
+		public HUDElement addFilter(ElementRenderFilter filter)
 		{
 			this.filters.add(filter);
 			return this;
@@ -170,30 +167,29 @@ public class HUDConstructEvent extends Event {
 		/**
 		 * Draws the HUD Entry and filters it though all the filters in an orderly fashion.
 		 * @param resolution The resolution to draw the element in
-		 * @param tracker The stat tracker
 		 * @param partialTicks The partial ticks in the current render tick
 		 */
-		public void draw(ScaledResolution resolution, StatTracker tracker, float partialTicks)
+		public void draw(ScaledResolution resolution, float partialTicks)
 		{
 			// Due to the nature of OpenGL matrix pushing, we need to call ElementRenderFilter#begin on the last element first, so it's presumed pushMatrix runs first.
-			ListIterator<ElementRenderFilter<? super StatTracker>> itr = this.filters.listIterator(this.filters.size());
+			ListIterator<ElementRenderFilter> itr = this.filters.listIterator(this.filters.size());
 			
 			boolean draw = true;
 			while(itr.hasPrevious())
 			{
-				if(!itr.previous().begin(resolution, tracker)) draw = false;
+				if(!itr.previous().begin(resolution, this.element)) draw = false;
 			}
 			
 			if(draw)
 			{
 				ReadablePoint position = this.positioner.getPositionFor(resolution, this.element);
-				this.element.draw(position, partialTicks, tracker);
+				this.element.draw(position, partialTicks);
 			}
 			
 			// Now iterate the array back using normal order
 			while(itr.hasNext())
 			{
-				itr.next().end(resolution, tracker);
+				itr.next().end(resolution, this.element);
 			}
 		}
 	}
@@ -215,9 +211,9 @@ public class HUDConstructEvent extends Event {
 	 */
 	private static class RenderHUDImpl implements RenderHUD {
 		protected final Collection<HUDElement> elements;
-		protected final Map<ElementType, Collection<ElementRenderFilter<? super StatTracker>>> filters;
+		protected final Map<ElementType, Collection<RenderStageFilter>> filters;
 		
-		private RenderHUDImpl(Collection<HUDElement> elements, Map<ElementType, Collection<ElementRenderFilter<? super StatTracker>>> filters)
+		private RenderHUDImpl(Collection<HUDElement> elements, Map<ElementType, Collection<RenderStageFilter>> filters)
 		{
 			this.filters = ImmutableMap.copyOf(filters);
 			this.elements = ImmutableList.copyOf(elements);
@@ -228,27 +224,25 @@ public class HUDConstructEvent extends Event {
 		 * associated with the provided type.
 		 * @param resolution The resolution the filters are running at
 		 * @param element The currently processed element type
-		 * @param tracker A stat tracker as argument
 		 */
-		private void runEndFilters(ScaledResolution resolution, ElementType element, StatTracker tracker)
+		private void runEndFilters(ScaledResolution resolution, ElementType element)
 		{
-			Collection<ElementRenderFilter<? super StatTracker>> filters = this.filters.get(element);
+			Collection<RenderStageFilter> filters = this.filters.get(element);
 			if(filters != null)
 			{
-				for(ElementRenderFilter<? super StatTracker> filter : filters) filter.end(resolution, tracker);
+				for(RenderStageFilter filter : filters) filter.end(resolution, element);
 			}
 		}
 		
 		@Override
 		public void renderOverlayPre(RenderGameOverlayEvent.Pre event)
 		{
-			StatTracker tracker = Minecraft.getMinecraft().player.getCapability(StatCapability.target, null);
-			Collection<ElementRenderFilter<? super StatTracker>> filters = this.filters.get(event.getType());
+			Collection<RenderStageFilter> filters = this.filters.get(event.getType());
 			if(filters != null)
 			{
-				for(ElementRenderFilter<? super StatTracker> filter : filters)
+				for(RenderStageFilter filter : filters)
 				{
-					boolean render = filter.begin(event.getResolution(), tracker);
+					boolean render = filter.begin(event.getResolution(), event.getType());
 					if(!render) event.setCanceled(true);
 				}
 			}
@@ -259,22 +253,21 @@ public class HUDConstructEvent extends Event {
 			 * a weird state. This call makes sure that every filter that has been
 			 * started will also be ended, no matter what.
 			 */
-			if(event.isCanceled()) this.runEndFilters(event.getResolution(), event.getType(), tracker);
+			if(event.isCanceled()) this.runEndFilters(event.getResolution(), event.getType());
 		}
 		
 		@Override
 		public void renderOverlayPost(RenderGameOverlayEvent.Post event)
 		{
-			StatTracker tracker = Minecraft.getMinecraft().player.getCapability(StatCapability.target, null);
 			ScaledResolution resolution = event.getResolution();
 			ElementType type = event.getType();
 			
 			for(HUDElement entry : this.elements)
 			{
-				if(entry.isTrigger(event)) entry.draw(resolution, tracker, event.getPartialTicks());
+				if(entry.isTrigger(event)) entry.draw(resolution, event.getPartialTicks());
 			}
 			
-			this.runEndFilters(resolution, type, tracker);
+			this.runEndFilters(resolution, type);
 		}	
 	}
 }

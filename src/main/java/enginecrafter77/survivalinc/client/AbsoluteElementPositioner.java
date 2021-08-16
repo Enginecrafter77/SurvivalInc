@@ -20,6 +20,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class AbsoluteElementPositioner implements ElementPositioner {
 	
+	public static final AbsoluteElementPositioner ORIGIN = new AbsoluteElementPositioner(0F, 0F, 0, 0);
+	public static final AbsoluteElementPositioner CENTER = new AbsoluteElementPositioner(0.5F, 0.5F, 0, 0);
+	
 	protected final ImmutableMap<Axis2D, Integer> offset;
 	protected final ImmutableMap<Axis2D, Float> origin;
 	
@@ -35,7 +38,7 @@ public class AbsoluteElementPositioner implements ElementPositioner {
 	}
 	
 	@Override
-	public ReadablePoint getPositionFor(ScaledResolution resolution, OverlayElement<?> element)
+	public ReadablePoint getPositionFor(ScaledResolution resolution, OverlayElement element)
 	{
 		return ElementPositioner.fromFunction(this::calculateAxialPosition, resolution);
 	}

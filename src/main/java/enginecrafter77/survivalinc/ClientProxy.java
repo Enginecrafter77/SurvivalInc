@@ -1,7 +1,5 @@
 package enginecrafter77.survivalinc;
 
-import java.util.function.Predicate;
-
 import org.lwjgl.util.Point;
 import org.lwjgl.util.Rectangle;
 
@@ -9,7 +7,8 @@ import enginecrafter77.survivalinc.client.AbsoluteElementPositioner;
 import enginecrafter77.survivalinc.client.Direction2D;
 import enginecrafter77.survivalinc.client.ElementRenderFilter;
 import enginecrafter77.survivalinc.client.HUDConstructEvent;
-import enginecrafter77.survivalinc.client.HideRenderFilter;
+import enginecrafter77.survivalinc.client.OverlayElement;
+import enginecrafter77.survivalinc.client.RenderStageFilter;
 import enginecrafter77.survivalinc.client.StatFillBar;
 import enginecrafter77.survivalinc.client.TextureResource;
 import enginecrafter77.survivalinc.client.TranslateRenderFilter;
@@ -25,6 +24,7 @@ import enginecrafter77.survivalinc.season.LeafColorer;
 import enginecrafter77.survivalinc.season.SeasonController;
 import enginecrafter77.survivalinc.season.SeasonSyncMessage;
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
+import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import enginecrafter77.survivalinc.stats.impl.HeatModifier;
 import enginecrafter77.survivalinc.stats.impl.HydrationModifier;
@@ -157,9 +157,18 @@ public class ClientProxy extends CommonProxy {
 		}
 		if(ModConfig.GHOST.enabled)
 		{
-			Predicate<StatTracker> isGhostActive = (StatTracker tracker) -> tracker.getRecord(GhostProvider.instance).isActive();
 			event.addElement(new GhostEnergyBar(), new AbsoluteElementPositioner(0.5F, 1F, -91, -39));
-			event.addRenderStageFilter(new HideRenderFilter<StatTracker>(isGhostActive), ElementType.HEALTH, ElementType.AIR, ElementType.ARMOR, ElementType.FOOD);
+			event.addRenderStageFilter(new RenderStageFilter() {
+				@Override
+				public boolean begin(ScaledResolution resoultion, ElementType element)
+				{
+					StatTracker tracker = Minecraft.getMinecraft().player.getCapability(StatCapability.target, null);
+					return !tracker.getRecord(GhostProvider.instance).isActive();
+				}
+
+				@Override
+				public void end(ScaledResolution resoultion, ElementType element) {}
+			}, ElementType.HEALTH, ElementType.AIR, ElementType.ARMOR, ElementType.FOOD);
 		}
 	}
 	
@@ -170,18 +179,18 @@ public class ClientProxy extends CommonProxy {
 	 * preventing the game from rendering missing textures.
 	 * @author Enginecrafter77
 	 */
-	private static enum TextureResetFilter implements ElementRenderFilter<Object>
+	private static enum TextureResetFilter implements ElementRenderFilter
 	{
 		INSTANCE;
-		
+
 		@Override
-		public boolean begin(ScaledResolution resoultion, Object arg)
+		public boolean begin(ScaledResolution resoultion, OverlayElement element)
 		{
 			return true;
 		}
 
 		@Override
-		public void end(ScaledResolution resoultion, Object arg)
+		public void end(ScaledResolution resoultion, OverlayElement element)
 		{
 			Minecraft.getMinecraft().getTextureManager().bindTexture(Gui.ICONS);
 		}

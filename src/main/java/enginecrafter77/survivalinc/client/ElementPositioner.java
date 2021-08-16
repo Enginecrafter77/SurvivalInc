@@ -18,7 +18,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 @FunctionalInterface
 public interface ElementPositioner {	
-	public ReadablePoint getPositionFor(ScaledResolution resolution, OverlayElement<?> element);
+	public ReadablePoint getPositionFor(ScaledResolution resolution, OverlayElement element);
 	
 	public static ReadablePoint fromFunction(Function<Axis2D, Integer> provider)
 	{

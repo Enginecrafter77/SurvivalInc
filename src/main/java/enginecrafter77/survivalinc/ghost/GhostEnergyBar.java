@@ -10,8 +10,11 @@ import com.google.common.collect.ImmutableSet;
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.client.TextureResource;
 import enginecrafter77.survivalinc.client.Direction2D;
+import enginecrafter77.survivalinc.client.OverlayElement;
 import enginecrafter77.survivalinc.client.StatFillBar;
+import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatTracker;
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.fml.relauncher.Side;
@@ -38,8 +41,9 @@ public class GhostEnergyBar extends StatFillBar<GhostEnergyRecord> {
 	}
 	
 	@Override
-	public void draw(ReadablePoint position, float partialTicks, StatTracker tracker)
+	public void draw(ReadablePoint position, float partialTicks, Object... arguments)
 	{
+		StatTracker tracker = OverlayElement.getArgument(arguments, 0, StatTracker.class).orElse(Minecraft.getMinecraft().player.getCapability(StatCapability.target, null));
 		if(tracker.getRecord(this.provider).isActive())
 		{
 			super.draw(position, partialTicks, tracker);

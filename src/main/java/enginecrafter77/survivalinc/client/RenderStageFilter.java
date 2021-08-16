@@ -1,21 +1,9 @@
 package enginecrafter77.survivalinc.client;
 
 import net.minecraft.client.gui.ScaledResolution;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 
-/**
- * ElementRenderFilter specifies a simple interface
- * to execute some code before and after an element
- * is drawn on screen. This interface was designed
- * with OpenGL operations in mind. Just like {@link OverlayElement},
- * this interface accepts an optional argument provided
- * by the caller.
- * @author Enginecrafter77
- * @param <ARGUMENT> The argument
- */
-@SideOnly(Side.CLIENT)
-public interface ElementRenderFilter {
+public interface RenderStageFilter {
 	/**
 	 * Phase 1 of the filter; runs before any content is
 	 * drawn on the screen. Useful for pushing matrices.
@@ -23,7 +11,7 @@ public interface ElementRenderFilter {
 	 * @param arg The optional argument
 	 * @return True if the element should be drawn, false otherwise.
 	 */
-	public boolean begin(ScaledResolution resoultion, OverlayElement element);
+	public boolean begin(ScaledResolution resoultion, ElementType element);
 	
 	/**
 	 * Phase 2 of the filter; runs after the element has
@@ -36,5 +24,5 @@ public interface ElementRenderFilter {
 	 * @param resoultion The game resolution
 	 * @param arg The optinal argument
 	 */
-	public void end(ScaledResolution resoultion, OverlayElement element);
+	public void end(ScaledResolution resoultion, ElementType element);	
 }

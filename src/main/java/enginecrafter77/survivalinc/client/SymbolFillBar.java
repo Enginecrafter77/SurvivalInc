@@ -21,7 +21,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * @author Enginecrafter77
  */
 @SideOnly(Side.CLIENT)
-public class SymbolFillBar implements OverlayElement<Float> {
+public class SymbolFillBar extends SimpleOverlayElement {
 	/** The symbol to draw */
 	public final TextureResource symbol;
 	
@@ -34,18 +34,14 @@ public class SymbolFillBar implements OverlayElement<Float> {
 	/** The spacing between the elements */
 	protected int spacing;
 	
-	/** The size of the element */
-	private final AxisMappedDimension size;
-	
 	public SymbolFillBar(TextureResource symbol, Direction2D direction)
 	{
+		super(new AxisMappedDimension(symbol.getSize()));
 		this.direction = direction;
 		this.symbol = symbol;
 		
 		this.capacity = 1;
 		this.spacing = 0;
-		
-		this.size = new AxisMappedDimension(symbol.getSize());
 	}
 	
 	/**
@@ -87,7 +83,7 @@ public class SymbolFillBar implements OverlayElement<Float> {
 	protected void recalculateMajorDimension()
 	{
 		int majordim = this.symbol.getSize(this.direction.axis);
-		this.size.setSizeOn(this.direction.axis, this.capacity * (majordim + this.spacing));
+		((AxisMappedDimension)this.size).setSizeOn(this.direction.axis, this.capacity * (majordim + this.spacing));
 	}
 	
 	protected ReadableDimension calculateDimension(float fill)
@@ -107,9 +103,9 @@ public class SymbolFillBar implements OverlayElement<Float> {
 	}
 	
 	@Override
-	public void draw(ReadablePoint position, float partialTicks, Float length)
+	public void draw(ReadablePoint position, float partialTicks, Object... arguments)
 	{
-		length *= this.capacity;
+		float length = OverlayElement.getArgument(arguments, 0, Float.class).get() * this.capacity;
 		
 		int steps = (int)Math.round(Math.floor(length)); // Number of full symbols
 		
@@ -153,7 +149,7 @@ public class SymbolFillBar implements OverlayElement<Float> {
 			}
 			
 			// Draw the symbol
-			this.symbol.region(region).draw(symbolpos, partialTicks, null);
+			this.symbol.region(region).draw(symbolpos, partialTicks);
 			
 			// Move to the next position
 			this.direction.movePoint(current_position, this.symbol.getSize(this.direction.axis) + this.spacing);

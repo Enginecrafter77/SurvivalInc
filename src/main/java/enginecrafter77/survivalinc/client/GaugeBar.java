@@ -17,7 +17,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * @author Enginecrafter77
  */
 @SideOnly(Side.CLIENT)
-public class GaugeBar extends SimpleOverlayElement<Float> {
+public class GaugeBar extends SimpleOverlayElement {
 	private static final TextureResource bartemplate = new TextureResource(new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/statusbar.png"), 16, 32);
 	
 	public final SymbolFillBar background, overlay;
@@ -42,14 +42,14 @@ public class GaugeBar extends SimpleOverlayElement<Float> {
 	}
 	
 	@Override
-	public void draw(ReadablePoint position, float partialTicks, Float prop)
+	public void draw(ReadablePoint position, float partialTicks, Object... args)
 	{
 		this.background.draw(position, partialTicks, 1F);
 		
 		// Draw the gauge infill (colored using OpenGL)
 		GlStateManager.pushMatrix();
 		GlStateManager.color(this.colorcomponents[0], this.colorcomponents[1], this.colorcomponents[2], this.colorcomponents[3]);
-		this.overlay.draw(position, partialTicks, prop);
+		this.overlay.draw(position, partialTicks, args);
 		GlStateManager.resetColor();
 		GlStateManager.popMatrix();
 	}

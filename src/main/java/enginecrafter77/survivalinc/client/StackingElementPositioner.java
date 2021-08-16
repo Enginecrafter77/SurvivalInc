@@ -35,7 +35,7 @@ public enum StackingElementPositioner implements ElementPositioner {
 	}
 	
 	@Override
-	public ReadablePoint getPositionFor(ScaledResolution resolution, OverlayElement<?> element)
+	public ReadablePoint getPositionFor(ScaledResolution resolution, OverlayElement element)
 	{
 		int height = this.getter.get();
 		int y = resolution.getScaledHeight() - height;

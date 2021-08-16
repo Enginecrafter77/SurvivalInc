@@ -7,10 +7,12 @@ import java.util.function.Function;
 import org.lwjgl.util.ReadableDimension;
 import org.lwjgl.util.ReadablePoint;
 
+import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatRecord;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -26,7 +28,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * @param <RECORD> The record class
  */
 @SideOnly(Side.CLIENT)
-public class StatFillBar<RECORD extends StatRecord> implements OverlayElement<StatTracker> {
+public class StatFillBar<RECORD extends StatRecord> implements OverlayElement {
 	
 	/** The background fill bar. */
 	public final SymbolFillBar background;
@@ -102,13 +104,15 @@ public class StatFillBar<RECORD extends StatRecord> implements OverlayElement<St
 	}
 	
 	@Override
-	public void draw(ReadablePoint position, float partialTicks, StatTracker arg)
+	public void draw(ReadablePoint position, float partialTicks, Object... args)
 	{
-		if(arg.isActive(this.provider, Minecraft.getMinecraft().player))
+		EntityPlayerSP player = Minecraft.getMinecraft().player;
+		StatTracker tracker = OverlayElement.getArgument(args, 0, StatTracker.class).orElse(player.getCapability(StatCapability.target, null));
+		if(tracker.isActive(this.provider, player))
 		{
 			this.background.draw(position, partialTicks, 1F);
 			
-			RECORD record = arg.getRecord(this.provider);
+			RECORD record = tracker.getRecord(this.provider);
 			for(Map.Entry<SymbolFillBar, Function<RECORD, Float>> entry : this.layers.entrySet())
 			{
 				Function<RECORD, Float> transformer = entry.getValue();

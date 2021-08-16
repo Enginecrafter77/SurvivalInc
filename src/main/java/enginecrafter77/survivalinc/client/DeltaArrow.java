@@ -1,20 +1,21 @@
 package enginecrafter77.survivalinc.client;
 
+import org.lwjgl.util.Point;
 import org.lwjgl.util.ReadableDimension;
 import org.lwjgl.util.ReadablePoint;
-
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
+import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatTracker;
-import net.minecraft.client.gui.Gui;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
- * DifferentialArrow is a little overlay element
+ * DeltaArrow is a little overlay element
  * designed to show a change in value of a certain
  * stat. The arrow has two modes: logarithmic and
  * linear. In logarithmic mode, the change in the
@@ -28,8 +29,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * @author Enginecrafter77
  */
 @SideOnly(Side.CLIENT)
-public class DifferentialArrow extends SimpleOverlayElement<StatTracker> {
-	public static final ResourceLocation arrowtexture = new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/arrow.png");
+public class DeltaArrow extends SimpleOverlayElement {
+	public static final TextureResource arrow = new TextureResource(new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/arrow.png"), 16, 24);
 	
 	/** The provider to use to get the stat record */
 	public final StatProvider<? extends SimpleStatRecord> provider;
@@ -46,9 +47,9 @@ public class DifferentialArrow extends SimpleOverlayElement<StatTracker> {
 	/** The maximum scale of the arrow. Beyond this value, the arrow won't grow. */
 	protected float max_scale;
 	
-	public DifferentialArrow(StatProvider<? extends SimpleStatRecord> provider, int width, int height, boolean logarithmic)
+	public DeltaArrow(StatProvider<? extends SimpleStatRecord> provider, boolean logarithmic)
 	{
-		super(width, height);
+		super(arrow.getSize());
 		this.logarithmic = logarithmic;
 		this.provider = provider;
 		
@@ -58,28 +59,23 @@ public class DifferentialArrow extends SimpleOverlayElement<StatTracker> {
 	}
 	
 	@Override
-	public void draw(ReadablePoint position, float partialTicks, StatTracker tracker)
-	{
-		// Bind the arrow texture
-		this.texturer.bindTexture(arrowtexture);
-		
+	public void draw(ReadablePoint position, float partialTicks, Object... arguments)
+	{		
+		StatTracker tracker = OverlayElement.getArgument(arguments, 0, StatTracker.class).orElse(Minecraft.getMinecraft().player.getCapability(StatCapability.target, null));
 		float value = this.getArrowScale(tracker);
 		boolean inverse = value < 0F;
 		value = Math.abs(value);
 		
 		ReadableDimension size = this.getSize();
 		
-		GlStateManager.enableAlpha();
 		GlStateManager.pushMatrix(); // Create new object by pushing matrix
-		// Offset this object into the desired position + centering offset
-		GlStateManager.translate(position.getX() + (size.getWidth() / 2), position.getY() + (size.getHeight() / 2), 0F);
+		GlStateManager.translate(position.getX(), position.getY(), 0F); // Translate the center to position
 		GlStateManager.pushMatrix(); // Create new object by pushing matrix
 		GlStateManager.scale(value, value, 1F); // Scale the arrow
 		if(inverse) GlStateManager.rotate(180F, 0F, 0F, 1F); // Rotate the arrow
-		Gui.drawModalRectWithCustomSizedTexture(-size.getWidth() / 2, -size.getHeight() / 2, 0, 0, size.getWidth(), size.getHeight(), 8, 12); // Draw the arrow (center at origin)
+		DeltaArrow.arrow.draw(new Point(-size.getWidth() / 2, -size.getHeight() / 2), partialTicks); // Draw the arrow at origin point
 		GlStateManager.popMatrix(); // Render the scaled and rotated arrow
 		GlStateManager.popMatrix(); // Render the offset arrow in place
-		GlStateManager.disableAlpha();
 	}
 
 	/**
@@ -90,8 +86,9 @@ public class DifferentialArrow extends SimpleOverlayElement<StatTracker> {
 	 * @return A value from -1 to 1, ranging from 0 = invisible to |1| = fully visible
 	 */
 	public float getArrowScale(StatTracker tracker)
-	{
-		SimpleStatRecord record = tracker.getRecord(provider);
+	{		
+		SimpleStatRecord record = tracker.getRecord(this.provider);
+		if(record == null) return 1F;
 		
 		float scale = Math.abs(record.getLastChange() * this.amplitude);
 		if(this.logarithmic)

@@ -15,7 +15,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * @param <ARGUMENT>
  */
 @SideOnly(Side.CLIENT)
-public abstract class SimpleOverlayElement<ARGUMENT> implements OverlayElement<ARGUMENT> {
+public abstract class SimpleOverlayElement implements OverlayElement {
 	
 	/** The texture manager instance used to bind textures */
 	public final TextureManager texturer;

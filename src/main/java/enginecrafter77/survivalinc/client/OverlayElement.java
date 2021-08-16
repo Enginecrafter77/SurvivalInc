@@ -1,5 +1,7 @@
 package enginecrafter77.survivalinc.client;
 
+import java.util.Optional;
+
 import org.lwjgl.util.Point;
 import org.lwjgl.util.ReadableDimension;
 import org.lwjgl.util.ReadablePoint;
@@ -15,7 +17,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * @author Enginecrafter77
  */
 @SideOnly(Side.CLIENT)
-public interface OverlayElement<RENDER_ARGUMENT> {
+public interface OverlayElement {
 	public static final ReadablePoint POINT_ZERO = new Point(0, 0);
 	
 	/**
@@ -25,7 +27,7 @@ public interface OverlayElement<RENDER_ARGUMENT> {
 	 * @param partialTicks Fraction of time between one tick and another
 	 * @param arg The render argument
 	 */
-	public void draw(ReadablePoint position, float partialTicks, RENDER_ARGUMENT arg);
+	public void draw(ReadablePoint position, float partialTicks, Object... arguments);
 	
 	public ReadableDimension getSize();
 	
@@ -46,8 +48,16 @@ public interface OverlayElement<RENDER_ARGUMENT> {
 	 * @param arg The render argument
 	 */
 	@Deprecated
-	public default void draw(ScaledResolution resolution, ElementPositioner position, float partialTicks, RENDER_ARGUMENT arg)
+	public default void draw(ScaledResolution resolution, ElementPositioner position, float partialTicks, Object... arguments)
 	{
-		this.draw(position.getPositionFor(resolution, this), partialTicks, arg);
+		this.draw(position.getPositionFor(resolution, this), partialTicks, arguments);
+	}
+	
+	public static <TYPE> Optional<TYPE> getArgument(Object[] arguments, int index, Class<TYPE> type)
+	{
+		if(index >= arguments.length) return Optional.empty();
+		
+		if(!type.isInstance(arguments[index])) throw new IllegalArgumentException(String.format("Argument #%d (%s) is of invalid type (%s)!", index, type.getName(), arguments[index].getClass().getName()));
+		return Optional.of(type.cast(arguments[index]));
 	}
 }

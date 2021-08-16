@@ -25,7 +25,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  */
 @Deprecated
 @SideOnly(Side.CLIENT)
-public class TexturedElement extends SimpleOverlayElement<Object> {
+public class TexturedElement extends SimpleOverlayElement {
 	/** The texture resource to pull the texture from */
 	public final TextureResource resource;
 	
@@ -63,10 +63,10 @@ public class TexturedElement extends SimpleOverlayElement<Object> {
 	}
 	
 	@Override
-	public void draw(ReadablePoint position, float partialTicks, Object arg)
+	public void draw(ReadablePoint position, float partialTicks, Object... args)
 	{
 		TextureDrawingContext context = this.createContext(this.texturer);
-		context.draw(position, partialTicks, arg);
+		context.draw(position, partialTicks, args);
 		context.close();
 	}
 	
@@ -83,7 +83,7 @@ public class TexturedElement extends SimpleOverlayElement<Object> {
 		return TexturedElement.current_context;
 	}
 	
-	public class TextureDrawingContext implements OverlayElement<Object>, Closeable {
+	public class TextureDrawingContext implements OverlayElement, Closeable {
 		public final TextureManager manager;
 		
 		protected final Dimension size;
@@ -116,7 +116,7 @@ public class TexturedElement extends SimpleOverlayElement<Object> {
 		}
 		
 		@Override
-		public void draw(ReadablePoint position, float partialTicks, Object arg)
+		public void draw(ReadablePoint position, float partialTicks, Object... args)
 		{
 			this.draw(position);
 		}
