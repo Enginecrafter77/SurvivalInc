@@ -67,6 +67,9 @@ public class RenderHUD {
 		}
 	}
 	
+	/**
+	 * Resets the RenderHUD to it's initial state.
+	 */
 	public void reset()
 	{
 		this.elements.clear();
@@ -74,11 +77,21 @@ public class RenderHUD {
 	}
 	
 	/**
+	 * @deprecated Ambiguous method name, use {@link #isEffective()} instead
 	 * @return True if registering this as event handler would have any effect, false otherwise
 	 */
+	@Deprecated
 	public boolean isUseful()
 	{
-		return !this.elements.isEmpty() && !this.filters.isEmpty();
+		return this.isEffective();
+	}
+	
+	/**
+	 * @return True if registering this as event handler would have any effect, false otherwise
+	 */
+	public boolean isEffective()
+	{
+		return !this.elements.isEmpty() || !this.filters.isEmpty();
 	}
 	
 	/**

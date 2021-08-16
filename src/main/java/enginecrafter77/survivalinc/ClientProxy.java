@@ -77,7 +77,7 @@ public class ClientProxy extends CommonProxy {
 		super.postInit(event);
 		
 		// Register HUD event handler
-		if(this.hud.isUseful()) MinecraftForge.EVENT_BUS.register(this.hud);
+		if(this.hud.isEffective()) MinecraftForge.EVENT_BUS.register(this.hud);
 		
 		// Register Ghost event handler
 		if(ModConfig.GHOST.enabled) MinecraftForge.EVENT_BUS.register(new RenderGhost());
@@ -87,9 +87,6 @@ public class ClientProxy extends CommonProxy {
 	public void onConfigChanged(ConfigChangedEvent.PostConfigChangedEvent event)
 	{
 		if(!event.getModID().equals(SurvivalInc.MOD_ID)) return;
-		
-		String config = event.getConfigID();
-		SurvivalInc.logger.info("ConfigChangedEvent({})", config);
 		
 		this.hud.reset();
 		this.constructHUD();
