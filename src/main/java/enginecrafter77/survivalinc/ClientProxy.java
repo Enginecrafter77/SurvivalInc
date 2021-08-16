@@ -8,11 +8,12 @@ import enginecrafter77.survivalinc.client.Direction2D;
 import enginecrafter77.survivalinc.client.ElementRenderFilter;
 import enginecrafter77.survivalinc.client.HUDConstructEvent;
 import enginecrafter77.survivalinc.client.OverlayElement;
-import enginecrafter77.survivalinc.client.RenderStageFilter;
+import enginecrafter77.survivalinc.client.StackingElementPositioner;
 import enginecrafter77.survivalinc.client.StatFillBar;
 import enginecrafter77.survivalinc.client.TextureResource;
 import enginecrafter77.survivalinc.client.TranslateRenderFilter;
 import enginecrafter77.survivalinc.config.ModConfig;
+import enginecrafter77.survivalinc.ghost.GhostConditionRenderFilter;
 import enginecrafter77.survivalinc.ghost.GhostEnergyBar;
 import enginecrafter77.survivalinc.ghost.GhostProvider;
 import enginecrafter77.survivalinc.ghost.RenderGhost;
@@ -24,8 +25,6 @@ import enginecrafter77.survivalinc.season.LeafColorer;
 import enginecrafter77.survivalinc.season.SeasonController;
 import enginecrafter77.survivalinc.season.SeasonSyncMessage;
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
-import enginecrafter77.survivalinc.stats.StatCapability;
-import enginecrafter77.survivalinc.stats.StatTracker;
 import enginecrafter77.survivalinc.stats.impl.HeatModifier;
 import enginecrafter77.survivalinc.stats.impl.HydrationModifier;
 import enginecrafter77.survivalinc.stats.impl.SanityModifier;
@@ -122,7 +121,7 @@ public class ClientProxy extends CommonProxy {
 		
 		TextureResource newicons = new TextureResource(new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/staticons.png"), 18, 34);
 		
-		if(ModConfig.HEAT.enabled)
+		if(HeatModifier.loaded())
 		{
 			StatFillBar<SimpleStatRecord> bar = new StatFillBar<SimpleStatRecord>(HeatModifier.instance, Direction2D.UP, newicons.region(new Rectangle(0, 18, 9, 16)));
 			bar.addLayer(newicons.region(new Rectangle(9, 18, 9, 16)), SimpleStatRecord::getNormalizedValue);
@@ -131,7 +130,7 @@ public class ClientProxy extends CommonProxy {
 			event.addElement(bar, new AbsoluteElementPositioner(origin_x, origin_y, ModConfig.CLIENT.hud.heatIconX, ModConfig.CLIENT.hud.heatIconY)).setTrigger(ElementType.EXPERIENCE);
 			event.addRenderStageFilter(new TranslateRenderFilter(new Point(0, -10)), ElementType.SUBTITLES);
 		}
-		if(ModConfig.HYDRATION.enabled)
+		if(HydrationModifier.loaded())
 		{
 			StatFillBar<SimpleStatRecord> bar = new StatFillBar<SimpleStatRecord>(HydrationModifier.instance, ModConfig.CLIENT.hud.hydrationBarDirection, newicons.region(new Rectangle(0, 9, 9, 9)));
 			bar.addLayer(newicons.region(new Rectangle(9, 9, 9, 9)), SimpleStatRecord::getNormalizedValue);
@@ -143,7 +142,7 @@ public class ClientProxy extends CommonProxy {
 			else
 				event.addElement(bar, new AbsoluteElementPositioner(origin_x, origin_y, ModConfig.CLIENT.hud.hydrationBarX, ModConfig.CLIENT.hud.hydrationBarY));
 		}
-		if(ModConfig.SANITY.enabled)
+		if(SanityModifier.loaded())
 		{
 			StatFillBar<SanityRecord> bar = new StatFillBar<SanityRecord>(SanityModifier.instance, ModConfig.CLIENT.hud.sanityBarDirection, newicons.region(new Rectangle(0, 0, 9, 9)));
 			bar.addLayer(newicons.region(new Rectangle(9, 0, 9, 9)), SimpleStatRecord::getNormalizedValue);
@@ -155,20 +154,10 @@ public class ClientProxy extends CommonProxy {
 			else
 				event.addElement(bar, new AbsoluteElementPositioner(origin_x, origin_y, ModConfig.CLIENT.hud.sanityBarX, ModConfig.CLIENT.hud.sanityBarY));
 		}
-		if(ModConfig.GHOST.enabled)
+		if(GhostProvider.loaded())
 		{
-			event.addElement(new GhostEnergyBar(), new AbsoluteElementPositioner(0.5F, 1F, -91, -39));
-			event.addRenderStageFilter(new RenderStageFilter() {
-				@Override
-				public boolean begin(ScaledResolution resoultion, ElementType element)
-				{
-					StatTracker tracker = Minecraft.getMinecraft().player.getCapability(StatCapability.target, null);
-					return !tracker.getRecord(GhostProvider.instance).isActive();
-				}
-
-				@Override
-				public void end(ScaledResolution resoultion, ElementType element) {}
-			}, ElementType.HEALTH, ElementType.AIR, ElementType.ARMOR, ElementType.FOOD);
+			event.addElement(new GhostEnergyBar(), StackingElementPositioner.LEFT).setTrigger(ElementType.HOTBAR).addFilter(GhostConditionRenderFilter.INSTANCE);
+			event.addRenderStageFilter(GhostConditionRenderFilter.INSTANCE, ElementType.HEALTH, ElementType.AIR, ElementType.ARMOR, ElementType.FOOD);
 		}
 	}
 	

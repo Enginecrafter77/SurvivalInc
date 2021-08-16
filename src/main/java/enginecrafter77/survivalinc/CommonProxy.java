@@ -89,15 +89,15 @@ public abstract class CommonProxy {
 	{
 		this.net = NetworkRegistry.INSTANCE.newSimpleChannel(SurvivalInc.MOD_ID);
 		this.registerClientHandlers(); // Discriminators 0 1 2
-		this.net.registerMessage(HydrationModifier.class, WaterDrinkMessage.class, 3, Side.SERVER);
+		this.net.registerMessage(HydrationModifier::validateMessage, WaterDrinkMessage.class, 3, Side.SERVER);
 		this.net.registerMessage(StatSyncRequestHandler.class, StatSyncRequestMessage.class, 4, Side.SERVER);
 		this.net.registerMessage(SeasonController::onSyncRequest, SeasonSyncRequest.class, 5, Side.SERVER);
 		
-		if(ModConfig.HEAT.enabled) HeatModifier.instance.init();
-		if(ModConfig.HYDRATION.enabled) HydrationModifier.instance.init();
-		if(ModConfig.SANITY.enabled) SanityModifier.instance.init();
-		if(ModConfig.WETNESS.enabled) WetnessModifier.instance.init();
-		if(ModConfig.GHOST.enabled) GhostProvider.instance.init();
+		if(ModConfig.HEAT.enabled) HeatModifier.init();
+		if(ModConfig.HYDRATION.enabled) HydrationModifier.init();
+		if(ModConfig.SANITY.enabled) SanityModifier.init();
+		if(ModConfig.WETNESS.enabled) WetnessModifier.init();
+		if(ModConfig.GHOST.enabled) GhostProvider.init();
 		
 		SeasonCalendar calendar = SeasonController.instance.calendar;
 		for(SurvivalIncSeason season : SurvivalIncSeason.values())

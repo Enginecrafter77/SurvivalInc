@@ -56,22 +56,18 @@ public class GhostProvider implements StatProvider<GhostEnergyRecord> {
 	private static final long serialVersionUID = -2088047893866334112L;
 	
 	public static final EffectFilter<GhostEnergyRecord> active = (GhostEnergyRecord record, EntityPlayer player) -> record.isActive();
-	public static final GhostProvider instance = new GhostProvider();
 	public static final HelicalParticleSpawner resurrect_particles = new HelicalParticleSpawner(EnumParticleTypes.PORTAL).setHelixCount(8);
 	public static final Vec3d rp_box = new Vec3d(0.6D, 1.5D, 0.6D), rp_offset = new Vec3d(0D, -0.3D, 0D);
+	
+	public static GhostProvider instance = null;
 	
 	public final EffectApplicator<GhostEnergyRecord> applicator;
 	public final InteractionProcessor interactor;
 	
-	public GhostProvider()
+	private GhostProvider()
 	{
 		this.applicator = new EffectApplicator<GhostEnergyRecord>();
 		this.interactor = new InteractionProcessor(PlayerInteractEvent.RightClickBlock.class, (float)ModConfig.GHOST.interactionCost);
-	}
-	
-	public void init()
-	{
-		MinecraftForge.EVENT_BUS.register(GhostProvider.class);
 		
 		EffectFilter<Object> playerSprinting = FunctionalEffectFilter.byPlayer(EntityPlayer::isSprinting);
 		this.applicator.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, (float)ModConfig.GHOST.passiveNightRegen)).addFilter(GhostProvider::duringNight);
@@ -94,6 +90,17 @@ public class GhostProvider implements StatProvider<GhostEnergyRecord> {
 		this.interactor.setBlockCost(Blocks.STONE_BUTTON, 0.6F);
 		this.interactor.setBlockCost(Blocks.WOODEN_BUTTON, 0.5F);
 		this.interactor.setBlockCost(Blocks.LEVER, 0.75F);
+	}
+	
+	public static void init()
+	{
+		GhostProvider.instance = new GhostProvider();
+		MinecraftForge.EVENT_BUS.register(GhostProvider.class);
+	}
+	
+	public static boolean loaded()
+	{
+		return GhostProvider.instance != null;
 	}
 	
 	@Override

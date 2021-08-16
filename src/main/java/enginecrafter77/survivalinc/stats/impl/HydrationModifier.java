@@ -39,26 +39,21 @@ import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
-public class HydrationModifier implements IMessageHandler<WaterDrinkMessage, IMessage>, StatProvider<SimpleStatRecord> {
+public class HydrationModifier implements StatProvider<SimpleStatRecord> {
 	private static final long serialVersionUID = 6252973395407389818L;
 
 	public static final FunctionalEffectFilter<Object> isOutsideOverworld = FunctionalEffectFilter.byPlayer((EntityPlayer player) -> player.dimension != 0);
 	public static final DamageSource DEHYDRATION = new DamageSource("survivalinc_dehydration").setDamageIsAbsolute().setDamageBypassesArmor();
-	public static final HydrationModifier instance = new HydrationModifier();
+	public static HydrationModifier instance = null;
 	
 	public final EffectApplicator<SimpleStatRecord> effects;
 	
-	public HydrationModifier()
+	private HydrationModifier()
 	{
 		this.effects = new EffectApplicator<SimpleStatRecord>();
-	}
-	
-	public void init()
-	{
-		MinecraftForge.EVENT_BUS.register(HydrationModifier.class);
+		
 		FunctionalEffectFilter<SimpleStatRecord> nasfat = FunctionalEffectFilter.byValue(Range.lessThan(15F));
 		this.effects.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, -0.006F)).addFilter(HydrationModifier.isOutsideOverworld);
 		this.effects.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, -0.5F)).addFilter(FunctionalEffectFilter.byPlayer(EntityPlayer::isInLava));
@@ -68,6 +63,24 @@ public class HydrationModifier implements IMessageHandler<WaterDrinkMessage, IMe
 		this.effects.add(new PotionStatEffect(MobEffects.MINING_FATIGUE, 5)).addFilter(nasfat);
 		this.effects.add(new PotionStatEffect(MobEffects.NAUSEA, 5)).addFilter(nasfat);
 		this.effects.add(HydrationModifier::naturalDrain);
+	}
+	
+	public static void init()
+	{
+		HydrationModifier.instance = new HydrationModifier();
+		MinecraftForge.EVENT_BUS.register(HydrationModifier.class);
+	}
+	
+	/**
+	 * A simple method to check whether the provider was loaded or not.
+	 * This should coincide with whether the provider is registered in
+	 * the player's stat registry. This should NOT be confused with {@link enginecrafter77.survivalinc.config.HydrationConfig#enabled},
+	 * since the latter can be changed during the game.
+	 * @return True if the {@link #init()} method has been called in the past, false otherwise.
+	 */
+	public static boolean loaded()
+	{
+		return HydrationModifier.instance != null;
 	}
 	
 	@Override
@@ -104,8 +117,7 @@ public class HydrationModifier implements IMessageHandler<WaterDrinkMessage, IMe
 	 * was fake (artificially created without client-side ray trace),
 	 * it will get detected and log it as warning to the server console.
 	 */
-	@Override
-	public IMessage onMessage(WaterDrinkMessage message, MessageContext ctx)
+	public static IMessage validateMessage(WaterDrinkMessage message, MessageContext ctx)
 	{
 		EntityPlayerMP player = ctx.getServerHandler().player;
 		WorldServer world = player.getServerWorld();

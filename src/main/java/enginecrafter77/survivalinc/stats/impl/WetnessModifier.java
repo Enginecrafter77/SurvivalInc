@@ -43,7 +43,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class WetnessModifier implements StatProvider<SimpleStatRecord> {
 	private static final long serialVersionUID = -4227255838351827965L;
 	
-	public static final WetnessModifier instance = new WetnessModifier();
+	public static WetnessModifier instance = null;
 	
 	public final EffectApplicator<SimpleStatRecord> effects;
 	public final UUID wetnessSlowdown;
@@ -52,11 +52,6 @@ public class WetnessModifier implements StatProvider<SimpleStatRecord> {
 	{
 		this.wetnessSlowdown = UUID.nameUUIDFromBytes(this.getStatID().toString().getBytes());
 		this.effects = new EffectApplicator<SimpleStatRecord>();
-	}
-	
-	public void init()
-	{
-		MinecraftForge.EVENT_BUS.register(WetnessModifier.class);
 		
 		this.effects.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, 0.01F)).addFilter(FunctionalEffectFilter.byPlayer((EntityPlayer player) -> player.world.isRainingAt(player.getPosition().up())));
 		this.effects.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, -0.8F)).addFilter(FunctionalEffectFilter.byPlayer(EntityPlayer::isBurning));
@@ -66,6 +61,24 @@ public class WetnessModifier implements StatProvider<SimpleStatRecord> {
 		this.effects.add(WetnessModifier::naturalDrying).addFilter(FunctionalEffectFilter.byPlayer(EntityPlayer::isWet).invert());
 		this.effects.add(WetnessModifier::whenInWater).addFilter(FunctionalEffectFilter.byPlayer(EntityPlayer::isInWater));
 		this.effects.add(WetnessModifier::slowDown).addFilter(SideEffectFilter.SERVER);
+	}
+	
+	public static void init()
+	{
+		WetnessModifier.instance = new WetnessModifier();
+		MinecraftForge.EVENT_BUS.register(WetnessModifier.class);
+	}
+	
+	/**
+	 * A simple method to check whether the provider was loaded or not.
+	 * This should coincide with whether the provider is registered in
+	 * the player's stat registry. This should NOT be confused with {@link enginecrafter77.survivalinc.config.WetnessConfig#enabled},
+	 * since the latter can be changed during the game.
+	 * @return True if the {@link #init()} method has been called in the past, false otherwise.
+	 */
+	public static boolean loaded()
+	{
+		return WetnessModifier.instance != null;
 	}
 	
 	@Override

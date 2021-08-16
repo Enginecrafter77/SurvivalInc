@@ -44,7 +44,7 @@ public class HeatModifier implements StatProvider<SimpleStatRecord> {
 	public static final DamageSource HYPERTHERMIA = new DamageSource("survivalinc_hyperthermia").setDamageIsAbsolute().setDamageBypassesArmor();
 	public static final DamageSource HYPOTHERMIA = new DamageSource("survivalinc_hypothermia").setDamageIsAbsolute().setDamageBypassesArmor();
 	
-	public static final HeatModifier instance = new HeatModifier();
+	public static HeatModifier instance = null;
 	
 	public final Map<Block, Float> blockHeatMap;
 	public final ArmorModifier armorInsulation;
@@ -53,18 +53,13 @@ public class HeatModifier implements StatProvider<SimpleStatRecord> {
 	public final FunctionalCalculator exchangerate;
 	public final EffectApplicator<SimpleStatRecord> consequences;
 	
-	public HeatModifier()
+	private HeatModifier()
 	{
 		this.targettemp = new FunctionalCalculator();
 		this.exchangerate = new FunctionalCalculator();
 		this.consequences = new EffectApplicator<SimpleStatRecord>();
 		this.blockHeatMap = new HashMap<Block, Float>();
 		this.armorInsulation = new ArmorModifier();
-	}
-	
-	public void init()
-	{
-		MinecraftForge.EVENT_BUS.register(HeatModifier.class);
 		
 		this.targettemp.add(HeatModifier::absorbRadiantHeat);
 		
@@ -75,6 +70,24 @@ public class HeatModifier implements StatProvider<SimpleStatRecord> {
 		this.consequences.add(new PotionStatEffect(MobEffects.MINING_FATIGUE, 0)).addFilter(FunctionalEffectFilter.byValue(Range.lessThan(20F)));
 		this.consequences.add(new PotionStatEffect(MobEffects.WEAKNESS, 0)).addFilter(FunctionalEffectFilter.byValue(Range.lessThan(25F)));
 		this.consequences.add(HeatModifier::onHighTemperature).addFilter(FunctionalEffectFilter.byValue(Range.greaterThan(110F)));
+	}
+	
+	public static void init()
+	{
+		HeatModifier.instance = new HeatModifier();
+		MinecraftForge.EVENT_BUS.register(HeatModifier.class);
+	}
+	
+	/**
+	 * A simple method to check whether the provider was loaded or not.
+	 * This should coincide with whether the provider is registered in
+	 * the player's stat registry. This should NOT be confused with {@link enginecrafter77.survivalinc.config.HeatConfig#enabled},
+	 * since the latter can be changed during the game.
+	 * @return True if the {@link #init()} method has been called in the past, false otherwise.
+	 */
+	public static boolean loaded()
+	{
+		return HeatModifier.instance != null;
 	}
 	
 	public void buildCompatMaps()

@@ -42,24 +42,38 @@ public class SanityModifier implements StatProvider<SanityRecord> {
 	
 	public static final ResourceLocation distortshader = new ResourceLocation(SurvivalInc.MOD_ID, "shaders/distort.json");
 	public static final SoundEvent staticbuzz = new SoundEvent(new ResourceLocation(SurvivalInc.MOD_ID, "staticbuzz"));
-	public static final SanityModifier instance = new SanityModifier();
+	public static SanityModifier instance = null;
 	
 	public final EffectApplicator<SanityRecord> effects;
 	
 	public SanityModifier()
 	{
 		this.effects = new EffectApplicator<SanityRecord>();
-	}
-	
-	public void init()
-	{
-		MinecraftForge.EVENT_BUS.register(SanityModifier.class);
+		
 		if(ModConfig.WETNESS.enabled) this.effects.add(SanityModifier::whenWet).addFilter(FunctionalEffectFilter.byPlayer(EntityPlayer::isInWater).invert());
 		this.effects.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, 0.004F)).addFilter(FunctionalEffectFilter.byPlayer(EntityPlayer::isPlayerSleeping));
 		this.effects.add(SanityModifier::whenInDark).addFilter(HydrationModifier.isOutsideOverworld.invert());
 		this.effects.add(SanityModifier::playStaticNoise).addFilter(SideEffectFilter.CLIENT);
 		this.effects.add(SanityModifier::whenNearEntities);
 		this.effects.add(SanityModifier::sleepDeprivation);
+	}
+	
+	public static void init()
+	{
+		SanityModifier.instance = new SanityModifier();
+		MinecraftForge.EVENT_BUS.register(SanityModifier.class);
+	}
+	
+	/**
+	 * A simple method to check whether the provider was loaded or not.
+	 * This should coincide with whether the provider is registered in
+	 * the player's stat registry. This should NOT be confused with {@link enginecrafter77.survivalinc.config.SanityConfig#enabled},
+	 * since the latter can be changed during the game.
+	 * @return True if the {@link #init()} method has been called in the past, false otherwise.
+	 */
+	public static boolean loaded()
+	{
+		return SanityModifier.instance != null;
 	}
 	
 	@Override
