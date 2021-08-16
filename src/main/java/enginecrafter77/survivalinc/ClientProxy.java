@@ -8,6 +8,7 @@ import enginecrafter77.survivalinc.client.Direction2D;
 import enginecrafter77.survivalinc.client.ElementRenderFilter;
 import enginecrafter77.survivalinc.client.HUDConstructEvent;
 import enginecrafter77.survivalinc.client.OverlayElement;
+import enginecrafter77.survivalinc.client.ScaleRenderFilter;
 import enginecrafter77.survivalinc.client.StackingElementPositioner;
 import enginecrafter77.survivalinc.client.StatFillBar;
 import enginecrafter77.survivalinc.client.TextureResource;
@@ -26,6 +27,7 @@ import enginecrafter77.survivalinc.season.SeasonController;
 import enginecrafter77.survivalinc.season.SeasonSyncMessage;
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import enginecrafter77.survivalinc.stats.impl.HeatModifier;
+import enginecrafter77.survivalinc.stats.impl.HeatVignette;
 import enginecrafter77.survivalinc.stats.impl.HydrationModifier;
 import enginecrafter77.survivalinc.stats.impl.SanityModifier;
 import enginecrafter77.survivalinc.stats.impl.SanityRecord;
@@ -33,6 +35,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.Vec2f;
 import net.minecraftforge.client.GuiIngameForge;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
@@ -127,6 +130,7 @@ public class ClientProxy extends CommonProxy {
 			bar.addLayer(newicons.region(new Rectangle(9, 18, 9, 16)), SimpleStatRecord::getNormalizedValue);
 			bar.setCapacity(1);
 			
+			if(ModConfig.CLIENT.heatVignette) event.addElement(new HeatVignette(0.5F, ModConfig.CLIENT.logarithmicHeatVignette), AbsoluteElementPositioner.ORIGIN).addFilter(new ScaleRenderFilter(Vec2f.MAX));
 			event.addElement(bar, new AbsoluteElementPositioner(origin_x, origin_y, ModConfig.CLIENT.hud.heatIconX, ModConfig.CLIENT.hud.heatIconY)).setTrigger(ElementType.EXPERIENCE);
 			event.addRenderStageFilter(new TranslateRenderFilter(new Point(0, -10)), ElementType.SUBTITLES);
 		}

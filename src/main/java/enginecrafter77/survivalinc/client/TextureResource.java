@@ -8,6 +8,7 @@ import org.lwjgl.util.ReadableRectangle;
 import org.lwjgl.util.Rectangle;
 
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.util.ResourceLocation;
 
@@ -130,6 +131,7 @@ public class TextureResource extends SimpleOverlayElement {
 	@Override
 	public void draw(ReadablePoint position, float partialTicks, Object... args)
 	{
+		GlStateManager.enableAlpha();
 		this.texturer.bindTexture(this.texture);
 		Gui.drawModalRectWithCustomSizedTexture(position.getX(), position.getY(), this.region.getX(), this.region.getY(), this.region.getWidth(), this.region.getHeight(), this.texturedim.getWidth(), this.texturedim.getHeight());
 	}
