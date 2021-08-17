@@ -119,9 +119,9 @@ publishing {
 curseforge {
 	def cleanTag = Integer.parseInt(project.ext.commit_distance) == 0
 	
-	apiKey = project.properties["curseforge.apikey"]
+	apiKey = project.properties["curseforge.apikey"] ?: 'null' // This little mf-er always throws error so we have to improvise here
 	project {
-		id = project.properties["curseforge.project"]
+		id = '375921'
 		releaseType = System.getenv("GRADLE_RELEASE_TYPE") ?: (project.dirty ? 'alpha' : (cleanTag ? 'release' : 'beta'))
 		changelogType = 'markdown'
 		changelog = 'For changelog, see the [github release page](https://github.com/Enginecrafter77/SurvivalInc' + (cleanTag ? "/releases/tag/$project.ext.base_tag" : "/commit/$project.ext.git_sha1_8") + ').'
