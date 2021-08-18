@@ -1,7 +1,13 @@
 package enginecrafter77.survivalinc;
 
+import javax.annotation.Nullable;
+
+import org.lwjgl.util.Color;
 import org.lwjgl.util.Point;
+import org.lwjgl.util.ReadableColor;
 import org.lwjgl.util.Rectangle;
+
+import com.google.common.collect.Range;
 
 import enginecrafter77.survivalinc.client.AbsoluteElementPositioner;
 import enginecrafter77.survivalinc.client.Direction2D;
@@ -27,10 +33,10 @@ import enginecrafter77.survivalinc.season.SeasonController;
 import enginecrafter77.survivalinc.season.SeasonSyncMessage;
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import enginecrafter77.survivalinc.stats.impl.HeatModifier;
-import enginecrafter77.survivalinc.stats.impl.HeatVignette;
 import enginecrafter77.survivalinc.stats.impl.HydrationModifier;
 import enginecrafter77.survivalinc.stats.impl.SanityModifier;
 import enginecrafter77.survivalinc.stats.impl.SanityRecord;
+import enginecrafter77.survivalinc.stats.impl.StatRangeVignette;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
@@ -48,6 +54,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 
 public class ClientProxy extends CommonProxy {
+	/** The HUD instance currently in use, if any */
+	@Nullable
 	private HUDConstructEvent.RenderHUD hud;
 	
 	@Override
@@ -130,9 +138,14 @@ public class ClientProxy extends CommonProxy {
 			bar.addLayer(newicons.region(new Rectangle(9, 18, 9, 16)), SimpleStatRecord::getNormalizedValue);
 			bar.setCapacity(1);
 			
-			if(ModConfig.CLIENT.heatVignette) event.addElement(new HeatVignette(0.5F, ModConfig.CLIENT.logarithmicHeatVignette), AbsoluteElementPositioner.ORIGIN).addFilter(new ScaleRenderFilter(Vec2f.MAX));
 			event.addElement(bar, new AbsoluteElementPositioner(origin_x, origin_y, ModConfig.CLIENT.hud.heatIconX, ModConfig.CLIENT.hud.heatIconY)).setTrigger(ElementType.EXPERIENCE);
 			event.addRenderStageFilter(new TranslateRenderFilter(new Point(0, -10)), ElementType.SUBTITLES);
+			
+			if(ModConfig.CLIENT.vignette.enable)
+			{
+				event.addElement(new StatRangeVignette(HeatModifier.instance, Range.lessThan(35F), ClientProxy.parseColor(ModConfig.CLIENT.vignette.coldColor), ModConfig.CLIENT.vignette.maxOpacity, ModConfig.CLIENT.vignette.logarithmicOpacity, true), AbsoluteElementPositioner.ORIGIN).addFilter(new ScaleRenderFilter(Vec2f.MAX));
+				event.addElement(new StatRangeVignette(HeatModifier.instance, Range.greaterThan(85F), ClientProxy.parseColor(ModConfig.CLIENT.vignette.hotColor), ModConfig.CLIENT.vignette.maxOpacity, ModConfig.CLIENT.vignette.logarithmicOpacity, false), AbsoluteElementPositioner.ORIGIN).addFilter(new ScaleRenderFilter(Vec2f.MAX));
+			}
 		}
 		if(HydrationModifier.loaded())
 		{
@@ -145,6 +158,9 @@ public class ClientProxy extends CommonProxy {
 				event.addElement(bar, ModConfig.CLIENT.hud.hydrationBarStack).setTrigger(ModConfig.CLIENT.hud.hydrationBarRenderTrigger).addFilter(TextureResetFilter.INSTANCE);
 			else
 				event.addElement(bar, new AbsoluteElementPositioner(origin_x, origin_y, ModConfig.CLIENT.hud.hydrationBarX, ModConfig.CLIENT.hud.hydrationBarY));
+			
+			if(ModConfig.CLIENT.vignette.enable)
+				event.addElement(new StatRangeVignette(HydrationModifier.instance, Range.lessThan(30F), ClientProxy.parseColor(ModConfig.CLIENT.vignette.dehydrationColor), ModConfig.CLIENT.vignette.maxOpacity, ModConfig.CLIENT.vignette.logarithmicOpacity, true), AbsoluteElementPositioner.ORIGIN).addFilter(new ScaleRenderFilter(Vec2f.MAX));
 		}
 		if(SanityModifier.loaded())
 		{
@@ -163,6 +179,27 @@ public class ClientProxy extends CommonProxy {
 			event.addElement(new GhostEnergyBar(), StackingElementPositioner.LEFT).setTrigger(ElementType.HOTBAR).addFilter(GhostConditionRenderFilter.INSTANCE);
 			event.addRenderStageFilter(GhostConditionRenderFilter.INSTANCE, ElementType.HEALTH, ElementType.AIR, ElementType.ARMOR, ElementType.FOOD);
 		}
+	}
+	
+	/**
+	 * Parses color from a HTML color notation. (#RRGGBBAA)
+	 * @param hex A HTML notation of color
+	 * @return A read-only color object representing the color
+	 */
+	public static final ReadableColor parseColor(String hex)
+	{
+		if(hex.startsWith("#")) hex = hex.substring(1);
+		int bundle = Integer.parseUnsignedInt(hex, 16);
+		
+		// If the alpha is defined, the whole bundle is shifted to left.
+		// This tests for the shift and if the 16 MSB are 0, shift it in place.
+		if((bundle & 0xFF000000) == 0L)
+		{
+			bundle <<= 8; // Shift RGB to RGBA
+			bundle |= 0xFF; // Set alpha to 255
+		}
+		
+		return new Color((bundle & 0xFF000000) >> 24, (bundle & 0x00FF0000) >> 16, (bundle & 0x0000FF00) >> 8, bundle & 0x000000FF);
 	}
 	
 	/**

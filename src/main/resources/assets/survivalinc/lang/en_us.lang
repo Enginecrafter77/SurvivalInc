@@ -46,10 +46,6 @@ config.survivalinc.client.autumnLeafColor=Autumn Foliage Color
 config.survivalinc.client.autumnLeafColor.tooltip=The color multiplier applied to each RGB component of the original foliage color during autumn
 config.survivalinc.client.pulsatingGhosts=Pulsating Ghosts
 config.survivalinc.client.pulsatingGhosts.tooltip=Determines if the ghosts should be seen as "pulsing". Setting to false disables this behavior.
-config.survivalinc.client.heatVignette=Heat Vignette
-config.survivalinc.client.heatVignette.tooltip=Set to true to allow vignette-based heat indicator
-config.survivalinc.client.logarithmicHeatVignette=Logarithmic Heat Vignette
-config.survivalinc.client.logarithmicHeatVignette.tooltip=True allows less linear vignette opacity scaling, false forces linear behavior
 
 # HUD Config
 config.survivalinc.client.hud=HUD
@@ -94,6 +90,22 @@ config.survivalinc.client.hud.hydrationBarCapacity=Hydration Bar Capacity
 config.survivalinc.client.hud.hydrationBarCapacity.tooltip=The number of individual icons in the hydration bar
 config.survivalinc.client.hud.hydrationBarSpacing=Hydration Bar Spacing
 config.survivalinc.client.hud.hydrationBarSpacing.tooltip=The spacing between the icons in the hydration bar in pixels
+
+# Vignette config
+config.survivalinc.client.vignette=Vignette
+config.survivalinc.client.vignette.tooltip=A visual stat warning indicator
+config.survivalinc.client.vignette.enable=Enable Stat Vignette
+config.survivalinc.client.vignette.enable.tooltip=Set to true to allow vignette-based stat value indicator
+config.survivalinc.client.vignette.maxOpacity=Max Opacity
+config.survivalinc.client.vignette.maxOpacity.tooltip=The maximum opacity the vignette can achieve
+config.survivalinc.client.vignette.logarithmicOpacity=Logarithmic Opacity
+config.survivalinc.client.vignette.logarithmicOpacity.tooltip=True allows less linear vignette opacity scaling, false forces linear behavior
+config.survivalinc.client.vignette.hotColor=Hot Color
+config.survivalinc.client.vignette.hotColor.tooltip=The color (HTML notation) of vignette displayed when the player is overheating
+config.survivalinc.client.vignette.coldColor=Cold Color
+config.survivalinc.client.vignette.coldColor.tooltip=The color (HTML notation) of vignette displayed when the player is freezing
+config.survivalinc.client.vignette.dehydrationColor=Dehydration Color
+config.survivalinc.client.vignette.dehydrationColor.tooltip=The color (HTML notation) of vignette displayed when the player is dehydrated
 
 # Heat config
 survivalinc.heat=Heat

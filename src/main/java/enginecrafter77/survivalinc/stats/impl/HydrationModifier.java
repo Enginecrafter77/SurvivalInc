@@ -54,12 +54,12 @@ public class HydrationModifier implements StatProvider<SimpleStatRecord> {
 	{
 		this.effects = new EffectApplicator<SimpleStatRecord>();
 		
-		FunctionalEffectFilter<SimpleStatRecord> nasfat = FunctionalEffectFilter.byValue(Range.lessThan(15F));
+		FunctionalEffectFilter<SimpleStatRecord> nasfat = FunctionalEffectFilter.byValue(Range.lessThan(10F));
 		this.effects.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, -0.006F)).addFilter(HydrationModifier.isOutsideOverworld);
 		this.effects.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, -0.5F)).addFilter(FunctionalEffectFilter.byPlayer(EntityPlayer::isInLava));
 		this.effects.add(new DamageStatEffect(HydrationModifier.DEHYDRATION, 4F, 0)).addFilter(FunctionalEffectFilter.byValue(Range.lessThan(5F)));
-		this.effects.add(new PotionStatEffect(MobEffects.SLOWNESS, 5)).addFilter(FunctionalEffectFilter.byValue(Range.lessThan(40F)));
-		this.effects.add(new PotionStatEffect(MobEffects.WEAKNESS, 5)).addFilter(FunctionalEffectFilter.byValue(Range.lessThan(40F)));
+		this.effects.add(new PotionStatEffect(MobEffects.SLOWNESS, 5)).addFilter(FunctionalEffectFilter.byValue(Range.lessThan(20F)));
+		this.effects.add(new PotionStatEffect(MobEffects.WEAKNESS, 5)).addFilter(FunctionalEffectFilter.byValue(Range.lessThan(20F)));
 		this.effects.add(new PotionStatEffect(MobEffects.MINING_FATIGUE, 5)).addFilter(nasfat);
 		this.effects.add(new PotionStatEffect(MobEffects.NAUSEA, 5)).addFilter(nasfat);
 		this.effects.add(HydrationModifier::naturalDrain);

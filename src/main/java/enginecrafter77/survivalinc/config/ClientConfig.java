@@ -16,16 +16,13 @@ public class ClientConfig {
 	@Config.Comment("True to enable ghosts opacity to pulse. Setting this to false may improve the FPS a little bit")
 	public boolean pulsatingGhosts = true;
 	
-	@Config.LangKey("config.survivalinc.client.heatVignette")
-	@Config.Comment("True to vignette-based heat indicator")
-	public boolean heatVignette = true;
-	
-	@Config.LangKey("config.survivalinc.client.logarithmicHeatVignette")
-	@Config.Comment("True to enable less linear scaling of heat vignette opacity. False to force linear behavior")
-	public boolean logarithmicHeatVignette = true;
-	
 	@Config.Name("hud")
 	@Config.LangKey("config.survivalinc.client.hud")
 	@Config.Comment("HUD customization and settings")
 	public HUDConfig hud = new HUDConfig();
+	
+	@Config.Name("vignette")
+	@Config.LangKey("config.survivalinc.client.vignette")
+	@Config.Comment("Vignette customization and settings")
+	public VignetteConfig vignette = new VignetteConfig();
 }
