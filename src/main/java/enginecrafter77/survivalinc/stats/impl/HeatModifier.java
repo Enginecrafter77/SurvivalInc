@@ -18,6 +18,7 @@ import enginecrafter77.survivalinc.stats.effect.EffectApplicator;
 import enginecrafter77.survivalinc.stats.effect.FunctionalCalculator;
 import enginecrafter77.survivalinc.stats.effect.FunctionalEffectFilter;
 import enginecrafter77.survivalinc.stats.effect.PotionStatEffect;
+import enginecrafter77.survivalinc.stats.effect.StatEffect;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -52,12 +53,14 @@ public class HeatModifier implements StatProvider<SimpleStatRecord> {
 	public final FunctionalCalculator targettemp;
 	public final FunctionalCalculator exchangerate;
 	public final EffectApplicator<SimpleStatRecord> consequences;
+	public final StatEffect<SimpleStatRecord> counteraction;
 	
 	private HeatModifier()
 	{
 		this.targettemp = new FunctionalCalculator();
 		this.exchangerate = new FunctionalCalculator();
 		this.consequences = new EffectApplicator<SimpleStatRecord>();
+		this.counteraction = HeatModifier::heatCounteraction;
 		this.blockHeatMap = new HashMap<Block, Float>();
 		this.armorInsulation = new ArmorModifier();
 		
@@ -138,14 +141,16 @@ public class HeatModifier implements StatProvider<SimpleStatRecord> {
 		float rate = difference * (float)ModConfig.HEAT.heatExchangeFactor;
 		rate = this.exchangerate.apply(player, rate);
 		
-		// Apply the "side effects"
-		this.consequences.apply(heat, player);
-		
 		// If the current value is higher than the target, go down instead of up
 		if(heat.getValue() > target) rate *= -1;
-		// Checkout the rate to the value
+		
+		// Apply counteraction (if enabled) and check out value change
 		heat.addToValue(rate);
+		if(ModConfig.HEAT.enableCounteraction) this.counteraction.apply(heat, player);
 		heat.checkoutValueChange();
+		
+		// Apply the "side effects"
+		//this.consequences.apply(heat, player);
 	}
 
 	@Override
@@ -236,5 +241,23 @@ public class HeatModifier implements StatProvider<SimpleStatRecord> {
 		}
 		
 		return current + heat;
+	}
+	
+	public static void heatCounteraction(SimpleStatRecord record, EntityPlayer player)
+	{		
+		Range<Float> valrange = record.getValueRange();
+		float rangesize = valrange.upperEndpoint() - valrange.lowerEndpoint();
+		float midpoint = valrange.lowerEndpoint() + rangesize / 2F;
+		
+		float middiff = midpoint - record.getValue(); // How much colder the body is than optimal
+		float middelta = Math.abs(middiff); // The distance to optimal temperature
+		float way = middiff / middelta; // 1 = too cold (regenerating temp), -1 = too hot (dissipiating temp)
+		float amplitude = (float)(way > 0F ? ModConfig.HEAT.positiveCAAmplitude : ModConfig.HEAT.negativeCAAmplitude); // Determine target amplitude
+		float adjustment = (float)Math.min(Math.pow(middelta / (rangesize * ModConfig.HEAT.counteractionCoverage), ModConfig.HEAT.counteractionExponent), 1F) * way * amplitude;
+		
+		if(player.world.getWorldTime() % 20 == 0)
+			SurvivalInc.logger.debug("[Heat Counteraction] R: {}({}), M: {}, V: {}, D: {}, A: {} (X:{})", valrange.toString(), rangesize, midpoint, record.getValue(), middiff, adjustment, amplitude);
+		
+		record.addToValue(adjustment);
 	}
 }

@@ -134,6 +134,14 @@ config.survivalinc.heat.fireDuration=Fire Duration
 config.survivalinc.heat.fireDuration.tooltip=When the player passes certain temperature, they catch on fire. Fire duration is the additional time in seconds this fire lasts after returning to normal. Setting this to 0 disables catching on fire, and uses Hyperthermia damage instead.
 config.survivalinc.heat.damageAmount=Condition Damage
 config.survivalinc.heat.damageAmount.tooltip=The damage applied each "hit" on the player by hypothermia and optionally hyperthermia.
+config.survivalinc.heat.positiveCAAmplitude=Positive CAA
+config.survivalinc.heat.positiveCAAmplitude.tooltip=The maximum counteraction against too cold temperatures. In other words, how much the body can correct it's temperature when it's too cold.
+config.survivalinc.heat.negativeCAAmplitude=Negative CAA
+config.survivalinc.heat.negativeCAAmplitude.tooltip=The maximum counteraction against too hot temperatures. In other words, how much the body can correct it's temperature when it's too hot.
+config.survivalinc.heat.counteractionCoverage=Counteraction Coverage
+config.survivalinc.heat.counteractionCoverage.tooltip=A fraction of the full temperature range indicating how far from optimal the counteraction scales up. Beyond that point it remains constant (maxed out).
+config.survivalinc.heat.counteractionExponent=Counteraction Exponent
+config.survivalinc.heat.counteractionExponent.tooltip=The exponent to the counteraction scaling function. Needless to say, exponent 1 makes the function scale lineraly, exponents <1 make it scale like root functions, and 0 makes the counteraction always maxed out.
 
 # Hydration config
 survivalinc.hydration=Hydration
