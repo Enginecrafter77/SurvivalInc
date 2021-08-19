@@ -115,13 +115,14 @@ public class SimpleStatRecord implements StatRecord {
 	}
 	
 	/**
-	 * Returns the difference between the last
-	 * checked-out value and the current value. This
-	 * method depends on the time when {@link #checkoutValueChange()}
-	 * was last called. The general idea is this method
-	 * should return the change between the last tick's value
-	 * and the current tick's computed value, but other
-	 * implementations are free to specify their own terms.
+	 * Returns the difference between the value at the time
+	 * when {@link #checkoutValueChange()} was second last
+	 * called and when <code>checkoutValue</code> was last
+	 * called. For illustration, if we say "X" is the number
+	 * of times <code>checkoutValueChange()</code> was called,
+	 * and F(x) is a function which returns the value at the time
+	 * it was called, then the value returned by this method is
+	 * always equal to <tt>F(x-1) - F(x-2)</tt>
 	 * @see #checkoutValueChange()
 	 * @return The difference between the last checked out value and the current value
 	 */
@@ -131,13 +132,12 @@ public class SimpleStatRecord implements StatRecord {
 	}
 	
 	/**
-	 * Commits the pending value change. A call to this method
-	 * in a thread-safe context will guarantee that the next
-	 * call to {@link #getLastChange()} will result in 0.
-	 * Generally, this method is intended to be run at the
-	 * end of each tick, so that {@link #getLastChange()}
-	 * may return the change relative to the last tick's value.
-	 * But other implementations are free to specify their own terms.
+	 * Commits the pending value change. This means that
+	 * {@link #getLastChange()} will return the difference
+	 * between the current value and the value at the time
+	 * of previous call to this method. This method should
+	 * generally be called when the processing on the record
+	 * during a specific update is done.
 	 * @see #getLastChange()
 	 */
 	public void checkoutValueChange()
