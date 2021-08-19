@@ -4,6 +4,7 @@ import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
+import enginecrafter77.survivalinc.stats.StatRecord;
 import net.minecraft.entity.player.EntityPlayer;
 
 /**
@@ -14,7 +15,7 @@ import net.minecraft.entity.player.EntityPlayer;
  * a new instance each time they're called.
  * @author Enginecrafter77
  */
-public class FunctionalEffectFilter<RECORD> implements EffectFilter<RECORD> {
+public class FunctionalEffectFilter<RECORD extends StatRecord> implements EffectFilter<RECORD> {
 	/** The function this effect filter delegates to */
 	public final BiPredicate<RECORD, EntityPlayer> delegate;
 	
@@ -43,6 +44,7 @@ public class FunctionalEffectFilter<RECORD> implements EffectFilter<RECORD> {
 	 * FunctionalEffectFilter is immutable, this method returns a new instance each time.
 	 * @return An EffectFilter returning exactly the opposite values for each matching inputs
 	 */
+	@Override
 	public FunctionalEffectFilter<RECORD> invert()
 	{
 		return new FunctionalEffectFilter<RECORD>(this.delegate, !this.inverted);
@@ -53,7 +55,7 @@ public class FunctionalEffectFilter<RECORD> implements EffectFilter<RECORD> {
 	 * @param check The predicate checking the stat's value
 	 * @return A new instance of FunctionalEffectFilter
 	 */
-	public static <RECORD> FunctionalEffectFilter<RECORD> byRecord(Predicate<RECORD> check)
+	public static <RECORD extends StatRecord> FunctionalEffectFilter<RECORD> byRecord(Predicate<RECORD> check)
 	{
 		return new FunctionalEffectFilter<RECORD>((RECORD record, EntityPlayer player) -> check.test(record));
 	}
@@ -68,8 +70,8 @@ public class FunctionalEffectFilter<RECORD> implements EffectFilter<RECORD> {
 	 * @param check The predicate checking the player entity
 	 * @return A new instance of FunctionalEffectFilter
 	 */
-	public static FunctionalEffectFilter<Object> byPlayer(Predicate<EntityPlayer> check)
+	public static FunctionalEffectFilter<StatRecord> byPlayer(Predicate<EntityPlayer> check)
 	{
-		return new FunctionalEffectFilter<Object>((Object record, EntityPlayer player) -> check.test(player));
+		return new FunctionalEffectFilter<StatRecord>((StatRecord record, EntityPlayer player) -> check.test(player));
 	}
 }

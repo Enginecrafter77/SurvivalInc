@@ -10,10 +10,12 @@ import enginecrafter77.survivalinc.net.WaterDrinkMessage;
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatProvider;
+import enginecrafter77.survivalinc.stats.StatRecord;
 import enginecrafter77.survivalinc.stats.StatRegisterEvent;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import enginecrafter77.survivalinc.stats.effect.DamageStatEffect;
 import enginecrafter77.survivalinc.stats.effect.EffectApplicator;
+import enginecrafter77.survivalinc.stats.effect.EffectFilter;
 import enginecrafter77.survivalinc.stats.effect.FunctionalEffectFilter;
 import enginecrafter77.survivalinc.stats.effect.PotionStatEffect;
 import enginecrafter77.survivalinc.stats.effect.ValueStatEffect;
@@ -48,7 +50,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class HydrationModifier implements StatProvider<SimpleStatRecord> {
 	private static final long serialVersionUID = 6252973395407389818L;
 
-	public static final FunctionalEffectFilter<Object> isOutsideOverworld = FunctionalEffectFilter.byPlayer((EntityPlayer player) -> player.dimension != 0);
+	public static final EffectFilter<StatRecord> isOutsideOverworld = FunctionalEffectFilter.byPlayer((EntityPlayer player) -> player.dimension != 0);
 	public static final DamageSource DEHYDRATION = new DamageSource("survivalinc_dehydration").setDamageIsAbsolute().setDamageBypassesArmor();
 	public static HydrationModifier instance = null;
 	
@@ -58,8 +60,8 @@ public class HydrationModifier implements StatProvider<SimpleStatRecord> {
 	{
 		this.effects = new EffectApplicator<SimpleStatRecord>();
 		
-		FunctionalEffectFilter<SimpleStatRecord> fatique = FunctionalEffectFilter.byValue(Range.lessThan(10F));
-		FunctionalEffectFilter<SimpleStatRecord> slowness = FunctionalEffectFilter.byValue(Range.lessThan(20F));
+		EffectFilter<SimpleStatRecord> fatique = FunctionalEffectFilter.byValue(Range.lessThan(10F));
+		EffectFilter<SimpleStatRecord> slowness = FunctionalEffectFilter.byValue(Range.lessThan(20F));
 		
 		this.effects.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, -0.006F)).addFilter(HydrationModifier.isOutsideOverworld);
 		this.effects.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, -0.5F)).addFilter(FunctionalEffectFilter.byPlayer(EntityPlayer::isInLava));

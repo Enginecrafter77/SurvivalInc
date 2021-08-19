@@ -2,6 +2,7 @@ package enginecrafter77.survivalinc.ghost;
 
 import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatProvider;
+import enginecrafter77.survivalinc.stats.StatRecord;
 import enginecrafter77.survivalinc.stats.StatRegisterEvent;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import enginecrafter77.survivalinc.stats.effect.EffectApplicator;
@@ -69,7 +70,7 @@ public class GhostProvider implements StatProvider<GhostEnergyRecord> {
 		this.applicator = new EffectApplicator<GhostEnergyRecord>();
 		this.interactor = new InteractionProcessor(PlayerInteractEvent.RightClickBlock.class, (float)ModConfig.GHOST.interactionCost);
 		
-		EffectFilter<Object> playerSprinting = FunctionalEffectFilter.byPlayer(EntityPlayer::isSprinting);
+		EffectFilter<StatRecord> playerSprinting = FunctionalEffectFilter.byPlayer(EntityPlayer::isSprinting);
 		this.applicator.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, (float)ModConfig.GHOST.passiveNightRegen)).addFilter(GhostProvider::duringNight);
 		this.applicator.add(GhostProvider::onGhostUpdate);
 		
