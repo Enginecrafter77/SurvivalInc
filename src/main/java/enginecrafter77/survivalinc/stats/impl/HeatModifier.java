@@ -150,7 +150,7 @@ public class HeatModifier implements StatProvider<SimpleStatRecord> {
 		heat.checkoutValueChange();
 		
 		// Apply the "side effects"
-		//this.consequences.apply(heat, player);
+		this.consequences.apply(heat, player);
 	}
 
 	@Override
@@ -251,12 +251,12 @@ public class HeatModifier implements StatProvider<SimpleStatRecord> {
 		
 		float middiff = midpoint - record.getValue(); // How much colder the body is than optimal
 		float middelta = Math.abs(middiff); // The distance to optimal temperature
-		float way = middiff / middelta; // 1 = too cold (regenerating temp), -1 = too hot (dissipiating temp)
+		float way = middiff / middelta; // 1 = too cold (regenerating temp), -1 = too hot (dissipating temp)
 		float amplitude = (float)(way > 0F ? ModConfig.HEAT.positiveCAAmplitude : ModConfig.HEAT.negativeCAAmplitude); // Determine target amplitude
 		float adjustment = (float)Math.min(Math.pow(middelta / (rangesize * ModConfig.HEAT.counteractionCoverage), ModConfig.HEAT.counteractionExponent), 1F) * way * amplitude;
 		
-		if(player.world.getWorldTime() % 20 == 0)
-			SurvivalInc.logger.debug("[Heat Counteraction] R: {}({}), M: {}, V: {}, D: {}, A: {} (X:{})", valrange.toString(), rangesize, midpoint, record.getValue(), middiff, adjustment, amplitude);
+		//if(player.world.getWorldTime() % 20 == 0)
+		//	SurvivalInc.logger.debug("[Heat Counteraction] R: {}({}), M: {}, V: {}, D: {}, A: {} (X:{})", valrange.toString(), rangesize, midpoint, record.getValue(), middiff, adjustment, amplitude);
 		
 		record.addToValue(adjustment);
 	}

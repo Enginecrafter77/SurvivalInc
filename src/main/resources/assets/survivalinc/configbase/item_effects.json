@@ -142,5 +142,19 @@
 			"survivalinc:hydration": 6,
 			"survivalinc:heat": 1
 		}
+	},
+	{
+		"situation": "in-hand",
+		"item": "minecraft:fire_charge",
+		"effects": {
+			"survivalinc:heat": 0.16
+		}
+	},
+	{
+		"situation": "in-hand",
+		"item": "minecraft:lava_bucket",
+		"effects": {
+			"survivalinc:heat": 0.2
+		}
 	}
 ]
