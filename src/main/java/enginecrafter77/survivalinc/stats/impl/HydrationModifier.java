@@ -1,5 +1,7 @@
 package enginecrafter77.survivalinc.stats.impl;
 
+import javax.annotation.Nullable;
+
 import com.google.common.collect.Range;
 
 import enginecrafter77.survivalinc.SurvivalInc;
@@ -40,6 +42,8 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class HydrationModifier implements StatProvider<SimpleStatRecord> {
 	private static final long serialVersionUID = 6252973395407389818L;
@@ -54,14 +58,16 @@ public class HydrationModifier implements StatProvider<SimpleStatRecord> {
 	{
 		this.effects = new EffectApplicator<SimpleStatRecord>();
 		
-		FunctionalEffectFilter<SimpleStatRecord> nasfat = FunctionalEffectFilter.byValue(Range.lessThan(10F));
+		FunctionalEffectFilter<SimpleStatRecord> fatique = FunctionalEffectFilter.byValue(Range.lessThan(10F));
+		FunctionalEffectFilter<SimpleStatRecord> slowness = FunctionalEffectFilter.byValue(Range.lessThan(20F));
+		
 		this.effects.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, -0.006F)).addFilter(HydrationModifier.isOutsideOverworld);
 		this.effects.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, -0.5F)).addFilter(FunctionalEffectFilter.byPlayer(EntityPlayer::isInLava));
 		this.effects.add(new DamageStatEffect(HydrationModifier.DEHYDRATION, 4F, 0)).addFilter(FunctionalEffectFilter.byValue(Range.lessThan(5F)));
-		this.effects.add(new PotionStatEffect(MobEffects.SLOWNESS, 5)).addFilter(FunctionalEffectFilter.byValue(Range.lessThan(20F)));
-		this.effects.add(new PotionStatEffect(MobEffects.WEAKNESS, 5)).addFilter(FunctionalEffectFilter.byValue(Range.lessThan(20F)));
-		this.effects.add(new PotionStatEffect(MobEffects.MINING_FATIGUE, 5)).addFilter(nasfat);
-		this.effects.add(new PotionStatEffect(MobEffects.NAUSEA, 5)).addFilter(nasfat);
+		this.effects.add(new PotionStatEffect(MobEffects.SLOWNESS, 5)).addFilter(slowness);
+		this.effects.add(new PotionStatEffect(MobEffects.WEAKNESS, 5)).addFilter(slowness);
+		this.effects.add(new PotionStatEffect(MobEffects.MINING_FATIGUE, 5)).addFilter(fatique);
+		this.effects.add(new PotionStatEffect(MobEffects.NAUSEA, 5)).addFilter(fatique);
 		this.effects.add(HydrationModifier::naturalDrain);
 	}
 	
@@ -121,25 +127,40 @@ public class HydrationModifier implements StatProvider<SimpleStatRecord> {
 	{
 		EntityPlayerMP player = ctx.getServerHandler().player;
 		WorldServer world = player.getServerWorld();
+		WaterVolume volume = message.getWaterVolume();
+		Vec3d hitvec = message.getHitPosition();
 		
-		RayTraceResult water_rt = null;
-		
-		// Verify if the client message is not fake (i.e. to artificially increase hydration)
+		String ip = ctx.getServerHandler().getNetworkManager().getRemoteAddress().toString();
 		if(ModConfig.GENERAL.verifyClientDrinkingRequests)
 		{
-			water_rt = raytraceWaterDrinking(player, message.getHand());
+			RayTraceResult water_rt = HydrationModifier.raytraceWaterDrinking(player, message.getHand());
 			if(water_rt == null)
 			{
-				SurvivalInc.logger.warn("Player {}'s client probably issued a forged WaterDrinkMessage.");
+				SurvivalInc.logger.warn("Water drink packet received (from: {}), but no body of water found :/", ip);
 				return null;
 			}
-			else HydrationModifier.spawnWaterDrinkParticles(world, water_rt.hitVec);
+			else
+			{
+				WaterVolume verifiedvolume = WaterVolume.fromBlock(player.world, water_rt.getBlockPos(), (float)ModConfig.HYDRATION.sipVolume);
+				if(!volume.equals(verifiedvolume))
+				{
+					SurvivalInc.logger.warn("Server raytrace results not consistent with client's claim. Fabricated packet from {}?", ip);
+					return null;
+				}
+				
+				hitvec = water_rt.hitVec;
+				volume = verifiedvolume;
+			}
+		}
+		else if(volume == null || hitvec == null)
+		{
+			SurvivalInc.logger.error("Invalid water volume in request from {}.", ip);
+			return null;
 		}
 		
-		SurvivalInc.logger.info("Player drink request authorized.");
 		StatTracker tracker = player.getCapability(StatCapability.target, null);
 		SimpleStatRecord hydration = tracker.getRecord(HydrationModifier.instance);
-		WaterVolume volume = WaterVolume.fromBlock(player.world, water_rt.getBlockPos(), (float)ModConfig.HYDRATION.sipVolume);
+		HydrationModifier.spawnWaterDrinkParticles(world, hitvec);
 		volume.apply(hydration, player);
 		return null;
 	}
@@ -167,53 +188,37 @@ public class HydrationModifier implements StatProvider<SimpleStatRecord> {
 	 * This method gets run only on client. It basically sends "water drink request"
 	 * to the server. This approach was chosen since this method is run only on client,
 	 * and since the client can easily be modified to artificially create these packets,
-	 * it is therefore always validated on the server side. 
-	 * @param event
+	 * it is therefore always validated on the server side.
+	 * 
+	 * Essentially, this method differs from {@link #onPlayerInteract(net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock)}
+	 * by only that when the player click on water without reading for a block underneath it, then
+	 * this event is issued since it's treated like the player clicked with empty hand in the air.
+	 * @param event The empty hand interaction event
 	 */
 	@SubscribeEvent
-	public static void onPlayerInteract(PlayerInteractEvent.RightClickEmpty event)
+	@SideOnly(Side.CLIENT)
+	public static void onPlayerRightClick(PlayerInteractEvent.RightClickEmpty event)
 	{
-		if(event.getHand() != EnumHand.MAIN_HAND) return; // We do not want to run this twice
+		if(!HydrationModifier.validateDrinkEvent(event)) return;
 		
-		EntityPlayer player = event.getEntityPlayer();
-		if(player.isCreative() || player.isSpectator()) return;
-		
-		// Do the raytrace
-		RayTraceResult water_rt = raytraceWaterDrinking(player, event.getHand());
-		if(water_rt != null)
-		{
-			// Modify the client tracker
-			StatTracker tracker = player.getCapability(StatCapability.target, null);
-			SimpleStatRecord hydration = tracker.getRecord(HydrationModifier.instance);
-			WaterVolume volume = WaterVolume.fromBlock(player.world, water_rt.getBlockPos(), (float)ModConfig.HYDRATION.sipVolume);
-			volume.apply(hydration, player);
-			SurvivalInc.proxy.net.sendToServer(new WaterDrinkMessage(event.getHand()));
-		}
+		WaterDrinkMessage result = HydrationModifier.tryDrink(event.getEntityPlayer(), event.getHand());
+		if(result != null) SurvivalInc.proxy.net.sendToServer(result);
 	}
 	
 	/**
 	 * This event gets fired on both sides, so it's not necessary to get
 	 * server authorization regarding the drinking.
-	 * @param event
+	 * @param event The block click event
 	 */
 	@SubscribeEvent
 	public static void onPlayerInteract(PlayerInteractEvent.RightClickBlock event)
 	{
-		if(event.getHand() != EnumHand.MAIN_HAND) return; // We do not want to run this twice nor on server side
+		if(!HydrationModifier.validateDrinkEvent(event)) return;
 		
 		EntityPlayer player = event.getEntityPlayer();
-		if(player.isCreative() || player.isSpectator()) return;
-		
-		// Do the raytrace
-		RayTraceResult water_rt = raytraceWaterDrinking(player, event.getHand());
-		if(water_rt != null)
-		{
-			StatTracker tracker = player.getCapability(StatCapability.target, null);
-			SimpleStatRecord hydration = tracker.getRecord(HydrationModifier.instance);
-			WaterVolume volume = WaterVolume.fromBlock(player.world, water_rt.getBlockPos(), (float)ModConfig.HYDRATION.sipVolume);
-			volume.apply(hydration, player);
-			if(!player.world.isRemote) HydrationModifier.spawnWaterDrinkParticles((WorldServer)player.world, water_rt.hitVec);
-		}
+		WaterDrinkMessage result = HydrationModifier.tryDrink(player, event.getHand());
+		if(result != null && !player.world.isRemote)
+			HydrationModifier.spawnWaterDrinkParticles((WorldServer)player.world, result.getHitPosition());
 	}
 	
 	/**
@@ -239,13 +244,57 @@ public class HydrationModifier implements StatProvider<SimpleStatRecord> {
 		}
 	}
 	
+	//=======================================================================
+	//==========================/                 \==========================
+	//==========================|UTILITY FUNCTIONS|==========================
+	//==========================\_________________/==========================
+	//=======================================================================
+	
+	/**
+	 * An utility function to check whether a certain {@link PlayerInteractEvent}
+	 * is suitable to be interpreted as water drink event
+	 * @param event The event in question
+	 * @return True if the event can be interpreted as water drinking, false otherwise
+	 */
+	private static boolean validateDrinkEvent(PlayerInteractEvent event)
+	{
+		EntityPlayer player = event.getEntityPlayer();
+		return event.getHand() == EnumHand.MAIN_HAND && !(player.isCreative() || player.isSpectator());
+	}
+	
+	/**
+	 * Checks whether the player is looking at a block of water, and if so, evaluates
+	 * the water block for quality and applies the resultant {@link WaterVolume}
+	 * to the player's hydration record with the associated effects.
+	 * @param player The player in question
+	 * @param hand The currently evaluated hand
+	 * @return WaterDrinkMessage summarizing the results, null if there is no water
+	 */
+	private static @Nullable WaterDrinkMessage tryDrink(EntityPlayer player, EnumHand hand)
+	{
+		RayTraceResult water_rt = HydrationModifier.raytraceWaterDrinking(player, hand);
+		if(water_rt != null)
+		{
+			StatTracker tracker = player.getCapability(StatCapability.target, null);
+			SimpleStatRecord hydration = tracker.getRecord(HydrationModifier.instance);
+			WaterVolume volume = WaterVolume.fromBlock(player.world, water_rt.getBlockPos(), (float)ModConfig.HYDRATION.sipVolume);
+			
+			// Test whether WaterVolume#fromBlock returned actual WaterVolume instance
+			if(volume == null) return null;
+			
+			volume.apply(hydration, player);
+			return new WaterDrinkMessage(volume, water_rt, hand);
+		}
+		return null;
+	}
+	
 	/**
 	 * Returns the raytrace result if the water drinking conditions were met, or null otherwise.
 	 * @param player The player to do the raytrace from
 	 * @param hand The hand used during the raytrace
 	 * @return RayTraceResult if the drink conditions are met, null otherwise
 	 */
-	private static RayTraceResult raytraceWaterDrinking(EntityPlayer player, EnumHand hand)
+	private static @Nullable RayTraceResult raytraceWaterDrinking(EntityPlayer player, EnumHand hand)
 	{
 		if(player.getHeldItem(hand).isEmpty())
 		{			
@@ -263,6 +312,11 @@ public class HydrationModifier implements StatProvider<SimpleStatRecord> {
 		return null;
 	}
 	
+	/**
+	 * An utility function to spawn particles representing tiny water splashes.
+	 * @param world The server world
+	 * @param position The position to spawn the particles around
+	 */
 	private static void spawnWaterDrinkParticles(WorldServer world, Vec3d position)
 	{
 		world.spawnParticle(EnumParticleTypes.WATER_SPLASH, position.x, position.y + 0.1, position.z, 20, 0.5, 0.1, 0.5, 0.1, null);

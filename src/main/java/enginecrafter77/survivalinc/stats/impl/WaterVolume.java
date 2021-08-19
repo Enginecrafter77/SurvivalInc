@@ -149,6 +149,17 @@ public class WaterVolume implements StatEffect<SimpleStatRecord>, INBTSerializab
 		if(this.dirty) player.addPotionEffect(new PotionEffect(MobEffects.POISON, 100));
 	}
 	
+	@Override
+	public boolean equals(Object other)
+	{
+		if(other instanceof WaterVolume)
+		{
+			WaterVolume othervolume = (WaterVolume)other;
+			return this.volume == othervolume.volume && this.dirty == othervolume.dirty && this.salinity == othervolume.salinity && this.temperature == othervolume.temperature;
+		}
+		return false;
+	}
+	
 	public static void checkTables()
 	{
 		if(WaterVolume.initialized) return;
