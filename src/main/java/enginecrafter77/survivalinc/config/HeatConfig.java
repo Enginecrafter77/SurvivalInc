@@ -81,6 +81,18 @@ public class HeatConfig {
 	@Config.RangeDouble(min = 0)
 	public double counteractionExponent = 2D;
 	
+	@Config.LangKey("config.survivalinc.heat.daytimeDifference")
+	@Config.Comment("The difference between the base environment temperature and the one during daytime. (and nighttime conversely)")
+	public double daytimeDifference = 10D;
+	
+	@Config.LangKey("config.survivalinc.heat.colderNights")
+	@Config.Comment("Setting this to true causes the \"Daytime Difference\" value to be subtracted during night.")
+	public boolean colderNights = false;
+	
+	@Config.LangKey("config.survivalinc.heat.sunlightBonus")
+	@Config.Comment("The environmental heat bonus received by standing in sunlight during daytime")
+	public double sunlightBonus = 15D;
+	
 	@Config.LangKey("config.survivalinc.heat.blockHeatMap")
 	@Config.Comment({"A map of blocks and their core heat.", "See the wiki for how this value is affecting the radiant heat"})
 	@Config.RequiresMcRestart

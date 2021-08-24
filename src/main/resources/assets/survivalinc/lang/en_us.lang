@@ -134,6 +134,8 @@ config.survivalinc.heat.fireDuration=Fire Duration
 config.survivalinc.heat.fireDuration.tooltip=When the player passes certain temperature, they catch on fire. Fire duration is the additional time in seconds this fire lasts after returning to normal. Setting this to 0 disables catching on fire, and uses Hyperthermia damage instead.
 config.survivalinc.heat.damageAmount=Condition Damage
 config.survivalinc.heat.damageAmount.tooltip=The damage applied each "hit" on the player by hypothermia and optionally hyperthermia.
+config.survivalinc.heat.counteractionEnable=Enable Counteraction
+config.survivalinc.heat.counteractionEnable.tooltip=Set to true to enable body internal heat counteraction, a mechanism which regenerates or dissipates heat based on the distance from optimal temperature.
 config.survivalinc.heat.positiveCAAmplitude=Positive CAA
 config.survivalinc.heat.positiveCAAmplitude.tooltip=The maximum counteraction against too cold temperatures. In other words, how much the body can correct it's temperature when it's too cold.
 config.survivalinc.heat.negativeCAAmplitude=Negative CAA
@@ -142,6 +144,12 @@ config.survivalinc.heat.counteractionCoverage=Counteraction Coverage
 config.survivalinc.heat.counteractionCoverage.tooltip=A fraction of the full temperature range indicating how far from optimal the counteraction scales up. Beyond that point it remains constant (maxed out).
 config.survivalinc.heat.counteractionExponent=Counteraction Exponent
 config.survivalinc.heat.counteractionExponent.tooltip=The exponent to the counteraction scaling function. Needless to say, exponent 1 makes the function scale lineraly, exponents <1 make it scale like root functions, and 0 makes the counteraction always maxed out.
+config.survivalinc.heat.daytimeDifference=Daytime Difference
+config.survivalinc.heat.daytimeDifference.tooltip=The difference between the base environment temperature and the one during daytime. (and nighttime conversely)
+config.survivalinc.heat.sunlightBonus=Sunlight Bonus
+config.survivalinc.heat.sunlightBonus.tooltip=The environmental heat bonus received by standing in sunlight during daytime
+config.survivalinc.heat.colderNights=Colder Nights
+config.survivalinc.heat.colderNights.tooltip=Setting this to true causes the "Daytime Difference" value to be subtracted during night.
 
 # Hydration config
 survivalinc.hydration=Hydration

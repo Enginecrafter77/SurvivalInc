@@ -65,6 +65,7 @@ public class HeatModifier implements StatProvider<SimpleStatRecord> {
 		this.armorInsulation = new ArmorModifier();
 		
 		this.targettemp.add(HeatModifier::absorbRadiantHeat);
+		this.targettemp.add(HeatModifier::acceptSunlightHeat);
 		
 		if(ModConfig.WETNESS.enabled) this.exchangerate.add(HeatModifier::applyWetnessCooldown);
 		this.exchangerate.add(this.armorInsulation);
@@ -241,6 +242,18 @@ public class HeatModifier implements StatProvider<SimpleStatRecord> {
 		}
 		
 		return current + heat;
+	}
+	
+	public static float acceptSunlightHeat(EntityPlayer player, float current)
+	{
+		if(player.world.isDaytime())
+		{
+			current += ModConfig.HEAT.daytimeDifference;
+			if(player.world.canSeeSky(new BlockPos(player.getPositionEyes(1F))))
+				current += ModConfig.HEAT.sunlightBonus;
+		}
+		else if(ModConfig.HEAT.colderNights) current -= ModConfig.HEAT.daytimeDifference;
+		return current;
 	}
 	
 	public static void heatCounteraction(SimpleStatRecord record, EntityPlayer player)
