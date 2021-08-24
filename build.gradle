@@ -41,7 +41,7 @@ dependencies {
 
 jgitver {
 	autoIncrementPatch false
-	useDirty true
+//	useDirty true
 }
 
 jar {
@@ -124,7 +124,7 @@ publishing {
 curseforge {
 	def cleanTag = Integer.parseInt(project.ext.commit_distance) == 0
 	
-	apiKey = project.properties["curseforge.apikey"] ?: 'null' // This little mf-er always throws error so we have to improvise here
+	apiKey = System.getenv("CURSEFORGE_APIKEY") ?: (project.properties["curseforge.apikey"] ?: '#invalid-key#')
 	project {
 		id = '375921'
 		releaseType = System.getenv("GRADLE_RELEASE_TYPE") ?: (Boolean.parseBoolean(project.ext.dirty) ? 'alpha' : (cleanTag ? 'release' : 'beta'))
@@ -143,7 +143,7 @@ curseforge {
 // Check if we are not trying to push dirty tree by accident.
 task checkTreeState {
 	doLast {
-		if(Boolean.parseBoolean(project.ext.dirty) && System.getenv("GRADLE_FORCE_PUBLISH_DIRTY_TREE") == null)
+		if(Boolean.parseBoolean(project.ext.dirty) && System.getenv("GRADLE_FORCE_PUBLISH_DIRTY_TREE") == null && System.getenv("DRY_RUN") == null)
 			throw new GradleException("Refusing to publish dirty work tree. Commit your changes before!");
 	}
 }
