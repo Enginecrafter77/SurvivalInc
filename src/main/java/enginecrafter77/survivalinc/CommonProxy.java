@@ -22,6 +22,7 @@ import enginecrafter77.survivalinc.season.SeasonSyncRequest;
 import enginecrafter77.survivalinc.season.SurvivalIncSeason;
 import enginecrafter77.survivalinc.season.melting.MeltingController;
 import enginecrafter77.survivalinc.season.melting.MeltingController.MelterEntry;
+import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatCommand;
 import enginecrafter77.survivalinc.stats.StatRegisterDispatcher;
 import enginecrafter77.survivalinc.stats.StatStorage;
@@ -67,13 +68,14 @@ public abstract class CommonProxy {
 			MeltingController.meltmap.add(new MelterEntry((BlockMelting)ModBlocks.MELTING_ICE.get()).level(0, true)); // 0 = ground
 		}
 		
-		// Register capabilities.
-		CapabilityManager.INSTANCE.register(StatTracker.class, StatStorage.instance, StatRegisterDispatcher.instance);
-		
-		this.mapper = new ItemSituationContainer();		
-		MinecraftForge.EVENT_BUS.register(this.mapper);
+		// Register the auxiliary event handlers
 		MinecraftForge.EVENT_BUS.register(this);
 		
+		// Register capabilities.
+		MinecraftForge.EVENT_BUS.register(StatCapability.class);
+		CapabilityManager.INSTANCE.register(StatTracker.class, StatStorage.instance, StatRegisterDispatcher.instance);
+		
+		this.mapper = new ItemSituationContainer();
 		this.itemeffects = new File(event.getModConfigurationDirectory(), "survivalinc/item_effects.json");
 	}
 	
@@ -99,9 +101,12 @@ public abstract class CommonProxy {
 		if(ModConfig.WETNESS.enabled) WetnessModifier.init();
 		if(ModConfig.GHOST.enabled) GhostProvider.init();
 		
-		SeasonCalendar calendar = SeasonController.instance.calendar;
-		for(SurvivalIncSeason season : SurvivalIncSeason.values())
-			calendar.registerSeason(season);
+		if(ModConfig.SEASONS.enabled)
+		{
+			SeasonCalendar calendar = SeasonController.instance.calendar;
+			for(SurvivalIncSeason season : SurvivalIncSeason.values())
+				calendar.registerSeason(season);
+		}
 	}
 	
 	public void postInit(FMLPostInitializationEvent event)
@@ -135,8 +140,10 @@ public abstract class CommonProxy {
 			
 			InputStream input = new FileInputStream(this.itemeffects);
 			Collection<ItemSituation<?>> effects = pse.getParser().parse(input);
-			this.mapper.effects.addAll(effects);
+			this.mapper.register(effects);
 			input.close();
+			
+			MinecraftForge.EVENT_BUS.register(this.mapper.createEventHandler());
 		}
 		catch(IOException exc)
 		{

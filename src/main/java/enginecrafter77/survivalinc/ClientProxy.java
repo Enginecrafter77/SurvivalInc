@@ -77,10 +77,7 @@ public class ClientProxy extends CommonProxy {
 	public void init(FMLInitializationEvent event)
 	{
 		super.init(event);
-		
-		HUDConstructEvent hce = new HUDConstructEvent();
-		MinecraftForge.EVENT_BUS.post(hce);
-		if(!hce.isCanceled()) this.hud = hce.buildHUD();
+		this.rebuildHUD();
 	}
 	
 	@Override
@@ -96,10 +93,7 @@ public class ClientProxy extends CommonProxy {
 	public void onConfigChanged(ConfigChangedEvent.PostConfigChangedEvent event)
 	{
 		if(!event.getModID().equals(SurvivalInc.MOD_ID)) return;
-		
-		HUDConstructEvent hce = new HUDConstructEvent();
-		MinecraftForge.EVENT_BUS.post(hce);
-		if(!hce.isCanceled()) this.hud = hce.buildHUD();
+		this.rebuildHUD();
 	}
 	
 	// A delegate event handler for RenderHUD#renderOverlayPre
@@ -179,6 +173,13 @@ public class ClientProxy extends CommonProxy {
 			event.addElement(new GhostEnergyBar(), StackingElementPositioner.LEFT).setTrigger(ElementType.HOTBAR).addFilter(GhostConditionRenderFilter.INSTANCE);
 			event.addRenderStageFilter(GhostConditionRenderFilter.INSTANCE, ElementType.HEALTH, ElementType.AIR, ElementType.ARMOR, ElementType.FOOD);
 		}
+	}
+	
+	private void rebuildHUD()
+	{
+		HUDConstructEvent hce = new HUDConstructEvent();
+		MinecraftForge.EVENT_BUS.post(hce);
+		if(!hce.isCanceled()) this.hud = hce.buildHUD();
 	}
 	
 	/**
