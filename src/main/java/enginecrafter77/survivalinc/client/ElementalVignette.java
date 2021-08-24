@@ -67,17 +67,12 @@ public class ElementalVignette implements OverlayElement {
 	@Override
 	public void draw(ReadablePoint position, float partialTicks, Object... arguments)
 	{
-		float prop = Math.min(1F, OverlayElement.getArgument(arguments, 0, Float.class).orElse(1F));		
-		GlStateManager.enableAlpha();
+		float prop = Math.min(1F, OverlayElement.getArgument(arguments, 0, Float.class).orElse(1F));
 		GlStateManager.enableBlend();
-		GlStateManager.enableDepth();
 		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 		GlStateManager.color(this.color_coefficients[0], this.color_coefficients[1], this.color_coefficients[2], this.color_coefficients[3] * this.alpha_amplitude * prop);
 		ElementalVignette.vignette.draw(position, partialTicks);
 		GlStateManager.resetColor();
-		GlStateManager.disableDepth();
-		GlStateManager.disableBlend();
-		GlStateManager.disableAlpha();
 	}
 
 	@Override
