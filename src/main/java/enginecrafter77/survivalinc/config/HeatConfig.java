@@ -33,9 +33,23 @@ public class HeatConfig {
 	public double[] distributionVector = {0.2D, 0.35D, 0.3D, 0.15D};
 	
 	@Config.LangKey("config.survivalinc.heat.caveTemperature")
-	@Config.Comment("The uniform undeground temperature")
+	@Config.Comment("The temperature at the cave normalization depth. If \"Gradient Cave Temperature\" is disabled, this temperature is uniform for every block below sea level.")
 	@Config.RangeDouble(min = 0)
 	public double caveTemperature = 0.7D;
+	
+	@Config.LangKey("config.survivalinc.heat.caveNormalizationDepth")
+	@Config.Comment({"The depth below surface at which the ambient temperature is that set in \"Cave Temperature\"", "Has no effect if \"Gradient Cave Temperature\" is disabled."})
+	@Config.RangeInt(min = 0)
+	public int caveNormalizationDepth = 10;
+	
+	@Config.LangKey("config.survivalinc.heat.surfaceScanningRadius")
+	@Config.Comment({"The radius around the surface block to calculate average surface height from.", "Higher numbers have larger impact on server performance.", "Has no effect if \"Gradient Cave Temperature\" is disabled."})
+	@Config.RangeInt(min = 1)
+	public int surfaceScanningRadius = 2;
+	
+	@Config.LangKey("config.survivalinc.heat.gradientCaveTemperature")
+	@Config.Comment({"Set to true to enable the cave gradient temperatures.", "Setting this to false may improve server performance."})
+	public boolean gradientCaveTemperature = true;
 	
 	@Config.LangKey("config.survivalinc.heat.tempCoefficient")
 	@Config.Comment({"A coefficient to turn the biome's temperature to the one processed by Survival Inc.", "60 is normally a good choice; Schoperation used to use " + SCHOPERATION_CONSTANT})

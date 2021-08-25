@@ -150,6 +150,12 @@ config.survivalinc.heat.sunlightBonus=Sunlight Bonus
 config.survivalinc.heat.sunlightBonus.tooltip=The environmental heat bonus received by standing in sunlight during daytime
 config.survivalinc.heat.colderNights=Colder Nights
 config.survivalinc.heat.colderNights.tooltip=Setting this to true causes the "Daytime Difference" value to be subtracted during night.
+config.survivalinc.heat.caveNormalizationDepth=Cave Normalization Depth
+config.survivalinc.heat.caveNormalizationDepth.tooltip=The depth below surface at which the ambient temperature is that set in "Cave Temperature"
+config.survivalinc.heat.surfaceScanningRadius=Surface Scanning Radius
+config.survivalinc.heat.surfaceScanningRadius.tooltip=The radius around the surface block to calculate average surface height from. Higher numbers have larger impact on server performance. Has no effect if "Gradient Cave Temperature" is disabled.
+config.survivalinc.heat.gradientCaveTemperature=Cave Temperature Gradients
+config.survivalinc.heat.gradientCaveTemperature.tooltip=Set to true to enable the cave gradient temperatures. Setting this to false may improve server performance.
 
 # Hydration config
 survivalinc.hydration=Hydration
@@ -219,7 +225,7 @@ config.survivalinc.wetness.drainingFactor.tooltip=The fraction of the total wetn
 config.survivalinc.wetness.minimalWalkSpeed=Minimal Walk Speed
 config.survivalinc.wetness.minimalWalkSpeed.tooltip=The maximum slowdown debuff that can be applied (fraction of the original speed)
 config.survivalinc.wetness.towelCapacity=Towel Capacity
-config.survivalinc.wetness.towelCapacity.tooltip=The capacity of towel in % of the player's wetness
+config.survivalinc.wetness.towelCapacity.tooltip=The capacity of towel in %% of the player's wetness
 config.survivalinc.wetness.towelDryRate=Towel Dry Rate
 config.survivalinc.wetness.towelDryRate.tooltip=The rate at which towels dry when placed on top of operating furnace
 config.survivalinc.wetness.fullySubmergedRate=Fully Submerged Rate

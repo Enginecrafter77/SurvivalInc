@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.google.common.collect.Range;
+import com.google.common.primitives.Floats;
 
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
@@ -29,7 +30,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
-import net.minecraft.world.biome.Biome;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -127,16 +127,8 @@ public class HeatModifier implements StatProvider<SimpleStatRecord> {
 	{
 		if(player.isCreative() || player.isSpectator()) return;
 		
-		float target;
-		if(player.posY < player.world.getSeaLevel()) target = (float)ModConfig.HEAT.caveTemperature; // Cave
-		else
-		{
-			Biome biome = player.world.getBiome(player.getPosition());
-			target = biome.getTemperature(player.getPosition());
-			if(target < -0.2F) target = -0.2F;
-			if(target > 1.5F) target = 1.5F;
-		}
-		target = targettemp.apply(player, target * (float)ModConfig.HEAT.tempCoefficient);
+		float target = HeatModifier.primaryHeatCalculation(player);
+		target = this.targettemp.apply(player, target);
 		
 		float difference = Math.abs(target - heat.getValue());
 		float rate = difference * (float)ModConfig.HEAT.heatExchangeFactor;
@@ -241,6 +233,39 @@ public class HeatModifier implements StatProvider<SimpleStatRecord> {
 		}
 		
 		return current + heat;
+	}
+	
+	public static float primaryHeatCalculation(EntityPlayer player)
+	{
+		BlockPos position = player.getPosition();
+		float target = player.world.getBiome(position).getTemperature(position);
+		
+		if(ModConfig.HEAT.gradientCaveTemperature)
+		{
+			// Get average surface height sample
+			float surface = 0;
+			int radius = ModConfig.HEAT.surfaceScanningRadius - 1;
+			for(BlockPos additional : BlockPos.getAllInBoxMutable(position.getX() - radius, position.getY(), position.getZ() - radius, position.getX() + radius, position.getY(), position.getZ() + radius))
+				surface += player.world.getPrecipitationHeight(additional).getY();
+			surface /= Math.pow(1D + radius * 2D, 2D);
+			
+			if((float)player.posY < surface)
+			{
+				float effectheight = surface - ModConfig.HEAT.caveNormalizationDepth;
+				float effectdelta = effectheight - (float)player.posY;
+				if(effectdelta < ModConfig.HEAT.caveNormalizationDepth)
+				{
+					target += (ModConfig.HEAT.caveTemperature - target) * (float)effectdelta / (float)ModConfig.HEAT.caveNormalizationDepth;
+				}
+				else
+				{
+					target = (float)ModConfig.HEAT.caveTemperature * (1F + (float)effectdelta / (float)effectheight); // Cave 
+				}
+			}
+		}
+		else if(player.posY < player.world.getSeaLevel()) target = (float)ModConfig.HEAT.caveTemperature;
+		
+		return Floats.constrainToRange(target, -0.2F, 1.5F) * (float)ModConfig.HEAT.tempCoefficient;
 	}
 	
 	public static float acceptSunlightHeat(EntityPlayer player, float current)
