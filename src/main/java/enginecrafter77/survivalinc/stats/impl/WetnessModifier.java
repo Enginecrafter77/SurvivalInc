@@ -97,9 +97,7 @@ public class WetnessModifier implements StatProvider<SimpleStatRecord> {
 	@Override
 	public SimpleStatRecord createNewRecord()
 	{
-		SimpleStatRecord record = new SimpleStatRecord();
-		record.setValueRange(Range.closed(0F, 100F));
-		return record;
+		return new SimpleStatRecord(Range.closed(0F, 100F));
 	}
 	
 	@Override

@@ -13,8 +13,7 @@ public class SanityRecord extends SimpleStatRecord {
 	
 	public SanityRecord()
 	{
-		super();
-		this.setValueRange(SanityRecord.values);
+		super(SanityRecord.values);
 		this.setValue((float)ModConfig.SANITY.startValue);
 		this.ticksAwake = 0;
 	}

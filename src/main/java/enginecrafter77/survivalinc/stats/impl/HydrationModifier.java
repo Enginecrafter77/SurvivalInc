@@ -107,8 +107,7 @@ public class HydrationModifier implements StatProvider<SimpleStatRecord> {
 	@Override
 	public SimpleStatRecord createNewRecord()
 	{
-		SimpleStatRecord record = new SimpleStatRecord();
-		record.setValueRange(Range.closed(0F, 100F));
+		SimpleStatRecord record = new SimpleStatRecord(Range.closed(0F, 100F));
 		record.setValue((float)ModConfig.HYDRATION.startValue);
 		return record;
 	}

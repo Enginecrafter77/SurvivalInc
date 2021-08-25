@@ -23,8 +23,7 @@ public class GhostEnergyRecord extends SimpleStatRecord {
 	
 	public GhostEnergyRecord()
 	{
-		super();
-		this.setValueRange(Range.closed(0F, 100F));
+		super(Range.closed(0F, 100F));
 		this.status = 0x0; // INACTIVE
 		this.resurrection_progress = -1;
 	}

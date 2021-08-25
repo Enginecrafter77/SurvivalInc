@@ -13,7 +13,7 @@ import net.minecraft.nbt.NBTTagCompound;
 public class SimpleStatRecord implements StatRecord {
 	
 	/** The range of values accepted by this record */
-	private Range<Float> valuerange;
+	private final Range<Float> valuerange;
 	
 	/** The value stored in the record entry */
 	protected float value;
@@ -24,12 +24,22 @@ public class SimpleStatRecord implements StatRecord {
 	/** The change after last {@link #checkoutValueChange()} call */
 	private float change;
 	
-	public SimpleStatRecord()
+	public SimpleStatRecord(Range<Float> valuerange)
 	{
-		this.valuerange = Range.all();
+		this.valuerange = valuerange;
 		this.lastvalue = 0F;
 		this.change = 0F;
 		this.value = 0F;
+	}
+	
+	/**
+	 * Creates SimpleStatRecord with unbound value range.
+	 * @deprecated Use the more explicit constructor: {@link #SimpleStatRecord(Range)}
+	 */
+	@Deprecated
+	public SimpleStatRecord()
+	{
+		this(Range.all());
 	}
 	
 	/**
@@ -67,9 +77,10 @@ public class SimpleStatRecord implements StatRecord {
 	 * the specified range.
 	 * @param range The value range
 	 */
+	@Deprecated
 	public void setValueRange(Range<Float> range)
 	{
-		this.valuerange = range;
+		throw new UnsupportedOperationException("Method no longer supported");
 	}
 	
 	/**
