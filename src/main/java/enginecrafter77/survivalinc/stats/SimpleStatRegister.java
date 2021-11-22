@@ -12,9 +12,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 
 /**
- * SimpleStatRegister is the default implementation of StatTracker.
- * It features all the basic facilities and principles recommended
- * by StatTracker definition.
+ * SimpleStatRegister is the default implementation of StatTracker. It features all the basic facilities and principles
+ * recommended by StatTracker definition.
+ *
  * @author Enginecrafter77
  */
 public class SimpleStatRegister implements StatTracker {
@@ -38,15 +38,15 @@ public class SimpleStatRegister implements StatTracker {
 	public void removeProvider(StatProvider<?> provider) throws IllegalStateException
 	{
 		ResourceLocation identifier = provider.getStatID();
-		if(!this.statmap.containsKey(identifier))
-			throw new IllegalStateException("Provider " + identifier.toString() + " was never registered!");
+		if(!this.statmap.containsKey(identifier)) throw new IllegalStateException("Provider " + identifier.toString() + " was never registered!");
 		this.statmap.remove(identifier);
 	}
 	
 	@Override
 	public StatProvider<?> getProvider(ResourceLocation identifier)
 	{
-		return this.statmap.get(identifier).provider;
+		SimpleStatRegisterEntry entry = this.statmap.get(identifier);
+		return entry == null ? null : entry.provider;
 	}
 	
 	@Override
@@ -68,7 +68,7 @@ public class SimpleStatRegister implements StatTracker {
 	{
 		this.statmap.values().forEach((SimpleStatRegisterEntry entry) -> entry.tick(player));
 	}
-
+	
 	@Override
 	public Collection<StatProvider<?>> getRegisteredProviders()
 	{
@@ -83,14 +83,14 @@ public class SimpleStatRegister implements StatTracker {
 	{
 		return this.statmap.toString();
 	}
-
+	
 	@Override
 	public boolean isActive(StatProvider<?> stat, @Nullable EntityPlayer player)
 	{
 		SimpleStatRegisterEntry entry = this.getEntry(stat);
 		return player == null ? entry.isActive() : entry.isActiveFor(player);
 	}
-
+	
 	@Override
 	public void setSuspended(StatProvider<?> stat, boolean suspended)
 	{
@@ -99,6 +99,7 @@ public class SimpleStatRegister implements StatTracker {
 	
 	/**
 	 * Returns the internally associated {@link SimpleStatRegisterEntry}.
+	 *
 	 * @param stat The stat provider
 	 * @return Internally associated {@link SimpleStatRegisterEntry}, or null if no such entry exists
 	 */
@@ -108,8 +109,8 @@ public class SimpleStatRegister implements StatTracker {
 	}
 	
 	/**
-	 * Creates a new {@link SimpleStatRegisterEntry} to be used
-	 * with this implementation of {@link SimpleStatRegister}.
+	 * Creates a new {@link SimpleStatRegisterEntry} to be used with this implementation of {@link SimpleStatRegister}.
+	 *
 	 * @param stat
 	 * @return
 	 */
@@ -118,8 +119,7 @@ public class SimpleStatRegister implements StatTracker {
 		return new SimpleStatRegisterEntry(stat);
 	}
 	
-	protected static class SimpleStatRegisterEntry
-	{
+	protected static class SimpleStatRegisterEntry {
 		public final StatProvider<?> provider;
 		public boolean runInCreative;
 		protected StatRecord record;

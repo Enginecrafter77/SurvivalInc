@@ -29,7 +29,9 @@ public abstract class ItemSituation<TYPE extends Event> {
 	}
 	
 	public abstract boolean isTriggeredBy(TYPE event);
+	
 	public abstract EntityPlayer getPlayer(TYPE event);
+	
 	public abstract Class<TYPE> getEventClass();
 	
 	public ItemSituation<TYPE> addEffect(ResourceLocation id, Float value)
@@ -48,8 +50,7 @@ public abstract class ItemSituation<TYPE extends Event> {
 	@Deprecated
 	public void apply(TYPE event)
 	{
-		if(this.isTriggeredBy(event))
-			this.apply(this.getPlayer(event).getCapability(StatCapability.target, null));
+		if(this.isTriggeredBy(event)) this.apply(this.getPlayer(event).getCapability(StatCapability.target, null));
 	}
 	
 	@Override
@@ -69,20 +70,19 @@ public abstract class ItemSituation<TYPE extends Event> {
 				
 				if(SimpleStatRecord.class.isAssignableFrom(provider.getRecordClass()))
 				{
-					SimpleStatRecord record = (SimpleStatRecord)tracker.getRecord(provider);
+					SimpleStatRecord record = (SimpleStatRecord) tracker.getRecord(provider);
 					record.addToValue(entry.getValue());
 				}
 				else
 				{
 					SurvivalInc.logger.error("StatProvider with ID \"{}\" does not use SimpleStatRecord-type records!", id);
-					this.effects.remove(id);
+					this.effects.remove(id); // Effect is invalid
 				}
 			}
 			catch(IllegalArgumentException exc)
 			{
-				SurvivalInc.logger.error("StatProvider with ID \"{}\" is not registered inside player's StatTracker!", id);
-				this.effects.remove(id);
+				SurvivalInc.logger.warn("StatProvider with ID \"{}\" is not registered inside player's StatTracker!", id);
 			}
 		}
-	}	
+	}
 }
