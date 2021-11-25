@@ -1,0 +1,15 @@
+{
+	"distribution": {
+		"helmet": 0.2,
+		"chestplate": 0.35,
+		"leggings": 0.3,
+		"boots": 0.15
+	},
+	"materials": {
+		"LEATHER": 0.3,
+		"CHAIN": 1.1,
+		"IRON": 1.2,
+		"GOLD": 1.5,
+		"DIAMOND": 2.25
+	}
+}

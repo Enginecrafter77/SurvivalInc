@@ -27,11 +27,6 @@ public class HeatConfig {
 	@Config.RangeInt(min = 0)
 	public double blockScanRange = 4;
 	
-	@Config.LangKey("config.survivalinc.heat.distributionVector")
-	@Config.Comment({"States how different armor pieces contribute to the set's conductivity multiplier", "For example, chestplate has higher surface area, so it should have bigger impact on the conductivity than the boots", "The entered vector is normalized before being put to use"})
-	@Config.RangeDouble(min = 0, max = Double.MAX_VALUE / 4D)
-	public double[] distributionVector = {0.2D, 0.35D, 0.3D, 0.15D};
-	
 	@Config.LangKey("config.survivalinc.heat.caveTemperature")
 	@Config.Comment("The temperature at the cave normalization depth. If \"Gradient Cave Temperature\" is disabled, this temperature is uniform for every block below sea level.")
 	@Config.RangeDouble(min = 0)
@@ -43,7 +38,10 @@ public class HeatConfig {
 	public int caveNormalizationDepth = 10;
 	
 	@Config.LangKey("config.survivalinc.heat.surfaceScanningRadius")
-	@Config.Comment({"The radius around the surface block to calculate average surface height from.", "Higher numbers have larger impact on server performance.", "Has no effect if \"Gradient Cave Temperature\" is disabled."})
+	@Config.Comment({
+			"The radius around the surface block to calculate average surface height from.",
+			"Higher numbers have larger impact on server performance.",
+			"Has no effect if \"Gradient Cave Temperature\" is disabled."})
 	@Config.RangeInt(min = 1)
 	public int surfaceScanningRadius = 2;
 	
@@ -52,7 +50,9 @@ public class HeatConfig {
 	public boolean gradientCaveTemperature = true;
 	
 	@Config.LangKey("config.survivalinc.heat.tempCoefficient")
-	@Config.Comment({"A coefficient to turn the biome's temperature to the one processed by Survival Inc.", "60 is normally a good choice; Schoperation used to use " + SCHOPERATION_CONSTANT})
+	@Config.Comment({
+			"A coefficient to turn the biome's temperature to the one processed by Survival Inc.",
+			"60 is normally a good choice; Schoperation used to use " + HeatConfig.SCHOPERATION_CONSTANT})
 	@Config.RangeDouble(min = 0)
 	public double tempCoefficient = 60D;
 	
@@ -91,7 +91,11 @@ public class HeatConfig {
 	public double counteractionCoverage = 0.2D;
 	
 	@Config.LangKey("config.survivalinc.heat.counteractionExponent")
-	@Config.Comment({"The exponent to the counteraction scaling function.", "Needless to say, exponent 1 makes the function scale lineraly.", "Likewise, exponents <1 make it scale like root functions.", "Exponent 0 makes the amplitude always maxed out."})
+	@Config.Comment({
+			"The exponent to the counteraction scaling function.",
+			"Needless to say, exponent 1 makes the function scale lineraly.",
+			"Likewise, exponents <1 make it scale like root functions.",
+			"Exponent 0 makes the amplitude always maxed out."})
 	@Config.RangeDouble(min = 0)
 	public double counteractionExponent = 2D;
 	
@@ -110,23 +114,5 @@ public class HeatConfig {
 	@Config.LangKey("config.survivalinc.heat.blockHeatMap")
 	@Config.Comment({"A map of blocks and their core heat.", "See the wiki for how this value is affecting the radiant heat"})
 	@Config.RequiresMcRestart
-	public String[] blockHeatMap = {
-			"minecraft:lava 400",
-			"minecraft:flowing_lava 350",
-			"minecraft:magma 300",
-			"minecraft:fire 200",
-			"minecraft:lit_furnace 100",
-			"minecraft:lit_pumpkin 80"
-	};
-	
-	@Config.LangKey("config.survivalinc.heat.armorMaterialConductivity")
-	@Config.Comment({"A map of armor types and their heat conductivity.", "This value is split between individual pieces using distributionVector"})
-	@Config.RequiresMcRestart
-	public String[] armorMaterialConductivity = {
-			"leather 0.3",
-			"chain 1.1",
-			"iron 1.2",
-			"gold 1.5",
-			"diamond 2.25"
-	};
+	public String[] blockHeatMap = {"minecraft:lava 400", "minecraft:flowing_lava 350", "minecraft:magma 300", "minecraft:fire 200", "minecraft:lit_furnace 100", "minecraft:lit_pumpkin 80"};
 }

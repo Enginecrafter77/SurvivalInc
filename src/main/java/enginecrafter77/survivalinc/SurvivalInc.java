@@ -1,5 +1,7 @@
 package enginecrafter77.survivalinc;
 
+import org.apache.logging.log4j.Logger;
+
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.Mod;
@@ -11,22 +13,19 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 
-import org.apache.logging.log4j.Logger;
-
 @Mod(modid = SurvivalInc.MOD_ID)
 public class SurvivalInc {
-
+	
 	// Basic mod constants.
 	public static final String MOD_ID = "survivalinc";
-	public static final String RESOURCE_PREFIX = MOD_ID + ":";
-
+	
 	// Make an instance of the mod.
-	@Instance(MOD_ID)
+	@Instance(SurvivalInc.MOD_ID)
 	public static SurvivalInc instance;
-
+	
 	// Logger
 	public static Logger logger;
-
+	
 	// Create proxies to load stuff correctly.
 	@SidedProxy(clientSide = "enginecrafter77.survivalinc.ClientProxy", serverSide = "enginecrafter77.survivalinc.ServerProxy")
 	public static CommonProxy proxy;
@@ -36,29 +35,29 @@ public class SurvivalInc {
 	public void preInit(FMLPreInitializationEvent event)
 	{
 		SurvivalInc.logger = event.getModLog();
-		proxy.preInit(event);
+		SurvivalInc.proxy.preInit(event);
 	}
-
+	
 	@EventHandler
 	public void init(FMLInitializationEvent event)
 	{
-		proxy.init(event);
+		SurvivalInc.proxy.init(event);
 	}
-
+	
 	@EventHandler
 	public void postInit(FMLPostInitializationEvent event)
 	{
-		proxy.postInit(event);
+		SurvivalInc.proxy.postInit(event);
 	}
 	
 	@EventHandler
 	public void serverStarting(FMLServerStartingEvent event)
 	{
-		proxy.serverStarting(event);
+		SurvivalInc.proxy.serverStarting(event);
 	}
-
+	
 	// Create tab for creative mode.
-	public static CreativeTabs mainTab = new CreativeTabs(SurvivalInc.RESOURCE_PREFIX + "mainTab") {
+	public static CreativeTabs mainTab = new CreativeTabs(SurvivalInc.MOD_ID + ":mainTab") {
 		@Override
 		public ItemStack createIcon()
 		{

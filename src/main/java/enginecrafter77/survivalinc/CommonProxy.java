@@ -1,11 +1,8 @@
 package enginecrafter77.survivalinc;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.Files;
 import java.util.Collection;
 
 import enginecrafter77.survivalinc.block.BlockMelting;
@@ -37,8 +34,12 @@ import enginecrafter77.survivalinc.stats.impl.HeatModifier;
 import enginecrafter77.survivalinc.stats.impl.HydrationModifier;
 import enginecrafter77.survivalinc.stats.impl.SanityModifier;
 import enginecrafter77.survivalinc.stats.impl.WetnessModifier;
+import enginecrafter77.survivalinc.stats.impl.armor.ArmorConductivityCommand;
+import enginecrafter77.survivalinc.util.ExternalResourceProvider;
+import enginecrafter77.survivalinc.util.FunctionalImplementation;
 import net.minecraft.command.CommandHandler;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -55,7 +56,7 @@ public abstract class CommonProxy {
 	public SimpleNetworkWrapper net;
 	public ItemSituationContainer mapper;
 	
-	public File itemeffects;
+	public ExternalResourceProvider ism, armor_conductivity;
 	
 	public void preInit(FMLPreInitializationEvent event)
 	{
@@ -76,17 +77,19 @@ public abstract class CommonProxy {
 		CapabilityManager.INSTANCE.register(StatTracker.class, StatStorage.instance, StatRegisterDispatcher.instance);
 		
 		this.mapper = new ItemSituationContainer();
-		this.itemeffects = new File(event.getModConfigurationDirectory(), "survivalinc/item_effects.json");
+		
+		File configdir = new File(event.getModConfigurationDirectory(), SurvivalInc.MOD_ID);
+		this.ism = new ExternalResourceProvider(new File(configdir, "/item_effects.json"), new ResourceLocation(SurvivalInc.MOD_ID, "configbase/item_effects.json"));
+		this.armor_conductivity = new ExternalResourceProvider(new File(configdir, "armor_conductivity.json"), new ResourceLocation(SurvivalInc.MOD_ID, "configbase/armor_conductivity.json"));
 	}
 	
 	/**
-	 * A nifty hack method to avoid accessing client-only code from server.
-	 * Overridden on both client and server. Client places it's designated
-	 * handlers as expected, but server registers the message with dummy
-	 * handlers. This allows passing client-only handlers to client processed messages.
+	 * A nifty hack method to avoid accessing client-only code from server. Overridden on both client and server. Client
+	 * places it's designated handlers as expected, but server registers the message with dummy handlers. This allows
+	 * passing client-only handlers to client processed messages.
 	 */
 	public abstract void registerClientHandlers();
-
+	
 	public void init(FMLInitializationEvent event)
 	{
 		this.net = NetworkRegistry.INSTANCE.newSimpleChannel(SurvivalInc.MOD_ID);
@@ -118,37 +121,8 @@ public abstract class CommonProxy {
 		}
 		
 		// Load the compatibility maps
-		try
-		{
-			if(!this.itemeffects.exists())
-			{
-				try
-				{
-					File dir = this.itemeffects.getParentFile();
-					if(!dir.exists()) dir.mkdir();
-					
-					Files.copy(SurvivalInc.class.getResourceAsStream("/assets/survivalinc/configbase/item_effects.json"), this.itemeffects.toPath());
-				}
-				catch(FileAlreadyExistsException exc)
-				{
-					// Do nothing
-				}
-			}
-			
-			ItemSituationParserSetupEvent pse = new ItemSituationParserSetupEvent();
-			MinecraftForge.EVENT_BUS.post(pse);
-			
-			InputStream input = new FileInputStream(this.itemeffects);
-			Collection<ItemSituation<?>> effects = pse.getParser().parse(input);
-			this.mapper.register(effects);
-			input.close();
-			
-			MinecraftForge.EVENT_BUS.register(this.mapper.createEventHandler());
-		}
-		catch(IOException exc)
-		{
-			throw new RuntimeException("Failed to load ISM JSON.", exc);
-		}
+		if(ModConfig.HEAT.enabled) this.armor_conductivity.load(HeatModifier.instance.armor::load);
+		this.ism.load(this::loadItemEffects);
 		
 		// Extra compatibility maps
 		if(ModConfig.HEAT.enabled || ModConfig.WETNESS.enabled) HeatModifier.instance.buildCompatMaps();
@@ -160,7 +134,8 @@ public abstract class CommonProxy {
 		CommandHandler manager = (CommandHandler)server.getCommandManager();
 		
 		if(ModConfig.SEASONS.enabled) manager.registerCommand(new SeasonCommand());
-		if(ModConfig.GHOST.enabled) manager.registerCommand(new GhostCommand());
+		if(GhostProvider.loaded()) manager.registerCommand(new GhostCommand());
+		if(HeatModifier.loaded()) manager.registerCommand(new ArmorConductivityCommand(HeatModifier.instance.armor));
 		manager.registerCommand(new StatCommand());
 	}
 	
@@ -170,5 +145,17 @@ public abstract class CommonProxy {
 		event.parser.addSituationFactory("in-hand", ItemInHandSituation::new);
 		event.parser.addSituationFactory("in-inventory", ItemInInvSituation::new);
 		event.parser.addSituationFactory("consumed", ItemConsumedSituation::new);
+	}
+	
+	@FunctionalImplementation(of = ExternalResourceProvider.ResourceLoader.class)
+	private void loadItemEffects(InputStream input) throws IOException
+	{
+		ItemSituationParserSetupEvent pse = new ItemSituationParserSetupEvent();
+		MinecraftForge.EVENT_BUS.post(pse);
+		
+		Collection<ItemSituation<?>> effects = pse.getParser().parse(input);
+		this.mapper.register(effects);
+		
+		MinecraftForge.EVENT_BUS.register(this.mapper.createEventHandler());
 	}
 }
