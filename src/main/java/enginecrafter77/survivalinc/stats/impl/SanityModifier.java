@@ -1,13 +1,32 @@
 package enginecrafter77.survivalinc.stats.impl;
 
+import java.util.List;
+
+import enginecrafter77.survivalinc.SurvivalInc;
+import enginecrafter77.survivalinc.config.ModConfig;
+import enginecrafter77.survivalinc.net.StatSyncMessage;
+import enginecrafter77.survivalinc.stats.SimpleStatRecord;
+import enginecrafter77.survivalinc.stats.StatCapability;
+import enginecrafter77.survivalinc.stats.StatProvider;
+import enginecrafter77.survivalinc.stats.StatRegisterEvent;
+import enginecrafter77.survivalinc.stats.StatTracker;
+import enginecrafter77.survivalinc.stats.effect.EffectApplicator;
+import enginecrafter77.survivalinc.stats.effect.EffectFilter;
+import enginecrafter77.survivalinc.stats.effect.FunctionalEffectFilter;
+import enginecrafter77.survivalinc.stats.effect.PotionStatEffect;
+import enginecrafter77.survivalinc.stats.effect.SideEffectFilter;
+import enginecrafter77.survivalinc.stats.effect.StatEffect;
+import enginecrafter77.survivalinc.stats.effect.ValueStatEffect;
+import enginecrafter77.survivalinc.util.FunctionalImplementation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.shader.ShaderGroup;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityCreature;
-import net.minecraft.entity.monster.*;
+import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.MobEffects;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
@@ -22,20 +41,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
-import java.util.List;
-import enginecrafter77.survivalinc.SurvivalInc;
-import enginecrafter77.survivalinc.config.ModConfig;
-import enginecrafter77.survivalinc.net.StatSyncMessage;
-import enginecrafter77.survivalinc.stats.SimpleStatRecord;
-import enginecrafter77.survivalinc.stats.StatCapability;
-import enginecrafter77.survivalinc.stats.StatProvider;
-import enginecrafter77.survivalinc.stats.StatRegisterEvent;
-import enginecrafter77.survivalinc.stats.StatTracker;
-import enginecrafter77.survivalinc.stats.effect.EffectApplicator;
-import enginecrafter77.survivalinc.stats.effect.FunctionalEffectFilter;
-import enginecrafter77.survivalinc.stats.effect.SideEffectFilter;
-import enginecrafter77.survivalinc.stats.effect.ValueStatEffect;
 
 public class SanityModifier implements StatProvider<SanityRecord> {
 	private static final long serialVersionUID = 6707924203617912749L;
@@ -53,9 +58,17 @@ public class SanityModifier implements StatProvider<SanityRecord> {
 		if(ModConfig.WETNESS.enabled) this.effects.add(SanityModifier::whenWet).addFilter(FunctionalEffectFilter.byPlayer(EntityPlayer::isInWater).invert());
 		this.effects.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, 0.004F)).addFilter(FunctionalEffectFilter.byPlayer(EntityPlayer::isPlayerSleeping));
 		this.effects.add(SanityModifier::whenInDark).addFilter(HydrationModifier.isOutsideOverworld.invert());
-		this.effects.add(SanityModifier::playStaticNoise).addFilter(SideEffectFilter.CLIENT);
 		this.effects.add(SanityModifier::whenNearEntities);
 		this.effects.add(SanityModifier::sleepDeprivation);
+		
+		if(ModConfig.SANITY.staticBuzzIntensity > 0D)
+		{
+			this.effects.add(SanityModifier::sanityScreenDistortion).addFilter(SideEffectFilter.CLIENT);
+		}
+		else
+		{
+			this.effects.add(new PotionStatEffect(MobEffects.NAUSEA, 2).setDuration(200).setResetThreshold(0.5F)).addFilter(SanityModifier::isSanityBeyondThreshold);
+		}
 	}
 	
 	public static void init()
@@ -65,10 +78,9 @@ public class SanityModifier implements StatProvider<SanityRecord> {
 	}
 	
 	/**
-	 * A simple method to check whether the provider was loaded or not.
-	 * This should coincide with whether the provider is registered in
-	 * the player's stat registry. This should NOT be confused with {@link enginecrafter77.survivalinc.config.SanityConfig#enabled},
-	 * since the latter can be changed during the game.
+	 * A simple method to check whether the provider was loaded or not. This should coincide with whether the provider is
+	 * registered in the player's stat registry. This should NOT be confused with
+	 * {@link enginecrafter77.survivalinc.config.SanityConfig#enabled}, since the latter can be changed during the game.
 	 * @return True if the {@link #init()} method has been called in the past, false otherwise.
 	 */
 	public static boolean loaded()
@@ -85,13 +97,13 @@ public class SanityModifier implements StatProvider<SanityRecord> {
 		this.effects.apply(sanity, target);
 		sanity.checkoutValueChange();
 	}
-
+	
 	@Override
 	public ResourceLocation getStatID()
 	{
 		return new ResourceLocation(SurvivalInc.MOD_ID, "sanity");
 	}
-
+	
 	@Override
 	public SanityRecord createNewRecord()
 	{
@@ -110,23 +122,30 @@ public class SanityModifier implements StatProvider<SanityRecord> {
 		event.register(SanityModifier.instance);
 	}
 	
+	@FunctionalImplementation(of = StatEffect.class)
 	public static void sleepDeprivation(SanityRecord record, EntityPlayer player)
-	{		
+	{
 		if(record.getTicksAwake() > ModConfig.SANITY.sleepDeprivationMin)
 		{
 			record.addToValue(-(float)ModConfig.SANITY.sleepDeprivationDebuff * (record.getTicksAwake() - ModConfig.SANITY.sleepDeprivationMin) / (ModConfig.SANITY.sleepDeprivationMax - ModConfig.SANITY.sleepDeprivationMin));
 		}
 	}
 	
-	public static void playStaticNoise(SanityRecord record, EntityPlayer player)
+	@FunctionalImplementation(of = EffectFilter.class)
+	public static boolean isSanityBeyondThreshold(SanityRecord record, EntityPlayer player)
+	{
+		return record.getValue() < ((float)ModConfig.SANITY.hallucinationThreshold * SanityRecord.values.upperEndpoint());
+	}
+	
+	@FunctionalImplementation(of = StatEffect.class)
+	public static void sanityScreenDistortion(SanityRecord record, EntityPlayer player)
 	{
 		float threshold = (float)ModConfig.SANITY.hallucinationThreshold * SanityRecord.values.upperEndpoint();
 		if(player.world.getWorldTime() % 160 == 0)
 		{
 			/**
-			 * This effect should only apply to the client player.
-			 * Other player entities on client-side world should
-			 * not be evaluated.
+			 * This effect should only apply to the client player. Other player entities on client-side world should not be
+			 * evaluated.
 			 */
 			Minecraft client = Minecraft.getMinecraft();
 			if(player != client.player) return;
@@ -135,14 +154,14 @@ public class SanityModifier implements StatProvider<SanityRecord> {
 			{
 				// 1F - current / threshold => this calculation is used to increase the volume for "more insane" players, up to 100% original volume (applied at sanity 0)
 				float volume = (1F - record.getValue() / threshold) * (float)ModConfig.SANITY.staticBuzzIntensity;
-				player.world.playSound(player.posX, player.posY, player.posZ, staticbuzz, SoundCategory.AMBIENT, volume, 1, false);
-				client.entityRenderer.loadShader(distortshader);
+				player.world.playSound(player.posX, player.posY, player.posZ, SanityModifier.staticbuzz, SoundCategory.AMBIENT, volume, 1, false);
+				client.entityRenderer.loadShader(SanityModifier.distortshader);
 			}
 			else
 			{
 				// Check if the current shader is our shader, and if so, stop using it.
 				ShaderGroup shader = client.entityRenderer.getShaderGroup();
-				if(shader != null && shader.getShaderGroupName().equals(distortshader.toString()))
+				if(shader != null && shader.getShaderGroupName().equals(SanityModifier.distortshader.toString()))
 				{
 					client.entityRenderer.stopUseShader();
 				}
@@ -150,6 +169,7 @@ public class SanityModifier implements StatProvider<SanityRecord> {
 		}
 	}
 	
+	@FunctionalImplementation(of = StatEffect.class)
 	public static void whenInDark(SanityRecord record, EntityPlayer player)
 	{
 		BlockPos position = new BlockPos(player.getPositionVector().add(0D, player.getEyeHeight(), 0D));
@@ -163,17 +183,19 @@ public class SanityModifier implements StatProvider<SanityRecord> {
 		}
 	}
 	
+	@FunctionalImplementation(of = StatEffect.class)
 	public static void whenWet(SanityRecord record, EntityPlayer player)
 	{
 		float boundary = (float)ModConfig.SANITY.wetnessAnnoyanceThreshold;
 		StatTracker stats = player.getCapability(StatCapability.target, null);
-		SimpleStatRecord wetness = stats.getRecord(WetnessModifier.instance);		
+		SimpleStatRecord wetness = stats.getRecord(WetnessModifier.instance);
 		if(wetness.getNormalizedValue() > boundary)
 		{
 			record.addToValue(((wetness.getNormalizedValue() - boundary) / (1F - boundary)) * -(float)ModConfig.SANITY.maxWetnessAnnoyance);
 		}
 	}
 	
+	@FunctionalImplementation(of = StatEffect.class)
 	public static void whenNearEntities(SanityRecord record, EntityPlayer player)
 	{
 		BlockPos origin = player.getPosition();
@@ -194,8 +216,7 @@ public class SanityModifier implements StatProvider<SanityRecord> {
 			}
 			else if(creature instanceof EntityAnimal)
 				value += ModConfig.SANITY.friendlyMobBonus;
-			else if(creature instanceof EntityMob)
-				value -= ModConfig.SANITY.hostileMobModifier;
+			else if(creature instanceof EntityMob) value -= ModConfig.SANITY.hostileMobModifier;
 		}
 		record.setValue(value);
 	}
@@ -209,7 +230,7 @@ public class SanityModifier implements StatProvider<SanityRecord> {
 		Minecraft client = Minecraft.getMinecraft();
 		ShaderGroup shader = client.entityRenderer.getShaderGroup();
 		StatTracker tracker = event.player.getCapability(StatCapability.target, null);
-		if(shader != null && event.player.world.getWorldTime() % 160 == 0 && shader.getShaderGroupName().equals(distortshader.toString()) && !tracker.isActive(SanityModifier.instance, null))
+		if(shader != null && event.player.world.getWorldTime() % 160 == 0 && shader.getShaderGroupName().equals(SanityModifier.distortshader.toString()) && !tracker.isActive(SanityModifier.instance, null))
 		{
 			client.entityRenderer.stopUseShader();
 		}

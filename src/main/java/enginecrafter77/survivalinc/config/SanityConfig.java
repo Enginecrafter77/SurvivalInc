@@ -72,8 +72,13 @@ public class SanityConfig {
 	public double hallucinationThreshold = 0.4;
 	
 	@Config.LangKey("config.survivalinc.sanity.staticBuzzIntensity")
-	@Config.Comment("The intensity of the static buzzing")
+	@Config.Comment({
+			"The intensity of the sanity screen distortion shader and the accompanying slenderman-like sound effect",
+			"When this setting is set to 0, an alternative vanilla-compatible nausea effect is used instead",
+			"WARNING: The shader has been reported to have very nauseating effects on photosensitive people",
+			"People suffering from extreme photosensitivity are strongly advised to turn this setting off."})
 	@Config.RangeDouble(min = 0, max = 1)
+	@Config.RequiresMcRestart
 	public double staticBuzzIntensity = 1;
 	
 	@Config.LangKey("config.survivalinc.sanity.sleepDeprivationMin")
