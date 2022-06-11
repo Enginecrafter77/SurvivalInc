@@ -40,12 +40,22 @@ public class ForgeASMInjector {
 	{
 		this.asmloaderclass = ASMEventHandler.class.getDeclaredClasses()[0];
 		this.asmloaderfield = ASMEventHandler.class.getDeclaredField("LOADER");
-		this.injectmethod = asmloaderclass.getDeclaredMethod("define", new Class<?>[]{String.class, byte[].class});
+		this.injectmethod = asmloaderclass.getDeclaredMethod("define", String.class, byte[].class);
 		
 		this.asmloaderfield.setAccessible(true);
 		this.injectmethod.setAccessible(true);
 		
 		this.asmclassloader = (ClassLoader)this.asmloaderfield.get(null);
+	}
+
+	public Class<?> getAsmLoaderClass()
+	{
+		return this.asmloaderclass;
+	}
+
+	public Field getAsmLoaderField()
+	{
+		return this.asmloaderfield;
 	}
 	
 	/**
