@@ -38,7 +38,7 @@ public class ArmorConductivityCommand extends CommandBase {
 	@Override
 	public String getUsage(ICommandSender sender)
 	{
-		return String.format("/%s <set|reset|reload|save|info|list> [=piece:player|name] [value]", this.getName());
+		return String.format("/%1$s list - Lists the currently effective armor conductivity maps\n/%1$s reload - Reloads the armor conductivity map from the config\n/%1$s save - Saves the currently effective armor conductivity map into the config\n/%1$s set <material> <multiplier> - Sets the armor conductivity multiplier for the given material\n/%1$s reset <material> - Removes the override from the given material\n/%1$s info <material> - Prints information about conductivity of given material", this.getName());
 	}
 	
 	@Override
@@ -73,7 +73,7 @@ public class ArmorConductivityCommand extends CommandBase {
 			}
 			catch(IOException exc)
 			{
-				throw new CommandException("I/O Error saving file.");
+				throw new CommandException("command.common.error.ioError");
 			}
 			return;
 		case "help":
@@ -83,12 +83,12 @@ public class ArmorConductivityCommand extends CommandBase {
 			break;
 		}
 		
-		if(args.length < 2) throw new CommandException("Missing armor material value parameter");
+		if(args.length < 2) throw new CommandException("command.armorConductivity.missingMaterialValue");
 		ItemArmor.ArmorMaterial material = this.resolveMaterial(server, sender, args[1]);
 		switch(args[0])
 		{
 		case "set":
-			if(args.length < 3) throw new CommandException("Missing armor conductivity value parameter!");
+			if(args.length < 3) throw new CommandException("command.armorConductivity.missingArmorConductivityValue");
 			float value = Float.parseFloat(args[2]);
 			this.link.setMaterialConductivity(material, value);
 			sender.sendMessage(new TextComponentString(String.format("Set conductivity of %s to %f", material.name(), value)));
@@ -101,7 +101,7 @@ public class ArmorConductivityCommand extends CommandBase {
 			sender.sendMessage(this.getArmorMaterialInfo(material));
 			break;
 		default:
-			throw new CommandException("Invalid option");
+			throw new CommandException("command.common.error.invalidOption");
 		}
 	}
 	
@@ -132,7 +132,7 @@ public class ArmorConductivityCommand extends CommandBase {
 			}
 			else
 			{
-				throw new CommandException("No player target selected!");
+				throw new CommandException("command.common.error.noPlayerSelected");
 			}
 			ItemStack stack = piece.getPieceStack(source.inventory);
 			Item type = stack.getItem();
