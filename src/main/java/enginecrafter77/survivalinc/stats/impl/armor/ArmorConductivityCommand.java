@@ -60,13 +60,13 @@ public class ArmorConductivityCommand extends CommandBase {
 			sender.sendMessage(response);
 			return;
 		case "reload":
-			SurvivalInc.proxy.armor_conductivity.load(this.link::load);
+			SurvivalInc.proxy.armorConductivityConfig.load(this.link::load);
 			sender.sendMessage(new TextComponentString("Reloading configuration..."));
 			return;
 		case "save":
 			try
 			{
-				FileOutputStream output = new FileOutputStream(SurvivalInc.proxy.armor_conductivity.getFile());
+				FileOutputStream output = new FileOutputStream(SurvivalInc.proxy.armorConductivityConfig.getFile());
 				this.link.save(output);
 				output.close();
 				sender.sendMessage(new TextComponentString("Saving configuration..."));

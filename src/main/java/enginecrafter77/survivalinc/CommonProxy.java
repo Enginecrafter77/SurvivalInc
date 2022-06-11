@@ -17,9 +17,8 @@ import enginecrafter77.survivalinc.stats.impl.HydrationModifier;
 import enginecrafter77.survivalinc.stats.impl.SanityModifier;
 import enginecrafter77.survivalinc.stats.impl.WetnessModifier;
 import enginecrafter77.survivalinc.stats.impl.armor.ArmorConductivityCommand;
-import enginecrafter77.survivalinc.util.ExternalResourceProvider;
+import enginecrafter77.survivalinc.util.ExportedResource;
 import enginecrafter77.survivalinc.util.FunctionalImplementation;
-import enginecrafter77.survivalinc.util.RadiantHeatScanner;
 import net.minecraft.block.Block;
 import net.minecraft.command.CommandHandler;
 import net.minecraft.server.MinecraftServer;
@@ -41,15 +40,14 @@ import java.io.InputStream;
 import java.util.Collection;
 
 public abstract class CommonProxy {
+	
 	public SimpleNetworkWrapper net;
 	public ItemSituationContainer mapper;
 	
-	public ExternalResourceProvider ism, armor_conductivity;
+	public ExportedResource itemEffectConfig, armorConductivityConfig;
 	
 	public void preInit(FMLPreInitializationEvent event)
 	{
-		SurvivalInc.heatScanner = new RadiantHeatScanner();
-
 		// Register seasons if enabled
 		if(ModConfig.SEASONS.enabled)
 		{
@@ -68,9 +66,9 @@ public abstract class CommonProxy {
 		
 		this.mapper = new ItemSituationContainer();
 		
-		File configdir = new File(event.getModConfigurationDirectory(), SurvivalInc.MOD_ID);
-		this.ism = new ExternalResourceProvider(new File(configdir, "/item_effects.json"), new ResourceLocation(SurvivalInc.MOD_ID, "configbase/item_effects.json"));
-		this.armor_conductivity = new ExternalResourceProvider(new File(configdir, "armor_conductivity.json"), new ResourceLocation(SurvivalInc.MOD_ID, "configbase/armor_conductivity.json"));
+		File configDir = new File(event.getModConfigurationDirectory(), SurvivalInc.MOD_ID);
+		this.itemEffectConfig = new ExportedResource(new File(configDir, "item_effects.json"), new ResourceLocation(SurvivalInc.MOD_ID, "configbase/item_effects.json"));
+		this.armorConductivityConfig = new ExportedResource(new File(configDir, "armor_conductivity.json"), new ResourceLocation(SurvivalInc.MOD_ID, "configbase/armor_conductivity.json"));
 	}
 	
 	/**
@@ -136,8 +134,8 @@ public abstract class CommonProxy {
 		
 		// Load the compatibility maps
 		if(SurvivalInc.heat != null)
-			this.armor_conductivity.load(SurvivalInc.heat.armor::load);
-		
+			this.armorConductivityConfig.load(SurvivalInc.heat.armor::load);
+
 		// Radiant heat scanner maps
 		for(String entry : ModConfig.HEAT.blockHeatMap)
 		{
@@ -147,7 +145,7 @@ public abstract class CommonProxy {
 			SurvivalInc.heatScanner.registerBlock(target, value);
 		}
 
-		this.ism.load(this::loadItemEffects);
+		this.itemEffectConfig.load(this::loadItemEffects);
 	}
 	
 	public void serverStarting(FMLServerStartingEvent event)
@@ -169,7 +167,7 @@ public abstract class CommonProxy {
 		event.parser.addSituationFactory("consumed", ItemConsumedSituation::new);
 	}
 	
-	@FunctionalImplementation(of = ExternalResourceProvider.ResourceLoader.class)
+	@FunctionalImplementation(of = ExportedResource.ResourceConsumer.class)
 	private void loadItemEffects(InputStream input) throws IOException
 	{
 		ItemSituationParserSetupEvent pse = new ItemSituationParserSetupEvent();
