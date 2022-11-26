@@ -241,7 +241,7 @@ public class SanityModifier implements StatProvider<SanityRecord> {
 			StatCapability.obtainRecord(this, player).ifPresent((SanityRecord record) -> {
 				record.addToValue(record.getValueRange().upperEndpoint() * (float)ModConfig.SANITY.sleepResoration);
 				record.resetSleep();
-				SurvivalInc.proxy.net.sendToAll(new StatSyncMessage().addPlayer(player));
+				StatCapability.synchronizeStats(StatSyncMessage.withPlayer(player));
 				player.getFoodStats().setFoodLevel(player.getFoodStats().getFoodLevel() - 8);
 			});
 		}

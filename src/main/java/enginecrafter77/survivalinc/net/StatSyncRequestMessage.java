@@ -6,8 +6,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 /**
  * StatSyncRequestMessage is a dummy signaling message
  * used to indicate that the client player has joined
- * the server and it's ready to receive it's server-stored
- * stat data.
+ * the server, and it's ready to receive its server-stored stat data.
  * This message is supposed to be processed by {@link StatSyncRequestHandler}
  * @author Enginecrafter77
  */

@@ -19,6 +19,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -101,6 +102,17 @@ public class StatCapability implements ICapabilitySerializable<NBTBase> {
 			// Send update to all players about the currently processed player's stats
 			SurvivalInc.proxy.net.sendToAll(new StatSyncMessage().addPlayer(event.player));
 		}
+	}
+
+	@SideOnly(Side.CLIENT)
+	public static void requestSync()
+	{
+		SurvivalInc.proxy.net.sendToServer(new StatSyncRequestMessage());
+	}
+
+	public static void synchronizeStats(StatSyncMessage message)
+	{
+		SurvivalInc.proxy.net.sendToAll(message);
 	}
 
 	public static <T extends StatRecord> Optional<T> obtainRecord(@Nullable StatProvider<T> provider, @Nonnull Entity entity)

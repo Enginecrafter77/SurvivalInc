@@ -133,7 +133,7 @@ public class GhostProvider implements StatProvider<GhostEnergyRecord> {
 		{
 			StatCapability.obtainRecord(this, player).ifPresent((GhostEnergyRecord record) -> {
 				record.setActive(true);
-				SurvivalInc.proxy.net.sendToAll(new StatSyncMessage().addPlayer(player));
+				StatCapability.synchronizeStats(StatSyncMessage.withPlayer(player));
 			});
 		}
 	}

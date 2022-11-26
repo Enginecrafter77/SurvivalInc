@@ -11,10 +11,7 @@ import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.relauncher.Side;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Stat Sync Message can be used to effectively
@@ -89,6 +86,27 @@ public class StatSyncMessage implements IMessage {
 	@Override
 	public String toString()
 	{
-		return "StatSync" + this.data.toString();
+		return "StatSync" + this.data;
+	}
+
+	public static StatSyncMessage withPlayer(EntityPlayer player)
+	{
+		StatSyncMessage message = new StatSyncMessage();
+		message.addPlayer(player);
+		return message;
+	}
+
+	public static StatSyncMessage withPlayers(Collection<EntityPlayer> players)
+	{
+		StatSyncMessage message = new StatSyncMessage();
+		players.forEach(message::addPlayer);
+		return message;
+	}
+
+	public static StatSyncMessage withAllPlayersIn(World world)
+	{
+		StatSyncMessage message = new StatSyncMessage();
+		message.addAllPlayers(world);
+		return message;
 	}
 }

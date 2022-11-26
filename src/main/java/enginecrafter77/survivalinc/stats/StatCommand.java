@@ -1,8 +1,5 @@
 package enginecrafter77.survivalinc.stats;
 
-import java.util.List;
-
-import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.net.StatSyncMessage;
 import enginecrafter77.survivalinc.util.FormattedTextComponent;
 import net.minecraft.command.CommandBase;
@@ -12,11 +9,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.*;
+
+import java.util.List;
 
 /**
  * Command used to control the stats for a player.
@@ -95,7 +90,7 @@ public class StatCommand extends CommandBase {
 			}
 			else ssr.setValue(Float.parseFloat(value));
 		case "sync":
-			SurvivalInc.proxy.net.sendToAll(new StatSyncMessage().addPlayer(player));
+			StatCapability.synchronizeStats(StatSyncMessage.withPlayer(player));
 			break;
 		}
 	}
