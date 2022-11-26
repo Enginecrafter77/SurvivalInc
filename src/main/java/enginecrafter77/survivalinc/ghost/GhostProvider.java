@@ -28,11 +28,13 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Objects;
@@ -42,7 +44,9 @@ public class GhostProvider implements StatProvider<GhostEnergyRecord> {
 	public static final EffectFilter<GhostEnergyRecord> FILTER_ACTIVE = (GhostEnergyRecord record, EntityPlayer player) -> record.isActive();
 	public static final HelicalParticleSpawner HELICAL_PARTICLE_SPAWNER = new HelicalParticleSpawner(EnumParticleTypes.PORTAL).setHelixCount(8);
 	public static final Vec3d rp_box = new Vec3d(0.6D, 1.5D, 0.6D), rp_offset = new Vec3d(0D, -0.3D, 0D);
-	
+
+	private static final Field ENTITY_FIREIMMUNITY = ObfuscationReflectionHelper.findField(Entity.class, "field_70178_ae");
+
 	public final EffectApplicator<GhostEnergyRecord> applicator;
 	public final InteractionProcessor interactor;
 	
@@ -286,10 +290,21 @@ public class GhostProvider implements StatProvider<GhostEnergyRecord> {
 	 * @param player The player to apply the changes to
 	 */
 	public void onGhostUpdate(GhostEnergyRecord record, EntityPlayer player)
-	{		
+	{
 		if(record.hasPendingChange())
 		{
 			boolean isGhost = record.isActive();
+
+			// Attempt to make the ghosted player immune to fire
+			try
+			{
+				ENTITY_FIREIMMUNITY.set(player, isGhost);
+			}
+			catch(ReflectiveOperationException exc)
+			{
+				SurvivalInc.logger.error("Setting entity fire immunity failed", exc);
+			}
+
 			player.capabilities.disableDamage = isGhost;
 			player.capabilities.allowEdit = !isGhost;
 			
