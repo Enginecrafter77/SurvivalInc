@@ -14,7 +14,7 @@ import java.util.*;
 /**
  * HUDConstructEvent is called when the HUD is about to get constructed.
  * This event can be used to dynamically add elements and/or render filters
- * to the HUD about to be created using {@link #addElement(OverlayElement, ElementPositioner)}
+ * to the HUD about to be created using {@link #addElement(OverlayElement, ElementLayoutFunction)}
  * and {@link #addRenderStageFilter(RenderStageFilter, ElementType...)} respectively.
  * The event is also cancelable. Canceling the event causes the event result to
  * be disregarded, effectively making all the calls to addElement and addRenderStageFilter
@@ -41,10 +41,10 @@ public class HUDConstructEvent extends Event {
 	/**
 	 * Adds a new element to the constructed HUD.
 	 * @param element The element
-	 * @param position The {@link ElementPositioner positioner} of the element
+	 * @param position The {@link ElementLayoutFunction positioner} of the element
 	 * @return An instance of {@link HUDElement}, which can be used in a builder-like manner.
 	 */
-	public HUDElement addElement(OverlayElement element, ElementPositioner position)
+	public HUDElement addElement(OverlayElement element, ElementLayoutFunction position)
 	{
 		HUDElement entry = new HUDElement(element, position);
 		this.elements.add(entry);
@@ -78,7 +78,7 @@ public class HUDConstructEvent extends Event {
 	
 	/**
 	 * HUDElement (previously HUDEntry) is a class used to associate
-	 * {@link OverlayElement} with it's {@link ElementPositioner} and
+	 * {@link OverlayElement} with it's {@link ElementLayoutFunction} and
 	 * it's registered {@link ElementRenderFilter}s. HUDElement is basically
 	 * a representation of {@link OverlayElement} that is being rendered inside
 	 * a {@link RenderHUD} implementation.
@@ -90,7 +90,7 @@ public class HUDConstructEvent extends Event {
 		public final OverlayElement element;
 		
 		/** The element positioner used to position the element on screen */
-		public final ElementPositioner positioner;
+		public final ElementLayoutFunction positioner;
 		
 		/**
 		 * The list of the filters applies to the element.
@@ -108,7 +108,7 @@ public class HUDConstructEvent extends Event {
 		 */
 		protected ElementType trigger;
 		
-		protected HUDElement(OverlayElement element, ElementPositioner positioner)
+		protected HUDElement(OverlayElement element, ElementLayoutFunction positioner)
 		{
 			this.filters = new LinkedList<ElementRenderFilter>();
 			this.positioner = positioner;

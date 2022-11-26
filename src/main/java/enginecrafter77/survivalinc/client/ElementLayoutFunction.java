@@ -1,14 +1,13 @@
 package enginecrafter77.survivalinc.client;
 
-import java.util.function.BiFunction;
-import java.util.function.Function;
-
-import org.lwjgl.util.Point;
-import org.lwjgl.util.ReadablePoint;
-
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.util.Point;
+import org.lwjgl.util.ReadablePoint;
+
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 /**
  * ElementPositioner describes a functional interface that
@@ -17,7 +16,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  */
 @SideOnly(Side.CLIENT)
 @FunctionalInterface
-public interface ElementPositioner {	
+public interface ElementLayoutFunction {
 	public ReadablePoint getPositionFor(ScaledResolution resolution, OverlayElement element);
 	
 	public static ReadablePoint fromFunction(Function<Axis2D, Integer> provider)

@@ -17,7 +17,7 @@ import java.util.function.Supplier;
  * Thus, one may use a specific instance for the desired column.
  * @author Enginecrafter77
  */
-public enum StackingElementPositioner implements ElementPositioner {
+public enum StackingElementLayoutFunction implements ElementLayoutFunction {
 	
 	LEFT(-91, () -> GuiIngameForge.left_height, (Integer arg) -> { GuiIngameForge.left_height = arg; }),
 	RIGHT(10, () -> GuiIngameForge.right_height, (Integer arg) -> { GuiIngameForge.right_height = arg; });
@@ -26,7 +26,7 @@ public enum StackingElementPositioner implements ElementPositioner {
 	private final Consumer<Integer> setter;
 	private final int x;
 	
-	private StackingElementPositioner(int x, Supplier<Integer> getter, Consumer<Integer> setter)
+	private StackingElementLayoutFunction(int x, Supplier<Integer> getter, Consumer<Integer> setter)
 	{
 		this.getter = getter;
 		this.setter = setter;

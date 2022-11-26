@@ -116,13 +116,13 @@ public class ClientProxy extends CommonProxy {
 			bar.addLayer(newicons.region(new Rectangle(9, 18, 9, 16)), SimpleStatRecord::getNormalizedValue);
 			bar.setCapacity(1);
 			
-			event.addElement(bar, new AbsoluteElementPositioner(origin_x, origin_y, ModConfig.CLIENT.hud.heatIconX, ModConfig.CLIENT.hud.heatIconY)).setTrigger(ElementType.EXPERIENCE);
+			event.addElement(bar, new AbsoluteElementLayoutFunction(origin_x, origin_y, ModConfig.CLIENT.hud.heatIconX, ModConfig.CLIENT.hud.heatIconY)).setTrigger(ElementType.EXPERIENCE);
 			event.addRenderStageFilter(new TranslateRenderFilter(new Point(0, -10)), ElementType.SUBTITLES);
 			
 			if(ModConfig.CLIENT.vignette.enable)
 			{
-				event.addElement(new StatRangeVignette(HeatModifier.instance, Range.lessThan(35F), ClientProxy.parseColor(ModConfig.CLIENT.vignette.coldColor), ModConfig.CLIENT.vignette.maxOpacity, ModConfig.CLIENT.vignette.logarithmicOpacity, true), AbsoluteElementPositioner.ORIGIN).addFilter(new ScaleRenderFilter(Vec2f.MAX));
-				event.addElement(new StatRangeVignette(HeatModifier.instance, Range.greaterThan(85F), ClientProxy.parseColor(ModConfig.CLIENT.vignette.hotColor), ModConfig.CLIENT.vignette.maxOpacity, ModConfig.CLIENT.vignette.logarithmicOpacity, false), AbsoluteElementPositioner.ORIGIN).addFilter(new ScaleRenderFilter(Vec2f.MAX));
+				event.addElement(new StatRangeVignette(HeatModifier.instance, Range.lessThan(35F), ClientProxy.parseColor(ModConfig.CLIENT.vignette.coldColor), ModConfig.CLIENT.vignette.maxOpacity, ModConfig.CLIENT.vignette.logarithmicOpacity, true), AbsoluteElementLayoutFunction.ORIGIN).addFilter(new ScaleRenderFilter(Vec2f.MAX));
+				event.addElement(new StatRangeVignette(HeatModifier.instance, Range.greaterThan(85F), ClientProxy.parseColor(ModConfig.CLIENT.vignette.hotColor), ModConfig.CLIENT.vignette.maxOpacity, ModConfig.CLIENT.vignette.logarithmicOpacity, false), AbsoluteElementLayoutFunction.ORIGIN).addFilter(new ScaleRenderFilter(Vec2f.MAX));
 			}
 		}
 		if(HydrationModifier.loaded())
@@ -135,10 +135,10 @@ public class ClientProxy extends CommonProxy {
 			if(ModConfig.CLIENT.hud.stackHydrationBar)
 				event.addElement(bar, ModConfig.CLIENT.hud.hydrationBarStack).setTrigger(ModConfig.CLIENT.hud.hydrationBarRenderTrigger).addFilter(TextureResetFilter.INSTANCE);
 			else
-				event.addElement(bar, new AbsoluteElementPositioner(origin_x, origin_y, ModConfig.CLIENT.hud.hydrationBarX, ModConfig.CLIENT.hud.hydrationBarY));
+				event.addElement(bar, new AbsoluteElementLayoutFunction(origin_x, origin_y, ModConfig.CLIENT.hud.hydrationBarX, ModConfig.CLIENT.hud.hydrationBarY));
 			
 			if(ModConfig.CLIENT.vignette.enable)
-				event.addElement(new StatRangeVignette(HydrationModifier.instance, Range.lessThan(30F), ClientProxy.parseColor(ModConfig.CLIENT.vignette.dehydrationColor), ModConfig.CLIENT.vignette.maxOpacity, ModConfig.CLIENT.vignette.logarithmicOpacity, true), AbsoluteElementPositioner.ORIGIN).addFilter(new ScaleRenderFilter(Vec2f.MAX));
+				event.addElement(new StatRangeVignette(HydrationModifier.instance, Range.lessThan(30F), ClientProxy.parseColor(ModConfig.CLIENT.vignette.dehydrationColor), ModConfig.CLIENT.vignette.maxOpacity, ModConfig.CLIENT.vignette.logarithmicOpacity, true), AbsoluteElementLayoutFunction.ORIGIN).addFilter(new ScaleRenderFilter(Vec2f.MAX));
 		}
 		if(SanityModifier.loaded())
 		{
@@ -150,11 +150,11 @@ public class ClientProxy extends CommonProxy {
 			if(ModConfig.CLIENT.hud.stackSanityBar)
 				event.addElement(bar, ModConfig.CLIENT.hud.sanityBarStack).setTrigger(ModConfig.CLIENT.hud.sanityBarRenderTrigger).addFilter(TextureResetFilter.INSTANCE);
 			else
-				event.addElement(bar, new AbsoluteElementPositioner(origin_x, origin_y, ModConfig.CLIENT.hud.sanityBarX, ModConfig.CLIENT.hud.sanityBarY));
+				event.addElement(bar, new AbsoluteElementLayoutFunction(origin_x, origin_y, ModConfig.CLIENT.hud.sanityBarX, ModConfig.CLIENT.hud.sanityBarY));
 		}
 		if(GhostProvider.loaded())
 		{
-			event.addElement(new GhostEnergyBar(), StackingElementPositioner.LEFT).setTrigger(ElementType.HOTBAR).addFilter(GhostConditionRenderFilter.INSTANCE);
+			event.addElement(new GhostEnergyBar(), StackingElementLayoutFunction.LEFT).setTrigger(ElementType.HOTBAR).addFilter(GhostConditionRenderFilter.INSTANCE);
 			event.addRenderStageFilter(GhostConditionRenderFilter.INSTANCE, ElementType.HEALTH, ElementType.AIR, ElementType.ARMOR, ElementType.FOOD);
 		}
 	}

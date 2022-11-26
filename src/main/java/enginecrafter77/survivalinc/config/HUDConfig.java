@@ -1,7 +1,7 @@
 package enginecrafter77.survivalinc.config;
 
 import enginecrafter77.survivalinc.client.Direction2D;
-import enginecrafter77.survivalinc.client.StackingElementPositioner;
+import enginecrafter77.survivalinc.client.StackingElementLayoutFunction;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.fml.relauncher.Side;
@@ -31,11 +31,11 @@ public class HUDConfig {
 	
 	@Config.LangKey("config.survivalinc.client.hud.sanityBarStack")
 	@Config.Comment("The side where the sanity bar will be stacked in")
-	public StackingElementPositioner sanityBarStack = StackingElementPositioner.LEFT;
+	public StackingElementLayoutFunction sanityBarStack = StackingElementLayoutFunction.LEFT;
 	
 	@Config.LangKey("config.survivalinc.client.hud.hydrationBarStack")
 	@Config.Comment("The side where the hydration bar will be stacked in")
-	public StackingElementPositioner hydrationBarStack = StackingElementPositioner.RIGHT;
+	public StackingElementLayoutFunction hydrationBarStack = StackingElementLayoutFunction.RIGHT;
 	
 	@Config.LangKey("config.survivalinc.client.hud.sanityBarRenderTrigger")
 	@Config.Comment({"The element to render the sanity bar after.", "This value is only relevant when sanity bar stacking is enabled, and indicates the element the sanity bar follows."})

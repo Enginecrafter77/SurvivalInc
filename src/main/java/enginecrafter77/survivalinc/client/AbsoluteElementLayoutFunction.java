@@ -1,12 +1,10 @@
 package enginecrafter77.survivalinc.client;
 
-import org.lwjgl.util.ReadablePoint;
-
 import com.google.common.collect.ImmutableMap;
-
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.util.ReadablePoint;
 
 /**
  * ElementPositioner is a class used to dynamically compute position
@@ -18,15 +16,15 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * @author Enginecrafter77
  */
 @SideOnly(Side.CLIENT)
-public class AbsoluteElementPositioner implements ElementPositioner {
+public class AbsoluteElementLayoutFunction implements ElementLayoutFunction {
 	
-	public static final AbsoluteElementPositioner ORIGIN = new AbsoluteElementPositioner(0F, 0F, 0, 0);
-	public static final AbsoluteElementPositioner CENTER = new AbsoluteElementPositioner(0.5F, 0.5F, 0, 0);
+	public static final AbsoluteElementLayoutFunction ORIGIN = new AbsoluteElementLayoutFunction(0F, 0F, 0, 0);
+	public static final AbsoluteElementLayoutFunction CENTER = new AbsoluteElementLayoutFunction(0.5F, 0.5F, 0, 0);
 	
 	protected final ImmutableMap<Axis2D, Integer> offset;
 	protected final ImmutableMap<Axis2D, Float> origin;
 	
-	public AbsoluteElementPositioner(float mx, float my, int ox, int oy)
+	public AbsoluteElementLayoutFunction(float mx, float my, int ox, int oy)
 	{
 		this.offset = ImmutableMap.of(Axis2D.HORIZONTAL, ox, Axis2D.VERTICAL, oy);
 		this.origin = ImmutableMap.of(Axis2D.HORIZONTAL, mx, Axis2D.VERTICAL, my);
@@ -40,7 +38,7 @@ public class AbsoluteElementPositioner implements ElementPositioner {
 	@Override
 	public ReadablePoint getPositionFor(ScaledResolution resolution, OverlayElement element)
 	{
-		return ElementPositioner.fromFunction(this::calculateAxialPosition, resolution);
+		return ElementLayoutFunction.fromFunction(this::calculateAxialPosition, resolution);
 	}
 	
 }
