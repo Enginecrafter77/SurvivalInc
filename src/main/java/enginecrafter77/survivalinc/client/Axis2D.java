@@ -1,19 +1,16 @@
 package enginecrafter77.survivalinc.client;
 
-import java.util.function.Function;
-
+import net.minecraft.client.gui.ScaledResolution;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.util.Dimension;
 import org.lwjgl.util.ReadableDimension;
 import org.lwjgl.util.ReadablePoint;
 
-import net.minecraft.client.gui.ScaledResolution;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import java.util.function.Function;
 
 /**
- * Axis2D is just what it's name suggests.
- * It's an enum specifying one of the 2 axes
- * on 2D plane: Horizontal and Vertical.
+ * Axis2D is just what it's name suggests. It's an enum specifying one of the 2 axes on 2D plane: Horizontal and Vertical.
  * @author Enginecrafter77
  */
 @SideOnly(Side.CLIENT)

@@ -168,7 +168,7 @@ public class HUDConstructEvent extends Event {
 			
 			if(draw)
 			{
-				ReadablePoint position = this.positioner.getPositionFor(context.getResolution(), this.element);
+				ReadablePoint position = this.positioner.getPositionFor(context, this.element);
 				this.element.draw(context, position);
 			}
 			

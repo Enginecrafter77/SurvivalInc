@@ -1,6 +1,5 @@
 package enginecrafter77.survivalinc.client;
 
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.client.GuiIngameForge;
 import org.lwjgl.util.Point;
 import org.lwjgl.util.ReadablePoint;
@@ -9,9 +8,9 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
- * StackingElementPositioner is a type of element positioner utilizing {@link GuiIngameForge}'s height
+ * StackingElementLayoutFunction is a type of element layout function utilizing {@link GuiIngameForge}'s height
  * fields. Basically, each of these fields indicates how much space from bottom-up has been used. This
- * field is utilized by all of minecraft's rendering. StackingElementPositioner uses this value the same
+ * field is utilized by all of minecraft's rendering. StackingElementLayoutFunction uses this value the same
  * way as forge does. It computes the render origin using this position and increments it accordingly.
  * The vanilla HUD has 2 columns (the stacks). Each of the columns is represented as value in this enum.
  * Thus, one may use a specific instance for the desired column.
@@ -34,14 +33,14 @@ public enum StackingElementLayoutFunction implements ElementLayoutFunction {
 	}
 	
 	@Override
-	public ReadablePoint getPositionFor(ScaledResolution resolution, OverlayElement element)
+	public ReadablePoint getPositionFor(RenderFrameContext context, OverlayElement element)
 	{
 		int height = this.getter.get();
-		int y = resolution.getScaledHeight() - height;
+		int y = context.getResolution().getScaledHeight() - height;
 		height += element.getSize().getHeight() + 1; // 1 = spacing
 		this.setter.accept(height);
 		
-		return new Point(resolution.getScaledWidth() / 2 + this.x, y);
+		return new Point(context.getResolution().getScaledWidth() / 2 + this.x, y);
 	}
 	
 }
