@@ -1,16 +1,17 @@
 package enginecrafter77.survivalinc.stats;
 
-import java.util.concurrent.Callable;
-
 import enginecrafter77.survivalinc.SurvivalInc;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.capabilities.Capability;
+
+import java.util.concurrent.Callable;
 
 /**
  * StatRegisterDispatcher is a factory for {@link StatTracker}s.
  * This class was introduced to grant additional freedom to
  * users willing to extends the functionality of Survival Inc.
  * stat trackers. The StatRegisterDispatcher is designed to be
- * fed to {@link CapabilityManager#register} as the factory callback.
+ * fed to {@link net.minecraftforge.common.capabilities.CapabilityManager#register(Class, Capability.IStorage, Callable)} as the factory callback.
  * Internally, the StatRegisterDispatcher constructs a {@link StatRegisterEvent},
  * which is then broadcasted on the {@link MinecraftForge#EVENT_BUS}.
  * The StatRegisterEvent takes care of registering the {@link StatProvider}s

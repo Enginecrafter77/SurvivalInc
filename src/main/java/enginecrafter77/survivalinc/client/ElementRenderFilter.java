@@ -1,6 +1,5 @@
 package enginecrafter77.survivalinc.client;
 
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -12,7 +11,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * this interface accepts an optional argument provided
  * by the caller.
  * @author Enginecrafter77
- * @param <ARGUMENT> The argument
  */
 @SideOnly(Side.CLIENT)
 public interface ElementRenderFilter {
@@ -29,7 +27,7 @@ public interface ElementRenderFilter {
 	 * Phase 2 of the filter; runs after the element has
 	 * been drawn on the screen. Useful for popping matrices.
 	 * Please note that the element might not be drawn on the
-	 * screen if the {@link #begin(ScaledResolution, Object)}
+	 * screen if the {@link #begin(RenderFrameContext, OverlayElement)}
 	 * method returned false. But even in that case, it is
 	 * guaranteed that this method will be run to avoid unmatched
 	 * matrices on the stack.

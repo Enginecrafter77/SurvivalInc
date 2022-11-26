@@ -1,5 +1,7 @@
 package enginecrafter77.survivalinc.season;
 
+import enginecrafter77.survivalinc.SurvivalInc;
+import enginecrafter77.survivalinc.season.SeasonCalendar.SeasonCalendarEntry;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
@@ -8,9 +10,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import enginecrafter77.survivalinc.SurvivalInc;
-import enginecrafter77.survivalinc.season.SeasonCalendar.SeasonCalendarEntry;
 
 /**
  * This stores the original biome temperatures, modifying the base temps if
@@ -77,8 +76,8 @@ public class BiomeTempController {
 	 * for the given biome type. Override this method
 	 * if you want to use a different type of calculation.
 	 * @param biome The biome to calculate new base temperature for
-	 * @param data The current season data
-	 * @param offset The calculated {@link SeasonProvider#getSeasonalTemperatureOffset(int) standard universal temperature offset}
+	 * @param date The current season date
+	 * @param offset The calculated standard universal temperature offset
 	 * @return A new base temperature for the provided biome
 	 */
 	public float calculateNewBiomeTemperature(Biome biome, SeasonCalendarDate date, float offset)
@@ -88,9 +87,8 @@ public class BiomeTempController {
 	
 	/**
 	 * This actually changes the biome temperatures every morning... Using reflection!
-	 * Yeah it's very hacky, hackish, whatever you wanna call it, but it works!
-	 * @param season The season to 
-	 * @param daysIntoSeason
+	 * Yeah, it's very hacky, hackish, whatever you want to call it, but it works!
+	 * @param date
 	 */
 	public void applySeason(SeasonCalendarDate date)
 	{		

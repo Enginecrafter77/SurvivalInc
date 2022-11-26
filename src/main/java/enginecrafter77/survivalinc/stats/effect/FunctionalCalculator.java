@@ -1,14 +1,14 @@
 package enginecrafter77.survivalinc.stats.effect;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import net.minecraft.entity.player.EntityPlayer;
 
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * FunctionalCalculator is a simple mechanism for evaluating
- * multiple {@link CalculatorFunctions}. The resultant value
+ * multiple {@link CalculatorFunction}. The resultant value
  * from one function is passed onto another, thus forming an
  * evaluation chain. The return value from the last function
  * is returned by the calculator. The calculator can also serve

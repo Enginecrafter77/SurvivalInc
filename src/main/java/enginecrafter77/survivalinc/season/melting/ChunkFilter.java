@@ -17,7 +17,6 @@ public interface ChunkFilter
 	 * parameter must be [0, 0, 0] at least and [15, 256, 15]
 	 * at most under normal circumstances.
 	 * @param chunk The chunk being processed
-	 * @param position The block position relative to chunk start
 	 */
 	public void processChunk(Chunk chunk);
 }

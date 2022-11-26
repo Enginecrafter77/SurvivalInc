@@ -1,9 +1,9 @@
 package enginecrafter77.survivalinc.stats;
 
-import java.io.Serializable;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
+
+import java.io.Serializable;
 
 /**
  * StatProvider serves as a descriptor of a stat.
@@ -15,14 +15,11 @@ import net.minecraft.util.ResourceLocation;
 public interface StatProvider<RECORD extends StatRecord> extends Serializable {
 	/**
 	 * Called by the stat {@link StatTracker#update(EntityPlayer) tracker}
-	 * to update the value of this stat. This method basically calculates
-	 * the change to the stat value based on the player the update was
-	 * called for. The general principle is to take the <i>current</i>
-	 * parameter, calculate the new value for the target <i>player</i>,
+	 * to update the value of this stat. This method takes care of updating
+	 * the record kept about the stat described by this class.
 	 * and return the new value from this method.
 	 * @param target The player this update was called for
-	 * @param current The current value of the stat
-	 * @return The new value of the stat
+	 * @param record The record kept about this stat
 	 */
 	public void update(EntityPlayer target, RECORD record);
 	
@@ -52,7 +49,7 @@ public interface StatProvider<RECORD extends StatRecord> extends Serializable {
 	 * Returns the formal type representation
 	 * of the {@link StatRecord} used by this
 	 * provider.
-	 * @return The type of object returned by {@link createNewRecord}
+	 * @return The type of object returned by {@link #createNewRecord()}
 	 */
 	public Class<RECORD> getRecordClass();
 }

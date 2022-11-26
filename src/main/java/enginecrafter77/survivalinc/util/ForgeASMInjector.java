@@ -1,16 +1,15 @@
 package enginecrafter77.survivalinc.util;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-
-import javax.annotation.Nullable;
-
 import enginecrafter77.survivalinc.SurvivalInc;
 import net.minecraftforge.fml.common.eventhandler.ASMEventHandler;
 
+import javax.annotation.Nullable;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+
 /**
  * ForgeASMInjector is a reflection helper that allows
- * direct interaction with {@link ASMEventHandler#LOADER}.
+ * direct interaction with {@link ASMEventHandler}.
  * ASMEventHandler's LOADER is a class loader used to
  * dynamically generate {@link net.minecraftforge.fml.common.eventhandler.IEventListener IEventListener}
  * instances from methods annotated by {@link net.minecraftforge.fml.common.eventhandler.SubscribeEvent SubscribeEvent}.

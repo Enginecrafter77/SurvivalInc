@@ -1,10 +1,5 @@
 package enginecrafter77.survivalinc.net;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-
 import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import io.netty.buffer.ByteBuf;
@@ -15,6 +10,11 @@ import net.minecraftforge.common.capabilities.Capability.IStorage;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.relauncher.Side;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * Stat Sync Message can be used to effectively
@@ -28,12 +28,9 @@ public class StatSyncMessage implements IMessage {
 	private final HashMap<UUID, NBTTagCompound> data;
 	
 	/**
-	 * Constructs an empty StatSyncMessage. In order for
-	 * the message to be actually useful, {@link #addPlayerTrackerData(EntityPlayer)}
-	 * needs to be called on the object at least once.
-	 * 
+	 * Constructs an empty StatSyncMessage.
 	 * This constructor is also used on {@link Side#CLIENT client}
-	 * side to construct dummy StatSyncMessage, that is later
+	 * side to construct dummy StatSyncMessage that is later
 	 * initialized from the incoming data.
 	 */
 	public StatSyncMessage()

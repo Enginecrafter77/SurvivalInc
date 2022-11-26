@@ -1,15 +1,15 @@
 package enginecrafter77.survivalinc.stats.impl.armor;
 
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.item.ItemStack;
+
 import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.item.ItemStack;
 
 /**
  * ArmorPiece is an enum describing different parts of player armor. The enum may be considered redundant by some since
@@ -34,7 +34,7 @@ public enum ArmorPiece {
 	
 	/**
 	 * Returns the item stack in the associated slot inside of the provided player's inventory.
-	 * @param player The player's inventory
+	 * @param inventory Player's inventory
 	 * @return The {@link ItemStack} contained in the associated armor slot.
 	 */
 	public ItemStack getPieceStack(InventoryPlayer inventory)

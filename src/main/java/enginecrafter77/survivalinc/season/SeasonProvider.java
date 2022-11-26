@@ -25,8 +25,8 @@ public interface SeasonProvider {
 	/**
 	 * Peak day is the day in the current season when
 	 * the temperature offset is supposed to hit the
-	 * temperature returned by {@link #getPeakTemperatureOffset()}
-	 * @return The day the temperature offset meets it's peak
+	 * temperature returned by {@link #getPeakTemperature()}
+	 * @return The day the temperature offset meets its peak
 	 */
 	public int getPeakTemperatureDay();
 	

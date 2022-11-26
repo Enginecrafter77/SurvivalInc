@@ -1,27 +1,11 @@
 package enginecrafter77.survivalinc.ghost;
 
-import enginecrafter77.survivalinc.stats.StatCapability;
-import enginecrafter77.survivalinc.stats.StatProvider;
-import enginecrafter77.survivalinc.stats.StatRecord;
-import enginecrafter77.survivalinc.stats.StatRegisterEvent;
-import enginecrafter77.survivalinc.stats.StatTracker;
-import enginecrafter77.survivalinc.stats.effect.EffectApplicator;
-import enginecrafter77.survivalinc.stats.effect.EffectFilter;
-import enginecrafter77.survivalinc.stats.effect.FunctionalEffectFilter;
-import enginecrafter77.survivalinc.stats.effect.SideEffectFilter;
-import enginecrafter77.survivalinc.stats.effect.ValueStatEffect;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Random;
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.net.StatSyncMessage;
-import net.minecraft.block.BlockDoor;
-import net.minecraft.block.BlockFenceGate;
-import net.minecraft.block.BlockRedstoneComparator;
-import net.minecraft.block.BlockRedstoneRepeater;
-import net.minecraft.block.BlockTrapDoor;
+import enginecrafter77.survivalinc.stats.*;
+import enginecrafter77.survivalinc.stats.effect.*;
+import net.minecraft.block.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.Entity;
@@ -29,13 +13,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.EntityDamageSource;
-import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.FoodStats;
-import net.minecraft.util.MovementInput;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
+import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -52,6 +30,10 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Random;
 
 public class GhostProvider implements StatProvider<GhostEnergyRecord> {
 	private static final long serialVersionUID = -2088047893866334112L;
@@ -451,8 +433,9 @@ public class GhostProvider implements StatProvider<GhostEnergyRecord> {
 	
 	/**
 	 * Spawns a cloud around the block the player has right-clicked.
-	 * @param record The ghost energy record
 	 * @param player The player to apply the effect to
+	 * @param position The position to spawn the particles at
+	 * @param cost The cost of spawning the particles
 	 */
 	public static void spawnInteractionParticles(EntityPlayer player, BlockPos position, float cost)
 	{

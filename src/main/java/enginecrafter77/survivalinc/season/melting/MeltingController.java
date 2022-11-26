@@ -1,16 +1,6 @@
 package enginecrafter77.survivalinc.season.melting;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-
 import com.google.common.collect.ImmutableSet;
-
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.block.BlockMelting;
 import enginecrafter77.survivalinc.season.SeasonChangedEvent;
@@ -22,6 +12,9 @@ import net.minecraft.world.gen.ChunkProviderServer;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import java.util.*;
+import java.util.function.Function;
+
 /**
  * Controls the strategy employed to melt down the blocks
  * created by winter or cold weather, such as snow, ice
@@ -32,7 +25,7 @@ public enum MeltingController {
 	
 	/**
 	 * The fancy controller relies on random update ticks applied to {@link BlockMelting}.
-	 * It's chunk filter basically replaces every block of type {@link BlockMelting#predecessor}
+	 * It's chunk filter basically replaces every block of type {@link BlockMelting#freezeTarget}
 	 * with the melting block's own type. Then, it does nothing and relies on the BlockMelting
 	 * to tick itself.
 	 */
@@ -40,16 +33,16 @@ public enum MeltingController {
 	
 	/**
 	 * The lazy controller is very similar to the fancy controller with a single exception.
-	 * The lazy controller does not rely on random block ticks. In fact, it's {@link #allowRandomTicks()}
+	 * The lazy controller does not rely on random block ticks. In fact, its {@link #requiresRandomTicks()}
 	 * method disallows this behavior. Instead, the melting blocks only update their state when
-	 * a {@link SeasonUpdateEvent} is fired (which is roughly every day). This allows for less-dynamic
-	 * but also way less laggy way of melting the meltable blocks.
+	 * a {@link SeasonChangedEvent} is fired (which is roughly every day). This allows for less-dynamic
+	 * but also way less laggy way of melting the {@link BlockMelting meltable} blocks.
 	 */
 	LAZY(LazyMeltingTransformer::new),
 	
 	/**
 	 * The simple controller represents the most lightweight form of melting snow. It basically replaces every
-	 * block specified by {@link BlockMelting#predecessor} with {@link BlockMelting#successor}. For example, snow is immediately
+	 * block specified by {@link BlockMelting#freezeTarget} with {@link BlockMelting#meltTarget}. For example, snow is immediately
 	 * replaced by air, and so on. Not very dramatic, but it can increase performance for very slow servers.
 	 */
 	SIMPLE(MinimalMeltingTransformer::new),
@@ -68,7 +61,7 @@ public enum MeltingController {
 	 * the {@link #factory} function on all of the {@link #meltmap}
 	 * entries.
 	 */
-	private static List<ChunkFilter> transformers = new LinkedList<ChunkFilter>();
+	private static final List<ChunkFilter> transformers = new LinkedList<ChunkFilter>();
 	
 	/**
 	 * A function that should a new chunk filter for the specified melter entry.
@@ -132,11 +125,12 @@ public enum MeltingController {
 	
 	/**
 	 * Applies the list of transformers to all blocks
-	 * contained within the chunk. In general, this
+	 * contained within the chunks. In general, this
 	 * involves all blocks along X and Z axis, and usually
 	 * only a few Y levels. The amount of processed
-	 * blocks is therefore <tt>Y*256</tt> blocks.
-	 * @param chunk The chunk to be processed.
+	 * blocks is therefore <tt>N*Y*256</tt> blocks, where
+	 * N is the size of the provided collection.
+	 * @param chunks The collection of chunks to be processed.
 	 */
 	public static void processChunks(Collection<Chunk> chunks)
 	{
