@@ -1,16 +1,10 @@
 package enginecrafter77.survivalinc.client;
 
-import org.lwjgl.util.Dimension;
-import org.lwjgl.util.Point;
-import org.lwjgl.util.ReadableDimension;
-import org.lwjgl.util.ReadablePoint;
-import org.lwjgl.util.ReadableRectangle;
-import org.lwjgl.util.Rectangle;
-
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.util.ResourceLocation;
+import org.lwjgl.util.*;
 
 /**
  * TextureResource is an object that specifies
@@ -35,7 +29,7 @@ import net.minecraft.util.ResourceLocation;
  * {@link #region(ReadableRectangle)}.
  * @author Enginecrafter77
  */
-public class TextureResource extends SimpleOverlayElement {
+public class TextureResource extends SimpleOverlayElement implements Cloneable {
 	
 	/** The {@link ResourceLocation} of the texture */
 	public final ResourceLocation texture;
@@ -43,7 +37,7 @@ public class TextureResource extends SimpleOverlayElement {
 	/** The dimensions of the texture specified by {@link #texture} */
 	public final ReadableDimension texturedim;
 	
-	/** The region drawn using {@link #draw(ReadablePoint, float, Object)} */
+	/** The region drawn using {@link #draw(RenderFrameContext, ReadablePoint)} */
 	public final Rectangle region;
 	
 	/**
@@ -85,7 +79,7 @@ public class TextureResource extends SimpleOverlayElement {
 	}
 	
 	@Override
-	protected TextureResource clone()
+	public TextureResource clone()
 	{
 		return new TextureResource(texture, texturedim, this.region);
 	}
@@ -129,7 +123,7 @@ public class TextureResource extends SimpleOverlayElement {
 	}
 
 	@Override
-	public void draw(ReadablePoint position, float partialTicks, Object... args)
+	public void draw(RenderFrameContext context, ReadablePoint position)
 	{
 		GlStateManager.enableAlpha();
 		this.texturer.bindTexture(this.texture);
@@ -137,7 +131,7 @@ public class TextureResource extends SimpleOverlayElement {
 	}
 	
 	/**
-	 * An exception thrown when a sub-region that is outside of the range of the parent region is requested.
+	 * An exception thrown when a subregion that is outside the range of the parent region is requested.
 	 * @author Enginecrafter77
 	 */
 	public static class TextureOverflowException extends IllegalArgumentException

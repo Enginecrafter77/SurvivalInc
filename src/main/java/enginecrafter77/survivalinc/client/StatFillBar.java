@@ -1,12 +1,5 @@
 package enginecrafter77.survivalinc.client;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.function.Function;
-
-import org.lwjgl.util.ReadableDimension;
-import org.lwjgl.util.ReadablePoint;
-
 import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatRecord;
@@ -15,6 +8,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.util.ReadableDimension;
+import org.lwjgl.util.ReadablePoint;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.function.Function;
 
 /**
  * StatFillBar presents simple interface for creating stat displays
@@ -37,7 +36,7 @@ public class StatFillBar<RECORD extends StatRecord> implements OverlayElement {
 	public final StatProvider<RECORD> provider;
 	
 	/** The layer map */
-	protected final Map<SymbolFillBar, Function<RECORD, Float>> layers;
+	protected final List<StatBarRenderLayer<RECORD>> layers;
 	
 	/**
 	 * @param provider The provider to get the value from
@@ -46,24 +45,11 @@ public class StatFillBar<RECORD extends StatRecord> implements OverlayElement {
 	 */
 	public StatFillBar(StatProvider<RECORD> provider, Direction2D direction, TextureResource base)
 	{
-		this.layers = new LinkedHashMap<SymbolFillBar, Function<RECORD, Float>>();
+		this.layers = new LinkedList<StatBarRenderLayer<RECORD>>();
 		this.background = new SymbolFillBar(base, direction);
 		this.provider = provider;
 	}
-	
-	/**
-	 * @param provider
-	 * @param recordclass
-	 * @param direction
-	 * @param base
-	 * @deprecated Use {@link #StatFillBar(StatProvider, Direction2D, TexturedElement)} instead
-	 */
-	@Deprecated
-	public StatFillBar(StatProvider<RECORD> provider, Class<RECORD> recordclass, Direction2D direction, TextureResource base)
-	{
-		this(provider, direction, base);
-	}
-	
+
 	/**
 	 * @see SymbolFillBar#setSpacing(int) 
 	 * @param spacing The spacing between elements
@@ -71,17 +57,13 @@ public class StatFillBar<RECORD extends StatRecord> implements OverlayElement {
 	public void setSpacing(int spacing)
 	{
 		this.background.setSpacing(spacing);
-		for(SymbolFillBar bar : this.layers.keySet()) bar.setSpacing(spacing);
+		for(SymbolFillBar bar : this.layers) bar.setSpacing(spacing);
 	}
-	
-	/**
-	 * @see SymbolFillBar#setCapacity(int)
-	 * @param spacing The spacing between elements
-	 */
+
 	public void setCapacity(int capacity)
 	{
 		this.background.setCapacity(capacity);
-		for(SymbolFillBar bar : this.layers.keySet()) bar.setCapacity(capacity);
+		for(SymbolFillBar bar : this.layers) bar.setCapacity(capacity);
 	}
 	
 	/**
@@ -91,10 +73,10 @@ public class StatFillBar<RECORD extends StatRecord> implements OverlayElement {
 	 */
 	public void addLayer(TextureResource texture, Function<RECORD, Float> getter)
 	{
-		SymbolFillBar bar = new SymbolFillBar(texture, this.background.direction);
+		StatBarRenderLayer<RECORD> bar = new StatBarRenderLayer<RECORD>(texture, this.background.direction, getter);
 		bar.setCapacity(this.background.getCapacity());
 		bar.setSpacing(this.background.getSpacing());
-		this.layers.put(bar, getter);
+		this.layers.add(bar);
 	}
 	
 	@Override
@@ -104,21 +86,36 @@ public class StatFillBar<RECORD extends StatRecord> implements OverlayElement {
 	}
 	
 	@Override
-	public void draw(ReadablePoint position, float partialTicks, Object... args)
+	public void draw(RenderFrameContext context, ReadablePoint position)
 	{
 		EntityPlayerSP player = Minecraft.getMinecraft().player;
-		StatTracker tracker = OverlayElement.getArgument(args, 0, StatTracker.class).orElse(player.getCapability(StatCapability.target, null));
-		if(tracker.isActive(this.provider, player))
+		StatTracker tracker = player.getCapability(StatCapability.target, null);
+		if(tracker != null && tracker.isActive(this.provider, player))
 		{
-			this.background.draw(position, partialTicks, 1F);
-			
+			this.background.draw(context, position);
+
 			RECORD record = tracker.getRecord(this.provider);
-			for(Map.Entry<SymbolFillBar, Function<RECORD, Float>> entry : this.layers.entrySet())
+			for(StatBarRenderLayer<RECORD> layer : this.layers)
 			{
-				Function<RECORD, Float> transformer = entry.getValue();
-				Float value = transformer.apply(record);
-				if(value != null) entry.getKey().draw(position, partialTicks, value);
+				layer.updateFill(record);
+				layer.draw(context, position);
 			}
+		}
+	}
+
+	private static class StatBarRenderLayer<RECORD extends StatRecord> extends SymbolFillBar
+	{
+		private final Function<RECORD, Float> extractor;
+
+		public StatBarRenderLayer(TextureResource symbol, Direction2D direction, Function<RECORD, Float> extractor)
+		{
+			super(symbol, direction);
+			this.extractor = extractor;
+		}
+
+		public void updateFill(RECORD record)
+		{
+			this.setFill(this.extractor.apply(record));
 		}
 	}
 	

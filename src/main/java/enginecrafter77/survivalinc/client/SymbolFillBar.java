@@ -1,17 +1,16 @@
 package enginecrafter77.survivalinc.client;
 
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.util.Point;
 import org.lwjgl.util.ReadableDimension;
 import org.lwjgl.util.ReadablePoint;
 import org.lwjgl.util.Rectangle;
 
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-
 /**
  * SymbolFillBar is a simple element that allows for
  * symbols to be drawn stacked next to each other.
- * Each SymbolFillBar has it's own capacity. The
+ * Each SymbolFillBar has its own capacity. The
  * capacity indicates how many of the symbols are drawn
  * when the input number is 1. The input float is normally
  * a value between 0 and 1. When 0 is the input value, no
@@ -33,17 +32,25 @@ public class SymbolFillBar extends SimpleOverlayElement {
 	
 	/** The spacing between the elements */
 	protected int spacing;
-	
+
+	/** The percentage of the bar that is filled */
+	private float fill;
+
 	public SymbolFillBar(TextureResource symbol, Direction2D direction)
 	{
 		super(new AxisMappedDimension(symbol.getSize()));
 		this.direction = direction;
 		this.symbol = symbol;
-		
 		this.capacity = 1;
 		this.spacing = 0;
+		this.fill = 1F;
 	}
-	
+
+	public void setFill(float fill)
+	{
+		this.fill = fill;
+	}
+
 	/**
 	 * Sets the spacing between the elements.
 	 * @param spacing The spacing in pixels.
@@ -103,10 +110,9 @@ public class SymbolFillBar extends SimpleOverlayElement {
 	}
 	
 	@Override
-	public void draw(ReadablePoint position, float partialTicks, Object... arguments)
+	public void draw(RenderFrameContext context, ReadablePoint position)
 	{
-		float length = OverlayElement.getArgument(arguments, 0, Float.class).get() * this.capacity;
-		
+		float length = this.fill * this.capacity;
 		int steps = (int)Math.round(Math.floor(length)); // Number of full symbols
 		
 		Point current_position = new Point(position);
@@ -149,7 +155,7 @@ public class SymbolFillBar extends SimpleOverlayElement {
 			}
 			
 			// Draw the symbol
-			this.symbol.region(region).draw(symbolpos, partialTicks);
+			this.symbol.region(region).draw(context, symbolpos);
 			
 			// Move to the next position
 			this.direction.movePoint(current_position, this.symbol.getSize(this.direction.axis) + this.spacing);

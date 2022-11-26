@@ -1,24 +1,7 @@
 package enginecrafter77.survivalinc;
 
-import javax.annotation.Nullable;
-
-import org.lwjgl.util.Color;
-import org.lwjgl.util.Point;
-import org.lwjgl.util.ReadableColor;
-import org.lwjgl.util.Rectangle;
-
 import com.google.common.collect.Range;
-
-import enginecrafter77.survivalinc.client.AbsoluteElementPositioner;
-import enginecrafter77.survivalinc.client.Direction2D;
-import enginecrafter77.survivalinc.client.ElementRenderFilter;
-import enginecrafter77.survivalinc.client.HUDConstructEvent;
-import enginecrafter77.survivalinc.client.OverlayElement;
-import enginecrafter77.survivalinc.client.ScaleRenderFilter;
-import enginecrafter77.survivalinc.client.StackingElementPositioner;
-import enginecrafter77.survivalinc.client.StatFillBar;
-import enginecrafter77.survivalinc.client.TextureResource;
-import enginecrafter77.survivalinc.client.TranslateRenderFilter;
+import enginecrafter77.survivalinc.client.*;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.ghost.GhostConditionRenderFilter;
 import enginecrafter77.survivalinc.ghost.GhostEnergyBar;
@@ -32,14 +15,9 @@ import enginecrafter77.survivalinc.season.LeafColorer;
 import enginecrafter77.survivalinc.season.SeasonController;
 import enginecrafter77.survivalinc.season.SeasonSyncMessage;
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
-import enginecrafter77.survivalinc.stats.impl.HeatModifier;
-import enginecrafter77.survivalinc.stats.impl.HydrationModifier;
-import enginecrafter77.survivalinc.stats.impl.SanityModifier;
-import enginecrafter77.survivalinc.stats.impl.SanityRecord;
-import enginecrafter77.survivalinc.stats.impl.StatRangeVignette;
+import enginecrafter77.survivalinc.stats.impl.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec2f;
 import net.minecraftforge.client.GuiIngameForge;
@@ -52,6 +30,12 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
+import org.lwjgl.util.Color;
+import org.lwjgl.util.Point;
+import org.lwjgl.util.ReadableColor;
+import org.lwjgl.util.Rectangle;
+
+import javax.annotation.Nullable;
 
 public class ClientProxy extends CommonProxy {
 	/** The HUD instance currently in use, if any */
@@ -187,7 +171,7 @@ public class ClientProxy extends CommonProxy {
 	 * @param hex A HTML notation of color
 	 * @return A read-only color object representing the color
 	 */
-	public static final ReadableColor parseColor(String hex)
+	public static ReadableColor parseColor(String hex)
 	{
 		if(hex.startsWith("#")) hex = hex.substring(1);
 		int bundle = Integer.parseUnsignedInt(hex, 16);
@@ -215,13 +199,13 @@ public class ClientProxy extends CommonProxy {
 		INSTANCE;
 
 		@Override
-		public boolean begin(ScaledResolution resoultion, OverlayElement element)
+		public boolean begin(RenderFrameContext context, OverlayElement element)
 		{
 			return true;
 		}
 
 		@Override
-		public void end(ScaledResolution resoultion, OverlayElement element)
+		public void end(RenderFrameContext context, OverlayElement element)
 		{
 			Minecraft.getMinecraft().getTextureManager().bindTexture(Gui.ICONS);
 		}

@@ -1,10 +1,8 @@
 package enginecrafter77.survivalinc.client;
 
-import org.lwjgl.util.ReadablePoint;
-
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
+import org.lwjgl.util.ReadablePoint;
 
 /**
  * TranslateRenderFilter is a simple render filter used
@@ -22,19 +20,19 @@ public class TranslateRenderFilter implements ElementRenderFilter, RenderStageFi
 	}
 
 	@Override
-	public boolean begin(ScaledResolution resoultion, ElementType element)
+	public boolean begin(RenderFrameContext resoultion, ElementType element)
 	{
 		return this.begin(resoultion, (OverlayElement)null);
 	}
 
 	@Override
-	public void end(ScaledResolution resoultion, ElementType element)
+	public void end(RenderFrameContext resoultion, ElementType element)
 	{
 		this.end(resoultion, (OverlayElement)null);
 	}
 
 	@Override
-	public boolean begin(ScaledResolution resoultion, OverlayElement element)
+	public boolean begin(RenderFrameContext context, OverlayElement element)
 	{
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(offset.getX(), offset.getY(), 0D);
@@ -42,7 +40,7 @@ public class TranslateRenderFilter implements ElementRenderFilter, RenderStageFi
 	}
 
 	@Override
-	public void end(ScaledResolution resoultion, OverlayElement element)
+	public void end(RenderFrameContext context, OverlayElement element)
 	{
 		GlStateManager.popMatrix();
 	}

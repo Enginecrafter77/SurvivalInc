@@ -1,18 +1,18 @@
 package enginecrafter77.survivalinc.stats.impl;
 
-import org.lwjgl.util.ReadableColor;
-import org.lwjgl.util.ReadablePoint;
-
 import com.google.common.collect.Range;
-
 import enginecrafter77.survivalinc.client.ElementalVignette;
-import enginecrafter77.survivalinc.client.OverlayElement;
+import enginecrafter77.survivalinc.client.RenderFrameContext;
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
+import org.lwjgl.util.ReadableColor;
+import org.lwjgl.util.ReadablePoint;
+
+import java.util.Optional;
 
 /**
  * StatRangeVignette is a {@link ElementalVignette} which
@@ -77,19 +77,20 @@ public class StatRangeVignette extends ElementalVignette {
 	}
 
 	@Override
-	public void draw(ReadablePoint position, float partialTicks, Object... arguments)
+	public void draw(RenderFrameContext context, ReadablePoint position)
 	{
 		EntityPlayerSP player = Minecraft.getMinecraft().player;
-		StatTracker tracker = OverlayElement.getArgument(arguments, 0, StatTracker.class).orElse(player.getCapability(StatCapability.target, null));
-		SimpleStatRecord heat = tracker.getRecord(this.provider);
-		float value = heat.getValue();
-		
-		if(tracker.isActive(this.provider, player) && this.activationrange.contains(value))
+		StatTracker tracker = player.getCapability(StatCapability.target, null);
+		if(tracker == null || !tracker.isActive(this.provider, player))
+			return;
+
+		float heat = Optional.ofNullable(tracker.getRecord(this.provider)).map(SimpleStatRecord::getValue).orElse(0F);
+		if(this.activationrange.contains(heat))
 		{
-			float prop = this.getValuePropPos(value);
-			if(this.logarithmic) prop = (1F - (float)Math.pow(6F, -2F * prop)) / 0.9723F; // Scale logarithmically
-			super.draw(position, partialTicks, prop);
+			float prop = this.getValuePropPos(heat);
+			if(this.logarithmic)
+				this.setOpacity((1F - (float)Math.pow(6F, -2F * prop)) / 0.9723F); // Scale logarithmically
+			super.draw(context, position);
 		}
 	}
-
 }

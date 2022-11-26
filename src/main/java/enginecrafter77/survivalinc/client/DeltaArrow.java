@@ -1,8 +1,5 @@
 package enginecrafter77.survivalinc.client;
 
-import org.lwjgl.util.Point;
-import org.lwjgl.util.ReadableDimension;
-import org.lwjgl.util.ReadablePoint;
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import enginecrafter77.survivalinc.stats.StatCapability;
@@ -13,6 +10,9 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.util.Point;
+import org.lwjgl.util.ReadableDimension;
+import org.lwjgl.util.ReadablePoint;
 
 /**
  * DeltaArrow is a little overlay element
@@ -59,21 +59,22 @@ public class DeltaArrow extends SimpleOverlayElement {
 	}
 	
 	@Override
-	public void draw(ReadablePoint position, float partialTicks, Object... arguments)
-	{		
-		StatTracker tracker = OverlayElement.getArgument(arguments, 0, StatTracker.class).orElse(Minecraft.getMinecraft().player.getCapability(StatCapability.target, null));
-		float value = this.getArrowScale(tracker);
-		boolean inverse = value < 0F;
-		value = Math.abs(value);
+	public void draw(RenderFrameContext context, ReadablePoint position)
+	{
+		float value = 1F;
+
+		StatTracker tracker = Minecraft.getMinecraft().player.getCapability(StatCapability.target, null);
+		if(tracker != null)
+			value = this.getArrowScale(tracker);
 		
 		ReadableDimension size = this.getSize();
 		
 		GlStateManager.pushMatrix(); // Create new object by pushing matrix
 		GlStateManager.translate(position.getX(), position.getY(), 0F); // Translate the center to position
 		GlStateManager.pushMatrix(); // Create new object by pushing matrix
-		GlStateManager.scale(value, value, 1F); // Scale the arrow
-		if(inverse) GlStateManager.rotate(180F, 0F, 0F, 1F); // Rotate the arrow
-		DeltaArrow.arrow.draw(new Point(-size.getWidth() / 2, -size.getHeight() / 2), partialTicks); // Draw the arrow at origin point
+		GlStateManager.scale(value, value, Math.abs(1F)); // Scale the arrow
+		if(value < 0F) GlStateManager.rotate(180F, 0F, 0F, 1F); // Rotate the arrow
+		DeltaArrow.arrow.draw(context, new Point(-size.getWidth() / 2, -size.getHeight() / 2)); // Draw the arrow at origin point
 		GlStateManager.popMatrix(); // Render the scaled and rotated arrow
 		GlStateManager.popMatrix(); // Render the offset arrow in place
 	}

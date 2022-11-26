@@ -1,29 +1,21 @@
 package enginecrafter77.survivalinc.client;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-
-import org.lwjgl.util.ReadablePoint;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.util.ReadablePoint;
+
+import java.util.*;
 
 /**
  * HUDConstructEvent is called when the HUD is about to get constructed.
  * This event can be used to dynamically add elements and/or render filters
  * to the HUD about to be created using {@link #addElement(OverlayElement, ElementPositioner)}
- * and {@link #addRenderStageFilter(ElementRenderFilter, ElementType...)} respectively.
+ * and {@link #addRenderStageFilter(RenderStageFilter, ElementType...)} respectively.
  * The event is also cancelable. Canceling the event causes the event result to
  * be disregarded, effectively making all the calls to addElement and addRenderStageFilter
  * ineffective.
@@ -68,12 +60,7 @@ public class HUDConstructEvent extends Event {
 	{
 		for(ElementType element : elements)
 		{
-			Collection<RenderStageFilter> filters = this.filters.get(element);
-			if(filters == null)
-			{
-				filters = new LinkedList<RenderStageFilter>();
-				this.filters.put(element, filters);
-			}
+			Collection<RenderStageFilter> filters = this.filters.computeIfAbsent(element, (ElementType type) -> new LinkedList<RenderStageFilter>());
 			filters.add(filter);
 		}
 	}
@@ -166,10 +153,9 @@ public class HUDConstructEvent extends Event {
 		
 		/**
 		 * Draws the HUD Entry and filters it though all the filters in an orderly fashion.
-		 * @param resolution The resolution to draw the element in
-		 * @param partialTicks The partial ticks in the current render tick
+		 * @param context
 		 */
-		public void draw(ScaledResolution resolution, float partialTicks)
+		public void draw(RenderFrameContext context)
 		{
 			// Due to the nature of OpenGL matrix pushing, we need to call ElementRenderFilter#begin on the last element first, so it's presumed pushMatrix runs first.
 			ListIterator<ElementRenderFilter> itr = this.filters.listIterator(this.filters.size());
@@ -177,19 +163,19 @@ public class HUDConstructEvent extends Event {
 			boolean draw = true;
 			while(itr.hasPrevious())
 			{
-				if(!itr.previous().begin(resolution, this.element)) draw = false;
+				if(!itr.previous().begin(context, this.element)) draw = false;
 			}
 			
 			if(draw)
 			{
-				ReadablePoint position = this.positioner.getPositionFor(resolution, this.element);
-				this.element.draw(position, partialTicks);
+				ReadablePoint position = this.positioner.getPositionFor(context.getResolution(), this.element);
+				this.element.draw(context, position);
 			}
 			
 			// Now iterate the array back using normal order
 			while(itr.hasNext())
 			{
-				itr.next().end(resolution, this.element);
+				itr.next().end(context, this.element);
 			}
 		}
 	}
@@ -212,37 +198,41 @@ public class HUDConstructEvent extends Event {
 	private static class RenderHUDImpl implements RenderHUD {
 		protected final Collection<HUDElement> elements;
 		protected final Map<ElementType, Collection<RenderStageFilter>> filters;
-		
+
+		private final SharedRenderFrameContext sharedContext;
+
 		private RenderHUDImpl(Collection<HUDElement> elements, Map<ElementType, Collection<RenderStageFilter>> filters)
 		{
 			this.filters = ImmutableMap.copyOf(filters);
 			this.elements = ImmutableList.copyOf(elements);
+			this.sharedContext = new SharedRenderFrameContext();
 		}
 		
 		/**
-		 * Runs the {@link ElementRenderFilter#end(ScaledResolution, Object)} for all the registered filters
+		 * Runs the {@link ElementRenderFilter#end(RenderFrameContext, OverlayElement)} for all the registered filters
 		 * associated with the provided type.
-		 * @param resolution The resolution the filters are running at
 		 * @param element The currently processed element type
 		 */
-		private void runEndFilters(ScaledResolution resolution, ElementType element)
+		private void runEndFilters(ElementType element)
 		{
 			Collection<RenderStageFilter> filters = this.filters.get(element);
 			if(filters != null)
 			{
-				for(RenderStageFilter filter : filters) filter.end(resolution, element);
+				for(RenderStageFilter filter : filters) filter.end(this.sharedContext, element);
 			}
 		}
 		
 		@Override
 		public void renderOverlayPre(RenderGameOverlayEvent.Pre event)
 		{
+			this.sharedContext.updateFromEvent(event);
+
 			Collection<RenderStageFilter> filters = this.filters.get(event.getType());
 			if(filters != null)
 			{
 				for(RenderStageFilter filter : filters)
 				{
-					boolean render = filter.begin(event.getResolution(), event.getType());
+					boolean render = filter.begin(this.sharedContext, event.getType());
 					if(!render) event.setCanceled(true);
 				}
 			}
@@ -253,21 +243,21 @@ public class HUDConstructEvent extends Event {
 			 * a weird state. This call makes sure that every filter that has been
 			 * started will also be ended, no matter what.
 			 */
-			if(event.isCanceled()) this.runEndFilters(event.getResolution(), event.getType());
+			if(event.isCanceled()) this.runEndFilters(event.getType());
 		}
 		
 		@Override
 		public void renderOverlayPost(RenderGameOverlayEvent.Post event)
 		{
-			ScaledResolution resolution = event.getResolution();
-			ElementType type = event.getType();
-			
+			this.sharedContext.updateFromEvent(event);
+
 			for(HUDElement entry : this.elements)
 			{
-				if(entry.isTrigger(event)) entry.draw(resolution, event.getPartialTicks());
+				if(entry.isTrigger(event))
+					entry.draw(this.sharedContext);
 			}
 			
-			this.runEndFilters(resolution, type);
+			this.runEndFilters(event.getType());
 		}	
 	}
 }

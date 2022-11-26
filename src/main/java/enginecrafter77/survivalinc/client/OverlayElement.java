@@ -1,14 +1,10 @@
 package enginecrafter77.survivalinc.client;
 
-import java.util.Optional;
-
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.util.Point;
 import org.lwjgl.util.ReadableDimension;
 import org.lwjgl.util.ReadablePoint;
-
-import net.minecraft.client.gui.ScaledResolution;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
  * OverlayElement specifies the simplest possible
@@ -22,12 +18,10 @@ public interface OverlayElement {
 	
 	/**
 	 * Draws the element on the screen.
-	 * @param resolution The resolution to draw in
-	 * @param position The desired position of the element
-	 * @param partialTicks Fraction of time between one tick and another
-	 * @param arg The render argument
+	 * @param context The frame render context
+	 * @param position The position to draw the element at
 	 */
-	public void draw(ReadablePoint position, float partialTicks, Object... arguments);
+	public void draw(RenderFrameContext context, ReadablePoint position);
 	
 	public ReadableDimension getSize();
 	
@@ -38,26 +32,5 @@ public interface OverlayElement {
 	public default int getSize(Axis2D axis)
 	{
 		return axis.getDimensionAxialValue(this.getSize());
-	}
-	
-	/**
-	 * @deprecated Use {@link #draw(Position2D, float, Object)} instead.
-	 * @param resolution The screen resolution
-	 * @param position The element positioner
-	 * @param partialTicks Fraction of time between one tick and another
-	 * @param arg The render argument
-	 */
-	@Deprecated
-	public default void draw(ScaledResolution resolution, ElementPositioner position, float partialTicks, Object... arguments)
-	{
-		this.draw(position.getPositionFor(resolution, this), partialTicks, arguments);
-	}
-	
-	public static <TYPE> Optional<TYPE> getArgument(Object[] arguments, int index, Class<TYPE> type)
-	{
-		if(index >= arguments.length) return Optional.empty();
-		
-		if(!type.isInstance(arguments[index])) throw new IllegalArgumentException(String.format("Argument #%d (%s) is of invalid type (%s)!", index, type.getName(), arguments[index].getClass().getName()));
-		return Optional.of(type.cast(arguments[index]));
 	}
 }

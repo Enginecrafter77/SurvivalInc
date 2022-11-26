@@ -12,7 +12,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * A simple extension to OverlayElement, SimpleOverlayElement
  * does little besides implementing the {@link #getSize(Axis2D)} method.
  * @author Enginecrafter77
- * @param <ARGUMENT>
  */
 @SideOnly(Side.CLIENT)
 public abstract class SimpleOverlayElement implements OverlayElement {

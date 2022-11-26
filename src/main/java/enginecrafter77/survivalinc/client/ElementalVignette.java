@@ -1,16 +1,14 @@
 package enginecrafter77.survivalinc.client;
 
-import java.util.List;
-import java.util.function.Function;
-
+import com.google.common.collect.ImmutableList;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.util.ResourceLocation;
 import org.lwjgl.util.ReadableColor;
 import org.lwjgl.util.ReadableDimension;
 import org.lwjgl.util.ReadablePoint;
 
-import com.google.common.collect.ImmutableList;
-
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.util.ResourceLocation;
+import java.util.List;
+import java.util.function.Function;
 
 /**
  * ElementalVignette represents a colored vignette overlay element.
@@ -33,13 +31,24 @@ public class ElementalVignette implements OverlayElement {
 	private ReadableColor tint;
 	
 	/** The pre-calculated vignette color tint coefficients */
-	private float[] color_coefficients;
-	
+	private final float[] color_coefficients;
+
+	/** The vignette opacity */
+	private float opacity;
+
 	public ElementalVignette(float maxalpha)
 	{
 		this.color_coefficients = new float[4];
 		this.alpha_amplitude = maxalpha;
 		this.setTint(ReadableColor.WHITE);
+		this.opacity = 1F;
+	}
+
+	public void setOpacity(float opacity)
+	{
+		if(opacity < 0F || opacity > 1F)
+			throw new IllegalArgumentException();
+		this.opacity = opacity;
 	}
 	
 	/**
@@ -65,13 +74,12 @@ public class ElementalVignette implements OverlayElement {
 	}
 	
 	@Override
-	public void draw(ReadablePoint position, float partialTicks, Object... arguments)
+	public void draw(RenderFrameContext context, ReadablePoint position)
 	{
-		float prop = Math.min(1F, OverlayElement.getArgument(arguments, 0, Float.class).orElse(1F));
 		GlStateManager.enableBlend();
 		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-		GlStateManager.color(this.color_coefficients[0], this.color_coefficients[1], this.color_coefficients[2], this.color_coefficients[3] * this.alpha_amplitude * prop);
-		ElementalVignette.vignette.draw(position, partialTicks);
+		GlStateManager.color(this.color_coefficients[0], this.color_coefficients[1], this.color_coefficients[2], this.color_coefficients[3] * this.alpha_amplitude * this.opacity);
+		ElementalVignette.vignette.draw(context, position);
 		GlStateManager.resetColor();
 	}
 

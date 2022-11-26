@@ -19,11 +19,11 @@ public interface ElementRenderFilter {
 	/**
 	 * Phase 1 of the filter; runs before any content is
 	 * drawn on the screen. Useful for pushing matrices.
-	 * @param resoultion The game resolution
-	 * @param arg The optional argument
+	 * @param context
+	 * @param element
 	 * @return True if the element should be drawn, false otherwise.
 	 */
-	public boolean begin(ScaledResolution resoultion, OverlayElement element);
+	public boolean begin(RenderFrameContext context, OverlayElement element);
 	
 	/**
 	 * Phase 2 of the filter; runs after the element has
@@ -33,8 +33,8 @@ public interface ElementRenderFilter {
 	 * method returned false. But even in that case, it is
 	 * guaranteed that this method will be run to avoid unmatched
 	 * matrices on the stack.
-	 * @param resoultion The game resolution
-	 * @param arg The optinal argument
+	 * @param context
+	 * @param element
 	 */
-	public void end(ScaledResolution resoultion, OverlayElement element);
+	public void end(RenderFrameContext context, OverlayElement element);
 }

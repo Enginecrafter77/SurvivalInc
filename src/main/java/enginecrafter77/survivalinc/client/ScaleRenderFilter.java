@@ -1,10 +1,8 @@
 package enginecrafter77.survivalinc.client;
 
-import org.lwjgl.util.ReadableDimension;
-
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.math.Vec2f;
+import org.lwjgl.util.ReadableDimension;
 
 public class ScaleRenderFilter implements ElementRenderFilter {
 
@@ -16,17 +14,17 @@ public class ScaleRenderFilter implements ElementRenderFilter {
 	}
 	
 	@Override
-	public boolean begin(ScaledResolution resoultion, OverlayElement element)
+	public boolean begin(RenderFrameContext context, OverlayElement element)
 	{
 		Vec2f scale = this.scale;
-		if(scale == null) scale = ScaleRenderFilter.getRatio(Axis2D.getResolutionDimensions(resoultion), element.getSize());
+		if(scale == null) scale = ScaleRenderFilter.getRatio(Axis2D.getResolutionDimensions(context.getResolution()), element.getSize());
 		GlStateManager.pushMatrix();
 		GlStateManager.scale(scale.x, scale.y, 0F);
 		return true;
 	}
 
 	@Override
-	public void end(ScaledResolution resoultion, OverlayElement element)
+	public void end(RenderFrameContext resoultion, OverlayElement element)
 	{
 		GlStateManager.popMatrix();
 	}
