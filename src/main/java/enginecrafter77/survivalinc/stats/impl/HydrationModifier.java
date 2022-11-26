@@ -1,24 +1,16 @@
 package enginecrafter77.survivalinc.stats.impl;
 
-import javax.annotation.Nullable;
-
 import com.google.common.collect.Range;
-
+import enginecrafter77.survivalinc.ClientProxy;
 import enginecrafter77.survivalinc.SurvivalInc;
+import enginecrafter77.survivalinc.client.AbsoluteElementLayoutFunction;
+import enginecrafter77.survivalinc.client.HUDConstructEvent;
+import enginecrafter77.survivalinc.client.ScaleRenderFilter;
+import enginecrafter77.survivalinc.client.StatFillBar;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.net.WaterDrinkMessage;
-import enginecrafter77.survivalinc.stats.SimpleStatRecord;
-import enginecrafter77.survivalinc.stats.StatCapability;
-import enginecrafter77.survivalinc.stats.StatProvider;
-import enginecrafter77.survivalinc.stats.StatRecord;
-import enginecrafter77.survivalinc.stats.StatRegisterEvent;
-import enginecrafter77.survivalinc.stats.StatTracker;
-import enginecrafter77.survivalinc.stats.effect.DamageStatEffect;
-import enginecrafter77.survivalinc.stats.effect.EffectApplicator;
-import enginecrafter77.survivalinc.stats.effect.EffectFilter;
-import enginecrafter77.survivalinc.stats.effect.FunctionalEffectFilter;
-import enginecrafter77.survivalinc.stats.effect.PotionStatEffect;
-import enginecrafter77.survivalinc.stats.effect.ValueStatEffect;
+import enginecrafter77.survivalinc.stats.*;
+import enginecrafter77.survivalinc.stats.effect.*;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -29,16 +21,12 @@ import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionType;
 import net.minecraft.potion.PotionUtils;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -46,51 +34,34 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.util.Rectangle;
+
+import javax.annotation.Nullable;
+import java.util.Optional;
 
 public class HydrationModifier implements StatProvider<SimpleStatRecord> {
-	private static final long serialVersionUID = 6252973395407389818L;
-
-	public static final EffectFilter<StatRecord> isOutsideOverworld = FunctionalEffectFilter.byPlayer((EntityPlayer player) -> player.dimension != 0);
+	public static final EffectFilter<StatRecord> IS_OUTSIDE_OVERWORLD = FunctionalEffectFilter.byPlayer((EntityPlayer player) -> player.dimension != 0);
 	public static final DamageSource DEHYDRATION = new DamageSource("survivalinc_dehydration").setDamageIsAbsolute().setDamageBypassesArmor();
-	public static HydrationModifier instance = null;
-	
+
 	public final EffectApplicator<SimpleStatRecord> effects;
 	
-	private HydrationModifier()
+	public HydrationModifier()
 	{
 		this.effects = new EffectApplicator<SimpleStatRecord>();
 		
 		EffectFilter<SimpleStatRecord> fatique = FunctionalEffectFilter.byValue(Range.lessThan(10F));
 		EffectFilter<SimpleStatRecord> slowness = FunctionalEffectFilter.byValue(Range.lessThan(20F));
 		
-		this.effects.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, -0.006F)).addFilter(HydrationModifier.isOutsideOverworld);
+		this.effects.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, -0.006F)).addFilter(HydrationModifier.IS_OUTSIDE_OVERWORLD);
 		this.effects.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, -0.5F)).addFilter(FunctionalEffectFilter.byPlayer(EntityPlayer::isInLava));
 		this.effects.add(new DamageStatEffect(HydrationModifier.DEHYDRATION, 4F, 0)).addFilter(FunctionalEffectFilter.byValue(Range.lessThan(5F)));
 		this.effects.add(new PotionStatEffect(MobEffects.SLOWNESS, 5)).addFilter(slowness);
 		this.effects.add(new PotionStatEffect(MobEffects.WEAKNESS, 5)).addFilter(slowness);
 		this.effects.add(new PotionStatEffect(MobEffects.MINING_FATIGUE, 5)).addFilter(fatique);
 		this.effects.add(new PotionStatEffect(MobEffects.NAUSEA, 5)).addFilter(fatique);
-		this.effects.add(HydrationModifier::naturalDrain);
+		this.effects.add(this::naturalDrain);
 	}
-	
-	public static void init()
-	{
-		HydrationModifier.instance = new HydrationModifier();
-		MinecraftForge.EVENT_BUS.register(HydrationModifier.class);
-	}
-	
-	/**
-	 * A simple method to check whether the provider was loaded or not.
-	 * This should coincide with whether the provider is registered in
-	 * the player's stat registry. This should NOT be confused with {@link enginecrafter77.survivalinc.config.HydrationConfig#enabled},
-	 * since the latter can be changed during the game.
-	 * @return True if the {@link #init()} method has been called in the past, false otherwise.
-	 */
-	public static boolean loaded()
-	{
-		return HydrationModifier.instance != null;
-	}
-	
+
 	@Override
 	public void update(EntityPlayer target, SimpleStatRecord hydration)
 	{
@@ -158,31 +129,48 @@ public class HydrationModifier implements StatProvider<SimpleStatRecord> {
 			SurvivalInc.logger.error("Invalid water volume in request from {}.", ip);
 			return null;
 		}
-		
-		StatTracker tracker = player.getCapability(StatCapability.target, null);
-		SimpleStatRecord hydration = tracker.getRecord(HydrationModifier.instance);
-		HydrationModifier.spawnWaterDrinkParticles(world, hitvec);
-		volume.apply(hydration, player);
+
+		Optional<SimpleStatRecord> opt = StatCapability.obtainRecord(SurvivalInc.hydration, player);
+		if(opt.isPresent())
+		{
+			HydrationModifier.spawnWaterDrinkParticles(world, hitvec);
+			volume.apply(opt.get(), player);
+		}
 		return null;
 	}
 	
-	public static void naturalDrain(SimpleStatRecord record, EntityPlayer player)
+	public void naturalDrain(SimpleStatRecord record, EntityPlayer player)
 	{
-		float drain = (float)ModConfig.HYDRATION.passiveDrain;
-		if(ModConfig.HEAT.enabled)
-		{
-			StatTracker tracker = player.getCapability(StatCapability.target, null);
-			SimpleStatRecord heat = tracker.getRecord(HydrationModifier.instance);
+		StatCapability.obtainRecord(SurvivalInc.heat, player).ifPresent((SimpleStatRecord heat) -> {
+			float drain = (float)ModConfig.HYDRATION.passiveDrain;
 			if(heat.getNormalizedValue() > ModConfig.HYDRATION.sweatingThreshold)
 				drain *= ModConfig.HYDRATION.sweatingMultiplier;
-		}
-		record.addToValue(-drain);
+			record.addToValue(-drain);
+		});
 	}
 	
 	@SubscribeEvent
-	public static void registerStat(StatRegisterEvent event)
+	public void registerStat(StatRegisterEvent event)
 	{
-		event.register(HydrationModifier.instance);
+		event.register(this);
+	}
+
+	@SubscribeEvent
+	@SideOnly(Side.CLIENT)
+	public void constructHud(HUDConstructEvent event)
+	{
+		StatFillBar<SimpleStatRecord> bar = new StatFillBar<SimpleStatRecord>(this, ModConfig.CLIENT.hud.hydrationBarDirection, ClientProxy.STAT_ICONS.region(new Rectangle(0, 9, 9, 9)));
+		bar.addLayer(ClientProxy.STAT_ICONS.region(new Rectangle(9, 9, 9, 9)), SimpleStatRecord::getNormalizedValue);
+		bar.setCapacity(ModConfig.CLIENT.hud.hydrationBarCapacity);
+		bar.setSpacing(ModConfig.CLIENT.hud.hydrationBarSpacing);
+
+		if(ModConfig.CLIENT.hud.stackHydrationBar)
+			event.addElement(bar, ModConfig.CLIENT.hud.hydrationBarStack).setTrigger(ModConfig.CLIENT.hud.hydrationBarRenderTrigger).addFilter(ClientProxy.TEXTURE_RESET_FILTER);
+		else
+			event.addElement(bar, new AbsoluteElementLayoutFunction((float)ModConfig.CLIENT.hud.originX, (float)ModConfig.CLIENT.hud.originY, ModConfig.CLIENT.hud.hydrationBarX, ModConfig.CLIENT.hud.hydrationBarY));
+
+		if(ModConfig.CLIENT.vignette.enable)
+			event.addElement(new StatRangeVignette(this, Range.lessThan(30F), ClientProxy.parseColor(ModConfig.CLIENT.vignette.dehydrationColor), ModConfig.CLIENT.vignette.maxOpacity, ModConfig.CLIENT.vignette.logarithmicOpacity, true), AbsoluteElementLayoutFunction.ORIGIN).addFilter(new ScaleRenderFilter(Vec2f.MAX));
 	}
 	
 	/**
@@ -190,7 +178,6 @@ public class HydrationModifier implements StatProvider<SimpleStatRecord> {
 	 * to the server. This approach was chosen since this method is run only on client,
 	 * and since the client can easily be modified to artificially create these packets,
 	 * it is therefore always validated on the server side.
-	 * 
 	 * Essentially, this method differs from {@link #onPlayerInteract(net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock)}
 	 * by only that when the player click on water without reading for a block underneath it, then
 	 * this event is issued since it's treated like the player clicked with empty hand in the air.
@@ -198,11 +185,11 @@ public class HydrationModifier implements StatProvider<SimpleStatRecord> {
 	 */
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
-	public static void onPlayerRightClick(PlayerInteractEvent.RightClickEmpty event)
+	public void onPlayerRightClick(PlayerInteractEvent.RightClickEmpty event)
 	{
-		if(!HydrationModifier.validateDrinkEvent(event)) return;
+		if(HydrationModifier.isDrinkEventInvalid(event)) return;
 		
-		WaterDrinkMessage result = HydrationModifier.tryDrink(event.getEntityPlayer(), event.getHand());
+		WaterDrinkMessage result = this.tryDrink(event.getEntityPlayer(), event.getHand());
 		if(result != null) SurvivalInc.proxy.net.sendToServer(result);
 	}
 	
@@ -212,12 +199,12 @@ public class HydrationModifier implements StatProvider<SimpleStatRecord> {
 	 * @param event The block click event
 	 */
 	@SubscribeEvent
-	public static void onPlayerInteract(PlayerInteractEvent.RightClickBlock event)
+	public void onPlayerInteract(PlayerInteractEvent.RightClickBlock event)
 	{
-		if(!HydrationModifier.validateDrinkEvent(event)) return;
+		if(HydrationModifier.isDrinkEventInvalid(event)) return;
 		
 		EntityPlayer player = event.getEntityPlayer();
-		WaterDrinkMessage result = HydrationModifier.tryDrink(player, event.getHand());
+		WaterDrinkMessage result = this.tryDrink(player, event.getHand());
 		if(result != null && !player.world.isRemote)
 			HydrationModifier.spawnWaterDrinkParticles((WorldServer)player.world, result.getHitPosition());
 	}
@@ -228,21 +215,21 @@ public class HydrationModifier implements StatProvider<SimpleStatRecord> {
 	 * @param event The event
 	 */
 	@SubscribeEvent
-	public static void onItemConsumed(LivingEntityUseItemEvent.Finish event)
+	public void onItemConsumed(LivingEntityUseItemEvent.Finish event)
 	{
-		StatTracker stats = event.getEntityLiving().getCapability(StatCapability.target, null);		
-		SimpleStatRecord record = stats.getRecord(HydrationModifier.instance);
-		ItemStack stack = event.getItem();
-		
-		// Water bottle
-		if(stack.getItem() == Items.POTIONITEM)
-		{
-			PotionType potion = PotionUtils.getPotionFromItem(stack);
-			if(potion == PotionTypes.WATER)
+		StatCapability.obtainRecord(this, event.getEntity()).ifPresent((SimpleStatRecord record) -> {
+			ItemStack stack = event.getItem();
+
+			// Water bottle
+			if(stack.getItem() == Items.POTIONITEM)
 			{
-				record.addToValue((float)ModConfig.HYDRATION.sipVolume * 2F);
+				PotionType potion = PotionUtils.getPotionFromItem(stack);
+				if(potion == PotionTypes.WATER)
+				{
+					record.addToValue((float)ModConfig.HYDRATION.sipVolume * 2F);
+				}
 			}
-		}
+		});
 	}
 	
 	//=======================================================================
@@ -252,17 +239,17 @@ public class HydrationModifier implements StatProvider<SimpleStatRecord> {
 	//=======================================================================
 	
 	/**
-	 * An utility function to check whether a certain {@link PlayerInteractEvent}
+	 * A utility function to check whether a certain {@link PlayerInteractEvent}
 	 * is suitable to be interpreted as water drink event
 	 * @param event The event in question
 	 * @return True if the event can be interpreted as water drinking, false otherwise
 	 */
-	private static boolean validateDrinkEvent(PlayerInteractEvent event)
+	private static boolean isDrinkEventInvalid(PlayerInteractEvent event)
 	{
 		EntityPlayer player = event.getEntityPlayer();
-		return event.getHand() == EnumHand.MAIN_HAND && !(player.isCreative() || player.isSpectator());
+		return event.getHand() != EnumHand.MAIN_HAND || (player.isCreative() || player.isSpectator());
 	}
-	
+
 	/**
 	 * Checks whether the player is looking at a block of water, and if so, evaluates
 	 * the water block for quality and applies the resultant {@link WaterVolume}
@@ -271,18 +258,22 @@ public class HydrationModifier implements StatProvider<SimpleStatRecord> {
 	 * @param hand The currently evaluated hand
 	 * @return WaterDrinkMessage summarizing the results, null if there is no water
 	 */
-	private static @Nullable WaterDrinkMessage tryDrink(EntityPlayer player, EnumHand hand)
+	@Nullable
+	private WaterDrinkMessage tryDrink(EntityPlayer player, EnumHand hand)
 	{
 		RayTraceResult water_rt = HydrationModifier.raytraceWaterDrinking(player, hand);
 		if(water_rt != null)
 		{
-			StatTracker tracker = player.getCapability(StatCapability.target, null);
-			SimpleStatRecord hydration = tracker.getRecord(HydrationModifier.instance);
+			SimpleStatRecord hydration = StatCapability.obtainRecord(this, player).orElse(null);
+			if(hydration == null)
+				return null;
+
 			WaterVolume volume = WaterVolume.fromBlock(player.world, water_rt.getBlockPos(), (float)ModConfig.HYDRATION.sipVolume);
-			
+
 			// Test whether WaterVolume#fromBlock returned actual WaterVolume instance
-			if(volume == null) return null;
-			
+			if(volume == null)
+				return null;
+
 			volume.apply(hydration, player);
 			return new WaterDrinkMessage(volume, water_rt, hand);
 		}
@@ -295,7 +286,8 @@ public class HydrationModifier implements StatProvider<SimpleStatRecord> {
 	 * @param hand The hand used during the raytrace
 	 * @return RayTraceResult if the drink conditions are met, null otherwise
 	 */
-	private static @Nullable RayTraceResult raytraceWaterDrinking(EntityPlayer player, EnumHand hand)
+	@Nullable
+	private static RayTraceResult raytraceWaterDrinking(EntityPlayer player, EnumHand hand)
 	{
 		if(player.getHeldItem(hand).isEmpty())
 		{			
@@ -314,14 +306,14 @@ public class HydrationModifier implements StatProvider<SimpleStatRecord> {
 	}
 	
 	/**
-	 * An utility function to spawn particles representing tiny water splashes.
+	 * A utility function to spawn particles representing tiny water splashes.
 	 * @param world The server world
 	 * @param position The position to spawn the particles around
 	 */
 	private static void spawnWaterDrinkParticles(WorldServer world, Vec3d position)
 	{
-		world.spawnParticle(EnumParticleTypes.WATER_SPLASH, position.x, position.y + 0.1, position.z, 20, 0.5, 0.1, 0.5, 0.1, null);
-		world.spawnParticle(EnumParticleTypes.WATER_BUBBLE, position.x, position.y + 0.1, position.z, 20, 0.5, 0.1, 0.5, 0.1, null);
+		world.spawnParticle(EnumParticleTypes.WATER_SPLASH, position.x, position.y + 0.1, position.z, 20, 0.5, 0.1, 0.5, 0.1);
+		world.spawnParticle(EnumParticleTypes.WATER_BUBBLE, position.x, position.y + 0.1, position.z, 20, 0.5, 0.1, 0.5, 0.1);
 		world.playSound(null, new BlockPos(position), SoundEvents.ENTITY_GENERIC_SWIM, SoundCategory.AMBIENT, 0.5f, 1.5f);
 	}
 }

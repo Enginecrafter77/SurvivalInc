@@ -1,9 +1,6 @@
 package enginecrafter77.survivalinc.stats.impl;
 
-import java.util.Random;
-import java.util.UUID;
 import com.google.common.collect.Range;
-
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
@@ -13,7 +10,6 @@ import enginecrafter77.survivalinc.stats.effect.EffectApplicator;
 import enginecrafter77.survivalinc.stats.effect.FunctionalEffectFilter;
 import enginecrafter77.survivalinc.stats.effect.SideEffectFilter;
 import enginecrafter77.survivalinc.stats.effect.ValueStatEffect;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -25,9 +21,10 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3i;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+
+import java.util.Random;
+import java.util.UUID;
 
 /*
  * This is where the magic of changing one's wetness occurs. You'll most likely be here.
@@ -41,10 +38,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  */
 
 public class WetnessModifier implements StatProvider<SimpleStatRecord> {
-	private static final long serialVersionUID = -4227255838351827965L;
-	
-	public static WetnessModifier instance = null;
-	
 	public final EffectApplicator<SimpleStatRecord> effects;
 	public final UUID wetnessSlowdown;
 	
@@ -55,30 +48,12 @@ public class WetnessModifier implements StatProvider<SimpleStatRecord> {
 		
 		this.effects.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, 0.01F)).addFilter(FunctionalEffectFilter.byPlayer((EntityPlayer player) -> player.world.isRainingAt(player.getPosition().up())));
 		this.effects.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, -0.8F)).addFilter(FunctionalEffectFilter.byPlayer(EntityPlayer::isBurning));
-		this.effects.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, -0.08F)).addFilter(HydrationModifier.isOutsideOverworld);
+		this.effects.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, -0.08F)).addFilter(HydrationModifier.IS_OUTSIDE_OVERWORLD);
 		
-		this.effects.add(WetnessModifier::scanSurroundings);
-		this.effects.add(WetnessModifier::naturalDrying).addFilter(FunctionalEffectFilter.byPlayer(EntityPlayer::isWet).invert());
-		this.effects.add(WetnessModifier::whenInWater).addFilter(FunctionalEffectFilter.byPlayer(EntityPlayer::isInWater));
-		this.effects.add(WetnessModifier::slowDown).addFilter(SideEffectFilter.SERVER);
-	}
-	
-	public static void init()
-	{
-		WetnessModifier.instance = new WetnessModifier();
-		MinecraftForge.EVENT_BUS.register(WetnessModifier.class);
-	}
-	
-	/**
-	 * A simple method to check whether the provider was loaded or not.
-	 * This should coincide with whether the provider is registered in
-	 * the player's stat registry. This should NOT be confused with {@link enginecrafter77.survivalinc.config.WetnessConfig#enabled},
-	 * since the latter can be changed during the game.
-	 * @return True if the {@link #init()} method has been called in the past, false otherwise.
-	 */
-	public static boolean loaded()
-	{
-		return WetnessModifier.instance != null;
+		this.effects.add(this::scanSurroundings);
+		this.effects.add(this::applyNaturalDrying).addFilter(FunctionalEffectFilter.byPlayer(EntityPlayer::isWet).invert());
+		this.effects.add(this::checkIsSubmerged).addFilter(FunctionalEffectFilter.byPlayer(EntityPlayer::isInWater));
+		this.effects.add(this::slowDown).addFilter(SideEffectFilter.SERVER);
 	}
 	
 	@Override
@@ -107,16 +82,16 @@ public class WetnessModifier implements StatProvider<SimpleStatRecord> {
 	}
 	
 	@SubscribeEvent
-	public static void registerStat(StatRegisterEvent event)
+	public void registerStat(StatRegisterEvent event)
 	{
-		event.register(WetnessModifier.instance);
+		event.register(this);
 	}
 	
-	public static void slowDown(SimpleStatRecord record, EntityPlayer player)
+	public void slowDown(SimpleStatRecord record, EntityPlayer player)
 	{
 		// Ugh I really hate this code. It's damn ineffective. So much list IO to handle every single tick. In any case, remove the modifier.
 		IAttributeInstance inst = player.getAttributeMap().getAttributeInstance(SharedMonsterAttributes.MOVEMENT_SPEED);
-		inst.removeModifier(WetnessModifier.instance.wetnessSlowdown);
+		inst.removeModifier(this.wetnessSlowdown);
 		
 		// Check if there is actually a floor to put up contradicting force acting against gravity.
 		IBlockState ground = player.world.getBlockState(player.getPosition().down());
@@ -129,18 +104,18 @@ public class WetnessModifier implements StatProvider<SimpleStatRecord> {
 			if(Math.log10(mod) < -3) mod = 0F;
 			
 			// Apply the modifier
-			inst.applyModifier(new AttributeModifier(WetnessModifier.instance.wetnessSlowdown, "wetnessSlowdown", mod, 2).setSaved(false));
+			inst.applyModifier(new AttributeModifier(this.wetnessSlowdown, "wetnessSlowdown", mod, 2).setSaved(false));
 		}
 	}
 	
-	public static void whenInWater(SimpleStatRecord record, EntityPlayer player)
+	public void checkIsSubmerged(SimpleStatRecord record, EntityPlayer player)
 	{
 		Material headBlockMaterial = player.world.getBlockState(new BlockPos(player).up()).getMaterial();
 		if(headBlockMaterial == Material.WATER) record.addToValue((float)ModConfig.WETNESS.fullySubmergedRate);
 		else if(record.getNormalizedValue() < ModConfig.WETNESS.partiallySubmergedCap) record.addToValue((float)ModConfig.WETNESS.partiallySubmergedRate);
 	}
 	
-	public static void naturalDrying(SimpleStatRecord record, EntityPlayer player)
+	public void applyNaturalDrying(SimpleStatRecord record, EntityPlayer player)
 	{
 		// Subdivision-based draining; Always drains a fixed proportion based on the current value, producing a 1/x like curve.
 		float difference = record.getValue() / (float)ModConfig.WETNESS.drainingFactor;
@@ -157,26 +132,10 @@ public class WetnessModifier implements StatProvider<SimpleStatRecord> {
 			}
 		}
 	}
-	
-	public static void scanSurroundings(SimpleStatRecord record, EntityPlayer player)
+
+	public void scanSurroundings(SimpleStatRecord record, EntityPlayer player)
 	{
-		Vec3i offset = new Vec3i(2, 1, 2);
-		BlockPos origin = new BlockPos(player);
-		
-		Iterable<BlockPos> blocks = BlockPos.getAllInBox(origin.subtract(offset), origin.add(offset));
-		
-		float diff = 0;
-		for(BlockPos position : blocks)
-		{
-			Block block = player.world.getBlockState(position).getBlock();
-			if(HeatModifier.instance.blockHeatMap.containsKey(block))
-			{
-				float basewetness = HeatModifier.instance.blockHeatMap.get(block) / -400F;
-				float proximity = (float)Math.sqrt(position.distanceSq(player.posX, player.posY, player.posZ));
-				diff += basewetness / proximity;
-			}
-		}
-		if(player.isWet()) diff /= 2F;
-		record.addToValue(diff);
+		float radiantHeat = SurvivalInc.heatScanner.scanPosition(player.world, player.getPositionVector(), 2F);
+		record.addToValue(radiantHeat * -0.5F);
 	}
 }

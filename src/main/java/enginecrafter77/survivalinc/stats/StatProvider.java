@@ -3,8 +3,6 @@ package enginecrafter77.survivalinc.stats;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 
-import java.io.Serializable;
-
 /**
  * StatProvider serves as a descriptor of a stat.
  * StatProvider's main job is providing the stat's
@@ -12,7 +10,7 @@ import java.io.Serializable;
  * the record each tick.
  * @author Enginecrafter77
  */
-public interface StatProvider<RECORD extends StatRecord> extends Serializable {
+public interface StatProvider<RECORD extends StatRecord> {
 	/**
 	 * Called by the stat {@link StatTracker#update(EntityPlayer) tracker}
 	 * to update the value of this stat. This method takes care of updating

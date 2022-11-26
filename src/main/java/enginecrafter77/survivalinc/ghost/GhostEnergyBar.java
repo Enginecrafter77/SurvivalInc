@@ -27,7 +27,7 @@ public class GhostEnergyBar extends StatFillBar<GhostEnergyRecord> {
 	
 	public GhostEnergyBar()
 	{
-		super(GhostProvider.instance, Direction2D.RIGHT, texture.region(new Rectangle(0, 0, 9, 9)));
+		super(SurvivalInc.ghost, Direction2D.RIGHT, texture.region(new Rectangle(0, 0, 9, 9)));
 		this.addLayer(texture.region(new Rectangle(0, 9, 9, 9)), GhostEnergyRecord::getNormalizedValue);
 		this.addLayer(texture.region(new Rectangle(0, 18, 9, 9)), GhostEnergyBar::ressurectionValue);
 		this.setCapacity(10);

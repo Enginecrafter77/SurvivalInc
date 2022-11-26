@@ -1,15 +1,13 @@
 package enginecrafter77.survivalinc.ghost;
 
 import com.google.common.collect.Range;
-
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class GhostEnergyRecord extends SimpleStatRecord {
-	
-	public static final String[] status_desc = new String[] {"INACTIVE", "ACTIVE", "DEACTIVATING", "ACTIVATING"};
+	public static final String[] STATUS_DESCRIPTIONS = new String[] {"INACTIVE", "ACTIVE", "DEACTIVATING", "ACTIVATING"};
 	
 	/**
 	 * BITS:
@@ -50,7 +48,7 @@ public class GhostEnergyRecord extends SimpleStatRecord {
 	 * set to intermediate state. This state needs to be accepted using
 	 * {@link #acceptChange()}.
 	 * @see #hasPendingChange()
-	 * @param active
+	 * @param active Whether the ghost mode should be enabled
 	 */
 	public void setActive(boolean active)
 	{
@@ -82,7 +80,7 @@ public class GhostEnergyRecord extends SimpleStatRecord {
 	 */
 	public String getStatus()
 	{
-		return GhostEnergyRecord.status_desc[this.status];
+		return GhostEnergyRecord.STATUS_DESCRIPTIONS[this.status];
 	}
 	
 	/**

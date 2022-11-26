@@ -1,7 +1,11 @@
 package enginecrafter77.survivalinc;
 
-import org.apache.logging.log4j.Logger;
-
+import enginecrafter77.survivalinc.ghost.GhostProvider;
+import enginecrafter77.survivalinc.stats.impl.HeatModifier;
+import enginecrafter77.survivalinc.stats.impl.HydrationModifier;
+import enginecrafter77.survivalinc.stats.impl.SanityModifier;
+import enginecrafter77.survivalinc.stats.impl.WetnessModifier;
+import enginecrafter77.survivalinc.util.RadiantHeatScanner;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.Mod;
@@ -12,6 +16,9 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import org.apache.logging.log4j.Logger;
+
+import javax.annotation.Nullable;
 
 @Mod(modid = SurvivalInc.MOD_ID)
 public class SurvivalInc {
@@ -29,7 +36,15 @@ public class SurvivalInc {
 	// Create proxies to load stuff correctly.
 	@SidedProxy(clientSide = "enginecrafter77.survivalinc.ClientProxy", serverSide = "enginecrafter77.survivalinc.ServerProxy")
 	public static CommonProxy proxy;
-	
+
+	public static RadiantHeatScanner heatScanner;
+
+	@Nullable public static HeatModifier heat;
+	@Nullable public static SanityModifier sanity;
+	@Nullable public static WetnessModifier wetness;
+	@Nullable public static HydrationModifier hydration;
+	@Nullable public static GhostProvider ghost;
+
 	// Basic event handlers. All of the work is done in the proxies.
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event)

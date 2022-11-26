@@ -1,8 +1,9 @@
 package enginecrafter77.survivalinc.ghost;
 
+import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
+import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import enginecrafter77.survivalinc.stats.StatCapability;
-import enginecrafter77.survivalinc.stats.StatTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelGhast;
@@ -17,6 +18,8 @@ import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import javax.annotation.Nonnull;
 
 @SideOnly(Side.CLIENT)
 public class RenderGhost extends RenderLivingBase<EntityPlayer> {
@@ -40,12 +43,10 @@ public class RenderGhost extends RenderLivingBase<EntityPlayer> {
 	}
 
 	@Override
-	public void doRender(EntityPlayer entity, double x, double y, double z, float entityYaw, float partialTicks)
+	public void doRender(@Nonnull EntityPlayer entity, double x, double y, double z, float entityYaw, float partialTicks)
 	{
-		StatTracker tracker = entity.getCapability(StatCapability.target, null);
-		GhostEnergyRecord record = tracker.getRecord(GhostProvider.instance);
-		float opacity = record.getNormalizedValue();
-		
+		float opacity = StatCapability.obtainRecord(SurvivalInc.ghost, entity).map(SimpleStatRecord::getNormalizedValue).orElse(0F);
+
 		if(ModConfig.CLIENT.pulsatingGhosts)
 			opacity *= (0.8D + 0.15D * Math.sin(((float)entity.ticksExisted + partialTicks) / (2 * Math.PI)));
 				
@@ -71,10 +72,7 @@ public class RenderGhost extends RenderLivingBase<EntityPlayer> {
 	public void renderPlayerEvent(RenderPlayerEvent.Pre event)
 	{
 		EntityPlayer player = event.getEntityPlayer();
-		StatTracker tracker = player.getCapability(StatCapability.target, null);
-		GhostEnergyRecord record = tracker.getRecord(GhostProvider.instance);
-		
-		if(record.isActive())
+		if(StatCapability.obtainRecord(SurvivalInc.ghost, player).map(GhostEnergyRecord::isActive).orElse(false))
 		{
 			this.doRender(player, event.getX(), event.getY(), event.getZ(), player.renderYawOffset, event.getPartialRenderTick());
 			event.setCanceled(true);
@@ -84,8 +82,7 @@ public class RenderGhost extends RenderLivingBase<EntityPlayer> {
 	@SubscribeEvent
 	public void renderPlayerHand(RenderHandEvent event)
 	{
-		StatTracker tracker = Minecraft.getMinecraft().player.getCapability(StatCapability.target, null);
-		GhostEnergyRecord record = tracker.getRecord(GhostProvider.instance);
-		if(record.isActive()) event.setCanceled(true);
+		if(StatCapability.obtainRecord(SurvivalInc.ghost, Minecraft.getMinecraft().player).map(GhostEnergyRecord::isActive).orElse(false))
+			event.setCanceled(true);
 	}
 }

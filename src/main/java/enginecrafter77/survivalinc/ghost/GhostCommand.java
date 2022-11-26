@@ -1,7 +1,5 @@
 package enginecrafter77.survivalinc.ghost;
 
-import java.util.List;
-
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.net.StatSyncMessage;
 import enginecrafter77.survivalinc.stats.StatCapability;
@@ -13,6 +11,8 @@ import net.minecraft.command.WrongUsageException;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
+
+import java.util.List;
 
 public class GhostCommand extends CommandBase {
 
@@ -39,7 +39,7 @@ public class GhostCommand extends CommandBase {
 		for(EntityPlayerMP player : subjects)
 		{
 			StatTracker tracker = player.getCapability(StatCapability.target, null);
-			GhostEnergyRecord record = tracker.getRecord(GhostProvider.instance);
+			GhostEnergyRecord record = tracker.getRecord(SurvivalInc.ghost);
 			boolean status = !record.isActive();
 			
 			if(args.length >= 2)

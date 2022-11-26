@@ -1,10 +1,13 @@
 package enginecrafter77.survivalinc.ghost;
 
 import enginecrafter77.survivalinc.SurvivalInc;
+import enginecrafter77.survivalinc.client.HUDConstructEvent;
+import enginecrafter77.survivalinc.client.StackingElementLayoutFunction;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.net.StatSyncMessage;
 import enginecrafter77.survivalinc.stats.*;
 import enginecrafter77.survivalinc.stats.effect.*;
+import enginecrafter77.survivalinc.util.VectorOriginDistanceComparator;
 import net.minecraft.block.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
@@ -19,7 +22,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.client.event.InputUpdateEvent;
-import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
@@ -32,37 +35,34 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.Comparator;
+import java.util.Objects;
 import java.util.Random;
 
 public class GhostProvider implements StatProvider<GhostEnergyRecord> {
-	private static final long serialVersionUID = -2088047893866334112L;
-	
-	public static final EffectFilter<GhostEnergyRecord> active = (GhostEnergyRecord record, EntityPlayer player) -> record.isActive();
-	public static final HelicalParticleSpawner resurrect_particles = new HelicalParticleSpawner(EnumParticleTypes.PORTAL).setHelixCount(8);
+	public static final EffectFilter<GhostEnergyRecord> FILTER_ACTIVE = (GhostEnergyRecord record, EntityPlayer player) -> record.isActive();
+	public static final HelicalParticleSpawner HELICAL_PARTICLE_SPAWNER = new HelicalParticleSpawner(EnumParticleTypes.PORTAL).setHelixCount(8);
 	public static final Vec3d rp_box = new Vec3d(0.6D, 1.5D, 0.6D), rp_offset = new Vec3d(0D, -0.3D, 0D);
-	
-	public static GhostProvider instance = null;
 	
 	public final EffectApplicator<GhostEnergyRecord> applicator;
 	public final InteractionProcessor interactor;
 	
-	private GhostProvider()
+	public GhostProvider()
 	{
 		this.applicator = new EffectApplicator<GhostEnergyRecord>();
 		this.interactor = new InteractionProcessor(PlayerInteractEvent.RightClickBlock.class, (float)ModConfig.GHOST.interactionCost);
 		
 		EffectFilter<StatRecord> playerSprinting = FunctionalEffectFilter.byPlayer(EntityPlayer::isSprinting);
-		this.applicator.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, (float)ModConfig.GHOST.passiveNightRegen)).addFilter(GhostProvider::duringNight);
-		this.applicator.add(GhostProvider::onGhostUpdate);
+		this.applicator.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, (float)ModConfig.GHOST.passiveNightRegen)).addFilter(this::isNightGainApplicable);
+		this.applicator.add(this::onGhostUpdate);
 		
-		this.applicator.add(GhostProvider::resurrectTick);
-		if(ModConfig.GHOST.allowFlying) this.applicator.add(GhostProvider::provideFlying);
+		this.applicator.add(this::resurrectTick);
+		if(ModConfig.GHOST.allowFlying) this.applicator.add(this::tickGhostFlight);
 		if(ModConfig.GHOST.sprintingEnergyDrain > 0)
 		{
 			this.applicator.add(new ValueStatEffect(ValueStatEffect.Operation.OFFSET, -(float)ModConfig.GHOST.sprintingEnergyDrain)).addFilter(playerSprinting);
-			this.applicator.add(GhostProvider::spawnSprintingParticles).addFilter(SideEffectFilter.CLIENT).addFilter(GhostProvider.active).addFilter(playerSprinting);
-			this.applicator.add(GhostProvider::synchronizeFood).addFilter(GhostProvider.active);
+			this.applicator.add(this::spawnSprintingParticles).addFilter(SideEffectFilter.CLIENT).addFilter(GhostProvider.FILTER_ACTIVE).addFilter(playerSprinting);
+			this.applicator.add(this::synchronizeFood).addFilter(GhostProvider.FILTER_ACTIVE);
 		}
 		
 		this.interactor.addBlockClass(BlockDoor.class, 1F);
@@ -73,17 +73,6 @@ public class GhostProvider implements StatProvider<GhostEnergyRecord> {
 		this.interactor.setBlockCost(Blocks.STONE_BUTTON, 0.6F);
 		this.interactor.setBlockCost(Blocks.WOODEN_BUTTON, 0.5F);
 		this.interactor.setBlockCost(Blocks.LEVER, 0.75F);
-	}
-	
-	public static void init()
-	{
-		GhostProvider.instance = new GhostProvider();
-		MinecraftForge.EVENT_BUS.register(GhostProvider.class);
-	}
-	
-	public static boolean loaded()
-	{
-		return GhostProvider.instance != null;
 	}
 	
 	@Override
@@ -124,22 +113,28 @@ public class GhostProvider implements StatProvider<GhostEnergyRecord> {
 	//==================================
 	
 	@SubscribeEvent
-	public static void registerStat(StatRegisterEvent event)
+	public void registerStat(StatRegisterEvent event)
 	{
-		event.register(GhostProvider.instance);
+		event.register(this);
+	}
+
+	@SubscribeEvent
+	public void constructHud(HUDConstructEvent event)
+	{
+		event.addElement(new GhostEnergyBar(), StackingElementLayoutFunction.LEFT).setTrigger(RenderGameOverlayEvent.ElementType.HOTBAR).addFilter(GhostConditionRenderFilter.INSTANCE);
+		event.addRenderStageFilter(GhostConditionRenderFilter.INSTANCE, RenderGameOverlayEvent.ElementType.HEALTH, RenderGameOverlayEvent.ElementType.AIR, RenderGameOverlayEvent.ElementType.ARMOR, RenderGameOverlayEvent.ElementType.FOOD);
 	}
 	
 	@SubscribeEvent
-	public static void onPlayerRespawn(PlayerRespawnEvent event)
+	public void onPlayerRespawn(PlayerRespawnEvent event)
 	{
 		EntityPlayer player = event.player;
 		if(!event.isEndConquered())
 		{
-			StatTracker tracker = player.getCapability(StatCapability.target, null);
-			GhostEnergyRecord record = tracker.getRecord(GhostProvider.instance);
-			record.setActive(true);
-			
-			SurvivalInc.proxy.net.sendToAll(new StatSyncMessage().addPlayer(player));
+			StatCapability.obtainRecord(this, player).ifPresent((GhostEnergyRecord record) -> {
+				record.setActive(true);
+				SurvivalInc.proxy.net.sendToAll(new StatSyncMessage().addPlayer(player));
+			});
 		}
 	}
 	
@@ -148,27 +143,27 @@ public class GhostProvider implements StatProvider<GhostEnergyRecord> {
 	 * @param event The interaction event
 	 */
 	@SubscribeEvent
-	public static void onPlayerInteract(PlayerInteractEvent event)
+	public void onPlayerInteract(PlayerInteractEvent event)
 	{
-		StatTracker tracker = event.getEntityPlayer().getCapability(StatCapability.target, null);
-		GhostEnergyRecord record = tracker.getRecord(GhostProvider.instance);
-		if(record.isActive())
-		{
-			float energy = record.getValue();
-			if(ModConfig.GHOST.enableInteraction && energy >= ModConfig.GHOST.interactionThreshold)
+		StatCapability.obtainRecord(this, event.getEntity()).ifPresent((GhostEnergyRecord record) -> {
+			if(record.isActive())
 			{
-				Float cost = GhostProvider.instance.interactor.apply(event);
-				if(cost != null && energy >= cost)
+				float energy = record.getValue();
+				if(ModConfig.GHOST.enableInteraction && energy >= ModConfig.GHOST.interactionThreshold)
 				{
-					record.addToValue(-cost);
-					GhostProvider.spawnInteractionParticles(event.getEntityPlayer(), event.getPos(), cost);
-					return;
+					Float cost = this.interactor.apply(event);
+					if(cost != null && energy >= cost)
+					{
+						record.addToValue(-cost);
+						GhostProvider.spawnInteractionParticles(event.getEntityPlayer(), event.getPos(), cost);
+						return;
+					}
 				}
+
+				if(event.isCancelable()) event.setCanceled(true);
+				if(event.hasResult()) event.setResult(Result.DENY);
 			}
-			
-			if(event.isCancelable()) event.setCanceled(true);
-			if(event.hasResult()) event.setResult(Result.DENY);
-		}
+		});
 	}
 	
 	/**
@@ -178,7 +173,7 @@ public class GhostProvider implements StatProvider<GhostEnergyRecord> {
 	 * @param event The attack event
 	 */
 	@SubscribeEvent
-	public static void onPlayerHitEntity(LivingAttackEvent event)
+	public void onPlayerHitEntity(LivingAttackEvent event)
 	{
 		DamageSource source = event.getSource();
 		if(source instanceof EntityDamageSource)
@@ -187,56 +182,53 @@ public class GhostProvider implements StatProvider<GhostEnergyRecord> {
 			Entity attacker = attack.getTrueSource();
 			if(attacker instanceof EntityPlayer)
 			{
-				StatTracker tracker = attacker.getCapability(StatCapability.target, null);
-				GhostEnergyRecord record = tracker.getRecord(GhostProvider.instance);
-				
-				if(record.isActive())
-				{
-					Entity victim = event.getEntity();
-					Random rng = victim.world.rand;
-					for(int pass = 32; pass > 0; pass--)
+				StatCapability.obtainRecord(this, event.getEntity()).ifPresent((GhostEnergyRecord record) -> {
+					if(record.isActive())
 					{
-						victim.world.spawnParticle(EnumParticleTypes.CLOUD, victim.posX + victim.width * (rng.nextDouble() - 0.5), victim.posY + victim.height * rng.nextGaussian(), victim.posZ + victim.width * (rng.nextDouble() - 0.5), 0, 0, 0);
+						if(record.isActive())
+						{
+							Entity victim = event.getEntity();
+							Random rng = victim.world.rand;
+							for(int pass = 32; pass > 0; pass--)
+							{
+								victim.world.spawnParticle(EnumParticleTypes.CLOUD, victim.posX + victim.width * (rng.nextDouble() - 0.5), victim.posY + victim.height * rng.nextGaussian(), victim.posZ + victim.width * (rng.nextDouble() - 0.5), 0, 0, 0);
+							}
+							record.addToValue(-1F); // We need to punish the player a lil' bit
+							event.setCanceled(true);
+						}
 					}
-					record.addToValue(-1F); // We need to punish the player a lil' bit
-					event.setCanceled(true);
-				}
+				});
 			}
 		}
 	}
 	
 	/**
 	 * Called when an entity dies, so nearby ghosts
-	 * can drain it's life energy and use it to form
+	 * can drain its life energy and use it to reform
 	 * their former bodies.
 	 * @param event The entity death event
 	 */
 	@SubscribeEvent
-	public static void onEntityDeath(LivingDeathEvent event)
+	public void onEntityDeath(LivingDeathEvent event)
 	{
 		EntityLivingBase target = event.getEntityLiving();
 		Vec3d origin = target.getPositionVector().add(0D, target.height / 2D, 0D);
 		AxisAlignedBB box = GhostProvider.boxAroundPoint(origin, new Vec3d(6D, 2D, 6D));
 		
-		List<EntityPlayer> players = target.world.getEntitiesWithinAABB(EntityPlayer.class, box);
-		for(EntityPlayer player : players)
-		{
-			StatTracker tracker = player.getCapability(StatCapability.target, null);
-			GhostEnergyRecord record = tracker.getRecord(GhostProvider.instance);
-			
-			if(record.isActive() && record.getNormalizedValue() == 1F) record.tickResurrection();
-		}
+		target.world.getEntitiesWithinAABB(EntityPlayer.class, box).stream()
+				.sorted(Comparator.comparing(Entity::getPositionVector, new VectorOriginDistanceComparator(origin)))
+				.map((EntityPlayer player) -> StatCapability.obtainRecord(this, player).orElse(null))
+				.filter(Objects::nonNull)
+				.filter(GhostEnergyRecord::isActive)
+				.findFirst()
+				.ifPresent(GhostEnergyRecord::tickResurrection);
 	}
 	
 	@SubscribeEvent
-	public static void disableItemPickup(EntityItemPickupEvent event)
+	public void onItemPickup(EntityItemPickupEvent event)
 	{
-		StatTracker tracker = event.getEntityPlayer().getCapability(StatCapability.target, null);
-		GhostEnergyRecord record = tracker.getRecord(GhostProvider.instance);
-		if(record.isActive())
-		{
+		if(StatCapability.obtainRecord(this, event.getEntity()).map(GhostEnergyRecord::isActive).orElse(false))
 			event.setCanceled(true);
-		}
 	}
 	
 	/**
@@ -244,11 +236,10 @@ public class GhostProvider implements StatProvider<GhostEnergyRecord> {
 	 * @param event The visibility modifier event
 	 */ 
 	@SubscribeEvent
-	public static void modifyVisibility(PlayerEvent.Visibility event)
+	public void modifyVisibility(PlayerEvent.Visibility event)
 	{
-		StatTracker tracker = event.getEntityPlayer().getCapability(StatCapability.target, null);
-		GhostEnergyRecord record = tracker.getRecord(GhostProvider.instance);
-		if(record.isActive()) event.modifyVisibility(0D);
+		if(StatCapability.obtainRecord(this, event.getEntity()).map(GhostEnergyRecord::isActive).orElse(false))
+			event.modifyVisibility(0D);
 	}
 	
 	/**
@@ -257,25 +248,19 @@ public class GhostProvider implements StatProvider<GhostEnergyRecord> {
 	 */
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
-	public static void blockMovementWhileResurrecting(InputUpdateEvent event)
+	public void blockMovementWhileResurrecting(InputUpdateEvent event)
 	{
-		if(ModConfig.GHOST.resurrectionBlocksMovement)
+		if(ModConfig.GHOST.resurrectionBlocksMovement && StatCapability.obtainRecord(this, event.getEntity()).map(GhostEnergyRecord::isResurrectionActive).orElse(false))
 		{
-			StatTracker tracker = event.getEntityPlayer().getCapability(StatCapability.target, null);
-			GhostEnergyRecord record = tracker.getRecord(GhostProvider.instance);
-			
-			if(record.isResurrectionActive())
-			{
-				MovementInput input = event.getMovementInput();
-				input.forwardKeyDown = false;
-				input.rightKeyDown = false;
-				input.backKeyDown = false;
-				input.leftKeyDown = false;
-				input.moveForward = 0F;
-				input.moveStrafe = 0F;
-				input.sneak = false;
-				input.jump = false;
-			}
+			MovementInput input = event.getMovementInput();
+			input.forwardKeyDown = false;
+			input.rightKeyDown = false;
+			input.backKeyDown = false;
+			input.leftKeyDown = false;
+			input.moveForward = 0F;
+			input.moveStrafe = 0F;
+			input.sneak = false;
+			input.jump = false;
 		}
 	}
 	
@@ -290,7 +275,7 @@ public class GhostProvider implements StatProvider<GhostEnergyRecord> {
 	 * @param record The ghost energy record
 	 * @param player The player to apply the changes to
 	 */
-	public static void onGhostUpdate(GhostEnergyRecord record, EntityPlayer player)
+	public void onGhostUpdate(GhostEnergyRecord record, EntityPlayer player)
 	{		
 		if(record.hasPendingChange())
 		{
@@ -304,10 +289,13 @@ public class GhostProvider implements StatProvider<GhostEnergyRecord> {
 			
 			// Suspend all other stats
 			StatTracker tracker = player.getCapability(StatCapability.target, null);
-			Collection<StatProvider<?>> providers = tracker.getRegisteredProviders();
-			providers.remove(GhostProvider.instance);
-			for(StatProvider<?> provider : providers)
-				tracker.setSuspended(provider, isGhost);
+			if(tracker != null)
+			{
+				Collection<StatProvider<?>> providers = tracker.getRegisteredProviders();
+				providers.remove(this);
+				for(StatProvider<?> provider : providers)
+					tracker.setSuspended(provider, isGhost);
+			}
 			
 			record.acceptChange();
 		}
@@ -320,10 +308,10 @@ public class GhostProvider implements StatProvider<GhostEnergyRecord> {
 	 * @param record The ghost energy record
 	 * @param player The player to apply the effect to
 	 */
-	public static void synchronizeFood(GhostEnergyRecord record, EntityPlayer player)
+	public void synchronizeFood(GhostEnergyRecord record, EntityPlayer player)
 	{
 		FoodStats food = player.getFoodStats();
-		food.setFoodLevel(GhostProvider.instance.energyToFood(record));
+		food.setFoodLevel(this.energyToFood(record));
 	}
 	
 	/**
@@ -331,7 +319,7 @@ public class GhostProvider implements StatProvider<GhostEnergyRecord> {
 	 * @param record The ghost energy record
 	 * @param player The player to apply the effect to
 	 */
-	public static void resurrectTick(GhostEnergyRecord record, EntityPlayer player)
+	public void resurrectTick(GhostEnergyRecord record, EntityPlayer player)
 	{
 		if(record.isResurrectionActive())
 		{
@@ -345,7 +333,7 @@ public class GhostProvider implements StatProvider<GhostEnergyRecord> {
 				{
 					world.playSound(player, origin.x, origin.y, origin.z, SoundEvents.BLOCK_PORTAL_TRAVEL, SoundCategory.PLAYERS, 0.8F, 1F);
 				}
-				GhostProvider.resurrect_particles.spawn(world, origin.add(rp_offset), rp_box, Vec3d.ZERO, player.ticksExisted);
+				GhostProvider.HELICAL_PARTICLE_SPAWNER.spawn(world, origin.add(rp_offset), rp_box, Vec3d.ZERO, player.ticksExisted);
 			}
 			
 			if(record.isResurrectionReady())
@@ -369,7 +357,7 @@ public class GhostProvider implements StatProvider<GhostEnergyRecord> {
 	 * @param record The ghost energy record
 	 * @param player The player to apply the effect to
 	 */
-	public static void spawnSprintingParticles(GhostEnergyRecord record, EntityPlayer player)
+	public void spawnSprintingParticles(GhostEnergyRecord record, EntityPlayer player)
 	{
 		WorldClient world = (WorldClient)player.world;
 		world.spawnParticle(EnumParticleTypes.CLOUD, player.lastTickPosX, player.lastTickPosY + (player.height / 2), player.lastTickPosZ, -player.motionX, 0.1D, -player.motionZ);
@@ -381,7 +369,7 @@ public class GhostProvider implements StatProvider<GhostEnergyRecord> {
 	 * @param record The ghost energy record
 	 * @param player The player to apply the effect to
 	 */
-	public static void provideFlying(GhostEnergyRecord record, EntityPlayer player)
+	public void tickGhostFlight(GhostEnergyRecord record, EntityPlayer player)
 	{
 		boolean shouldFly = record.isActive() && record.getValue() > ModConfig.GHOST.flyingThreshold;
 		if(player.capabilities.allowFlying != shouldFly) player.capabilities.allowFlying = shouldFly;
@@ -392,13 +380,8 @@ public class GhostProvider implements StatProvider<GhostEnergyRecord> {
 			if(record.getValue() < ModConfig.GHOST.flyingThreshold) player.capabilities.isFlying = false;
 		}
 	}
-	
-	/**
-	 * Passively gives free energy to ghosts during night.
-	 * @param record The ghost energy record
-	 * @param player The player to apply the effect to
-	 */
-	public static boolean duringNight(GhostEnergyRecord record, EntityPlayer player)
+
+	public boolean isNightGainApplicable(GhostEnergyRecord record, EntityPlayer player)
 	{
 		boolean night;
 		if(player.world.isRemote)

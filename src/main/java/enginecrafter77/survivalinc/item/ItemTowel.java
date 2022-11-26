@@ -1,5 +1,11 @@
 package enginecrafter77.survivalinc.item;
 
+import com.google.common.collect.Range;
+import enginecrafter77.survivalinc.SurvivalInc;
+import enginecrafter77.survivalinc.config.ModConfig;
+import enginecrafter77.survivalinc.net.EntityItemUpdateMessage;
+import enginecrafter77.survivalinc.stats.SimpleStatRecord;
+import enginecrafter77.survivalinc.stats.StatCapability;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
@@ -18,17 +24,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.List;
-
-import com.google.common.collect.Range;
-
-import enginecrafter77.survivalinc.SurvivalInc;
-import enginecrafter77.survivalinc.config.ModConfig;
-import enginecrafter77.survivalinc.net.EntityItemUpdateMessage;
-import enginecrafter77.survivalinc.stats.SimpleStatRecord;
-import enginecrafter77.survivalinc.stats.StatCapability;
-import enginecrafter77.survivalinc.stats.StatTracker;
-import enginecrafter77.survivalinc.stats.impl.HeatModifier;
-import enginecrafter77.survivalinc.stats.impl.WetnessModifier;
 
 public class ItemTowel extends Item {
 	
@@ -50,28 +45,29 @@ public class ItemTowel extends Item {
 	@Override
 	public ItemStack onItemUseFinish(ItemStack stack, World world, EntityLivingBase entity)
 	{
-		StatTracker tracker = entity.getCapability(StatCapability.target, null);
 		NBTTagCompound tag = stack.getTagCompound();
-		
-		// Wetness equalization
-		SimpleStatRecord wetness = tracker.getRecord(WetnessModifier.instance);
-		
-		float stored = tag.getFloat("stored"), absorb = (wetness.getValue() + stored) / 2F, leave = absorb;
-		
-		SurvivalInc.logger.debug("TOWEL| W: {}, S: {}, A/L: {}", wetness, stored, absorb);
-		
-		if(absorb > this.getCapacity())
+		if(tag != null)
 		{
-			float overflow = absorb - this.getCapacity();
-			absorb -= overflow;
-			leave += overflow;
-			SurvivalInc.logger.debug("TOWEL| \\--> Capacity exceeded");
+			// Wetness equalization
+			StatCapability.obtainRecord(SurvivalInc.wetness, entity).ifPresent((SimpleStatRecord wetness) -> {
+				float stored = tag.getFloat("stored"), absorb = (wetness.getValue() + stored) / 2F, leave = absorb;
+
+				SurvivalInc.logger.debug("TOWEL| W: {}, S: {}, A/L: {}", wetness, stored, absorb);
+
+				if(absorb > this.getCapacity())
+				{
+					float overflow = absorb - this.getCapacity();
+					absorb -= overflow;
+					leave += overflow;
+					SurvivalInc.logger.debug("TOWEL| \\--> Capacity exceeded");
+				}
+
+				SurvivalInc.logger.debug("TOWEL| \\--> A: {}, L: {}", absorb, leave);
+
+				wetness.setValue(leave);
+				tag.setFloat("stored", absorb);
+			});
 		}
-		
-		SurvivalInc.logger.debug("TOWEL| \\--> A: {}, L: {}", absorb, leave);
-		
-		wetness.setValue(leave);
-		tag.setFloat("stored", absorb);
 		return stack;
 	}
 	
@@ -129,7 +125,7 @@ public class ItemTowel extends Item {
 		NBTTagCompound tag = entity.getItem().getTagCompound();
 		float stored = tag.getFloat("stored");
 		
-		float heat = HeatModifier.absorbRadiantHeat(entity, 5F);
+		float heat = 5F + SurvivalInc.heatScanner.scanPosition(entity.world, entity.getPositionVector(),3F);
 		if(daytime.contains(entity.world.getWorldTime() % 24000) && entity.world.canBlockSeeSky(entity.getPosition()))
 			heat += 40F;
 		heat /= 100F;

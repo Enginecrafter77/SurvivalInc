@@ -1,13 +1,9 @@
 package enginecrafter77.survivalinc.stats.impl;
 
-import java.util.Set;
-
 import com.google.common.collect.ImmutableSet;
-
-import enginecrafter77.survivalinc.config.ModConfig;
+import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import enginecrafter77.survivalinc.stats.StatCapability;
-import enginecrafter77.survivalinc.stats.StatTracker;
 import enginecrafter77.survivalinc.stats.effect.StatEffect;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -21,6 +17,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.common.util.INBTSerializable;
+
+import java.util.Set;
 
 public class WaterVolume implements StatEffect<SimpleStatRecord>, INBTSerializable<NBTTagCompound> {
 	
@@ -137,14 +135,11 @@ public class WaterVolume implements StatEffect<SimpleStatRecord>, INBTSerializab
 		record.addToValue(this.getHydrationBonus());
 		
 		if(this.salinity > 0.02F) player.attackEntityFrom(DamageSource.GENERIC, 1F);
-		
-		if(ModConfig.HEAT.enabled)
-		{
-			StatTracker tracker = player.getCapability(StatCapability.target, null);
-			SimpleStatRecord heat = tracker.getRecord(HeatModifier.instance);
+
+		StatCapability.obtainRecord(SurvivalInc.heat, player).ifPresent((SimpleStatRecord heat) -> {
 			if((20F + this.temperature * 20F) > heat.getValue()) heat.addToValue(this.temperature * 10F);
 			else heat.addToValue(this.temperature * -10F);
-		}
+		});
 		
 		if(this.dirty) player.addPotionEffect(new PotionEffect(MobEffects.POISON, 100));
 	}

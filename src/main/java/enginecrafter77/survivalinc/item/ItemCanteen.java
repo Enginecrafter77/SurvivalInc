@@ -2,9 +2,8 @@ package enginecrafter77.survivalinc.item;
 
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.config.ModConfig;
+import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import enginecrafter77.survivalinc.stats.StatCapability;
-import enginecrafter77.survivalinc.stats.StatTracker;
-import enginecrafter77.survivalinc.stats.impl.HydrationModifier;
 import enginecrafter77.survivalinc.stats.impl.WaterVolume;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.multiplayer.WorldClient;
@@ -22,7 +21,6 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -70,12 +68,13 @@ public class ItemCanteen extends Item {
 					volume.setVolume(ModConfig.HYDRATION.canteenCapacity);
 				}
 				
-				if(!world.isRemote) ((WorldServer)world).playSound(null, entity.getPosition(), SoundEvents.ENTITY_GENERIC_SWIM, SoundCategory.PLAYERS, 0.25F, 1.5F);
+				if(!world.isRemote) world.playSound(null, entity.getPosition(), SoundEvents.ENTITY_GENERIC_SWIM, SoundCategory.PLAYERS, 0.25F, 1.5F);
 			}
 			else
 			{
-				StatTracker stats = entity.getCapability(StatCapability.target, null);
-				if(stats != null) volume.remove((float)ModConfig.HYDRATION.sipVolume).apply(stats.getRecord(HydrationModifier.instance), (EntityPlayer)entity);
+				StatCapability.obtainRecord(SurvivalInc.hydration, entity).ifPresent((SimpleStatRecord record) -> {
+					volume.remove((float)ModConfig.HYDRATION.sipVolume).apply(record, (EntityPlayer)entity);
+				});
 			}
 			
 			nbt.setTag("storage", volume.serializeNBT());

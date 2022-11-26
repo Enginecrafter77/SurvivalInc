@@ -1,54 +1,37 @@
 package enginecrafter77.survivalinc.stats.impl;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.google.common.collect.Range;
 import com.google.common.primitives.Floats;
-
+import enginecrafter77.survivalinc.ClientProxy;
 import enginecrafter77.survivalinc.SurvivalInc;
+import enginecrafter77.survivalinc.client.*;
 import enginecrafter77.survivalinc.config.ModConfig;
-import enginecrafter77.survivalinc.stats.SimpleStatRecord;
-import enginecrafter77.survivalinc.stats.StatCapability;
-import enginecrafter77.survivalinc.stats.StatProvider;
-import enginecrafter77.survivalinc.stats.StatRecord;
-import enginecrafter77.survivalinc.stats.StatRegisterEvent;
-import enginecrafter77.survivalinc.stats.StatTracker;
-import enginecrafter77.survivalinc.stats.effect.CalculatorFunction;
-import enginecrafter77.survivalinc.stats.effect.DamageStatEffect;
-import enginecrafter77.survivalinc.stats.effect.EffectApplicator;
-import enginecrafter77.survivalinc.stats.effect.FunctionalCalculator;
-import enginecrafter77.survivalinc.stats.effect.FunctionalEffectFilter;
-import enginecrafter77.survivalinc.stats.effect.PotionStatEffect;
-import enginecrafter77.survivalinc.stats.effect.StatEffect;
+import enginecrafter77.survivalinc.stats.*;
+import enginecrafter77.survivalinc.stats.effect.*;
 import enginecrafter77.survivalinc.stats.impl.armor.ConfigurableArmorModifier;
 import enginecrafter77.survivalinc.util.FunctionalImplementation;
-import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.MobEffects;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3i;
-import net.minecraftforge.common.MinecraftForge;
+import net.minecraft.util.math.Vec2f;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.util.Point;
+import org.lwjgl.util.Rectangle;
 
 /**
- * The class that handles heat radiation and it's associated interactions with the player entity.
- *
+ * The class that handles heat radiation and its associated interactions with the player entity.
  * @author Enginecrafter77
  */
 public class HeatModifier implements StatProvider<SimpleStatRecord> {
-	private static final long serialVersionUID = 6260092840749029918L;
-	
 	public static final DamageSource HYPERTHERMIA = new DamageSource("survivalinc_hyperthermia").setDamageIsAbsolute().setDamageBypassesArmor();
 	public static final DamageSource HYPOTHERMIA = new DamageSource("survivalinc_hypothermia").setDamageIsAbsolute().setDamageBypassesArmor();
-	
-	public static HeatModifier instance = null;
-	
-	public final Map<Block, Float> blockHeatMap;
+
 	public final ConfigurableArmorModifier armor;
 	
 	public final FunctionalCalculator targettemp;
@@ -56,62 +39,48 @@ public class HeatModifier implements StatProvider<SimpleStatRecord> {
 	public final EffectApplicator<SimpleStatRecord> consequences;
 	public final StatEffect<SimpleStatRecord> counteraction;
 	
-	private HeatModifier()
+	public HeatModifier()
 	{
 		this.targettemp = new FunctionalCalculator();
 		this.exchangerate = new FunctionalCalculator();
 		this.consequences = new EffectApplicator<SimpleStatRecord>();
-		this.counteraction = HeatModifier::heatCounteraction;
-		this.blockHeatMap = new HashMap<Block, Float>();
+		this.counteraction = this::heatCounteraction;
 		this.armor = new ConfigurableArmorModifier();
 		
-		this.targettemp.add(HeatModifier::absorbRadiantHeat);
-		this.targettemp.add(HeatModifier::acceptSunlightHeat);
+		this.targettemp.add(this::absorbRadiantHeat);
+		this.targettemp.add(this::acceptSunlightHeat);
 		
-		if(ModConfig.WETNESS.enabled) this.exchangerate.add(HeatModifier::applyWetnessCooldown);
+		if(ModConfig.WETNESS.enabled) this.exchangerate.add(this::applyWetnessCooldown);
 		this.exchangerate.add(this.armor);
 		
 		this.consequences.add(new DamageStatEffect(HeatModifier.HYPOTHERMIA, (float)ModConfig.HEAT.damageAmount, 10)).addFilter(FunctionalEffectFilter.byValue(Range.lessThan(10F)));
 		this.consequences.add(new PotionStatEffect(MobEffects.MINING_FATIGUE, 0)).addFilter(FunctionalEffectFilter.byValue(Range.lessThan(20F)));
 		this.consequences.add(new PotionStatEffect(MobEffects.WEAKNESS, 0)).addFilter(FunctionalEffectFilter.byValue(Range.lessThan(25F)));
-		this.consequences.add(HeatModifier::onHighTemperature).addFilter(FunctionalEffectFilter.byValue(Range.greaterThan(110F)));
-	}
-	
-	public static void init()
-	{
-		HeatModifier.instance = new HeatModifier();
-		MinecraftForge.EVENT_BUS.register(HeatModifier.class);
-	}
-	
-	/**
-	 * A simple method to check whether the provider was loaded or not. This should coincide with whether the provider is
-	 * registered in the player's stat registry. This should NOT be confused with
-	 * {@link enginecrafter77.survivalinc.config.HeatConfig#enabled}, since the latter can be changed during the game.
-	 *
-	 * @return True if the {@link #init()} method has been called in the past, false otherwise.
-	 */
-	public static boolean loaded()
-	{
-		return HeatModifier.instance != null;
-	}
-	
-	public void buildCompatMaps()
-	{
-		// Shit, these repeated parsers will surely get me a bad codefactor.io mark.
-		// Block temperature map
-		for(String entry : ModConfig.HEAT.blockHeatMap)
-		{
-			int separator = entry.lastIndexOf(' ');
-			Block target = Block.getBlockFromName(entry.substring(0, separator));
-			Float value = Float.parseFloat(entry.substring(separator + 1));
-			this.blockHeatMap.put(target, value);
-		}
+		this.consequences.add(this::onHighTemperature).addFilter(FunctionalEffectFilter.byValue(Range.greaterThan(110F)));
 	}
 	
 	@SubscribeEvent
-	public static void registerStat(StatRegisterEvent event)
+	public void registerStat(StatRegisterEvent event)
 	{
-		event.register(HeatModifier.instance);
+		event.register(this);
+	}
+
+	@SubscribeEvent
+	@SideOnly(Side.CLIENT)
+	public void constructHud(HUDConstructEvent event)
+	{
+		StatFillBar<SimpleStatRecord> bar = new StatFillBar<SimpleStatRecord>(this, Direction2D.UP, ClientProxy.STAT_ICONS.region(new Rectangle(0, 18, 9, 16)));
+		bar.addLayer(ClientProxy.STAT_ICONS.region(new Rectangle(9, 18, 9, 16)), SimpleStatRecord::getNormalizedValue);
+		bar.setCapacity(1);
+
+		event.addElement(bar, new AbsoluteElementLayoutFunction((float)ModConfig.CLIENT.hud.originX, (float)ModConfig.CLIENT.hud.originY, ModConfig.CLIENT.hud.heatIconX, ModConfig.CLIENT.hud.heatIconY)).setTrigger(RenderGameOverlayEvent.ElementType.EXPERIENCE);
+		event.addRenderStageFilter(new TranslateRenderFilter(new Point(0, -10)), RenderGameOverlayEvent.ElementType.SUBTITLES);
+
+		if(ModConfig.CLIENT.vignette.enable)
+		{
+			event.addElement(new StatRangeVignette(this, Range.lessThan(35F), ClientProxy.parseColor(ModConfig.CLIENT.vignette.coldColor), ModConfig.CLIENT.vignette.maxOpacity, ModConfig.CLIENT.vignette.logarithmicOpacity, true), AbsoluteElementLayoutFunction.ORIGIN).addFilter(new ScaleRenderFilter(Vec2f.MAX));
+			event.addElement(new StatRangeVignette(this, Range.greaterThan(85F), ClientProxy.parseColor(ModConfig.CLIENT.vignette.hotColor), ModConfig.CLIENT.vignette.maxOpacity, ModConfig.CLIENT.vignette.logarithmicOpacity, false), AbsoluteElementLayoutFunction.ORIGIN).addFilter(new ScaleRenderFilter(Vec2f.MAX));
+		}
 	}
 	
 	@Override
@@ -119,7 +88,7 @@ public class HeatModifier implements StatProvider<SimpleStatRecord> {
 	{
 		if(player.isCreative() || player.isSpectator()) return;
 		
-		float target = HeatModifier.primaryHeatCalculation(player);
+		float target = this.primaryHeatCalculation(player);
 		target = this.targettemp.apply(player, target);
 		
 		float difference = Math.abs(target - heat.getValue());
@@ -159,7 +128,7 @@ public class HeatModifier implements StatProvider<SimpleStatRecord> {
 	}
 	
 	@FunctionalImplementation(of = StatEffect.class)
-	public static void onHighTemperature(StatRecord record, EntityPlayer player)
+	public void onHighTemperature(StatRecord record, EntityPlayer player)
 	{
 		if(ModConfig.HEAT.fireDuration > 0)
 		{
@@ -172,11 +141,10 @@ public class HeatModifier implements StatProvider<SimpleStatRecord> {
 	}
 	
 	@FunctionalImplementation(of = CalculatorFunction.class)
-	public static float applyWetnessCooldown(EntityPlayer player, float current)
+	public float applyWetnessCooldown(EntityPlayer player, float current)
 	{
-		StatTracker stats = player.getCapability(StatCapability.target, null);
-		SimpleStatRecord wetness = stats.getRecord(WetnessModifier.instance);
-		return current * (1F + (float)ModConfig.HEAT.wetnessExchangeMultiplier * wetness.getNormalizedValue());
+		float wetness = StatCapability.obtainRecord(SurvivalInc.wetness, player).map(SimpleStatRecord::getNormalizedValue).orElse(0F);
+		return current * (1F + (float)ModConfig.HEAT.wetnessExchangeMultiplier * wetness);
 	}
 	
 	/**
@@ -202,30 +170,12 @@ public class HeatModifier implements StatProvider<SimpleStatRecord> {
 	 * @return The addition to the heat stat value
 	 */
 	@FunctionalImplementation(of = CalculatorFunction.class)
-	public static float absorbRadiantHeat(Entity entity, float current)
+	public float absorbRadiantHeat(Entity entity, float current)
 	{
-		Vec3i offset = new Vec3i(ModConfig.HEAT.blockScanRange, 1, ModConfig.HEAT.blockScanRange);
-		BlockPos originblock = entity.getPosition();
-		
-		Iterable<BlockPos> blocks = BlockPos.getAllInBox(originblock.subtract(offset), originblock.add(offset));
-		
-		float heat = 0;
-		for(BlockPos position : blocks)
-		{
-			Block block = entity.world.getBlockState(position).getBlock();
-			if(HeatModifier.instance.blockHeatMap.containsKey(block))
-			{
-				float currentheat = HeatModifier.instance.blockHeatMap.get(block);
-				float proximity = (float)Math.sqrt(entity.getPositionVector().squareDistanceTo(new Vec3d(position)));
-				currentheat *= (float)(ModConfig.HEAT.gaussScaling / (Math.pow(proximity, 2) + ModConfig.HEAT.gaussScaling));
-				if(currentheat > heat) heat = currentheat; // Use only the maximum value
-			}
-		}
-		
-		return current + heat;
+		return current + SurvivalInc.heatScanner.scanPosition(entity.world, entity.getPositionVector(), (float)ModConfig.HEAT.blockScanRange);
 	}
 	
-	public static float primaryHeatCalculation(EntityPlayer player)
+	public float primaryHeatCalculation(EntityPlayer player)
 	{
 		BlockPos position = player.getPosition();
 		float target = player.world.getBiome(position).getTemperature(position);
@@ -259,7 +209,7 @@ public class HeatModifier implements StatProvider<SimpleStatRecord> {
 	}
 	
 	@FunctionalImplementation(of = CalculatorFunction.class)
-	public static float acceptSunlightHeat(EntityPlayer player, float current)
+	public float acceptSunlightHeat(EntityPlayer player, float current)
 	{
 		if(player.world.isDaytime())
 		{
@@ -271,7 +221,7 @@ public class HeatModifier implements StatProvider<SimpleStatRecord> {
 	}
 	
 	@FunctionalImplementation(of = StatEffect.class)
-	public static void heatCounteraction(SimpleStatRecord record, EntityPlayer player)
+	public void heatCounteraction(SimpleStatRecord record, EntityPlayer player)
 	{
 		Range<Float> valrange = record.getValueRange();
 		float rangesize = valrange.upperEndpoint() - valrange.lowerEndpoint();
@@ -282,9 +232,6 @@ public class HeatModifier implements StatProvider<SimpleStatRecord> {
 		float way = middiff / middelta; // 1 = too cold (regenerating temp), -1 = too hot (dissipating temp)
 		float amplitude = (float)(way > 0F ? ModConfig.HEAT.positiveCAAmplitude : ModConfig.HEAT.negativeCAAmplitude); // Determine target amplitude
 		float adjustment = (float)Math.min(Math.pow(middelta / (rangesize * ModConfig.HEAT.counteractionCoverage), ModConfig.HEAT.counteractionExponent), 1F) * way * amplitude;
-		
-		//if(player.world.getWorldTime() % 20 == 0)
-		//	SurvivalInc.logger.debug("[Heat Counteraction] R: {}({}), M: {}, V: {}, D: {}, A: {} (X:{})", valrange.toString(), rangesize, midpoint, record.getValue(), middiff, adjustment, amplitude);
 		
 		record.addToValue(adjustment);
 	}

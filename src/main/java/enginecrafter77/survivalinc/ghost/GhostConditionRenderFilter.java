@@ -1,11 +1,11 @@
 package enginecrafter77.survivalinc.ghost;
 
+import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.client.ElementRenderFilter;
 import enginecrafter77.survivalinc.client.OverlayElement;
 import enginecrafter77.survivalinc.client.RenderFrameContext;
 import enginecrafter77.survivalinc.client.RenderStageFilter;
 import enginecrafter77.survivalinc.stats.StatCapability;
-import enginecrafter77.survivalinc.stats.StatTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.fml.relauncher.Side;
@@ -32,8 +32,7 @@ public final class GhostConditionRenderFilter implements ElementRenderFilter, Re
 	@Override
 	public boolean begin(RenderFrameContext context, OverlayElement element)
 	{
-		StatTracker tracker = Minecraft.getMinecraft().player.getCapability(StatCapability.target, null);
-		return tracker.getRecord(GhostProvider.instance).isActive();
+		return StatCapability.obtainRecord(SurvivalInc.ghost, Minecraft.getMinecraft().player).map(GhostEnergyRecord::isActive).orElse(false);
 	}
 
 	@Override

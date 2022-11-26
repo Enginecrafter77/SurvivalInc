@@ -5,8 +5,7 @@ import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.Vec3d;
 
 public class HelicalParticleSpawner {
-	
-	public static final int subdivisions = 32;
+	public static final int CIRCLE_SUBDIVISIONS = 32;
 	
 	public final EnumParticleTypes type;
 	
@@ -38,7 +37,7 @@ public class HelicalParticleSpawner {
 	
 	public void spawn(WorldClient world, Vec3d origin, Vec3d sizes, Vec3d motion, int tick)
 	{
-		double height = sizes.y * ((((1 + tick % HelicalParticleSpawner.subdivisions) / (double)HelicalParticleSpawner.subdivisions)) - 0.5D);
+		double height = sizes.y * ((((1 + tick % HelicalParticleSpawner.CIRCLE_SUBDIVISIONS) / (double)HelicalParticleSpawner.CIRCLE_SUBDIVISIONS)) - 0.5D);
 		
 		for(int index = 0; index < this.getHelixCount(); index++)
 		{

@@ -1,10 +1,5 @@
 package enginecrafter77.survivalinc;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collection;
-
 import enginecrafter77.survivalinc.block.BlockMelting;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.ghost.GhostCommand;
@@ -12,24 +7,11 @@ import enginecrafter77.survivalinc.ghost.GhostProvider;
 import enginecrafter77.survivalinc.net.StatSyncRequestHandler;
 import enginecrafter77.survivalinc.net.StatSyncRequestMessage;
 import enginecrafter77.survivalinc.net.WaterDrinkMessage;
-import enginecrafter77.survivalinc.season.SeasonCalendar;
-import enginecrafter77.survivalinc.season.SeasonCommand;
-import enginecrafter77.survivalinc.season.SeasonController;
-import enginecrafter77.survivalinc.season.SeasonSyncRequest;
-import enginecrafter77.survivalinc.season.SurvivalIncSeason;
+import enginecrafter77.survivalinc.season.*;
 import enginecrafter77.survivalinc.season.melting.MeltingController;
 import enginecrafter77.survivalinc.season.melting.MeltingController.MelterEntry;
-import enginecrafter77.survivalinc.stats.StatCapability;
-import enginecrafter77.survivalinc.stats.StatCommand;
-import enginecrafter77.survivalinc.stats.StatRegisterDispatcher;
-import enginecrafter77.survivalinc.stats.StatStorage;
-import enginecrafter77.survivalinc.stats.StatTracker;
-import enginecrafter77.survivalinc.stats.effect.item.ItemConsumedSituation;
-import enginecrafter77.survivalinc.stats.effect.item.ItemInHandSituation;
-import enginecrafter77.survivalinc.stats.effect.item.ItemInInvSituation;
-import enginecrafter77.survivalinc.stats.effect.item.ItemSituation;
-import enginecrafter77.survivalinc.stats.effect.item.ItemSituationContainer;
-import enginecrafter77.survivalinc.stats.effect.item.ItemSituationParserSetupEvent;
+import enginecrafter77.survivalinc.stats.*;
+import enginecrafter77.survivalinc.stats.effect.item.*;
 import enginecrafter77.survivalinc.stats.impl.HeatModifier;
 import enginecrafter77.survivalinc.stats.impl.HydrationModifier;
 import enginecrafter77.survivalinc.stats.impl.SanityModifier;
@@ -37,6 +19,8 @@ import enginecrafter77.survivalinc.stats.impl.WetnessModifier;
 import enginecrafter77.survivalinc.stats.impl.armor.ArmorConductivityCommand;
 import enginecrafter77.survivalinc.util.ExternalResourceProvider;
 import enginecrafter77.survivalinc.util.FunctionalImplementation;
+import enginecrafter77.survivalinc.util.RadiantHeatScanner;
+import net.minecraft.block.Block;
 import net.minecraft.command.CommandHandler;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
@@ -51,8 +35,12 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collection;
+
 public abstract class CommonProxy {
-	
 	public SimpleNetworkWrapper net;
 	public ItemSituationContainer mapper;
 	
@@ -60,6 +48,8 @@ public abstract class CommonProxy {
 	
 	public void preInit(FMLPreInitializationEvent event)
 	{
+		SurvivalInc.heatScanner = new RadiantHeatScanner();
+
 		// Register seasons if enabled
 		if(ModConfig.SEASONS.enabled)
 		{
@@ -98,11 +88,35 @@ public abstract class CommonProxy {
 		this.net.registerMessage(StatSyncRequestHandler.class, StatSyncRequestMessage.class, 4, Side.SERVER);
 		this.net.registerMessage(SeasonController::onSyncRequest, SeasonSyncRequest.class, 5, Side.SERVER);
 		
-		if(ModConfig.HEAT.enabled) HeatModifier.init();
-		if(ModConfig.HYDRATION.enabled) HydrationModifier.init();
-		if(ModConfig.SANITY.enabled) SanityModifier.init();
-		if(ModConfig.WETNESS.enabled) WetnessModifier.init();
-		if(ModConfig.GHOST.enabled) GhostProvider.init();
+		if(ModConfig.HEAT.enabled)
+		{
+			SurvivalInc.heat = new HeatModifier();
+			MinecraftForge.EVENT_BUS.register(SurvivalInc.heat);
+		}
+
+		if(ModConfig.HYDRATION.enabled)
+		{
+			SurvivalInc.hydration = new HydrationModifier();
+			MinecraftForge.EVENT_BUS.register(SurvivalInc.hydration);
+		}
+
+		if(ModConfig.SANITY.enabled)
+		{
+			SurvivalInc.sanity = new SanityModifier();
+			MinecraftForge.EVENT_BUS.register(SurvivalInc.sanity);
+		}
+
+		if(ModConfig.WETNESS.enabled)
+		{
+			SurvivalInc.wetness = new WetnessModifier();
+			MinecraftForge.EVENT_BUS.register(SurvivalInc.wetness);
+		}
+
+		if(ModConfig.GHOST.enabled)
+		{
+			SurvivalInc.ghost = new GhostProvider();
+			MinecraftForge.EVENT_BUS.register(SurvivalInc.ghost);
+		}
 		
 		if(ModConfig.SEASONS.enabled)
 		{
@@ -121,11 +135,19 @@ public abstract class CommonProxy {
 		}
 		
 		// Load the compatibility maps
-		if(ModConfig.HEAT.enabled) this.armor_conductivity.load(HeatModifier.instance.armor::load);
-		this.ism.load(this::loadItemEffects);
+		if(SurvivalInc.heat != null)
+			this.armor_conductivity.load(SurvivalInc.heat.armor::load);
 		
-		// Extra compatibility maps
-		if(ModConfig.HEAT.enabled || ModConfig.WETNESS.enabled) HeatModifier.instance.buildCompatMaps();
+		// Radiant heat scanner maps
+		for(String entry : ModConfig.HEAT.blockHeatMap)
+		{
+			int separator = entry.lastIndexOf(' ');
+			Block target = Block.getBlockFromName(entry.substring(0, separator));
+			float value = Float.parseFloat(entry.substring(separator + 1));
+			SurvivalInc.heatScanner.registerBlock(target, value);
+		}
+
+		this.ism.load(this::loadItemEffects);
 	}
 	
 	public void serverStarting(FMLServerStartingEvent event)
@@ -134,8 +156,8 @@ public abstract class CommonProxy {
 		CommandHandler manager = (CommandHandler)server.getCommandManager();
 		
 		if(ModConfig.SEASONS.enabled) manager.registerCommand(new SeasonCommand());
-		if(GhostProvider.loaded()) manager.registerCommand(new GhostCommand());
-		if(HeatModifier.loaded()) manager.registerCommand(new ArmorConductivityCommand(HeatModifier.instance.armor));
+		if(SurvivalInc.ghost != null) manager.registerCommand(new GhostCommand());
+		if(SurvivalInc.heat != null) manager.registerCommand(new ArmorConductivityCommand(SurvivalInc.heat.armor));
 		manager.registerCommand(new StatCommand());
 	}
 	

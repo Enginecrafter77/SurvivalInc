@@ -20,11 +20,16 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Optional;
+
 public class StatCapability implements ICapabilitySerializable<NBTBase> {
 	private static ResourceLocation identificator = new ResourceLocation(SurvivalInc.MOD_ID, "stats");
-	
+
+	@Nonnull
 	@CapabilityInject(StatTracker.class)
-	public static final Capability<StatTracker> target = null;
+	public static Capability<StatTracker> target;
 	
 	private final StatTracker tracker;
 	
@@ -96,5 +101,12 @@ public class StatCapability implements ICapabilitySerializable<NBTBase> {
 			// Send update to all players about the currently processed player's stats
 			SurvivalInc.proxy.net.sendToAll(new StatSyncMessage().addPlayer(event.player));
 		}
+	}
+
+	public static <T extends StatRecord> Optional<T> obtainRecord(@Nullable StatProvider<T> provider, @Nonnull Entity entity)
+	{
+		if(provider == null)
+			return Optional.empty();
+		return Optional.ofNullable(entity.getCapability(StatCapability.target, null)).map((StatTracker tracker) -> tracker.getRecord(provider));
 	}
 }
