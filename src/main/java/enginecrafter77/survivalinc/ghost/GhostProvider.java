@@ -229,6 +229,7 @@ public class GhostProvider implements StatProvider<GhostEnergyRecord> {
 				.map((EntityPlayer player) -> StatCapability.obtainRecord(this, player).orElse(null))
 				.filter(Objects::nonNull)
 				.filter(GhostEnergyRecord::isActive)
+				.filter((GhostEnergyRecord record) -> record.getNormalizedValue() >= 1F)
 				.findFirst()
 				.ifPresent(GhostEnergyRecord::tickResurrection);
 	}
