@@ -1,7 +1,5 @@
 package enginecrafter77.survivalinc.block;
 
-import java.util.Random;
-
 import enginecrafter77.survivalinc.config.ModConfig;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.PropertyInteger;
@@ -9,6 +7,8 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+
+import java.util.Random;
 
 /**
  * BlockMelting represents an intermediate block between two blocks,
@@ -35,9 +35,9 @@ public class BlockMelting extends Block {
 		this.freezeTarget = frozen;
 		this.meltTarget = melted;
 		
-		this.setDefaultState(this.blockState.getBaseState().withProperty(phase_property, Integer.valueOf(0)));
+		this.setDefaultState(this.blockState.getBaseState().withProperty(phase_property, 0));
 	}
-	
+
 	@Override
 	protected BlockStateContainer createBlockState()
 	{
@@ -50,7 +50,7 @@ public class BlockMelting extends Block {
 	{
 		return state.getValue(phase_property);
 	}
-	
+
 	@Override
 	public IBlockState getStateFromMeta(int meta)
 	{
@@ -80,7 +80,7 @@ public class BlockMelting extends Block {
 			else
 			{
 				IBlockState next = this.transform(world, position, action);
-				if(next != null) world.setBlockState(position, next, 2);
+				world.setBlockState(position, next, 2);
 			}
 		}
 		
@@ -98,12 +98,12 @@ public class BlockMelting extends Block {
 	/**
 	 * Called when the melting block reaches borderline
 	 * status, i.e. the phase has reached value out of
-	 * it's range, so the block should transform into
+	 * its range, so the block should transform into
 	 * another block based on the melt action.
 	 * @param world The world
 	 * @param position The position of the transforming block
 	 * @param action The melt action performed this tick
-	 * @return
+	 * @return The block to which this block transforms upon either {@link MeltAction#MELT melting} or {@link MeltAction#FREEZE freezing}. Returns null if none is applicable.
 	 */
 	public IBlockState transform(World world, BlockPos position, MeltAction action)
 	{
@@ -114,7 +114,7 @@ public class BlockMelting extends Block {
 		case MELT:
 			return this.meltTarget.getDefaultState();
 		default:
-			return null;
+			throw new IllegalArgumentException();
 		}
 	}
 	
