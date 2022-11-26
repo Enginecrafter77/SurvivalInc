@@ -29,7 +29,7 @@ import org.lwjgl.util.*;
  * {@link #region(ReadableRectangle)}.
  * @author Enginecrafter77
  */
-public class TextureResource extends SimpleOverlayElement implements Cloneable {
+public class TextureResource extends SimpleOverlayElement {
 	
 	/** The {@link ResourceLocation} of the texture */
 	public final ResourceLocation texture;
@@ -76,12 +76,6 @@ public class TextureResource extends SimpleOverlayElement implements Cloneable {
 		this.texturedim = texturesize;
 		this.texture = texture;
 		this.region = region;
-	}
-	
-	@Override
-	public TextureResource clone()
-	{
-		return new TextureResource(texture, texturedim, this.region);
 	}
 	
 	/**

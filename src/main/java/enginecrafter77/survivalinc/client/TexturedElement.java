@@ -1,17 +1,16 @@
 package enginecrafter77.survivalinc.client;
 
-import java.io.Closeable;
-
-import org.lwjgl.util.Dimension;
-import org.lwjgl.util.Point;
-import org.lwjgl.util.ReadableDimension;
-import org.lwjgl.util.ReadablePoint;
-
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.util.Dimension;
+import org.lwjgl.util.Point;
+import org.lwjgl.util.ReadableDimension;
+import org.lwjgl.util.ReadablePoint;
+
+import java.io.Closeable;
 
 /**
  * TextureElement is a convenient element implementation,
@@ -25,7 +24,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  */
 @Deprecated
 @SideOnly(Side.CLIENT)
-public class TexturedElement extends SimpleOverlayElement implements Cloneable {
+public class TexturedElement extends SimpleOverlayElement {
 	/** The texture resource to pull the texture from */
 	public final TextureResource resource;
 	
@@ -48,18 +47,17 @@ public class TexturedElement extends SimpleOverlayElement implements Cloneable {
 		this.offset_y = offset_y;
 		this.hasAlpha = true;
 	}
+
+	public TexturedElement(TexturedElement copyFrom)
+	{
+		this(copyFrom.resource, copyFrom.offset_x, copyFrom.offset_y, copyFrom.getWidth(), copyFrom.getHeight());
+	}
 	
 	public TexturedElement noAlpha()
 	{
-		TexturedElement newelement = this.clone();
+		TexturedElement newelement = new TexturedElement(this);
 		newelement.hasAlpha = false;
 		return newelement;
-	}
-	
-	@Override
-	protected TexturedElement clone()
-	{
-		return new TexturedElement(this.resource, this.offset_x, this.offset_y, this.getWidth(), this.getHeight());
 	}
 	
 	@Override
