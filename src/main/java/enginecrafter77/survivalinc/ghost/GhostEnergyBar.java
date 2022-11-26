@@ -7,7 +7,6 @@ import enginecrafter77.survivalinc.client.RenderFrameContext;
 import enginecrafter77.survivalinc.client.StatFillBar;
 import enginecrafter77.survivalinc.client.TextureResource;
 import enginecrafter77.survivalinc.stats.StatCapability;
-import enginecrafter77.survivalinc.stats.StatTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
@@ -16,7 +15,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.util.ReadablePoint;
 import org.lwjgl.util.Rectangle;
 
-import java.util.Optional;
 import java.util.Set;
 
 @SideOnly(Side.CLIENT)
@@ -34,19 +32,16 @@ public class GhostEnergyBar extends StatFillBar<GhostEnergyRecord> {
 		this.setSpacing(-1);
 	}
 	
-	public static Float ressurectionValue(GhostEnergyRecord record)
+	public static float ressurectionValue(GhostEnergyRecord record)
 	{
-		return record.isResurrectionActive() ? record.getResurrectionProgress() : null;
+		return record.isResurrectionActive() ? record.getResurrectionProgress() : 0F;
 	}
 	
 	@Override
 	public void draw(RenderFrameContext context, ReadablePoint position)
 	{
-		StatTracker tracker = Minecraft.getMinecraft().player.getCapability(StatCapability.target, null);
-		if(tracker != null && Optional.ofNullable(tracker.getRecord(this.provider)).map(GhostEnergyRecord::isActive).orElse(false))
-		{
+		if(StatCapability.obtainRecord(SurvivalInc.ghost, Minecraft.getMinecraft().player).map(GhostEnergyRecord::isActive).orElse(false))
 			super.draw(context, position);
-		}
 	}
 
 }

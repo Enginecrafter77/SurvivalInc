@@ -116,11 +116,15 @@ public class HeatModifier implements StatProvider<SimpleStatRecord> {
 	@Override
 	public SimpleStatRecord createNewRecord()
 	{
-		SimpleStatRecord record = new SimpleStatRecord(Range.closed(-20F, 120F));
-		record.setValue(80F);
-		return record;
+		return new SimpleStatRecord(Range.closed(-20F, 120F));
 	}
-	
+
+	@Override
+	public void resetRecord(SimpleStatRecord record)
+	{
+		record.setValue(80F);
+	}
+
 	@Override
 	public Class<SimpleStatRecord> getRecordClass()
 	{

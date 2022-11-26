@@ -79,6 +79,14 @@ public class StatCapability implements ICapabilitySerializable<NBTBase> {
 			SurvivalInc.proxy.net.sendTo(new StatSyncMessage().addAllPlayers(event.player.world), (EntityPlayerMP)event.player);
 		}
 	}
+
+	@SubscribeEvent
+	public static void onPlayerRespawned(PlayerEvent.PlayerRespawnEvent event)
+	{
+		if(event.isEndConquered())
+			return;
+		StatCapability.resetStatsFor(event.player);
+	}
 	
 	@SubscribeEvent
 	public static void onClientJoin(EntityJoinWorldEvent event)
@@ -113,6 +121,22 @@ public class StatCapability implements ICapabilitySerializable<NBTBase> {
 	public static void synchronizeStats(StatSyncMessage message)
 	{
 		SurvivalInc.proxy.net.sendToAll(message);
+	}
+
+	public static void resetStatsFor(EntityPlayer player)
+	{
+		StatTracker tracker = player.getCapability(StatCapability.target, null);
+		if(tracker == null)
+			return;
+
+		for(StatProvider<?> provider : tracker.getRegisteredProviders())
+			resetRecord(tracker, provider);
+	}
+
+	private static <T extends StatRecord> void resetRecord(StatTracker tracker, StatProvider<T> provider)
+	{
+		T record = tracker.getRecord(provider);
+		provider.resetRecord(record);
 	}
 
 	public static <T extends StatRecord> Optional<T> obtainRecord(@Nullable StatProvider<T> provider, @Nonnull Entity entity)

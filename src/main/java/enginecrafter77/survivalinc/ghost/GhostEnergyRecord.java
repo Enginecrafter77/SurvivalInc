@@ -115,7 +115,13 @@ public class GhostEnergyRecord extends SimpleStatRecord {
 	{
 		return (float)this.resurrection_progress / (float)ModConfig.GHOST.resurrectionDuration;
 	}
-	
+
+	/** Aborts the resurrection process */
+	public void resetResurrectionProgress()
+	{
+		this.resurrection_progress = -1;
+	}
+
 	/**
 	 * Finishes the resurrection and transforms the ghost into a normal player.
 	 * The resurrection progress is reset back to 0

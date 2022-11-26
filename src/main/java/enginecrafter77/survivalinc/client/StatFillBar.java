@@ -1,5 +1,6 @@
 package enginecrafter77.survivalinc.client;
 
+import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.stats.StatCapability;
 import enginecrafter77.survivalinc.stats.StatProvider;
 import enginecrafter77.survivalinc.stats.StatRecord;
@@ -110,12 +111,20 @@ public class StatFillBar<RECORD extends StatRecord> implements OverlayElement {
 		public StatBarRenderLayer(TextureResource symbol, Direction2D direction, Function<RECORD, Float> extractor)
 		{
 			super(symbol, direction);
+			assert extractor != null;
+
 			this.extractor = extractor;
 		}
 
 		public void updateFill(RECORD record)
 		{
-			this.setFill(this.extractor.apply(record));
+			Float value = this.extractor.apply(record);
+			if(value == null)
+			{
+				SurvivalInc.logger.error("Fill value is null! R:{}", record);
+				return;
+			}
+			this.setFill(value);
 		}
 	}
 	

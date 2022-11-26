@@ -30,7 +30,6 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -96,7 +95,15 @@ public class GhostProvider implements StatProvider<GhostEnergyRecord> {
 	{
 		return new GhostEnergyRecord();
 	}
-	
+
+	@Override
+	public void resetRecord(GhostEnergyRecord record)
+	{
+		record.resetResurrectionProgress();
+		record.setActive(false);
+		record.setValue(0F);
+	}
+
 	@Override
 	public Class<GhostEnergyRecord> getRecordClass()
 	{
@@ -123,19 +130,6 @@ public class GhostProvider implements StatProvider<GhostEnergyRecord> {
 	{
 		event.addElement(new GhostEnergyBar(), StackingElementLayoutFunction.LEFT).setTrigger(RenderGameOverlayEvent.ElementType.HOTBAR).addFilter(GhostConditionRenderFilter.INSTANCE);
 		event.addRenderStageFilter(GhostConditionRenderFilter.INSTANCE, RenderGameOverlayEvent.ElementType.HEALTH, RenderGameOverlayEvent.ElementType.AIR, RenderGameOverlayEvent.ElementType.ARMOR, RenderGameOverlayEvent.ElementType.FOOD);
-	}
-	
-	@SubscribeEvent
-	public void onPlayerRespawn(PlayerRespawnEvent event)
-	{
-		EntityPlayer player = event.player;
-		if(!event.isEndConquered())
-		{
-			StatCapability.obtainRecord(this, player).ifPresent((GhostEnergyRecord record) -> {
-				record.setActive(true);
-				StatCapability.synchronizeStats(StatSyncMessage.withPlayer(player));
-			});
-		}
 	}
 	
 	/**
@@ -165,7 +159,9 @@ public class GhostProvider implements StatProvider<GhostEnergyRecord> {
 			}
 		});
 	}
-	
+
+	//TODO make ghosts unable to catch on fire
+
 	/**
 	 * Makes sure ghosts won't be able to hit mobs. If they attempt to do so,
 	 * a tiny bit of their ghost energy will jump to the victim, thus draining
@@ -180,25 +176,38 @@ public class GhostProvider implements StatProvider<GhostEnergyRecord> {
 		{
 			EntityDamageSource attack = (EntityDamageSource)source;
 			Entity attacker = attack.getTrueSource();
-			if(attacker instanceof EntityPlayer)
-			{
-				StatCapability.obtainRecord(this, event.getEntity()).ifPresent((GhostEnergyRecord record) -> {
-					if(record.isActive())
+			if(attacker == null)
+				return;
+
+			StatCapability.obtainRecord(this, attacker).ifPresent((GhostEnergyRecord record) -> {
+				if(record.isActive())
+				{
+					Entity victim = event.getEntity();
+					Random rng = victim.world.rand;
+					for(int pass = 32; pass > 0; pass--)
 					{
-						if(record.isActive())
-						{
-							Entity victim = event.getEntity();
-							Random rng = victim.world.rand;
-							for(int pass = 32; pass > 0; pass--)
-							{
-								victim.world.spawnParticle(EnumParticleTypes.CLOUD, victim.posX + victim.width * (rng.nextDouble() - 0.5), victim.posY + victim.height * rng.nextGaussian(), victim.posZ + victim.width * (rng.nextDouble() - 0.5), 0, 0, 0);
-							}
-							record.addToValue(-1F); // We need to punish the player a lil' bit
-							event.setCanceled(true);
-						}
+						victim.world.spawnParticle(EnumParticleTypes.CLOUD, victim.posX + victim.width * (rng.nextDouble() - 0.5), victim.posY + victim.height * rng.nextGaussian(), victim.posZ + victim.width * (rng.nextDouble() - 0.5), 0, 0, 0);
 					}
-				});
-			}
+					record.addToValue(-1F); // We need to punish the player a lil' bit
+					event.setCanceled(true);
+				}
+			});
+		}
+	}
+
+	@SubscribeEvent
+	public void onPlayerHit(LivingAttackEvent event)
+	{
+		EntityLivingBase target = event.getEntityLiving();
+		if(target instanceof EntityPlayer && (target.getHealth() - event.getAmount()) <= 0F)
+		{
+			EntityPlayer player = (EntityPlayer)target;
+			StatCapability.obtainRecord(this, player).ifPresent((GhostEnergyRecord record) -> {
+				StatCapability.resetStatsFor(player);
+				record.setActive(true);
+				event.setCanceled(true);
+				StatCapability.synchronizeStats(StatSyncMessage.withPlayer(player));
+			});
 		}
 	}
 	

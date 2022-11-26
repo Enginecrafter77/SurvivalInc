@@ -50,4 +50,6 @@ public interface StatProvider<RECORD extends StatRecord> {
 	 * @return The type of object returned by {@link #createNewRecord()}
 	 */
 	public Class<RECORD> getRecordClass();
+
+	public void resetRecord(RECORD record);
 }

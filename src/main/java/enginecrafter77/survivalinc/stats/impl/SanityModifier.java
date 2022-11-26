@@ -83,7 +83,14 @@ public class SanityModifier implements StatProvider<SanityRecord> {
 	{
 		return new SanityRecord();
 	}
-	
+
+	@Override
+	public void resetRecord(SanityRecord record)
+	{
+		record.ticksAwake = 0;
+		record.setValue(100F);
+	}
+
 	@Override
 	public Class<SanityRecord> getRecordClass()
 	{
