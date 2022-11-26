@@ -19,6 +19,7 @@ import enginecrafter77.survivalinc.stats.impl.WetnessModifier;
 import enginecrafter77.survivalinc.stats.impl.armor.ArmorConductivityCommand;
 import enginecrafter77.survivalinc.util.ExportedResource;
 import enginecrafter77.survivalinc.util.FunctionalImplementation;
+import enginecrafter77.survivalinc.util.RadiantHeatScanner;
 import net.minecraft.block.Block;
 import net.minecraft.command.CommandHandler;
 import net.minecraft.server.MinecraftServer;
@@ -48,6 +49,8 @@ public abstract class CommonProxy {
 	
 	public void preInit(FMLPreInitializationEvent event)
 	{
+		SurvivalInc.heatScanner = new RadiantHeatScanner();
+
 		// Register seasons if enabled
 		if(ModConfig.SEASONS.enabled)
 		{
