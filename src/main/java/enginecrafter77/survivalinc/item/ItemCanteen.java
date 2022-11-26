@@ -1,5 +1,11 @@
 package enginecrafter77.survivalinc.item;
 
+import enginecrafter77.survivalinc.SurvivalInc;
+import enginecrafter77.survivalinc.config.ModConfig;
+import enginecrafter77.survivalinc.stats.StatCapability;
+import enginecrafter77.survivalinc.stats.StatTracker;
+import enginecrafter77.survivalinc.stats.impl.HydrationModifier;
+import enginecrafter77.survivalinc.stats.impl.WaterVolume;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.util.ITooltipFlag;
@@ -21,14 +27,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nullable;
-
-import enginecrafter77.survivalinc.SurvivalInc;
-import enginecrafter77.survivalinc.config.ModConfig;
-import enginecrafter77.survivalinc.stats.StatCapability;
-import enginecrafter77.survivalinc.stats.StatTracker;
-import enginecrafter77.survivalinc.stats.impl.HydrationModifier;
-import enginecrafter77.survivalinc.stats.impl.WaterVolume;
-
 import java.util.List;
 
 public class ItemCanteen extends Item {
@@ -142,8 +140,8 @@ public class ItemCanteen extends Item {
 		tooltip.add(String.format("Mode: %s", nbt.getBoolean("refill") ? "REFILL" : "DRAIN"));
 		tooltip.add(String.format("Stored: %.01f/%d mb", volume.getVolume() * 8, ModConfig.HYDRATION.canteenCapacity * 8));
 		tooltip.add(String.format("Salinity: %.02f %%", volume.getSalinity()));
-		tooltip.add(String.format("Temperature: %.02f °C", volume.getTemperature() * 20F));
-		if(volume.isDirty()) tooltip.add(TextFormatting.RED.toString() + "DIRTY");
+		tooltip.add(String.format("Temperature: %.02f ï¿½C", volume.getTemperature() * 20F));
+		if(volume.isDirty()) tooltip.add(TextFormatting.RED + "DIRTY");
 	}
 
 	@Override
