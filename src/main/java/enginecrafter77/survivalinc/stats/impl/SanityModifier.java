@@ -39,11 +39,13 @@ import java.util.List;
 public class SanityModifier implements StatProvider<SanityRecord> {
 	public static final ResourceLocation DISTORT_SHADER = new ResourceLocation(SurvivalInc.MOD_ID, "shaders/distort.json");
 	public static final SoundEvent STATIC_BUZZ = new SoundEvent(new ResourceLocation(SurvivalInc.MOD_ID, "staticbuzz"));
-	
+
+	public final SanityBlockEffectMap blockEffectMap;
 	public final EffectApplicator<SanityRecord> effects;
 	
 	public SanityModifier()
 	{
+		this.blockEffectMap = new SanityBlockEffectMap();
 		this.effects = new EffectApplicator<SanityRecord>();
 		
 		if(ModConfig.WETNESS.enabled) this.effects.add(this::whenWet).addFilter(FunctionalEffectFilter.byPlayer(EntityPlayer::isInWater).invert());
@@ -51,6 +53,7 @@ public class SanityModifier implements StatProvider<SanityRecord> {
 		this.effects.add(this::whenInDark).addFilter(HydrationModifier.IS_OUTSIDE_OVERWORLD.invert());
 		this.effects.add(this::whenNearEntities);
 		this.effects.add(this::sleepDeprivation);
+		this.effects.add(this::scanSurroundings);
 		
 		if(ModConfig.SANITY.staticBuzzIntensity > 0D)
 		{
@@ -205,7 +208,7 @@ public class SanityModifier implements StatProvider<SanityRecord> {
 			if(creature instanceof EntityTameable)
 			{
 				EntityTameable pet = (EntityTameable)creature;
-				// 4x bonus for tamed creatures. Having pets has it's perks :D
+				// 4x bonus for tamed creatures. Having pets has its perks :D
 				float bonus = pet.isTamed() ? (float)ModConfig.SANITY.tamedMobMultiplier : 1;
 				value += ModConfig.SANITY.friendlyMobBonus * bonus;
 			}
@@ -214,6 +217,13 @@ public class SanityModifier implements StatProvider<SanityRecord> {
 			else if(creature instanceof EntityMob) value -= ModConfig.SANITY.hostileMobModifier;
 		}
 		record.setValue(value);
+	}
+
+	@FunctionalImplementation(of = StatEffect.class)
+	public void scanSurroundings(SanityRecord record, EntityPlayer player)
+	{
+		float sanityEffect = this.blockEffectMap.calculateSurroundingsSanityEffect(player.world, player.getPositionVector(), 4F);
+		record.addToValue(sanityEffect);
 	}
 	
 	@SubscribeEvent

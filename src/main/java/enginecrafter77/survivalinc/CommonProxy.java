@@ -45,7 +45,7 @@ public abstract class CommonProxy {
 	public SimpleNetworkWrapper net;
 	public ItemSituationContainer mapper;
 	
-	public ExportedResource itemEffectConfig, armorConductivityConfig;
+	public ExportedResource itemEffectConfig, armorConductivityConfig, sanityBlockEffectMap;
 	
 	public void preInit(FMLPreInitializationEvent event)
 	{
@@ -72,6 +72,7 @@ public abstract class CommonProxy {
 		File configDir = new File(event.getModConfigurationDirectory(), SurvivalInc.MOD_ID);
 		this.itemEffectConfig = new ExportedResource(new File(configDir, "item_effects.json"), new ResourceLocation(SurvivalInc.MOD_ID, "configbase/item_effects.json"));
 		this.armorConductivityConfig = new ExportedResource(new File(configDir, "armor_conductivity.json"), new ResourceLocation(SurvivalInc.MOD_ID, "configbase/armor_conductivity.json"));
+		this.sanityBlockEffectMap = new ExportedResource(new File(configDir, "sanity_block_effects.json"), new ResourceLocation(SurvivalInc.MOD_ID, "configbase/sanity_block_effects.json"));
 	}
 	
 	/**
@@ -138,6 +139,9 @@ public abstract class CommonProxy {
 		// Load the compatibility maps
 		if(SurvivalInc.heat != null)
 			this.armorConductivityConfig.load(SurvivalInc.heat.armor::load);
+
+		if(SurvivalInc.sanity != null)
+			this.sanityBlockEffectMap.load(SurvivalInc.sanity.blockEffectMap::loadFrom);
 
 		// Radiant heat scanner maps
 		for(String entry : ModConfig.HEAT.blockHeatMap)
