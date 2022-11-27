@@ -37,7 +37,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.util.Rectangle;
 
 import javax.annotation.Nullable;
-import java.util.Optional;
 
 public class HydrationModifier implements StatProvider<SimpleStatRecord> {
 	public static final EffectFilter<StatRecord> IS_OUTSIDE_OVERWORLD = FunctionalEffectFilter.byPlayer((EntityPlayer player) -> player.dimension != 0);
@@ -134,12 +133,8 @@ public class HydrationModifier implements StatProvider<SimpleStatRecord> {
 			return null;
 		}
 
-		Optional<SimpleStatRecord> opt = StatCapability.obtainRecord(SurvivalInc.hydration, player);
-		if(opt.isPresent())
-		{
-			HydrationModifier.spawnWaterDrinkParticles(world, hitvec);
-			volume.apply(opt.get(), player);
-		}
+		HydrationModifier.spawnWaterDrinkParticles(world, hitvec);
+		volume.consume(player);
 		return null;
 	}
 	
@@ -278,7 +273,7 @@ public class HydrationModifier implements StatProvider<SimpleStatRecord> {
 			if(volume == null)
 				return null;
 
-			volume.apply(hydration, player);
+			volume.consume(player);
 			return new WaterDrinkMessage(volume, water_rt, hand);
 		}
 		return null;

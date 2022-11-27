@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableSet;
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import enginecrafter77.survivalinc.stats.StatCapability;
-import enginecrafter77.survivalinc.stats.effect.StatEffect;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -20,7 +19,7 @@ import net.minecraftforge.common.util.INBTSerializable;
 
 import java.util.Set;
 
-public class WaterVolume implements StatEffect<SimpleStatRecord>, INBTSerializable<NBTTagCompound> {
+public class WaterVolume implements INBTSerializable<NBTTagCompound> {
 	
 	private static Set<Biome> saltybiomes;
 	private static Set<Biome> dirtybiomes;
@@ -92,7 +91,7 @@ public class WaterVolume implements StatEffect<SimpleStatRecord>, INBTSerializab
 		this.volume = newvolume;
 	}
 	
-	public WaterVolume remove(float amount)
+	public WaterVolume split(float amount)
 	{
 		if(amount > this.volume)
 		{
@@ -102,6 +101,20 @@ public class WaterVolume implements StatEffect<SimpleStatRecord>, INBTSerializab
 		else this.volume -= amount;
 		
 		return new WaterVolume(amount, this.salinity, this.temperature, this.dirty);
+	}
+
+	public void consume(EntityPlayer player)
+	{
+		if(this.salinity > 0.02F) player.attackEntityFrom(DamageSource.GENERIC, 1F);
+
+		if(this.dirty) player.addPotionEffect(new PotionEffect(MobEffects.POISON, 100));
+
+		StatCapability.obtainRecord(SurvivalInc.hydration, player).ifPresent((SimpleStatRecord record) -> record.addToValue(this.getHydrationBonus()));
+
+		StatCapability.obtainRecord(SurvivalInc.heat, player).ifPresent((SimpleStatRecord heat) -> {
+			if((20F + this.temperature * 20F) > heat.getValue()) heat.addToValue(this.temperature * 10F);
+			else heat.addToValue(this.temperature * -10F);
+		});
 	}
 	
 	public float getHydrationBonus()
@@ -127,21 +140,6 @@ public class WaterVolume implements StatEffect<SimpleStatRecord>, INBTSerializab
 		this.salinity = nbt.getFloat("salinity");
 		this.temperature = nbt.getFloat("temperature");
 		this.dirty = nbt.getBoolean("dirty");
-	}
-	
-	@Override
-	public void apply(SimpleStatRecord record, EntityPlayer player)
-	{
-		record.addToValue(this.getHydrationBonus());
-		
-		if(this.salinity > 0.02F) player.attackEntityFrom(DamageSource.GENERIC, 1F);
-
-		StatCapability.obtainRecord(SurvivalInc.heat, player).ifPresent((SimpleStatRecord heat) -> {
-			if((20F + this.temperature * 20F) > heat.getValue()) heat.addToValue(this.temperature * 10F);
-			else heat.addToValue(this.temperature * -10F);
-		});
-		
-		if(this.dirty) player.addPotionEffect(new PotionEffect(MobEffects.POISON, 100));
 	}
 	
 	@Override
