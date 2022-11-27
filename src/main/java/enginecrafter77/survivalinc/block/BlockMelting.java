@@ -24,37 +24,48 @@ public class BlockMelting extends Block {
 	public final Block freezeTarget;
 	
 	/** The melt phase property */
-	private PropertyInteger phase_property;
+	private PropertyInteger phaseProperty;
 	
 	/** The temperature which when passed, the block freezes/melts */
-	public float freezing_point = 0.15F;
+	protected float freezingPoint;
 	
 	public BlockMelting(Block frozen, Block melted)
 	{
 		super(frozen.getDefaultState().getMaterial());
 		this.freezeTarget = frozen;
 		this.meltTarget = melted;
+		this.freezingPoint = 0.15F;
 		
-		this.setDefaultState(this.blockState.getBaseState().withProperty(phase_property, 0));
+		this.setDefaultState(this.blockState.getBaseState().withProperty(phaseProperty, 0));
+	}
+
+	public void setFreezingPoint(float freezingPoint)
+	{
+		this.freezingPoint = freezingPoint;
+	}
+
+	public float getFreezingPoint()
+	{
+		return this.freezingPoint;
 	}
 
 	@Override
 	protected BlockStateContainer createBlockState()
 	{
-		this.phase_property = PropertyInteger.create("meltphase", 0, this.getPhaseCount());
-		return new BlockStateContainer(this, phase_property);
+		this.phaseProperty = PropertyInteger.create("meltphase", 0, this.getPhaseCount());
+		return new BlockStateContainer(this, phaseProperty);
 	}
 	
 	@Override
 	public int getMetaFromState(IBlockState state)
 	{
-		return state.getValue(phase_property);
+		return state.getValue(phaseProperty);
 	}
 
 	@Override
 	public IBlockState getStateFromMeta(int meta)
 	{
-		return this.getDefaultState().withProperty(phase_property, meta);
+		return this.getDefaultState().withProperty(phaseProperty, meta);
 	}
 	
 	@Override
@@ -71,10 +82,10 @@ public class BlockMelting extends Block {
 		MeltAction action = this.getAction(world, position);
 		if(action != MeltAction.PASS) // Check to avoid unnecessary block updates
 		{
-			int phase = state.getValue(phase_property) + action.getPhaseIncrement();
-			if(this.phase_property.getAllowedValues().contains(phase))
+			int phase = state.getValue(phaseProperty) + action.getPhaseIncrement();
+			if(this.phaseProperty.getAllowedValues().contains(phase))
 			{
-				state = state.withProperty(phase_property, phase);
+				state = state.withProperty(phaseProperty, phase);
 				world.setBlockState(position, state, 2);
 			}
 			else
@@ -126,7 +137,7 @@ public class BlockMelting extends Block {
 	 */
 	public MeltAction getAction(World world, BlockPos position)
 	{
-		return world.getBiome(position).getTemperature(position) > this.freezing_point ? MeltAction.MELT : MeltAction.FREEZE;
+		return world.getBiome(position).getTemperature(position) > this.freezingPoint ? MeltAction.MELT : MeltAction.FREEZE;
 	}
 	
 	/**
