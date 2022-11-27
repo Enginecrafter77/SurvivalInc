@@ -282,8 +282,16 @@ config.survivalinc.ghost.resurrectionBlocksMovement.tooltip=Set to true to disab
 command.common.error.ioError=I/O Error occured
 command.common.error.invalidOption=Invalid option
 command.common.error.noPlayerSelected=No player target selected!
+command.common.error.insufficientArguments=Insufficient arguments! Usage: %s
 
 command.armorConductivity.missingMaterialValue=Missing armor material value parameter
 command.armorConductivity.missingArmorConductivityValue=Missing armor conductivity value parameter!
 
 command.ghost.error.invalidState=Invalid state "%s"
+
+command.season.error.seasonNotFound=Season "%s" not found.
+
+command.stats.error.unknownOperation=Unknown operation "%s"! Usage: %s
+command.stats.error.trackerNotAvailable=Stat tracker not available!
+command.stats.error.noSuchProvider=Stat "%s" does not exist!
+command.stats.error.recordNotSimple=Stat "%s" uses record type non-simple record type!

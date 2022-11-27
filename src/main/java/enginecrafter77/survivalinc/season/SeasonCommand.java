@@ -1,14 +1,8 @@
 package enginecrafter77.survivalinc.season;
 
-import java.util.List;
-
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.util.FormattedTextComponent;
-import net.minecraft.command.CommandBase;
-import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.command.SyntaxErrorException;
-import net.minecraft.command.WrongUsageException;
+import net.minecraft.command.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
@@ -21,6 +15,8 @@ import net.minecraft.world.DimensionType;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.common.MinecraftForge;
+
+import java.util.List;
 
 public class SeasonCommand extends CommandBase {
 
@@ -49,17 +45,19 @@ public class SeasonCommand extends CommandBase {
 		SeasonCalendarDate date = data.getCurrentDate();
 		SeasonProvider season = date.getCalendarEntry().getSeason();
 		
-		if(args.length < 1) throw new WrongUsageException("Insufficient arguments\nUsgae: " + this.getUsage(sender));
+		if(args.length < 1) throw new WrongUsageException(this.getUsage(sender));
 		
 		ITextComponent seasonname = new TextComponentTranslation(season.getTranslationKey());
 		
 		ITextComponent message = null;
+		//noinspection GrazieInspection
 		switch(args[0])
 		{
 		case "set":
-			if(args.length < 3) throw new WrongUsageException("Insufficient arguments\nUsage: " + this.getUsage(sender));
+			if(args.length < 3) throw new WrongUsageException(this.getUsage(sender));
 			SeasonCalendar.SeasonCalendarEntry target = date.getCalendarEntry().getCalendar().getSeason(new ResourceLocation(args[1]));
-			if(target == null) throw new CommandException("Season \"" + args[1] + "\" not found.");
+			if(target == null)
+				throw new CommandException("command.season.error.seasonNotFound", args[1]);
 			date.setSeason(target);
 			date.setDay(Integer.parseInt(args[2]));
 			message = new TextComponentString(String.format("Set calendar time to %s", date.toString()));

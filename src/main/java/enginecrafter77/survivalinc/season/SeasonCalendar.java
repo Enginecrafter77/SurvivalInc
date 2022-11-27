@@ -1,13 +1,14 @@
 package enginecrafter77.survivalinc.season;
 
+import com.google.common.collect.ImmutableList;
+import enginecrafter77.survivalinc.SurvivalInc;
+import net.minecraft.util.ResourceLocation;
+
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.google.common.collect.ImmutableList;
-import enginecrafter77.survivalinc.SurvivalInc;
-import net.minecraft.util.ResourceLocation;
 
 public class SeasonCalendar {
 	
@@ -40,7 +41,8 @@ public class SeasonCalendar {
 		this.length += season.getLength();
 		return entry;
 	}
-	
+
+	@Nullable
 	public SeasonCalendarEntry getSeason(ResourceLocation name)
 	{
 		try

@@ -50,7 +50,10 @@ public class StatCommand extends CommandBase {
 	public void applyTo(EntityPlayer player, ICommandSender sender, String[] args) throws CommandException
 	{
 		StatTracker tracker = player.getCapability(StatCapability.target, null);
-		
+
+		if(tracker == null)
+			throw new CommandException("command.stats.error.trackerNotAvailable");
+
 		String cmd = args.length > 1 ? args[1] : "list";
 		switch(cmd)
 		{
@@ -59,8 +62,8 @@ public class StatCommand extends CommandBase {
 			for(StatProvider<?> provider : tracker.getRegisteredProviders())
 			{
 				component.appendText("\n ");
-				component.appendSibling(new TextComponentTranslation(String.format("stat.%s.name", provider.getStatID().toString())).setStyle(this.statNameStyle));
-				component.appendSibling(new FormattedTextComponent("(${YELLOW}%s${RESET}): %s", provider.getStatID().toString(), tracker.getRecord(provider).toString()));
+				component.appendSibling(new TextComponentTranslation(String.format("stat.%s.name", provider.getStatID())).setStyle(this.statNameStyle));
+				component.appendSibling(new FormattedTextComponent("(${YELLOW}%s${RESET}): %s", provider.getStatID(), tracker.getRecord(provider)));
 			}
 			sender.sendMessage(component);
 			break;
@@ -68,18 +71,18 @@ public class StatCommand extends CommandBase {
 			this.assertArguments(args, sender, 3);
 			ResourceLocation res = new ResourceLocation(args[2]);
 			StatProvider<?> provider = tracker.getProvider(res);
-			if(provider == null) throw new CommandException("Stat " + res.toString() + " does not exist!");
+			if(provider == null) throw new CommandException("command.stats.error.noSuchProvider", res.toString());
 			StatRecord record = tracker.getRecord(provider);
-			sender.sendMessage(new TextComponentString(res + ": " + record.toString()));
+			sender.sendMessage(new TextComponentString(res + ": " + record));
 			break;
 		case "set":
 			this.assertArguments(args, sender, 4);
 			res = new ResourceLocation(args[2]);
 			provider = tracker.getProvider(res);
-			if(provider == null) throw new CommandException("Stat " + res.toString() + " does not exist!");
+			if(provider == null) throw new CommandException("command.stats.error.noSuchProvider", res.toString());
 			record = tracker.getRecord(provider);
 			
-			if(!(record instanceof SimpleStatRecord)) throw new CommandException("Stat " + provider.getStatID().toString() + " uses non-standard record type!");
+			if(!(record instanceof SimpleStatRecord)) throw new CommandException("command.stats.error.recordNotSimple");
 			SimpleStatRecord ssr = (SimpleStatRecord)record;
 			
 			String value = args[3];
@@ -92,12 +95,14 @@ public class StatCommand extends CommandBase {
 		case "sync":
 			StatCapability.synchronizeStats(StatSyncMessage.withPlayer(player));
 			break;
+		default:
+			throw new CommandException("command.stats.error.unknownOperation", cmd, this.getUsage(sender));
 		}
 	}
 	
 	public void assertArguments(String[] args, ICommandSender sender, int argc) throws CommandException
 	{
-		if(args.length < argc) throw new CommandException("Insufficient Arguments\nUsage: " + this.getUsage(sender));
+		if(args.length < argc) throw new CommandException("command.common.error.insufficientArguments", this.getUsage(sender));
 	}
 	
 }
