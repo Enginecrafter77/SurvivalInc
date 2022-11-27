@@ -3,6 +3,7 @@ package enginecrafter77.survivalinc.season;
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.season.SeasonCalendar.SeasonCalendarEntry;
 import net.minecraft.world.biome.Biome;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
 import java.lang.reflect.Field;
@@ -17,42 +18,27 @@ import java.util.Set;
  * according to the season, and where we are in the season.
  */
 public class BiomeTempController {
-	private static final String[] possiblenames = new String[]{"field_76750_F", "temperature"};
-	
+	private static final Field BIOME_TEMPERATURE = ObfuscationReflectionHelper.findField(Biome.class, "field_76750_F");
+
 	public final Map<Biome, Float> originals;
 	public final Set<Class<? extends Biome>> excluded;
-	
-	protected final Field target;
 	
 	public BiomeTempController() throws NoSuchFieldException
 	{
 		this.originals = new HashMap<Biome, Float>();
 		this.excluded = new HashSet<Class<? extends Biome>>();
-		
-		// Reflectively locate the target field
-		Field field = null;
-		for(String name : possiblenames)
-		{
-			try
-			{
-				field = Biome.class.getDeclaredField(name);
-				field.setAccessible(true);
-			}
-			catch(ReflectiveOperationException exc)
-			{
-				continue; // Try the next possible field
-			}
-		}
-		
-		if(field == null) throw new NoSuchFieldException("Temperature field not found in Biome.class");
-		else this.target = field;
 	}
 	
 	protected void setTemperature(Biome biome, float temperature)
 	{
 		try
 		{
-			target.setFloat(biome, temperature);
+			if(!this.originals.containsKey(biome))
+				this.originals.put(biome, biome.getDefaultTemperature());
+
+			if(!BIOME_TEMPERATURE.isAccessible())
+				BIOME_TEMPERATURE.setAccessible(true);
+			BIOME_TEMPERATURE.set(biome, temperature);
 		}
 		catch(ReflectiveOperationException exc)
 		{
@@ -82,13 +68,13 @@ public class BiomeTempController {
 	 */
 	public float calculateNewBiomeTemperature(Biome biome, SeasonCalendarDate date, float offset)
 	{
-		return this.originals.get(biome) + offset;
+		return this.originals.computeIfAbsent(biome, Biome::getDefaultTemperature) + offset;
 	}
 	
 	/**
 	 * This actually changes the biome temperatures every morning... Using reflection!
 	 * Yeah, it's very hacky, hackish, whatever you want to call it, but it works!
-	 * @param date
+	 * @param date The date to apply
 	 */
 	public void applySeason(SeasonCalendarDate date)
 	{		
@@ -99,14 +85,7 @@ public class BiomeTempController {
 		for(Biome biome : ForgeRegistries.BIOMES.getValuesCollection())
 		{
 			if(excluded.contains(biome.getClass())) continue;
-			
-			// A little check to fix compatibility with mods that add biomes during runtime
-			if(!this.originals.containsKey(biome))
-			{
-				SurvivalInc.logger.debug("Biome {} has not saved it's original value. Mapping to {}.", biome.getRegistryName().toString(), biome.getDefaultTemperature());
-				this.originals.put(biome, biome.getDefaultTemperature());
-			}
-			
+
 			this.setTemperature(biome, this.calculateNewBiomeTemperature(biome, date, offset));
 			processed++;
 		}
@@ -118,7 +97,7 @@ public class BiomeTempController {
 	/**
 	 * Gets the peak point for the specified calendar season.
 	 * @param season The season to get the peak for.
-	 * @return The date the temperature reaches it's extreme in the specified season.
+	 * @return The date the temperature reaches its extreme in the specified season.
 	 */
 	private static SeasonCalendarDate getPeak(SeasonCalendarEntry season)
 	{
@@ -218,24 +197,25 @@ public class BiomeTempController {
 	}
 	
 	/**
-	 * Calculates the current temperature offset by utilizing
+	 * <p>Calculates the current temperature offset by utilizing
 	 * simple linear interpolation method.
-	 * 
+	 * </p><p>
 	 * Mathematically, this function is a simple linear
 	 * equation that, when plotted, creates a nice slope
 	 * crossing points A[d0,a] and B[d1,b]. In fact, the
 	 * line connecting these points in Cartesian plane
 	 * is a part of the function used by this method.
-	 * 
+	 * </p><p>
 	 * So how it works? The call to this method is equivalent to
 	 * <pre>
 	 *  		   x - d0
 	 * 	y = (b-a)--------- + a
 	 *  		  d1 - d0
 	 * </pre>
+	 * </p><p>
 	 * This method basically computes the difference between the temperatures,
 	 * and applies it to the fraction of the days elapsed from the total days.
-	 * Finally, the temperature correction equal to <i>a</i> is applied.
+	 * Finally, the temperature correction equal to <i>a</i> is applied.</p>
 	 * @param x The current day
 	 * @param d0 The day of point A
 	 * @param d1 The day of point B
