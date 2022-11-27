@@ -279,9 +279,11 @@ config.survivalinc.ghost.resurrectionDuration.tooltip=Time in tick it takes to r
 config.survivalinc.ghost.resurrectionBlocksMovement=Block Resurrection Movement
 config.survivalinc.ghost.resurrectionBlocksMovement.tooltip=Set to true to disable movement of resurrecting ghosts.
 
-command.common.error.ioError="I/O Error occured"
-command.common.error.invalidOption="Invalid option"
-command.common.error.noPlayerSelected="No player target selected!"
+command.common.error.ioError=I/O Error occured
+command.common.error.invalidOption=Invalid option
+command.common.error.noPlayerSelected=No player target selected!
 
 command.armorConductivity.missingMaterialValue=Missing armor material value parameter
 command.armorConductivity.missingArmorConductivityValue=Missing armor conductivity value parameter!
+
+command.ghost.error.invalidState=Invalid state "%s"

@@ -3,7 +3,6 @@ package enginecrafter77.survivalinc.ghost;
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.net.StatSyncMessage;
 import enginecrafter77.survivalinc.stats.StatCapability;
-import enginecrafter77.survivalinc.stats.StatTracker;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -38,10 +37,9 @@ public class GhostCommand extends CommandBase {
 		
 		for(EntityPlayerMP player : subjects)
 		{
-			StatTracker tracker = player.getCapability(StatCapability.target, null);
-			GhostEnergyRecord record = tracker.getRecord(SurvivalInc.ghost);
+			GhostEnergyRecord record = StatCapability.obtainRecord(SurvivalInc.ghost, player).orElseThrow(IllegalStateException::new);
 			boolean status = !record.isActive();
-			
+
 			if(args.length >= 2)
 			{
 				switch(args[1])
@@ -53,10 +51,10 @@ public class GhostCommand extends CommandBase {
 					status = false;
 					break;
 				default:
-					throw new CommandException("Unknown state \"" + args[1] + "\"");
+					throw new CommandException("command.ghost.error.invalidState", args[1]);
 				}
 			}
-			
+
 			record.setActive(status);
 			message.addPlayer(player);
 			sender.sendMessage(new TextComponentString(String.format("Transformed %s into %s", player.getName(), status ? "ghost" : "human")));
