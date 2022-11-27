@@ -116,7 +116,7 @@ public class HydrationModifier implements StatProvider<SimpleStatRecord> {
 			}
 			else
 			{
-				WaterVolume verifiedvolume = WaterVolume.fromBlock(player.world, water_rt.getBlockPos(), (float)ModConfig.HYDRATION.sipVolume);
+				WaterVolume verifiedvolume = WaterVolume.fromBlock(player.world, water_rt.getBlockPos(), ModConfig.HYDRATION.sipVolume);
 				if(!volume.equals(verifiedvolume))
 				{
 					SurvivalInc.logger.warn("Server raytrace results not consistent with client's claim. Fabricated packet from {}?", ip);
@@ -267,7 +267,7 @@ public class HydrationModifier implements StatProvider<SimpleStatRecord> {
 			if(hydration == null)
 				return null;
 
-			WaterVolume volume = WaterVolume.fromBlock(player.world, water_rt.getBlockPos(), (float)ModConfig.HYDRATION.sipVolume);
+			WaterVolume volume = WaterVolume.fromBlock(player.world, water_rt.getBlockPos(), ModConfig.HYDRATION.sipVolume);
 
 			// Test whether WaterVolume#fromBlock returned actual WaterVolume instance
 			if(volume == null)

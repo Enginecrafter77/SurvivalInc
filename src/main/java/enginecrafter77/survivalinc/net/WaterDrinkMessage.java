@@ -61,7 +61,7 @@ public class WaterDrinkMessage implements IMessage {
 	public void fromBytes(ByteBuf buf)
 	{
 		// DrinkVolume
-		this.drinkvolume = new WaterVolume(ByteBufUtils.readTag(buf));
+		this.drinkvolume = WaterVolume.fromNBT(ByteBufUtils.readTag(buf));
 		
 		// Hit vector
 		this.hit = new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble());

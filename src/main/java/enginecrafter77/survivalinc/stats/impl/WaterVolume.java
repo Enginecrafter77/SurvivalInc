@@ -6,7 +6,7 @@ import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import enginecrafter77.survivalinc.stats.StatCapability;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.Biomes;
 import net.minecraft.init.MobEffects;
 import net.minecraft.nbt.NBTTagCompound;
@@ -25,18 +25,12 @@ public class WaterVolume implements INBTSerializable<NBTTagCompound> {
 	private static Set<Biome> dirtybiomes;
 	private static boolean initialized = false;
 	
-	private float volume;
+	private int volume;
 	private float salinity;
 	private float temperature;
 	private boolean dirty;
 	
-	public WaterVolume(NBTTagCompound tag)
-	{
-		this(0F, 0F, 0F, false);
-		this.deserializeNBT(tag);
-	}
-	
-	public WaterVolume(float volume, float salinity, float temperature, boolean dirty)
+	public WaterVolume(int volume, float salinity, float temperature, boolean dirty)
 	{
 		this.volume = volume;
 		this.salinity = salinity;
@@ -44,7 +38,7 @@ public class WaterVolume implements INBTSerializable<NBTTagCompound> {
 		this.dirty = dirty;
 	}
 	
-	public float getVolume()
+	public int getVolume()
 	{
 		return this.volume;
 	}
@@ -64,14 +58,14 @@ public class WaterVolume implements INBTSerializable<NBTTagCompound> {
 		return this.dirty;
 	}
 	
-	public void setVolume(float volume)
+	public void setVolume(int volume)
 	{
 		this.volume = volume;
 	}
 	
-	public void empty()
+	public void clear()
 	{
-		this.volume = 0F;
+		this.volume = 0;
 		this.salinity = 0F;
 		this.temperature = 0F;
 		this.dirty = false;
@@ -84,34 +78,41 @@ public class WaterVolume implements INBTSerializable<NBTTagCompound> {
 	
 	public void mix(WaterVolume other)
 	{
-		float newvolume = this.volume + other.volume;
-		this.temperature = (this.temperature * this.volume + other.temperature * other.volume) / newvolume;
-		this.salinity = (this.getSaltAmount() + other.getSaltAmount()) / newvolume;
+		int newvolume = this.volume + other.volume;
+		this.temperature = (this.temperature * this.volume + other.temperature * other.volume) / (float)newvolume;
+		this.salinity = (this.getSaltAmount() + other.getSaltAmount()) / (float)newvolume;
 		this.dirty = this.dirty || other.dirty;
 		this.volume = newvolume;
 	}
 	
-	public WaterVolume split(float amount)
+	public WaterVolume split(int amount)
 	{
 		if(amount > this.volume)
 		{
 			amount = this.volume;
-			this.empty();
+			this.clear();
 		}
 		else this.volume -= amount;
 		
 		return new WaterVolume(amount, this.salinity, this.temperature, this.dirty);
 	}
 
-	public void consume(EntityPlayer player)
+	public void consume(EntityLivingBase entity)
 	{
-		if(this.salinity > 0.02F) player.attackEntityFrom(DamageSource.GENERIC, 1F);
+		if(!entity.world.isRemote)
+		{
+			SurvivalInc.logger.error("WWWL", new RuntimeException());
 
-		if(this.dirty) player.addPotionEffect(new PotionEffect(MobEffects.POISON, 100));
+			if(this.salinity > 0.02F)
+				entity.attackEntityFrom(DamageSource.GENERIC, 5F);
 
-		StatCapability.obtainRecord(SurvivalInc.hydration, player).ifPresent((SimpleStatRecord record) -> record.addToValue(this.getHydrationBonus()));
+			if(this.dirty)
+				entity.addPotionEffect(new PotionEffect(MobEffects.POISON, 100));
+		}
 
-		StatCapability.obtainRecord(SurvivalInc.heat, player).ifPresent((SimpleStatRecord heat) -> {
+		StatCapability.obtainRecord(SurvivalInc.hydration, entity).ifPresent((SimpleStatRecord record) -> record.addToValue(this.getHydrationBonus()));
+
+		StatCapability.obtainRecord(SurvivalInc.heat, entity).ifPresent((SimpleStatRecord heat) -> {
 			if((20F + this.temperature * 20F) > heat.getValue()) heat.addToValue(this.temperature * 10F);
 			else heat.addToValue(this.temperature * -10F);
 		});
@@ -136,7 +137,7 @@ public class WaterVolume implements INBTSerializable<NBTTagCompound> {
 	@Override
 	public void deserializeNBT(NBTTagCompound nbt)
 	{
-		this.volume = nbt.getFloat("volume");
+		this.volume = nbt.getInteger("volume");
 		this.salinity = nbt.getFloat("salinity");
 		this.temperature = nbt.getFloat("temperature");
 		this.dirty = nbt.getBoolean("dirty");
@@ -160,8 +161,20 @@ public class WaterVolume implements INBTSerializable<NBTTagCompound> {
 		WaterVolume.dirtybiomes = ImmutableSet.of(Biomes.MUSHROOM_ISLAND, Biomes.SWAMPLAND, Biomes.MUTATED_SWAMPLAND);
 		WaterVolume.initialized = true;
 	}
+
+	public static WaterVolume empty()
+	{
+		return new WaterVolume(0, 0F, 0F, false);
+	}
+
+	public static WaterVolume fromNBT(NBTTagCompound tag)
+	{
+		WaterVolume volume = WaterVolume.empty();
+		volume.deserializeNBT(tag);
+		return volume;
+	}
 	
-	public static WaterVolume fromBlock(IBlockAccess world, BlockPos position, float amount)
+	public static WaterVolume fromBlock(IBlockAccess world, BlockPos position, int amount)
 	{
 		WaterVolume.checkTables();
 		

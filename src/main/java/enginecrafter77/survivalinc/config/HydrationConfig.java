@@ -32,11 +32,11 @@ public class HydrationConfig {
 	
 	@Config.LangKey("config.survivalinc.hydration.sipVolume")
 	@Config.Comment("The amount of hydration replenished by single sip from canteen or water body")
-	@Config.RangeDouble(min = 0)
-	public double sipVolume = 5;
+	@Config.RangeInt(min = 0)
+	public int sipVolume = 40;
 	
 	@Config.LangKey("config.survivalinc.hydration.canteenCapacity")
 	@Config.Comment("The amount of water indicated by number of sips the canteen can store")
 	@Config.RangeInt(min = 1)
-	public int canteenCapacity = 32;
+	public int canteenCapacity = 256;
 }
