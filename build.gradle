@@ -79,16 +79,16 @@ processResources {
 publishing {
 	repositories {
 		maven {
-			name 'EC77-Maven'
-			url project.properties['ec77maven.url']
+			name 'Ec77Maven'
+			url 'https://maven.enginecrafter77.dev/general'
 			credentials {
-				username project.properties['ec77maven.username']
-				password project.properties['ec77maven.password']
+				username System.getenv("EC77MAVEN_USERNAME") ?: ""
+				password System.getenv("EC77MAVEN_PASSWORD") ?: ""
 			}
 		}
 	}
 	publications {
-		privateMaven(MavenPublication) {
+		main(MavenPublication) {
 			groupId 'enginecrafter77.survivalinc'
 			version project.version
 			artifactId 'survivalinc_' + project.minecraft.version
@@ -107,13 +107,13 @@ publishing {
 				developers {
 					developer {
 						id = 'enginecrafter77'
-						name = 'Michal Hutira'
+						name = 'Enginecrafter77'
 						email = 'hutiramichal@gmail.com'
 					}
 				}
 				scm {
-					connection = 'scm:git:https://github.com/Enginecrafter77/SurvivalInc.git'
-					url = 'https://github.com/Enginecrafter77/SurvivalInc'
+					connection = "scm:git:${project.properties['scm.url']}" as String
+					url = project.properties['github.projecturl'] as String
 				}
 			}
 		}
@@ -123,13 +123,14 @@ publishing {
 // Curseforge publishing
 curseforge {
 	def cleanTag = Integer.parseInt(project.ext.commit_distance) == 0
+	def relLink = cleanTag ? "releases/tag/$project.ext.base_tag" : "commit/$project.ext.git_sha1_8"
 	
-	apiKey = System.getenv("CURSEFORGE_APIKEY") ?: (project.properties["curseforge.apikey"] ?: '#invalid-key#')
+	apiKey = System.getenv("CURSEFORGE_APIKEY") ?: '#invalid-key#'
 	project {
-		id = '375921'
-		releaseType = System.getenv("GRADLE_RELEASE_TYPE") ?: (Boolean.parseBoolean(project.ext.dirty) ? 'alpha' : (cleanTag ? 'release' : 'beta'))
+		id = project.properties['curseforge.projectid']
+		releaseType = System.getenv("CURSEFORGE_RELEASE_TYPE") ?: (Boolean.parseBoolean(project.ext.dirty) ? 'alpha' : (cleanTag ? 'release' : 'beta'))
 		changelogType = 'markdown'
-		changelog = 'For changelog, see the [github release page](https://github.com/Enginecrafter77/SurvivalInc' + (cleanTag ? "/releases/tag/$project.ext.base_tag" : "/commit/$project.ext.git_sha1_8") + ').'
+		changelog = "For changelog, see the [github release page](${project.properties['github.projecturl']}/${relLink})."
 		
 		mainArtifact(jar) {
 			displayName = "${project.archivesBaseName}-${project.minecraft.version}-${project.version}.jar"

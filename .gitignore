@@ -17,7 +17,6 @@ out
 # gradle
 build
 .gradle
-gradle.properties
 
 # other
 run
