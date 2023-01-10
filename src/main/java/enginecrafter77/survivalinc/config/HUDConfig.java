@@ -94,4 +94,8 @@ public class HUDConfig {
 	@Config.LangKey("config.survivalinc.client.hud.hydrationBarSpacing")
 	@Config.Comment({"The spacing between the icons in the hydration bar in pixels", "Positive values pull the icons apart, negative values cram the icons together"})
 	public int hydrationBarSpacing = -1;
+
+	@Config.LangKey("config.survivalinc.client.hud.ghostEnergyRenderTrigger")
+	@Config.Comment({"The element to render the ghost energy bar after.", "May help with compatibility with some mods."})
+	public ElementType ghostEnergyRenderTrigger = ElementType.HEALTH;
 }

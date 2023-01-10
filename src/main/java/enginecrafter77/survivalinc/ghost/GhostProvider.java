@@ -1,8 +1,8 @@
 package enginecrafter77.survivalinc.ghost;
 
+import com.google.common.collect.ImmutableSet;
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.client.HUDConstructEvent;
-import enginecrafter77.survivalinc.client.StackingElementLayoutFunction;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.net.StatSyncMessage;
 import enginecrafter77.survivalinc.stats.*;
@@ -35,10 +35,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.lang.reflect.Field;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 
 public class GhostProvider implements StatProvider<GhostEnergyRecord> {
 	public static final EffectFilter<GhostEnergyRecord> FILTER_ACTIVE = (GhostEnergyRecord record, EntityPlayer player) -> record.isActive();
@@ -132,8 +129,12 @@ public class GhostProvider implements StatProvider<GhostEnergyRecord> {
 	@SubscribeEvent
 	public void constructHud(HUDConstructEvent event)
 	{
-		event.addElement(new GhostEnergyBar(), StackingElementLayoutFunction.LEFT).setTrigger(RenderGameOverlayEvent.ElementType.HOTBAR).addFilter(GhostConditionRenderFilter.INSTANCE);
-		event.addRenderStageFilter(GhostConditionRenderFilter.INSTANCE, RenderGameOverlayEvent.ElementType.HEALTH, RenderGameOverlayEvent.ElementType.AIR, RenderGameOverlayEvent.ElementType.ARMOR, RenderGameOverlayEvent.ElementType.FOOD);
+		// A very crude solution, HUD code needs some refactoring
+		Set<RenderGameOverlayEvent.ElementType> stages = ImmutableSet.of(RenderGameOverlayEvent.ElementType.HEALTH, RenderGameOverlayEvent.ElementType.AIR, RenderGameOverlayEvent.ElementType.ARMOR, RenderGameOverlayEvent.ElementType.FOOD, RenderGameOverlayEvent.ElementType.EXPERIENCE);
+		GhostEnergyBarRenderer renderer = new GhostEnergyBarRenderer(ModConfig.CLIENT.hud.ghostEnergyRenderTrigger, new GhostEnergyBar()).suppresses(stages);
+		event.addRenderStageFilter(renderer, stages.toArray(new RenderGameOverlayEvent.ElementType[0]));
+		if(!stages.contains(ModConfig.CLIENT.hud.ghostEnergyRenderTrigger))
+			event.addRenderStageFilter(renderer, ModConfig.CLIENT.hud.ghostEnergyRenderTrigger);
 	}
 	
 	/**

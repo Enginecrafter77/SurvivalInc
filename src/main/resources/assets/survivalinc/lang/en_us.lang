@@ -90,6 +90,8 @@ config.survivalinc.client.hud.hydrationBarCapacity=Hydration Bar Capacity
 config.survivalinc.client.hud.hydrationBarCapacity.tooltip=The number of individual icons in the hydration bar
 config.survivalinc.client.hud.hydrationBarSpacing=Hydration Bar Spacing
 config.survivalinc.client.hud.hydrationBarSpacing.tooltip=The spacing between the icons in the hydration bar in pixels
+config.survivalinc.client.hud.ghostEnergyRenderTrigger=Ghost Energy Render Trigger
+config.survivalinc.client.hud.ghostEnergyRenderTrigger.tooltip=The event on which the ghost energy is rendered.
 
 # Vignette config
 config.survivalinc.client.vignette=Vignette
