@@ -80,14 +80,14 @@ public class StatRangeVignette extends ElementalVignette {
 	public void draw(RenderFrameContext context, ReadablePoint position)
 	{
 		EntityPlayerSP player = Minecraft.getMinecraft().player;
-		StatTracker tracker = player.getCapability(StatCapability.target, null);
+		StatTracker tracker = player.getCapability(StatCapability.getInstance(), null);
 		if(tracker == null || !tracker.isActive(this.provider, player))
 			return;
 
-		float heat = Optional.ofNullable(tracker.getRecord(this.provider)).map(SimpleStatRecord::getValue).orElse(0F);
-		if(this.activationrange.contains(heat))
+		float magnitude = Optional.ofNullable(tracker.getRecord(this.provider)).map(SimpleStatRecord::getValue).orElse(0F);
+		if(this.activationrange.contains(magnitude))
 		{
-			float prop = this.getValuePropPos(heat);
+			float prop = this.getValuePropPos(magnitude);
 			if(this.logarithmic)
 				this.setOpacity((1F - (float)Math.pow(6F, -2F * prop)) / 0.9723F); // Scale logarithmically
 			super.draw(context, position);

@@ -143,7 +143,7 @@ public class ArmorConductivityCommand extends CommandBase {
 			}
 			else
 			{
-				throw new CommandException("Item in armor slot " + piece.toString() + " is not an armor!");
+				throw new CommandException("Item in armor slot " + piece + " is not an armor!"); //TODO localize
 			}
 		}
 		else
@@ -154,7 +154,7 @@ public class ArmorConductivityCommand extends CommandBase {
 			}
 			catch(IllegalArgumentException exc)
 			{
-				throw new CommandException(String.format("No armor material with name \"%s\" exists!", materialbundle));
+				throw new CommandException(String.format("No armor material with name \"%s\" exists!", materialbundle)); //TODO localize
 			}
 		}
 	}

@@ -12,7 +12,6 @@ import enginecrafter77.survivalinc.stats.effect.*;
 import enginecrafter77.survivalinc.util.FunctionalImplementation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.shader.ShaderGroup;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityAnimal;
@@ -80,7 +79,7 @@ public class SanityModifier implements StatProvider<SanityRecord> {
 	{
 		return new ResourceLocation(SurvivalInc.MOD_ID, "sanity");
 	}
-	
+
 	@Override
 	public SanityRecord createNewRecord()
 	{
@@ -159,6 +158,7 @@ public class SanityModifier implements StatProvider<SanityRecord> {
 			{
 				// Check if the current shader is our shader, and if so, stop using it.
 				ShaderGroup shader = client.entityRenderer.getShaderGroup();
+				//noinspection ConstantValue
 				if(shader != null && shader.getShaderGroupName().equals(SanityModifier.DISTORT_SHADER.toString()))
 				{
 					client.entityRenderer.stopUseShader();
@@ -234,12 +234,13 @@ public class SanityModifier implements StatProvider<SanityRecord> {
 		
 		Minecraft client = Minecraft.getMinecraft();
 		ShaderGroup shader = client.entityRenderer.getShaderGroup();
-		StatTracker tracker = event.player.getCapability(StatCapability.target, null);
 
-		if(tracker == null)
-			return;
+		//noinspection ConstantValue
+		if(shader == null)
+			return; // Quit BS-ing, the value can absolutely be null
 
-		if(event.player.world.getWorldTime() % 160 == 0 && shader != null && shader.getShaderGroupName().equals(SanityModifier.DISTORT_SHADER.toString()) && !tracker.isActive(this, null))
+		boolean isStatActive = StatCapability.obtainTracker(event.player).map((StatTracker tracker) -> tracker.isActive(this, null)).orElse(false);
+		if(event.player.world.getWorldTime() % 160 == 0 && shader.getShaderGroupName().equals(SanityModifier.DISTORT_SHADER.toString()) && !isStatActive)
 			client.entityRenderer.stopUseShader();
 	}
 	
@@ -267,8 +268,6 @@ public class SanityModifier implements StatProvider<SanityRecord> {
 	@SubscribeEvent
 	public void onTame(AnimalTameEvent event)
 	{
-		Entity ent = event.getEntity();
-		if(ent instanceof EntityPlayer)
-			StatCapability.obtainRecord(this, (EntityPlayer)ent).ifPresent((SanityRecord record) -> record.addToValue((float)ModConfig.SANITY.animalTameBoost));
+		StatCapability.obtainRecord(this, event.getTamer()).ifPresent((SanityRecord record) -> record.addToValue((float)ModConfig.SANITY.animalTameBoost));
 	}
 }

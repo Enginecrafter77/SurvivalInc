@@ -61,12 +61,8 @@ public class DeltaArrow extends SimpleOverlayElement {
 	@Override
 	public void draw(RenderFrameContext context, ReadablePoint position)
 	{
-		float value = 1F;
+		float value = StatCapability.obtainTracker(Minecraft.getMinecraft().player).map(this::getArrowScale).orElse(1F);
 
-		StatTracker tracker = Minecraft.getMinecraft().player.getCapability(StatCapability.target, null);
-		if(tracker != null)
-			value = this.getArrowScale(tracker);
-		
 		ReadableDimension size = this.getSize();
 		
 		GlStateManager.pushMatrix(); // Create new object by pushing matrix

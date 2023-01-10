@@ -40,12 +40,7 @@ public class ItemSituationContainer {
 	public void register(ItemSituation<?> situation)
 	{
 		Class<? extends Event> typeclass = situation.getEventClass();
-		List<ItemSituation<?>> situations = this.effectmap.get(typeclass);
-		if(situations == null)
-		{
-			situations = new ArrayList<ItemSituation<?>>();
-			this.effectmap.put(typeclass, situations);
-		}
+		List<ItemSituation<?>> situations = this.effectmap.computeIfAbsent(typeclass, (Class<? extends Event> event) -> new ArrayList<ItemSituation<?>>());
 		situations.add(situation);
 	}
 	
@@ -58,7 +53,7 @@ public class ItemSituationContainer {
 		if(situation.isTriggeredBy(specevent))
 		{
 			EntityPlayer player = situation.getPlayer(specevent);
-			situation.apply(player.getCapability(StatCapability.target, null));
+			StatCapability.obtainTracker(player).ifPresent(situation::apply);
 		}
 	}
 	
@@ -134,7 +129,7 @@ public class ItemSituationContainer {
 		}
 		catch(ReflectiveOperationException exc)
 		{
-			throw new RuntimeException("Exception generating ASM Handler for " + events.toString(), exc);
+			throw new RuntimeException("Exception generating ASM Handler for " + events, exc);
 		}
 	}
 }

@@ -3,7 +3,6 @@ package enginecrafter77.survivalinc.item;
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import enginecrafter77.survivalinc.stats.StatCapability;
-import enginecrafter77.survivalinc.stats.StatTracker;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
@@ -30,12 +29,10 @@ public class ItemFeatherFan extends Item {
 		if(!player.isInWater() && !player.isInLava())
 		{
 			if(!world.isRemote) world.playSound(null, player.getPosition(), SoundEvents.ENTITY_PARROT_FLY, SoundCategory.PLAYERS, 0.2F, 1.25F);
-			
-			StatTracker stats = player.getCapability(StatCapability.target, null);
-			SimpleStatRecord heat = stats.getRecord(SurvivalInc.heat);
-			SimpleStatRecord wetness = stats.getRecord(SurvivalInc.wetness);
-			heat.addToValue(-20F);
-			wetness.addToValue(-5F);
+
+			StatCapability.obtainRecord(SurvivalInc.heat, player).ifPresent(SimpleStatRecord.addF(-20F));
+			StatCapability.obtainRecord(SurvivalInc.wetness, player).ifPresent(SimpleStatRecord.addF(-5F));
+
 			if(player.isBurning()) player.extinguish();
 			player.getHeldItem(hand).damageItem(1, player);
 		}

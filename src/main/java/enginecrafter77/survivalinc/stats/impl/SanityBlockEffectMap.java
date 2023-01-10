@@ -70,6 +70,8 @@ public class SanityBlockEffectMap {
 		for(Map.Entry<String, JsonElement> entry : rootMap.entrySet())
 		{
 			Block block = Block.getBlockFromName(entry.getKey());
+			if(block == null)
+				continue;
 			float value = entry.getValue().getAsFloat();
 			this.register(block, value);
 		}

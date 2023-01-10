@@ -90,12 +90,15 @@ public class StatFillBar<RECORD extends StatRecord> implements OverlayElement {
 	public void draw(RenderFrameContext context, ReadablePoint position)
 	{
 		EntityPlayerSP player = Minecraft.getMinecraft().player;
-		StatTracker tracker = player.getCapability(StatCapability.target, null);
+		StatTracker tracker = StatCapability.obtainTracker(player).orElse(null);
 		if(tracker != null && tracker.isActive(this.provider, player))
 		{
 			this.background.draw(context, position);
 
 			RECORD record = tracker.getRecord(this.provider);
+			if(record == null)
+				return;
+
 			for(StatBarRenderLayer<RECORD> layer : this.layers)
 			{
 				layer.updateFill(record);

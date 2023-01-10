@@ -17,6 +17,7 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.common.util.INBTSerializable;
 
+import javax.annotation.Nullable;
 import java.util.Set;
 
 public class WaterVolume implements INBTSerializable<NBTTagCompound> {
@@ -173,7 +174,8 @@ public class WaterVolume implements INBTSerializable<NBTTagCompound> {
 		volume.deserializeNBT(tag);
 		return volume;
 	}
-	
+
+	@Nullable
 	public static WaterVolume fromBlock(IBlockAccess world, BlockPos position, int amount)
 	{
 		WaterVolume.checkTables();

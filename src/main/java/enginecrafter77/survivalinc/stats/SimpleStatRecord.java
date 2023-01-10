@@ -1,8 +1,10 @@
 package enginecrafter77.survivalinc.stats;
 
 import com.google.common.collect.Range;
-
 import net.minecraft.nbt.NBTTagCompound;
+
+import javax.annotation.Nonnull;
+import java.util.function.Consumer;
 
 /**
  * A simple instance of stat record, which
@@ -166,7 +168,7 @@ public class SimpleStatRecord implements StatRecord {
 	}
 
 	@Override
-	public void deserializeNBT(NBTTagCompound nbt)
+	public void deserializeNBT(@Nonnull NBTTagCompound nbt)
 	{
 		this.value = nbt.getFloat("value");
 	}
@@ -176,5 +178,14 @@ public class SimpleStatRecord implements StatRecord {
 	{
 		return String.format("%f <%f>", this.getValue(), this.getLastChange());
 	}
-	
+
+	/**
+	 * Returns a {@link Consumer} which adds the given value to the consumed record's value.
+	 * @param value The value to add (or subtract)
+	 * @return A consumer adding the given value to the record's value.
+	 */
+	public static Consumer<SimpleStatRecord> addF(float value)
+	{
+		return (SimpleStatRecord record) -> record.addToValue(value);
+	}
 }

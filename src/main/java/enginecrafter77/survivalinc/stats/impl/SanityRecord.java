@@ -1,10 +1,11 @@
 package enginecrafter77.survivalinc.stats.impl;
 
 import com.google.common.collect.Range;
-
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import net.minecraft.nbt.NBTTagCompound;
+
+import javax.annotation.Nonnull;
 
 public class SanityRecord extends SimpleStatRecord {
 	public static final Range<Float> values = Range.closed(0F, 100F);
@@ -37,7 +38,7 @@ public class SanityRecord extends SimpleStatRecord {
 	}
 
 	@Override
-	public void deserializeNBT(NBTTagCompound nbt)
+	public void deserializeNBT(@Nonnull NBTTagCompound nbt)
 	{
 		super.deserializeNBT(nbt);
 		this.ticksAwake = nbt.getInteger("ticksAwake");

@@ -98,6 +98,7 @@ public class HydrationModifier implements StatProvider<SimpleStatRecord> {
 	 * was fake (artificially created without client-side ray trace),
 	 * it will get detected and log it as warning to the server console.
 	 */
+	@Nullable
 	public static IMessage validateMessage(WaterDrinkMessage message, MessageContext ctx)
 	{
 		EntityPlayerMP player = ctx.getServerHandler().player;

@@ -150,8 +150,8 @@ public class GhostProvider implements StatProvider<GhostEnergyRecord> {
 				float energy = record.getValue();
 				if(ModConfig.GHOST.enableInteraction && energy >= ModConfig.GHOST.interactionThreshold)
 				{
-					Float cost = this.interactor.apply(event);
-					if(cost != null && energy >= cost)
+					float cost = this.interactor.apply(event);
+					if(energy >= cost)
 					{
 						record.addToValue(-cost);
 						GhostProvider.spawnInteractionParticles(event.getEntityPlayer(), event.getPos(), cost);
@@ -314,14 +314,12 @@ public class GhostProvider implements StatProvider<GhostEnergyRecord> {
 				Minecraft.getMinecraft().gameSettings.viewBobbing = !isGhost;
 			
 			// Suspend all other stats
-			StatTracker tracker = player.getCapability(StatCapability.target, null);
-			if(tracker != null)
-			{
+			StatCapability.obtainTracker(player).ifPresent((StatTracker tracker) -> {
 				Collection<StatProvider<?>> providers = tracker.getRegisteredProviders();
 				providers.remove(this);
 				for(StatProvider<?> provider : providers)
 					tracker.setSuspended(provider, isGhost);
-			}
+			});
 			
 			record.acceptChange();
 		}

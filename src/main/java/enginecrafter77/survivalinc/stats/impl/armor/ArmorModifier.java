@@ -1,15 +1,6 @@
 package enginecrafter77.survivalinc.stats.impl.armor;
 
-import java.util.EnumMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.function.BiConsumer;
-
-import javax.annotation.Nullable;
-
 import com.google.common.collect.ImmutableMap;
-
 import enginecrafter77.survivalinc.stats.effect.CalculatorFunction;
 import enginecrafter77.survivalinc.stats.impl.HeatModifier;
 import net.minecraft.entity.player.EntityPlayer;
@@ -18,27 +9,27 @@ import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemArmor.ArmorMaterial;
 import net.minecraft.item.ItemStack;
 
+import javax.annotation.Nullable;
+import java.util.EnumMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.function.BiConsumer;
+
 /**
  * ArmorModifier is a {@link CalculatorFunction} designed to be used inside of {@link HeatModifier}. The ArmorModifier
  * class takes care of computing the exchange rate multiplier caused by wearing different types of armor. The individual
  * conductivity of each armor piece is based on 2 things: the base conductivity of a material and the {@link #cdcvector
  * distribution vector}.
- * 
- * The thermal exchange multiplier is calculated using the following formula:
- *
- * <pre>
- * e(x) = x * PROD(b ^ d)
- * </pre>
- * 
- * Where x is the input conductivity, b is the base material conductivity and d is the distribution vector. For example,
- * image that the player wears helmet and chestplate of material X with conductivity 0.5, and leggings and boots of
- * material Y with conductivity 1.5. Let's say the distribution vector is [0.2, 0.3, 0.2, 0.1]. Then, the equation would
- * look something like this:
- * 
- * <pre>
- * e(x) = x * (0.5^0.2 * 0.5^0.3 * 1.5^0.2 * 1.5^0.1) = <u>0.79856 * x</u>
- * </pre>
- *
+ * <p>
+ *     The thermal exchange multiplier is calculated using the following formula:
+ *     <pre>e(x) = x * PROD(b ^ d)</pre>
+ *     Where x is the input conductivity, b is the base material conductivity and d is the distribution vector. For example,
+ *     image that the player wears helmet and chestplate of material X with conductivity 0.5, and leggings and boots of
+ *     material Y with conductivity 1.5. Let's say the distribution vector is [0.2, 0.3, 0.2, 0.1]. Then, the equation would
+ *     look something like this:
+ *     <pre>e(x) = x * (0.5^0.2 * 0.5^0.3 * 1.5^0.2 * 1.5^0.1) = <u>0.79856 * x</u></pre>
+ * </p>
  * @see ConductivityDistributionVector
  * @see #setMaterialConductivity(net.minecraft.item.ItemArmor.ArmorMaterial, float)
  * @author Enginecrafter77
@@ -87,8 +78,8 @@ public class ArmorModifier implements CalculatorFunction {
 	/**
 	 * Returns the base conductivity of the provided material, or null if the specified material doesn't have one
 	 * associated.
-	 * @param material
-	 * @return
+	 * @param material The armor material
+	 * @return Base conductivity of that material
 	 */
 	@Nullable
 	public Float getMaterialBaseConductivity(ItemArmor.ArmorMaterial material)

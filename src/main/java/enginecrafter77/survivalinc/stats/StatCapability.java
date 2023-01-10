@@ -26,48 +26,48 @@ import javax.annotation.Nullable;
 import java.util.Optional;
 
 public class StatCapability implements ICapabilitySerializable<NBTBase> {
-	private static ResourceLocation identificator = new ResourceLocation(SurvivalInc.MOD_ID, "stats");
+	private static final ResourceLocation CAPABILITY_ID = new ResourceLocation(SurvivalInc.MOD_ID, "stats");
 
-	@Nonnull
 	@CapabilityInject(StatTracker.class)
-	public static Capability<StatTracker> target;
+	private static final Capability<StatTracker> target = null;
 	
 	private final StatTracker tracker;
 	
 	public StatCapability()
 	{
-		this.tracker = target.getDefaultInstance();
+		this.tracker = StatCapability.getInstance().getDefaultInstance();
 	}
 	
 	@Override
-	public boolean hasCapability(Capability<?> capability, EnumFacing facing)
+	public boolean hasCapability(Capability<?> capability, @Nullable EnumFacing facing)
 	{
-		return capability == target;
+		return capability == StatCapability.getInstance();
 	}
 
 	@Override
-	public <TARGET> TARGET getCapability(Capability<TARGET> capability, EnumFacing facing)
+	public <TARGET> TARGET getCapability(Capability<TARGET> capability, @Nullable EnumFacing facing)
 	{
-		return this.hasCapability(capability, facing) ? target.cast(this.tracker) : null;
+		return this.hasCapability(capability, facing) ? StatCapability.getInstance().cast(this.tracker) : null;
 	}
 
+	@Nullable
 	@Override
 	public NBTBase serializeNBT()
 	{
-		return target.getStorage().writeNBT(target, this.tracker, null);
+		return StatCapability.getInstance().getStorage().writeNBT(target, this.tracker, null);
 	}
 
 	@Override
 	public void deserializeNBT(NBTBase nbt)
 	{
-		target.getStorage().readNBT(target, this.tracker, null, nbt);
+		StatCapability.getInstance().getStorage().readNBT(target, this.tracker, null, nbt);
 	}
 	
 	@SubscribeEvent
 	public static void attachCapability(AttachCapabilitiesEvent<Entity> event)
 	{
 		if(!(event.getObject() instanceof EntityPlayer)) return;
-		event.addCapability(StatCapability.identificator, new StatCapability());
+		event.addCapability(StatCapability.CAPABILITY_ID, new StatCapability());
 	}
 	
 	@SubscribeEvent
@@ -102,14 +102,15 @@ public class StatCapability implements ICapabilitySerializable<NBTBase> {
 	@SubscribeEvent
 	public static void onPlayerTick(TickEvent.PlayerTickEvent event)
 	{
-		StatTracker stat = event.player.getCapability(StatCapability.target, null);
-		stat.update(event.player);
-		
-		if(event.side == Side.SERVER && event.player.ticksExisted % ModConfig.GENERAL.serverSyncDelay == (ModConfig.GENERAL.serverSyncDelay - 1))
-		{
-			// Send update to all players about the currently processed player's stats
-			SurvivalInc.net.sendToAll(new StatSyncMessage().addPlayer(event.player));
-		}
+		StatCapability.obtainTracker(event.player).ifPresent((StatTracker tracker) -> {
+			tracker.update(event.player);
+
+			if(event.side == Side.SERVER && event.player.ticksExisted % ModConfig.GENERAL.serverSyncDelay == (ModConfig.GENERAL.serverSyncDelay - 1))
+			{
+				// Send update to all players about the currently processed player's stats
+				SurvivalInc.net.sendToAll(new StatSyncMessage().addPlayer(event.player));
+			}
+		});
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -125,24 +126,35 @@ public class StatCapability implements ICapabilitySerializable<NBTBase> {
 
 	public static void resetStatsFor(EntityPlayer player)
 	{
-		StatTracker tracker = player.getCapability(StatCapability.target, null);
-		if(tracker == null)
-			return;
-
-		for(StatProvider<?> provider : tracker.getRegisteredProviders())
-			resetRecord(tracker, provider);
+		StatCapability.obtainTracker(player).ifPresent((StatTracker tracker) -> {
+			for(StatProvider<?> provider : tracker.getRegisteredProviders())
+				resetRecord(tracker, provider);
+		});
 	}
 
 	private static <T extends StatRecord> void resetRecord(StatTracker tracker, StatProvider<T> provider)
 	{
-		T record = tracker.getRecord(provider);
-		provider.resetRecord(record);
+		Optional.ofNullable(tracker.getRecord(provider)).ifPresent(provider::resetRecord);
 	}
 
 	public static <T extends StatRecord> Optional<T> obtainRecord(@Nullable StatProvider<T> provider, @Nonnull Entity entity)
 	{
 		if(provider == null)
 			return Optional.empty();
-		return Optional.ofNullable(entity.getCapability(StatCapability.target, null)).map((StatTracker tracker) -> tracker.getRecord(provider));
+		return StatCapability.obtainTracker(entity).map((StatTracker tracker) -> tracker.getRecord(provider));
+	}
+
+	@Nonnull
+	@SuppressWarnings("ConstantValue") // It's not really constant...
+	public static Capability<StatTracker> getInstance()
+	{
+		if(StatCapability.target == null)
+			throw new IllegalStateException("Capability not available");
+		return StatCapability.target;
+	}
+
+	public static Optional<StatTracker> obtainTracker(Entity entity)
+	{
+		return Optional.ofNullable(entity.getCapability(StatCapability.getInstance(), null));
 	}
 }

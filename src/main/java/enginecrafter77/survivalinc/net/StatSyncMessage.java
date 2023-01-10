@@ -6,6 +6,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.Capability.IStorage;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -47,9 +48,10 @@ public class StatSyncMessage implements IMessage {
 	
 	public StatSyncMessage addPlayer(EntityPlayer player)
 	{
-		IStorage<StatTracker> serializer = StatCapability.target.getStorage();
-		StatTracker tracker = player.getCapability(StatCapability.target, null);
-		NBTTagCompound data = (NBTTagCompound)serializer.writeNBT(StatCapability.target, tracker, null);
+		Capability<StatTracker> capability = StatCapability.getInstance();
+		IStorage<StatTracker> serializer = capability.getStorage();
+		StatTracker tracker = player.getCapability(capability, null);
+		NBTTagCompound data = (NBTTagCompound)serializer.writeNBT(capability, tracker, null);
 		this.data.put(player.getUniqueID(), data);
 		return this;
 	}
@@ -65,7 +67,9 @@ public class StatSyncMessage implements IMessage {
 	public void fromBytes(ByteBuf buf)
 	{
 		NBTTagCompound bundle = ByteBufUtils.readTag(buf);
-		
+		if(bundle == null)
+			throw new RuntimeException("Malformed stat sync message");
+
 		for(String key : bundle.getKeySet())
 		{
 			NBTTagCompound trackerdata = bundle.getCompoundTag(key);

@@ -1,9 +1,5 @@
 package enginecrafter77.survivalinc.stats.effect.item;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-
 import enginecrafter77.survivalinc.SurvivalInc;
 import enginecrafter77.survivalinc.stats.SimpleStatRecord;
 import enginecrafter77.survivalinc.stats.StatCapability;
@@ -13,6 +9,11 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.eventhandler.Event;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
 
 public abstract class ItemSituation<TYPE extends Event> {
 	
@@ -50,13 +51,14 @@ public abstract class ItemSituation<TYPE extends Event> {
 	@Deprecated
 	public void apply(TYPE event)
 	{
-		if(this.isTriggeredBy(event)) this.apply(this.getPlayer(event).getCapability(StatCapability.target, null));
+		if(this.isTriggeredBy(event))
+			StatCapability.obtainTracker(this.getPlayer(event)).ifPresent(this::apply);
 	}
 	
 	@Override
 	public String toString()
 	{
-		return String.format("%s(%s; I: %s, P: %s, E: %s)", this.getClass().getSimpleName(), this.getEventClass().getSimpleName(), this.item.getRegistryName().toString(), this.props.toString(), this.effects.toString());
+		return String.format("%s(%s; I: %s, P: %s, E: %s)", this.getClass().getSimpleName(), this.getEventClass().getSimpleName(), this.item.getRegistryName(), this.props, this.effects);
 	}
 	
 	protected void apply(StatTracker tracker)
@@ -70,8 +72,7 @@ public abstract class ItemSituation<TYPE extends Event> {
 				
 				if(SimpleStatRecord.class.isAssignableFrom(provider.getRecordClass()))
 				{
-					SimpleStatRecord record = (SimpleStatRecord) tracker.getRecord(provider);
-					record.addToValue(entry.getValue());
+					Optional.ofNullable(tracker.getRecord(provider)).map(SimpleStatRecord.class::cast).ifPresent(SimpleStatRecord.addF(entry.getValue()));
 				}
 				else
 				{

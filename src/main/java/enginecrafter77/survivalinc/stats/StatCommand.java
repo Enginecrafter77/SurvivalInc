@@ -49,10 +49,7 @@ public class StatCommand extends CommandBase {
 	
 	public void applyTo(EntityPlayer player, ICommandSender sender, String[] args) throws CommandException
 	{
-		StatTracker tracker = player.getCapability(StatCapability.target, null);
-
-		if(tracker == null)
-			throw new CommandException("command.stats.error.trackerNotAvailable");
+		StatTracker tracker = StatCapability.obtainTracker(player).orElseThrow(() -> new CommandException("command.stats.error.trackerNotAvailable"));
 
 		String cmd = args.length > 1 ? args[1] : "list";
 		switch(cmd)

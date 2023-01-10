@@ -7,6 +7,8 @@ import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.Capability.IStorage;
 
+import javax.annotation.Nonnull;
+
 /**
  * A class used to serialize and deserialize {@link StatTracker trackers} and their associated records.
  * @author Enginecrafter77
@@ -24,7 +26,11 @@ public class StatStorage implements IStorage<StatTracker> {
 	{
 		NBTTagCompound compound = new NBTTagCompound();
 		for(StatProvider<?> provider : instance.getRegisteredProviders())
-			compound.setTag(provider.getStatID().toString(), instance.getRecord(provider).serializeNBT());
+		{
+			String key = provider.getStatID().toString();
+			NBTBase data = this.getNonnullRecord(instance, provider).serializeNBT();
+			compound.setTag(key, data);
+		}
 		return compound;
 	}
 	
@@ -40,11 +46,27 @@ public class StatStorage implements IStorage<StatTracker> {
 				if(compound.hasKey(id))
 				{
 					NBTTagCompound entry = compound.getCompoundTag(id);
-					instance.getRecord(provider).deserializeNBT(entry);
+					this.getNonnullRecord(instance, provider).deserializeNBT(entry);
 				}
-				else SurvivalInc.logger.warn("Requested stat %s not defined in provided NBT!", id.toString());
+				else
+				{
+					SurvivalInc.logger.warn("Requested stat {} not defined in provided NBT!", id);
+				}
 			}
 		}
+		else
+		{
+			SurvivalInc.logger.error("Malformed stat capability NBT data.");
+		}
+	}
+
+	@Nonnull
+	protected <REC extends StatRecord> REC getNonnullRecord(StatTracker tracker, StatProvider<REC> provider)
+	{
+		REC record = tracker.getRecord(provider);
+		if(record == null)
+			throw new IllegalStateException("Reportedly registered provider has no record!");
+		return record;
 	}
 
 }
