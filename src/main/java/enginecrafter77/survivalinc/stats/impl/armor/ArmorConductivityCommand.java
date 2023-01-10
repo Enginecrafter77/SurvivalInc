@@ -1,12 +1,5 @@
 package enginecrafter77.survivalinc.stats.impl.armor;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import enginecrafter77.survivalinc.SurvivalInc;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -18,6 +11,13 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ArmorConductivityCommand extends CommandBase {
 	public static final Pattern DETECTION_BUNDLE_REGEX = Pattern.compile("=([a-zA-Z]+)(?::(.+))?");
@@ -60,13 +60,13 @@ public class ArmorConductivityCommand extends CommandBase {
 			sender.sendMessage(response);
 			return;
 		case "reload":
-			SurvivalInc.proxy.armorConductivityConfig.load(this.link::load);
+			SurvivalInc.armorConductivityConfig.load(this.link::load);
 			sender.sendMessage(new TextComponentString("Reloading configuration..."));
 			return;
 		case "save":
 			try
 			{
-				FileOutputStream output = new FileOutputStream(SurvivalInc.proxy.armorConductivityConfig.getFile());
+				FileOutputStream output = new FileOutputStream(SurvivalInc.armorConductivityConfig.getFile());
 				this.link.save(output);
 				output.close();
 				sender.sendMessage(new TextComponentString("Saving configuration..."));

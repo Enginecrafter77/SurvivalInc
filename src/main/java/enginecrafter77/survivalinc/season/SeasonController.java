@@ -1,5 +1,6 @@
 package enginecrafter77.survivalinc.season;
 
+import enginecrafter77.survivalinc.SurvivalInc;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.Entity;
@@ -21,8 +22,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.function.Predicate;
-
-import enginecrafter77.survivalinc.SurvivalInc;
 
 public class SeasonController {
 	
@@ -52,9 +51,7 @@ public class SeasonController {
 		}
 		catch(NoSuchFieldException exc)
 		{
-			RuntimeException nexc = new RuntimeException();
-			nexc.initCause(exc);
-			throw nexc;
+			throw new RuntimeException(exc);
 		}
 	}
 	
@@ -94,7 +91,7 @@ public class SeasonController {
 		if(ent instanceof EntityPlayer && world.isRemote && isOverworld.test(world))
 		{
 			SurvivalInc.logger.info("Requesting season data from server...");
-			SurvivalInc.proxy.net.sendToServer(new SeasonSyncRequest());
+			SurvivalInc.net.sendToServer(new SeasonSyncRequest());
 		}
 	}
 	
@@ -127,7 +124,7 @@ public class SeasonController {
 				data.getCurrentDate().advance(1);
 				data.markDirty();
 				
-				SurvivalInc.proxy.net.sendToDimension(new SeasonSyncMessage(data), DimensionType.OVERWORLD.getId()); // Synchronize the data with clients, so they begin processing on their side
+				SurvivalInc.net.sendToDimension(new SeasonSyncMessage(data), DimensionType.OVERWORLD.getId()); // Synchronize the data with clients, so they begin processing on their side
 				MinecraftForge.EVENT_BUS.post(new SeasonChangedEvent(event.world, data.getCurrentDate())); // Broadcast and process the event on server side
 			}
 		}

@@ -3,13 +3,12 @@ package enginecrafter77.survivalinc;
 import enginecrafter77.survivalinc.client.*;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.ghost.RenderGhost;
-import enginecrafter77.survivalinc.net.EntityItemUpdateMessage;
-import enginecrafter77.survivalinc.net.EntityItemUpdater;
-import enginecrafter77.survivalinc.net.StatSyncHandler;
-import enginecrafter77.survivalinc.net.StatSyncMessage;
+import enginecrafter77.survivalinc.net.*;
 import enginecrafter77.survivalinc.season.LeafColorer;
 import enginecrafter77.survivalinc.season.SeasonController;
 import enginecrafter77.survivalinc.season.SeasonSyncMessage;
+import enginecrafter77.survivalinc.season.SeasonSyncRequest;
+import enginecrafter77.survivalinc.stats.impl.HydrationModifier;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.util.ResourceLocation;
@@ -18,16 +17,15 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
 import org.lwjgl.util.Color;
 import org.lwjgl.util.ReadableColor;
 
 import javax.annotation.Nullable;
 
-public class ClientProxy extends CommonProxy {
+public class ClientProxy implements SurvivalIncProxy {
 	public static final TextureResource STAT_ICONS = new TextureResource(new ResourceLocation(SurvivalInc.MOD_ID, "textures/gui/staticons.png"), 18, 34);
 
 	/**
@@ -53,39 +51,40 @@ public class ClientProxy extends CommonProxy {
 	/** The HUD instance currently in use, if any */
 	@Nullable
 	private HUDConstructEvent.RenderHUD hud;
-	
+
 	@Override
-	public void preInit(FMLPreInitializationEvent event)
+	public void registerRendering()
 	{
-		super.preInit(event);
 		if(ModConfig.SEASONS.enabled) MinecraftForge.EVENT_BUS.register(LeafColorer.instance);
-	}
-	
-	@Override
-	public void registerClientHandlers()
-	{
-		this.net.registerMessage(StatSyncHandler.class, StatSyncMessage.class, 0, Side.CLIENT);
-		this.net.registerMessage(SeasonController::onSyncDelivered, SeasonSyncMessage.class, 1, Side.CLIENT);
-		this.net.registerMessage(EntityItemUpdater.class, EntityItemUpdateMessage.class, 2, Side.CLIENT);
-	}
-	
-	@Override
-	public void postInit(FMLPostInitializationEvent event)
-	{
-		super.postInit(event);
-		this.rebuildHUD();
-		
-		// Register Ghost event handler
+
 		if(ModConfig.GHOST.enabled) MinecraftForge.EVENT_BUS.register(new RenderGhost());
 	}
 	
+	@Override
+	public void registerNetworkHandlers(SimpleNetworkWrapper net)
+	{
+		net.registerMessage(StatSyncHandler.class, StatSyncMessage.class, 0, Side.CLIENT);
+		net.registerMessage(SeasonController::onSyncDelivered, SeasonSyncMessage.class, 1, Side.CLIENT);
+		net.registerMessage(EntityItemUpdater.class, EntityItemUpdateMessage.class, 2, Side.CLIENT);
+		net.registerMessage(HydrationModifier::validateMessage, WaterDrinkMessage.class, 3, Side.SERVER);
+		net.registerMessage(StatSyncRequestHandler.class, StatSyncRequestMessage.class, 4, Side.SERVER);
+		net.registerMessage(SeasonController::onSyncRequest, SeasonSyncRequest.class, 5, Side.SERVER);
+	}
+
 	@SubscribeEvent
 	public void onConfigChanged(ConfigChangedEvent.PostConfigChangedEvent event)
 	{
 		if(!event.getModID().equals(SurvivalInc.MOD_ID)) return;
-		this.rebuildHUD();
+		this.createHUD();
 	}
-	
+
+	@Nullable
+	@Override
+	public Object getAuxiliaryEventHandler()
+	{
+		return this;
+	}
+
 	// A delegate event handler for RenderHUD#renderOverlayPre
 	@SubscribeEvent
 	public void renderOverlayPre(RenderGameOverlayEvent.Pre event)
@@ -100,15 +99,16 @@ public class ClientProxy extends CommonProxy {
 		if(this.hud != null) this.hud.renderOverlayPost(event);
 	}
 	
-	// Fix the chat position so it's always above the last stacked element
+	// Fix the chat position so that it's always above the last stacked element
 	@SubscribeEvent
 	public void translateChat(RenderGameOverlayEvent.Chat event)
 	{
 		int height = Math.max(GuiIngameForge.left_height, GuiIngameForge.right_height) - 1;
 		event.setPosY(event.getResolution().getScaledHeight() - height);
 	}
-	
-	private void rebuildHUD()
+
+	@Override
+	public void createHUD()
 	{
 		HUDConstructEvent hce = new HUDConstructEvent();
 		MinecraftForge.EVENT_BUS.post(hce);

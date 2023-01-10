@@ -168,7 +168,7 @@ public class ItemTowel extends Item {
 				if(this.getMetadata(post) != this.getMetadata(stored) || post == 0)
 				{
 					WorldServer serverworld = (WorldServer)entity.world;
-					serverworld.getEntityTracker().sendToTracking(entity, SurvivalInc.proxy.net.getPacketFrom(new EntityItemUpdateMessage(entity)));
+					serverworld.getEntityTracker().sendToTracking(entity, SurvivalInc.net.getPacketFrom(new EntityItemUpdateMessage(entity)));
 				}
 			}
 		}

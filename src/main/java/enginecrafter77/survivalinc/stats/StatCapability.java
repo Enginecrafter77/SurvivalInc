@@ -76,7 +76,7 @@ public class StatCapability implements ICapabilitySerializable<NBTBase> {
 		if(!event.player.world.isRemote)
 		{
 			SurvivalInc.logger.info("Player {}({}) changed dimensions. Sending StatSyncMessage...", event.player.getName(),  event.player.getUniqueID().toString());
-			SurvivalInc.proxy.net.sendTo(new StatSyncMessage().addAllPlayers(event.player.world), (EntityPlayerMP)event.player);
+			SurvivalInc.net.sendTo(new StatSyncMessage().addAllPlayers(event.player.world), (EntityPlayerMP)event.player);
 		}
 	}
 
@@ -95,7 +95,7 @@ public class StatCapability implements ICapabilitySerializable<NBTBase> {
 		if(ent instanceof EntityPlayer && ent.world.isRemote)
 		{
 			SurvivalInc.logger.info("Sending stat sync request...");
-			SurvivalInc.proxy.net.sendToServer(new StatSyncRequestMessage());
+			SurvivalInc.net.sendToServer(new StatSyncRequestMessage());
 		}
 	}
 	
@@ -108,19 +108,19 @@ public class StatCapability implements ICapabilitySerializable<NBTBase> {
 		if(event.side == Side.SERVER && event.player.ticksExisted % ModConfig.GENERAL.serverSyncDelay == (ModConfig.GENERAL.serverSyncDelay - 1))
 		{
 			// Send update to all players about the currently processed player's stats
-			SurvivalInc.proxy.net.sendToAll(new StatSyncMessage().addPlayer(event.player));
+			SurvivalInc.net.sendToAll(new StatSyncMessage().addPlayer(event.player));
 		}
 	}
 
 	@SideOnly(Side.CLIENT)
 	public static void requestSync()
 	{
-		SurvivalInc.proxy.net.sendToServer(new StatSyncRequestMessage());
+		SurvivalInc.net.sendToServer(new StatSyncRequestMessage());
 	}
 
 	public static void synchronizeStats(StatSyncMessage message)
 	{
-		SurvivalInc.proxy.net.sendToAll(message);
+		SurvivalInc.net.sendToAll(message);
 	}
 
 	public static void resetStatsFor(EntityPlayer player)

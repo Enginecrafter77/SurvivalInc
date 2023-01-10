@@ -189,7 +189,7 @@ public class HydrationModifier implements StatProvider<SimpleStatRecord> {
 		if(HydrationModifier.isDrinkEventInvalid(event)) return;
 		
 		WaterDrinkMessage result = this.tryDrink(event.getEntityPlayer(), event.getHand());
-		if(result != null) SurvivalInc.proxy.net.sendToServer(result);
+		if(result != null) SurvivalInc.net.sendToServer(result);
 	}
 	
 	/**

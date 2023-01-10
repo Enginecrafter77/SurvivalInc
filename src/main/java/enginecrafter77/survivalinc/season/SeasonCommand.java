@@ -105,7 +105,7 @@ public class SeasonCommand extends CommandBase {
 		
 		if(data.isDirty())
 		{
-			SurvivalInc.proxy.net.sendToDimension(new SeasonSyncMessage(data), DimensionType.OVERWORLD.getId());
+			SurvivalInc.net.sendToDimension(new SeasonSyncMessage(data), DimensionType.OVERWORLD.getId());
 			MinecraftForge.EVENT_BUS.post(new SeasonChangedEvent(world, date));
 		}
 	}
