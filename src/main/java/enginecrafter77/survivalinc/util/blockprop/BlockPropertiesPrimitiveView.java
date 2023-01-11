@@ -21,6 +21,11 @@ public class BlockPropertiesPrimitiveView<VAL> implements BlockPropertyView<VAL>
 		this.key = key;
 	}
 
+	protected String getKey()
+	{
+		return this.key;
+	}
+
 	protected Optional<BlockPrimitiveProperty<VAL>> mapPropsOptional(BlockPropertyMap props)
 	{
 		return props.select(this.key).map(this.transformer);

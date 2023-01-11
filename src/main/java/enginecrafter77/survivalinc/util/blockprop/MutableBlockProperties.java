@@ -49,6 +49,16 @@ public class MutableBlockProperties extends BlockProperties {
 		this.map.computeIfAbsent(entry.getKey(), MutableBlockPropertyMap::new).importProperties(entry.getValue());
 	}
 
+	public <T> MutableBlockPropertiesPrimitiveView<T> mutableView(String key, Class<T> type)
+	{
+		return new MutableBlockPropertiesPrimitiveView<T>(key, type);
+	}
+
+	public <T> MutableBlockPropertiesPrimitiveView<T> mutableSingularView(Class<T> type)
+	{
+		return new MutableBlockPropertiesPrimitiveView<T>(BlockPropertyMap.KEY_SINGULAR_PROPERTY, type);
+	}
+
 	@Override
 	protected Map<Block, ? extends BlockPropertyMap> getBlockProperties()
 	{
@@ -79,6 +89,19 @@ public class MutableBlockProperties extends BlockProperties {
 		public MutableBlockProperties build()
 		{
 			return MutableBlockProperties.this;
+		}
+	}
+
+	public class MutableBlockPropertiesPrimitiveView<VAL> extends BlockPropertiesPrimitiveView<VAL> implements MutableBlockPropertyView<VAL> {
+		public MutableBlockPropertiesPrimitiveView(String key, Class<VAL> type)
+		{
+			super(MutableBlockProperties.this, key, BlockPrimitiveProperty.cast(type));
+		}
+
+		@Override
+		public void setValue(Block block, VAL value)
+		{
+			MutableBlockProperties.this.put(block, this.getKey(), value);
 		}
 	}
 }
