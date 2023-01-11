@@ -120,7 +120,7 @@ public class SimpleStatRegister implements StatTracker {
 	
 	protected static class SimpleStatRegisterEntry {
 		public final StatProvider<?> provider;
-		public boolean runInCreative;
+		public final boolean runInCreative;
 		protected StatRecord record;
 		private boolean shouldTick;
 		

@@ -12,7 +12,7 @@ import org.lwjgl.util.ReadablePoint;
 public class TranslateRenderFilter implements ElementRenderFilter, RenderStageFilter {
 	
 	/** The element position to shift the element by */
-	public ReadablePoint offset;
+	public final ReadablePoint offset;
 	
 	public TranslateRenderFilter(ReadablePoint offset)
 	{

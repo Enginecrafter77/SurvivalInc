@@ -22,7 +22,7 @@ public class PotionStatEffect implements StatEffect<StatRecord> {
 	public final Potion effect;
 	
 	/** The amplifier of the effect */
-	public int amplifier;
+	public final int amplifier;
 	
 	/** Determines whether the potion particles will be visible */
 	public boolean visible;

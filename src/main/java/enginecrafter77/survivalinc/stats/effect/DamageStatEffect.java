@@ -16,10 +16,10 @@ public class DamageStatEffect implements StatEffect<StatRecord> {
 	protected final DamageSource source;
 	
 	/** The amount of damage per hit */
-	protected float amount;
+	protected final float amount;
 	
 	/** The cooldown of the attack, in minecraft ticks */
-	protected int cooldown;
+	protected final int cooldown;
 	
 	public DamageStatEffect(DamageSource source, float amount, int cooldown)
 	{

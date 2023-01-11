@@ -39,13 +39,13 @@ public class DeltaArrow extends SimpleOverlayElement {
 	public final boolean logarithmic;
 	
 	/** The base multiplier applied to the value change */
-	protected float amplitude;
+	protected final float amplitude;
 	
 	/** The minimum scale of the arrow. Beyond this value, the arrow won't shrink. */
-	protected float min_scale;
+	protected final float min_scale;
 	
 	/** The maximum scale of the arrow. Beyond this value, the arrow won't grow. */
-	protected float max_scale;
+	protected final float max_scale;
 	
 	public DeltaArrow(StatProvider<? extends SimpleStatRecord> provider, boolean logarithmic)
 	{

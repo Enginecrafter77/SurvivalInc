@@ -10,12 +10,12 @@ public class HeatConfig {
 	@Config.LangKey("config.survivalinc.heat.enable")
 	@Config.Comment("Setting this to true enables heat mechanics")
 	@Config.RequiresMcRestart
-	public boolean enabled = true;
+	public final boolean enabled = true;
 	
 	@Config.LangKey("config.survivalinc.heat.exchangeFactor")
 	@Config.Comment("The rate at which the player's heat moves towards the environment's temperature")
 	@Config.RangeDouble(min = 0, max = 1)
-	public double heatExchangeFactor = 0.002D;
+	public final double heatExchangeFactor = 0.002D;
 	
 	@Config.LangKey("config.survivalinc.heat.gaussScaling")
 	@Config.Comment({"A gauss curve scaling number.", "Higher values mean sharper curves."})
@@ -25,17 +25,17 @@ public class HeatConfig {
 	@Config.LangKey("config.survivalinc.heat.blockScanRange")
 	@Config.Comment("The maximum distance radiant heat from blocks propagates through")
 	@Config.RangeInt(min = 0)
-	public double blockScanRange = 4;
+	public final double blockScanRange = 4;
 	
 	@Config.LangKey("config.survivalinc.heat.caveTemperature")
 	@Config.Comment("The temperature at the cave normalization depth. If \"Gradient Cave Temperature\" is disabled, this temperature is uniform for every block below sea level.")
 	@Config.RangeDouble(min = 0)
-	public double caveTemperature = 0.7D;
+	public final double caveTemperature = 0.7D;
 	
 	@Config.LangKey("config.survivalinc.heat.caveNormalizationDepth")
 	@Config.Comment({"The depth below surface at which the ambient temperature is that set in \"Cave Temperature\"", "Has no effect if \"Gradient Cave Temperature\" is disabled."})
 	@Config.RangeInt(min = 0)
-	public int caveNormalizationDepth = 10;
+	public final int caveNormalizationDepth = 10;
 	
 	@Config.LangKey("config.survivalinc.heat.surfaceScanningRadius")
 	@Config.Comment({
@@ -43,52 +43,52 @@ public class HeatConfig {
 			"Higher numbers have larger impact on server performance.",
 			"Has no effect if \"Gradient Cave Temperature\" is disabled."})
 	@Config.RangeInt(min = 1)
-	public int surfaceScanningRadius = 2;
+	public final int surfaceScanningRadius = 2;
 	
 	@Config.LangKey("config.survivalinc.heat.gradientCaveTemperature")
 	@Config.Comment({"Set to true to enable the cave gradient temperatures.", "Setting this to false may improve server performance."})
-	public boolean gradientCaveTemperature = true;
+	public final boolean gradientCaveTemperature = true;
 	
 	@Config.LangKey("config.survivalinc.heat.tempCoefficient")
 	@Config.Comment({
 			"A coefficient to turn the biome's temperature to the one processed by Survival Inc.",
 			"60 is normally a good choice; Schoperation used to use " + HeatConfig.SCHOPERATION_CONSTANT})
 	@Config.RangeDouble(min = 0)
-	public double tempCoefficient = 60D;
+	public final double tempCoefficient = 60D;
 	
 	@Config.LangKey("config.survivalinc.heat.wetnessExchangeMultiplier")
 	@Config.Comment({"The heat exchange rate multiplier applied when wetness is at it's maximum", "This option is ignored when wetness is disabled"})
 	@Config.RangeDouble(min = 0)
-	public double wetnessExchangeMultiplier = 4D;
+	public final double wetnessExchangeMultiplier = 4D;
 	
 	@Config.LangKey("config.survivalinc.heat.fireDuration")
 	@Config.Comment({"The duration of fire applied when the player's heat exceeds the threshold", "Setting this to 0 disables the fire, and opts for direct damage instead."})
 	@Config.RangeInt(min = 0)
-	public int fireDuration = 1;
+	public final int fireDuration = 1;
 	
 	@Config.LangKey("config.survivalinc.heat.damageAmount")
 	@Config.Comment("The damage applied if fireDuration is set to 0.")
 	@Config.RangeDouble(min = 0)
-	public double damageAmount = 1D;
+	public final double damageAmount = 1D;
 	
 	@Config.LangKey("config.survivalinc.heat.counteractionEnable")
 	@Config.Comment("Set to true to enable body internal heat counteraction, a mechanism which regenerates or dissipates heat based on the distance from optimal temperature.")
-	public boolean enableCounteraction = true;
+	public final boolean enableCounteraction = true;
 	
 	@Config.LangKey("config.survivalinc.heat.positiveCAAmplitude")
 	@Config.Comment({"The maximum counteraction against too cold temperatures", "In other words, how much the body can correct it's temperature when it's too cold"})
 	@Config.RangeDouble(min = 0)
-	public double positiveCAAmplitude = 0.035D;
+	public final double positiveCAAmplitude = 0.035D;
 	
 	@Config.LangKey("config.survivalinc.heat.negativeCAAmplitude")
 	@Config.Comment({"The maximum counteraction against too hot temperatures", "In other words, how much the body can correct it's temperature when it's too hot"})
 	@Config.RangeDouble(min = 0)
-	public double negativeCAAmplitude = 0.01D;
+	public final double negativeCAAmplitude = 0.01D;
 	
 	@Config.LangKey("config.survivalinc.heat.counteractionCoverage")
 	@Config.Comment({"The range along which the counteraction scales.", "If the temperature gets x-ths of temperature range away from optimal, the amplitude remains constant (i.e. maxed out)"})
 	@Config.RangeDouble(min = 0, max = 1)
-	public double counteractionCoverage = 0.2D;
+	public final double counteractionCoverage = 0.2D;
 	
 	@Config.LangKey("config.survivalinc.heat.counteractionExponent")
 	@Config.Comment({
@@ -97,22 +97,22 @@ public class HeatConfig {
 			"Likewise, exponents <1 make it scale like root functions.",
 			"Exponent 0 makes the amplitude always maxed out."})
 	@Config.RangeDouble(min = 0)
-	public double counteractionExponent = 2D;
+	public final double counteractionExponent = 2D;
 	
 	@Config.LangKey("config.survivalinc.heat.daytimeDifference")
 	@Config.Comment("The difference between the base environment temperature and the one during daytime. (and nighttime conversely)")
-	public double daytimeDifference = 10D;
+	public final double daytimeDifference = 10D;
 	
 	@Config.LangKey("config.survivalinc.heat.colderNights")
 	@Config.Comment("Setting this to true causes the \"Daytime Difference\" value to be subtracted during night.")
-	public boolean colderNights = false;
+	public final boolean colderNights = false;
 	
 	@Config.LangKey("config.survivalinc.heat.sunlightBonus")
 	@Config.Comment("The environmental heat bonus received by standing in sunlight during daytime")
-	public double sunlightBonus = 15D;
+	public final double sunlightBonus = 15D;
 	
 	@Config.LangKey("config.survivalinc.heat.blockHeatMap")
 	@Config.Comment({"A map of blocks and their core heat.", "See the wiki for how this value is affecting the radiant heat"})
 	@Config.RequiresMcRestart
-	public String[] blockHeatMap = {"minecraft:lava 400", "minecraft:flowing_lava 350", "minecraft:magma 300", "minecraft:fire 200", "minecraft:lit_furnace 100", "minecraft:lit_pumpkin 80"};
+	public final String[] blockHeatMap = {"minecraft:lava 400", "minecraft:flowing_lava 350", "minecraft:magma 300", "minecraft:fire 200", "minecraft:lit_furnace 100", "minecraft:lit_pumpkin 80"};
 }

@@ -7,7 +7,7 @@ public class GeneralConfig {
 	@Config.LangKey("config.survivalinc.general.serverSyncDelay")
 	@Config.Comment("The amount of ticks between automatic server-client stat data synchronizations")
 	@Config.RangeInt(min = 1)
-	public int serverSyncDelay = 600;
+	public final int serverSyncDelay = 600;
 	
 	@Config.LangKey("config.survivalinc.general.verifyDrinkRequests")
 	@Config.Comment({
@@ -16,5 +16,5 @@ public class GeneralConfig {
 		"On the other hand, this may cause some issues with mods implementing draconic policies on raytracing, such as ValkyrienSkies",
 		"If you are unsure, leave this to true. If you're experiencing crashes, try turning this off"
 	})
-	public boolean verifyClientDrinkingRequests = true;
+	public final boolean verifyClientDrinkingRequests = true;
 }

@@ -15,7 +15,7 @@ import net.minecraft.world.chunk.Chunk;
  */
 public class MeltingTransformer extends LayeredChunkFilter {
 	
-	public BlockMelting meltingblock;
+	public final BlockMelting meltingblock;
 	
 	public MeltingTransformer(BlockMelting block)
 	{
