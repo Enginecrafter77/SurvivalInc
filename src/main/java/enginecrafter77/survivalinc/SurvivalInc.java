@@ -6,7 +6,7 @@ import enginecrafter77.survivalinc.block.BlockMelting;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.ghost.GhostCommand;
 import enginecrafter77.survivalinc.ghost.GhostProvider;
-import enginecrafter77.survivalinc.season.BiomeTempController;
+import enginecrafter77.survivalinc.season.ReflectiveBiomeTemperatureInjector;
 import enginecrafter77.survivalinc.season.SeasonCommand;
 import enginecrafter77.survivalinc.season.SeasonController;
 import enginecrafter77.survivalinc.season.SurvivalIncSeason;
@@ -83,7 +83,6 @@ public final class SurvivalInc {
 	public static ItemSituationContainer mapper;
 
 	public static SeasonCalendar seasonCalendar;
-	public static BiomeTempController biomeTempController;
 	public static SeasonController seasonController;
 
 	public static ExportedResource itemEffectConfig, armorConductivityConfig, sanityBlockEffectMap;
@@ -99,21 +98,7 @@ public final class SurvivalInc {
 		SurvivalInc.itemEffectConfig = new ExportedResource(new File(configDir, "item_effects.json"), new ResourceLocation(SurvivalInc.MOD_ID, "configbase/item_effects.json"));
 		SurvivalInc.armorConductivityConfig = new ExportedResource(new File(configDir, "armor_conductivity.json"), new ResourceLocation(SurvivalInc.MOD_ID, "configbase/armor_conductivity.json"));
 		SurvivalInc.sanityBlockEffectMap = new ExportedResource(new File(configDir, "sanity_block_effects.json"), new ResourceLocation(SurvivalInc.MOD_ID, "configbase/sanity_block_effects.json"));
-
-		// Register seasons if enabled
-		if(ModConfig.SEASONS.enabled)
-		{
-			SeasonCalendarConstructEvent scce = new SeasonCalendarConstructEvent(SimpleSeasonCalendar::new);
-			MinecraftForge.EVENT_BUS.post(scce);
-			SurvivalInc.seasonCalendar = scce.buildCalendar();
-
-			SurvivalInc.biomeTempController = new BiomeTempController(ImmutableSet.of(BiomeOcean.class, BiomeHell.class, BiomeEnd.class));
-			SurvivalInc.seasonController = new SeasonController(SurvivalInc.biomeTempController, SurvivalInc.seasonCalendar);
-
-			MinecraftForge.EVENT_BUS.register(SurvivalInc.seasonController);
-			MeltingController.meltmap.add(new MeltingController.MelterEntry((BlockMelting)ModBlocks.MELTING_SNOW.get()).level(1, true)); // 1 = block above ground
-			MeltingController.meltmap.add(new MeltingController.MelterEntry((BlockMelting)ModBlocks.MELTING_ICE.get()).level(0, true)); // 0 = ground
-		}
+		SurvivalInc.net = NetworkRegistry.INSTANCE.newSimpleChannel(SurvivalInc.MOD_ID);
 
 		// Register the auxiliary event handlers
 		MinecraftForge.EVENT_BUS.register(this);
@@ -132,9 +117,6 @@ public final class SurvivalInc {
 	@EventHandler
 	public void init(FMLInitializationEvent event)
 	{
-		SurvivalInc.net = NetworkRegistry.INSTANCE.newSimpleChannel(SurvivalInc.MOD_ID);
-		SurvivalInc.proxy.registerNetworkHandlers(SurvivalInc.net);
-
 		if(ModConfig.HEAT.enabled)
 		{
 			SurvivalInc.heat = new HeatModifier();
@@ -164,11 +146,26 @@ public final class SurvivalInc {
 			SurvivalInc.ghost = new GhostProvider();
 			MinecraftForge.EVENT_BUS.register(SurvivalInc.ghost);
 		}
+
+		// Register seasons if enabled
+		if(ModConfig.SEASONS.enabled)
+		{
+			SeasonCalendarConstructEvent scce = new SeasonCalendarConstructEvent(SimpleSeasonCalendar::new);
+			MinecraftForge.EVENT_BUS.post(scce);
+			SurvivalInc.seasonCalendar = scce.buildCalendar();
+			SurvivalInc.seasonController = new SeasonController(SurvivalInc.seasonCalendar, ReflectiveBiomeTemperatureInjector.getInstance(), ImmutableSet.of(BiomeOcean.class, BiomeHell.class, BiomeEnd.class));
+
+			MinecraftForge.EVENT_BUS.register(SurvivalInc.seasonController);
+			MeltingController.meltmap.add(new MeltingController.MelterEntry((BlockMelting)ModBlocks.MELTING_SNOW.get()).level(1, true)); // 1 = block above ground
+			MeltingController.meltmap.add(new MeltingController.MelterEntry((BlockMelting)ModBlocks.MELTING_ICE.get()).level(0, true)); // 0 = ground
+		}
 	}
 	
 	@EventHandler
 	public void postInit(FMLPostInitializationEvent event)
 	{
+		SurvivalInc.proxy.registerNetworkHandlers(SurvivalInc.net);
+
 		if(ModConfig.SEASONS.enabled && ModConfig.SEASONS.meltController.isValid())
 		{
 			MeltingController.compile(ModConfig.SEASONS.meltController);

@@ -67,19 +67,20 @@ public class SeasonCommand extends CommandBase {
 			data.markDirty();
 			break;
 		case "info":
-			float currentoffset = SurvivalInc.biomeTempController.getSeasonalTemperatureOffset(date);
+			float currentoffset = SurvivalInc.seasonController.getSeasonalTemperatureOffset(date);
 			SeasonCalendarDate next = date.toImmutable().afterDays(1);
 			message = new FormattedTextComponent("${GREEN}Current season${RESET}: ");
 			message.appendSibling(seasonname);
 			message.appendSibling(new FormattedTextComponent(" (Day %d)\n${GREEN}Season Length${RESET}: %d\n${GREEN}Temperature Offset on ${YELLOW}Day %1$d${RESET}: %.03f\n${GREEN}Peak Temperature Offset in ${YELLOW}", date.getDay(), season.getLength(), currentoffset));
 			message.appendSibling(seasonname);
-			message.appendSibling(new FormattedTextComponent("${RESET}: %f\n${GREEN}Current Temperature Inclination${RESET}: %.03f", season.getPeakTemperature(), SurvivalInc.biomeTempController.getSeasonalTemperatureOffset(next) - currentoffset));
+			message.appendSibling(new FormattedTextComponent("${RESET}: %f\n${GREEN}Current Temperature Inclination${RESET}: %.03f", season.getPeakTemperature(), SurvivalInc.seasonController.getSeasonalTemperatureOffset(next) - currentoffset));
 			if(sender instanceof Entity)
 			{
 				BlockPos position = new BlockPos(sender.getPositionVector());
 				Biome biome = server.getWorld(0).getBiome(position);
 				float biometempdiff = biome.getTemperature(position) - biome.getDefaultTemperature();
-				message.appendSibling(new FormattedTextComponent("\n${GREEN}Nominal temperature in current biome${RESET}: %.02f (${GRAY}%+f${RESET})\n${GREEN}Temperature at ${YELLOW}X%d Y%d Z%d${RESET}: %.02f (${GRAY}%+f${RESET})", SurvivalInc.biomeTempController.originals.get(biome), currentoffset, position.getX(), position.getY(), position.getZ(), biome.getTemperature(position), biometempdiff));
+				float originaltemp = SurvivalInc.seasonController.getBiomeTemperatureInjector().getOriginalBiomeTemperature(biome);
+				message.appendSibling(new FormattedTextComponent("\n${GREEN}Nominal temperature in current biome${RESET}: %.02f (${GRAY}%+f${RESET})\n${GREEN}Temperature at ${YELLOW}X%d Y%d Z%d${RESET}: %.02f (${GRAY}%+f${RESET})", originaltemp, currentoffset, position.getX(), position.getY(), position.getZ(), biome.getTemperature(position), biometempdiff));
 			}
 			break;
 		case "list":
