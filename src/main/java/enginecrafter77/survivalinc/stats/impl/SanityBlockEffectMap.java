@@ -1,10 +1,13 @@
 package enginecrafter77.survivalinc.stats.impl;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import enginecrafter77.survivalinc.util.ExportedResource;
 import enginecrafter77.survivalinc.util.FunctionalImplementation;
+import enginecrafter77.survivalinc.util.blockprop.BlockPrimitiveProperty;
+import enginecrafter77.survivalinc.util.blockprop.BlockPropertyJsonParser;
+import enginecrafter77.survivalinc.util.blockprop.BlockPropertyMap;
+import enginecrafter77.survivalinc.util.blockprop.MutableBlockProperties;
 import net.minecraft.block.Block;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -13,25 +16,23 @@ import net.minecraft.world.IBlockAccess;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.Map;
 
 public class SanityBlockEffectMap {
-	private final Map<Block, Float> sanityEffectMap;
+	private final MutableBlockProperties map;
 
 	public SanityBlockEffectMap()
 	{
-		this.sanityEffectMap = new HashMap<Block, Float>();
+		this.map = new MutableBlockProperties();
 	}
 
 	public void register(Block block, Float value)
 	{
-		this.sanityEffectMap.put(block, value);
+		this.map.putSingular(block, value);
 	}
 
 	public float getBlockCoreSanityEffect(Block block)
 	{
-		return this.sanityEffectMap.getOrDefault(block, 0F);
+		return this.map.getValueFor(block).flatMap(BlockPropertyMap::singular).map(BlockPrimitiveProperty::asFloat).orElse(0F);
 	}
 
 	public float getBlockEffectAtDistance(Block block, float distance)
@@ -65,15 +66,7 @@ public class SanityBlockEffectMap {
 	{
 		JsonParser parser = new JsonParser();
 		JsonElement root = parser.parse(new InputStreamReader(input));
-
-		JsonObject rootMap = root.getAsJsonObject();
-		for(Map.Entry<String, JsonElement> entry : rootMap.entrySet())
-		{
-			Block block = Block.getBlockFromName(entry.getKey());
-			if(block == null)
-				continue;
-			float value = entry.getValue().getAsFloat();
-			this.register(block, value);
-		}
+		BlockPropertyJsonParser loader = new BlockPropertyJsonParser(this.map.editingBuilder());
+		loader.fromJson(root);
 	}
 }
