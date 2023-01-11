@@ -9,6 +9,8 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Random;
 
 /**
@@ -17,6 +19,8 @@ import java.util.Random;
  * @author Enginecrafter77
  */
 public class BlockMelting extends Block {
+	private static final String PROPERTY_KEY_MELTPHASE = "meltphase";
+	private static final String PROFILER_LABEL_MELTING = "melting";
 	
 	/** The block to which this block turns into if fully melted */
 	public final Block meltTarget;
@@ -25,6 +29,7 @@ public class BlockMelting extends Block {
 	public final Block freezeTarget;
 	
 	/** The melt phase property */
+	@Nullable
 	private PropertyInteger phaseProperty;
 	
 	/** The temperature which when passed, the block freezes/melts */
@@ -37,7 +42,15 @@ public class BlockMelting extends Block {
 		this.meltTarget = melted;
 		this.freezingPoint = 0.15F;
 		
-		this.setDefaultState(this.blockState.getBaseState().withProperty(phaseProperty, 0));
+		this.setDefaultState(this.blockState.getBaseState().withProperty(this.getPhaseProperty(), 0));
+	}
+
+	@Nonnull
+	public PropertyInteger getPhaseProperty()
+	{
+		if(this.phaseProperty == null)
+			this.phaseProperty = PropertyInteger.create(BlockMelting.PROPERTY_KEY_MELTPHASE, 0, this.getPhaseCount());
+		return this.phaseProperty;
 	}
 
 	public void setFreezingPoint(float freezingPoint)
@@ -53,24 +66,15 @@ public class BlockMelting extends Block {
 	@Override
 	protected BlockStateContainer createBlockState()
 	{
-		this.phaseProperty = PropertyInteger.create("meltphase", 0, this.getPhaseCount());
-		return new BlockStateContainer(this, phaseProperty);
+		return new BlockStateContainer(this, this.getPhaseProperty());
 	}
 	
 	@Override
 	public int getMetaFromState(IBlockState state)
 	{
-		return state.getValue(phaseProperty);
+		return state.getValue(this.getPhaseProperty());
 	}
 
-
-	@Override
-	@SuppressWarnings("deprecation")
-	public IBlockState getStateFromMeta(int meta)
-	{
-		return this.getDefaultState().withProperty(phaseProperty, meta);
-	}
-	
 	@Override
 	public boolean getTickRandomly()
 	{
@@ -80,24 +84,18 @@ public class BlockMelting extends Block {
 	@Override
 	public void updateTick(World world, BlockPos position, IBlockState state, Random rng)
 	{
-		world.profiler.startSection("melting");
-		
+		world.profiler.startSection(BlockMelting.PROFILER_LABEL_MELTING);
 		MeltAction action = this.getAction(world, position);
 		if(action != MeltAction.PASS) // Check to avoid unnecessary block updates
 		{
+			PropertyInteger phaseProperty = this.getPhaseProperty();
 			int phase = state.getValue(phaseProperty) + action.getPhaseIncrement();
-			if(this.phaseProperty.getAllowedValues().contains(phase))
-			{
+			if(phaseProperty.getAllowedValues().contains(phase))
 				state = state.withProperty(phaseProperty, phase);
-				world.setBlockState(position, state, 2);
-			}
 			else
-			{
-				IBlockState next = this.transform(world, position, action);
-				world.setBlockState(position, next, 2);
-			}
+				state = this.transform(world, position, state, action);
+			world.setBlockState(position, state, 2);
 		}
-		
 		world.profiler.endSection();
 	}
 	
@@ -116,10 +114,11 @@ public class BlockMelting extends Block {
 	 * another block based on the melt action.
 	 * @param world The world
 	 * @param position The position of the transforming block
+	 * @param currentState The current block state
 	 * @param action The melt action performed this tick
 	 * @return The block to which this block transforms upon either {@link MeltAction#MELT melting} or {@link MeltAction#FREEZE freezing}. Returns null if none is applicable.
 	 */
-	public IBlockState transform(World world, BlockPos position, MeltAction action)
+	public IBlockState transform(World world, BlockPos position, IBlockState currentState, MeltAction action)
 	{
 		switch(action)
 		{
@@ -128,7 +127,7 @@ public class BlockMelting extends Block {
 		case MELT:
 			return this.meltTarget.getDefaultState();
 		default:
-			throw new IllegalArgumentException();
+			return currentState;
 		}
 	}
 	
