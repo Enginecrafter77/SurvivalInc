@@ -1,8 +1,5 @@
 package enginecrafter77.survivalinc.season;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import enginecrafter77.survivalinc.config.ModConfig;
 import net.minecraft.block.BlockOldLeaf;
 import net.minecraft.block.BlockPlanks;
@@ -20,23 +17,26 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.annotation.Nullable;
+import java.util.HashSet;
+import java.util.Set;
+
 @SideOnly(Side.CLIENT)
-public class LeafColorer implements IBlockColor {
-	
-	public static final LeafColorer instance = new LeafColorer();
+public class LeafSeasonalTintApplicator implements IBlockColor {
+	public static final LeafSeasonalTintApplicator INSTANCE = new LeafSeasonalTintApplicator();
 	
 	/** The tree types that should not lose their leaves */
 	public final Set<BlockPlanks.EnumType> persistentTypes;
 	
-	public LeafColorer()
+	public LeafSeasonalTintApplicator()
 	{
 		this.persistentTypes = new HashSet<BlockPlanks.EnumType>();
 	}
 	
 	@Override
-	public int colorMultiplier(IBlockState state, IBlockAccess accessor, BlockPos position, int tint)
+	public int colorMultiplier(IBlockState state, @Nullable IBlockAccess accessor, @Nullable BlockPos position, int tint)
 	{
-		BlockPlanks.EnumType treetype = (BlockPlanks.EnumType)state.getValue(BlockOldLeaf.VARIANT);
+		BlockPlanks.EnumType treetype = state.getValue(BlockOldLeaf.VARIANT);
 		int rgb;
 		
 		switch(treetype)
@@ -56,7 +56,7 @@ public class LeafColorer implements IBlockColor {
 		WorldClient world = Minecraft.getMinecraft().world;
 		if(!this.persistentTypes.contains(treetype) && world != null)
 		{
-			SeasonProvider ssn = SeasonData.load(world).getCurrentDate().getCalendarEntry().getSeason();
+			AbstractSeason ssn = SeasonData.load(world).getCurrentDate().getCalendarBoundSeason().getSeason();
 			
 			if(ssn.getPeakTemperature() < 0F)
 			{

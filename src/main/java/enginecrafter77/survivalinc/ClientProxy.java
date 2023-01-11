@@ -4,8 +4,7 @@ import enginecrafter77.survivalinc.client.*;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.ghost.RenderGhost;
 import enginecrafter77.survivalinc.net.*;
-import enginecrafter77.survivalinc.season.LeafColorer;
-import enginecrafter77.survivalinc.season.SeasonController;
+import enginecrafter77.survivalinc.season.LeafSeasonalTintApplicator;
 import enginecrafter77.survivalinc.season.SeasonSyncMessage;
 import enginecrafter77.survivalinc.season.SeasonSyncRequest;
 import enginecrafter77.survivalinc.stats.impl.HydrationModifier;
@@ -55,7 +54,7 @@ public class ClientProxy implements SurvivalIncProxy {
 	@Override
 	public void registerRendering()
 	{
-		if(ModConfig.SEASONS.enabled) MinecraftForge.EVENT_BUS.register(LeafColorer.instance);
+		if(ModConfig.SEASONS.enabled) MinecraftForge.EVENT_BUS.register(LeafSeasonalTintApplicator.INSTANCE);
 
 		if(ModConfig.GHOST.enabled) MinecraftForge.EVENT_BUS.register(new RenderGhost());
 	}
@@ -64,11 +63,11 @@ public class ClientProxy implements SurvivalIncProxy {
 	public void registerNetworkHandlers(SimpleNetworkWrapper net)
 	{
 		net.registerMessage(StatSyncHandler.class, StatSyncMessage.class, 0, Side.CLIENT);
-		net.registerMessage(SeasonController::onSyncDelivered, SeasonSyncMessage.class, 1, Side.CLIENT);
+		net.registerMessage(SurvivalInc.seasonController::onSyncDelivered, SeasonSyncMessage.class, 1, Side.CLIENT);
 		net.registerMessage(EntityItemUpdater.class, EntityItemUpdateMessage.class, 2, Side.CLIENT);
 		net.registerMessage(HydrationModifier::validateMessage, WaterDrinkMessage.class, 3, Side.SERVER);
 		net.registerMessage(StatSyncRequestHandler.class, StatSyncRequestMessage.class, 4, Side.SERVER);
-		net.registerMessage(SeasonController::onSyncRequest, SeasonSyncRequest.class, 5, Side.SERVER);
+		net.registerMessage(SurvivalInc.seasonController::onSyncRequest, SeasonSyncRequest.class, 5, Side.SERVER);
 	}
 
 	@SubscribeEvent

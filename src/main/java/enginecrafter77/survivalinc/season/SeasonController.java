@@ -1,6 +1,8 @@
 package enginecrafter77.survivalinc.season;
 
 import enginecrafter77.survivalinc.SurvivalInc;
+import enginecrafter77.survivalinc.net.MessageHandler;
+import enginecrafter77.survivalinc.season.calendar.SeasonCalendar;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.Entity;
@@ -8,9 +10,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.World;
-import net.minecraft.world.biome.BiomeEnd;
-import net.minecraft.world.biome.BiomeHell;
-import net.minecraft.world.biome.BiomeOcean;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.world.WorldEvent;
@@ -21,27 +20,26 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.annotation.Nullable;
 import java.util.function.Predicate;
 
 public class SeasonController {
 	
-	private static final Predicate<Integer> isDimOverworld = (Integer dimID) -> dimID == DimensionType.OVERWORLD.getId();
-	private static final Predicate<World> isOverworld = (World world) -> isDimOverworld.test(world.provider.getDimension());
+	private static final Predicate<Integer> P_IS_DIM_OVERWORLD = (Integer dimID) -> dimID == DimensionType.OVERWORLD.getId();
+	private static final Predicate<World> P_IS_WORLD_OVERWORLD = (World world) -> P_IS_DIM_OVERWORLD.test(world.provider.getDimension());
 	
 	/** The length of one full minecraft day/night cycle */
-	public static final int minecraftDayLength = 24000;
-	
-	/** The season controller singleton */
-	public static final SeasonController instance = new SeasonController();
+	public static final int DAY_LENGTH_TICKS = 24000;
 	
 	/** The biome temperature controller instance */
-	public BiomeTempController biomeTemp;
+	protected final BiomeTempController biomeTemp;
+	protected final SeasonCalendar calendar;
 	
-	public SeasonCalendar calendar;
-	
-	private SeasonController()
+	public SeasonController(BiomeTempController controller, SeasonCalendar calendar)
 	{
-		try
+		this.calendar = calendar;
+		this.biomeTemp = controller;
+		/*try
 		{
 			this.calendar = new SeasonCalendar();
 			this.biomeTemp = new BiomeTempController();
@@ -52,26 +50,35 @@ public class SeasonController {
 		catch(NoSuchFieldException exc)
 		{
 			throw new RuntimeException(exc);
-		}
+		}*/
 	}
-	
+
+	@Nullable
 	@SideOnly(Side.CLIENT)
-	public static IMessage onSyncDelivered(SeasonSyncMessage message, MessageContext ctx)
+	@MessageHandler(messageType = SeasonSyncMessage.class)
+	public IMessage onSyncDelivered(SeasonSyncMessage message, MessageContext ctx)
 	{
 		WorldClient world = Minecraft.getMinecraft().world;
-		if(world == null) SurvivalInc.logger.error("Minecraft remote world tracking instance is null. This is NOT a good thing. Season sync packet dropped...");
-		else if(SeasonController.isOverworld.negate().test(world)) throw new RuntimeException("Received a stat update message from outside overworld.");
+		if(world == null)
+		{
+			SurvivalInc.logger.error("Minecraft remote world tracking instance is null. This is NOT a good thing. Season sync packet dropped...");
+		}
+		else if(SeasonController.P_IS_WORLD_OVERWORLD.negate().test(world))
+		{
+			throw new RuntimeException("Received a stat update message from outside overworld.");
+		}
 		else
 		{
 			SurvivalInc.logger.info("Updating client's world season data to {}...", message.data.toString());
-			world.setData(SeasonData.datakey, message.data);
+			world.setData(SeasonData.WSD_KEY, message.data);
 			MinecraftForge.EVENT_BUS.post(new SeasonChangedEvent(world, message.data.getCurrentDate()));
 			SurvivalInc.logger.info("Client-side season update to {} completed.", message.data.toString());
 		}
 		return null;
 	}
-	
-	public static SeasonSyncMessage onSyncRequest(SeasonSyncRequest message, MessageContext ctx)
+
+	@MessageHandler(messageType = SeasonSyncRequest.class)
+	public SeasonSyncMessage onSyncRequest(SeasonSyncRequest message, MessageContext ctx)
 	{
 		EntityPlayerMP player = ctx.getServerHandler().player;
 		SeasonData data = SeasonData.load(player.world);
@@ -88,7 +95,7 @@ public class SeasonController {
 	{
 		World world = event.getWorld();
 		Entity ent = event.getEntity();
-		if(ent instanceof EntityPlayer && world.isRemote && isOverworld.test(world))
+		if(ent instanceof EntityPlayer && world.isRemote && P_IS_WORLD_OVERWORLD.test(world))
 		{
 			SurvivalInc.logger.info("Requesting season data from server...");
 			SurvivalInc.net.sendToServer(new SeasonSyncRequest());
@@ -103,7 +110,7 @@ public class SeasonController {
 	public void loadSeasonData(WorldEvent.Load event)
 	{
 		World world = event.getWorld();
-		if(!world.isRemote && SeasonController.isOverworld.test(world)) MinecraftForge.EVENT_BUS.post(new SeasonChangedEvent(world));
+		if(!world.isRemote && SeasonController.P_IS_WORLD_OVERWORLD.test(world)) MinecraftForge.EVENT_BUS.post(new SeasonChangedEvent(world));
 	}
 	
 	/**
@@ -114,10 +121,10 @@ public class SeasonController {
 	@SubscribeEvent
 	public void onUpdate(TickEvent.WorldTickEvent event)
 	{
-		if(event.side == Side.SERVER && event.phase == TickEvent.Phase.START && SeasonController.isOverworld.test(event.world))
+		if(event.side == Side.SERVER && event.phase == TickEvent.Phase.START && SeasonController.P_IS_WORLD_OVERWORLD.test(event.world))
 		{
 			// Is it early morning? Also, before the player really joins, some time passes. Give the player some time to actually receive the update.
-			if(event.world.getWorldTime() % SeasonController.minecraftDayLength == 1200)
+			if(event.world.getWorldTime() % SeasonController.DAY_LENGTH_TICKS == 1200)
 			{
 				SurvivalInc.logger.info("Season update triggered on {}", event.side.name());
 				SeasonData data = SeasonData.load(event.world);
@@ -137,7 +144,7 @@ public class SeasonController {
 	@SubscribeEvent
 	public void applySeasonData(SeasonChangedEvent event)
 	{
-		event.date.getCalendarEntry().getSeason().applySeason(event.getWorld(), event.date.getDay());
+		event.date.getCalendarBoundSeason().getSeason().applySeason(event.getWorld(), event.date.getDay());
 		this.biomeTemp.applySeason(event.date);
 		SurvivalInc.logger.info("Applied biome temperatures for season {}", event.date.toString());
 	}

@@ -1,7 +1,6 @@
 package enginecrafter77.survivalinc;
 
 import enginecrafter77.survivalinc.net.*;
-import enginecrafter77.survivalinc.season.SeasonController;
 import enginecrafter77.survivalinc.season.SeasonSyncMessage;
 import enginecrafter77.survivalinc.season.SeasonSyncRequest;
 import enginecrafter77.survivalinc.stats.impl.HydrationModifier;
@@ -21,7 +20,7 @@ public class ServerProxy implements SurvivalIncProxy {
 		net.registerMessage(ServerProxy::dummyHandler, EntityItemUpdateMessage.class, 2, Side.CLIENT);
 		net.registerMessage(HydrationModifier::validateMessage, WaterDrinkMessage.class, 3, Side.SERVER);
 		net.registerMessage(StatSyncRequestHandler.class, StatSyncRequestMessage.class, 4, Side.SERVER);
-		net.registerMessage(SeasonController::onSyncRequest, SeasonSyncRequest.class, 5, Side.SERVER);
+		net.registerMessage(SurvivalInc.seasonController::onSyncRequest, SeasonSyncRequest.class, 5, Side.SERVER);
 	}
 
 	@Override
@@ -43,6 +42,8 @@ public class ServerProxy implements SurvivalIncProxy {
 		return null;
 	}
 
+	@Nullable
+	@MessageHandler
 	public static <MSG extends IMessage> IMessage dummyHandler(MSG message, MessageContext ctx)
 	{
 		SurvivalInc.logger.error("Dummy message handler intercepted message. This is not supposed to happend.");

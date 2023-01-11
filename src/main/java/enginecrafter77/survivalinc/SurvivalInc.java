@@ -1,13 +1,17 @@
 package enginecrafter77.survivalinc;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import enginecrafter77.survivalinc.block.BlockMelting;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.ghost.GhostCommand;
 import enginecrafter77.survivalinc.ghost.GhostProvider;
-import enginecrafter77.survivalinc.season.SeasonCalendar;
+import enginecrafter77.survivalinc.season.BiomeTempController;
 import enginecrafter77.survivalinc.season.SeasonCommand;
 import enginecrafter77.survivalinc.season.SeasonController;
 import enginecrafter77.survivalinc.season.SurvivalIncSeason;
+import enginecrafter77.survivalinc.season.calendar.SeasonCalendar;
+import enginecrafter77.survivalinc.season.calendar.SimpleSeasonCalendar;
 import enginecrafter77.survivalinc.season.melting.MeltingController;
 import enginecrafter77.survivalinc.stats.*;
 import enginecrafter77.survivalinc.stats.effect.item.*;
@@ -25,6 +29,9 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.biome.BiomeEnd;
+import net.minecraft.world.biome.BiomeHell;
+import net.minecraft.world.biome.BiomeOcean;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.fml.common.Mod;
@@ -74,6 +81,10 @@ public final class SurvivalInc {
 	public static SimpleNetworkWrapper net;
 	public static ItemSituationContainer mapper;
 
+	public static SeasonCalendar seasonCalendar;
+	public static BiomeTempController biomeTempController;
+	public static SeasonController seasonController;
+
 	public static ExportedResource itemEffectConfig, armorConductivityConfig, sanityBlockEffectMap;
 
 	@EventHandler
@@ -91,8 +102,11 @@ public final class SurvivalInc {
 		// Register seasons if enabled
 		if(ModConfig.SEASONS.enabled)
 		{
-			//TODO event
-			MinecraftForge.EVENT_BUS.register(SeasonController.instance);
+			SurvivalInc.seasonCalendar = new SimpleSeasonCalendar(ImmutableList.copyOf(SurvivalIncSeason.values()));
+			SurvivalInc.biomeTempController = new BiomeTempController(ImmutableSet.of(BiomeOcean.class, BiomeHell.class, BiomeEnd.class));
+			SurvivalInc.seasonController = new SeasonController(SurvivalInc.biomeTempController, SurvivalInc.seasonCalendar);
+
+			MinecraftForge.EVENT_BUS.register(SurvivalInc.seasonController);
 			MeltingController.meltmap.add(new MeltingController.MelterEntry((BlockMelting)ModBlocks.MELTING_SNOW.get()).level(1, true)); // 1 = block above ground
 			MeltingController.meltmap.add(new MeltingController.MelterEntry((BlockMelting)ModBlocks.MELTING_ICE.get()).level(0, true)); // 0 = ground
 		}
@@ -145,13 +159,6 @@ public final class SurvivalInc {
 		{
 			SurvivalInc.ghost = new GhostProvider();
 			MinecraftForge.EVENT_BUS.register(SurvivalInc.ghost);
-		}
-
-		if(ModConfig.SEASONS.enabled)
-		{
-			SeasonCalendar calendar = SeasonController.instance.calendar;
-			for(SurvivalIncSeason season : SurvivalIncSeason.values())
-				calendar.registerSeason(season);
 		}
 	}
 	

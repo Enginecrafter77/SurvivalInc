@@ -1,14 +1,15 @@
 package enginecrafter77.survivalinc.season;
 
 import enginecrafter77.survivalinc.SurvivalInc;
-import enginecrafter77.survivalinc.season.SeasonCalendar.SeasonCalendarEntry;
+import enginecrafter77.survivalinc.season.calendar.CalendarBoundSeason;
+import enginecrafter77.survivalinc.season.calendar.ImmutableSeasonCalendarDate;
+import enginecrafter77.survivalinc.season.calendar.SeasonCalendarDate;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,29 +17,28 @@ import java.util.Set;
  * This stores the original biome temperatures, modifying the base temps if
  * necessary. It also deals with changing the temperature of each biome
  * according to the season, and where we are in the season.
+ * @author Enginecrafter77
  */
 public class BiomeTempController {
-	private static final Field BIOME_TEMPERATURE = ObfuscationReflectionHelper.findField(Biome.class, "field_76750_F");
+	private static final String FIELD_BIOMETEMP_SRGNAME = "field_76750_F";
+	private static Field biomeTemperatureField;
 
 	public final Map<Biome, Float> originals;
 	public final Set<Class<? extends Biome>> excluded;
 	
-	public BiomeTempController() throws NoSuchFieldException
+	public BiomeTempController(Set<Class<? extends Biome>> excludedBiomes)
 	{
 		this.originals = new HashMap<Biome, Float>();
-		this.excluded = new HashSet<Class<? extends Biome>>();
+		this.excluded = excludedBiomes;
 	}
-	
+
 	protected void setTemperature(Biome biome, float temperature)
 	{
 		try
 		{
 			if(!this.originals.containsKey(biome))
 				this.originals.put(biome, biome.getDefaultTemperature());
-
-			if(!BIOME_TEMPERATURE.isAccessible())
-				BIOME_TEMPERATURE.setAccessible(true);
-			BIOME_TEMPERATURE.set(biome, temperature);
+			BiomeTempController.obtainAccessibleBiomeTemperatureField().set(biome, temperature);
 		}
 		catch(ReflectiveOperationException exc)
 		{
@@ -52,9 +52,7 @@ public class BiomeTempController {
 		// If the map doesn't contain the biome entry, it means it hasn't been affected yet,
 		// and so it already has the wanted default value.
 		if(this.originals.containsKey(biome))
-		{
 			this.setTemperature(biome, this.originals.get(biome));
-		}
 	}
 	
 	/**
@@ -99,48 +97,59 @@ public class BiomeTempController {
 	 * @param season The season to get the peak for.
 	 * @return The date the temperature reaches its extreme in the specified season.
 	 */
-	private static SeasonCalendarDate getPeak(SeasonCalendarEntry season)
+	private SeasonCalendarDate getPeak(CalendarBoundSeason season)
 	{
-		return new SeasonCalendarDate(season, season.getSeason().getPeakTemperatureDay());
+		return new ImmutableSeasonCalendarDate(season, season.getSeason().getPeakTemperatureDay());
 	}
 	
 	/**
 	 * Returns the nearest peak point to the specified date.
 	 * @param date The date to find the nearest peak to
-	 * @param way The way of iteration. 1 means forward, while -1 means backward.
 	 * @return The nearest peak point in the specified direction.
 	 */
-	private static SeasonCalendarDate nearestPeak(SeasonCalendarDate date, int way)
+	private SeasonCalendarDate findNextPeak(SeasonCalendarDate date)
 	{
-		SeasonCalendarEntry season = date.getCalendarEntry();
-		SeasonCalendarDate peak = BiomeTempController.getPeak(season);
+		CalendarBoundSeason season = date.getCalendarBoundSeason();
+		SeasonCalendarDate peak = this.getPeak(season);
 		
 		// Test if date is already past the local peak. If so, advance the season in the specified way
-		if(date.compareTo(peak) == way) peak = BiomeTempController.getPeak(season.getFollowing(way));
-		
+		if(date.compareTo(peak) > 0)
+			peak = this.getPeak(season.getFollowingSeason());
+		return peak;
+	}
+
+	private SeasonCalendarDate findPreviousPeak(SeasonCalendarDate date)
+	{
+		CalendarBoundSeason season = date.getCalendarBoundSeason();
+		SeasonCalendarDate peak = this.getPeak(season);
+
+		// Test if date is already past the local peak. If so, advance the season in the specified way
+		if(date.compareTo(peak) < 0)
+			peak = this.getPeak(season.getPrecedingSeason());
 		return peak;
 	}
 	
 	/**
-	 * Calculates uniform temperature offset
-	 * on the specified date in calendar year.
-	 * Generally, this offset is applied to
-	 * every biome's base temperature.
+	 * Calculates uniform temperature offset on the specified date in calendar year.
+	 * Generally, this offset is applied to every biome's base temperature except
+	 * ones defined in {@link #excluded}.
 	 * @param date The current date in calendar year
 	 * @return The current temperature offset.
 	 */
 	public float getSeasonalTemperatureOffset(SeasonCalendarDate date)
 	{
+		CalendarBoundSeason season = date.getCalendarBoundSeason();
 		// If the date is exactly on the peak date
-		if(BiomeTempController.getPeak(date.getCalendarEntry()).compareTo(date) == 0) return date.getCalendarEntry().getSeason().getPeakTemperature();
+		if(this.getPeak(season).compareTo(date) == 0)
+			return season.getSeason().getPeakTemperature();
 		
-		// The absolute day of half of this season (where temperature is supposed to achieve the specified value)
-		SeasonCalendarDate previous_peak = BiomeTempController.nearestPeak(date, -1);
+		// The absolute day of half of this season (where temperature has achieved the last peak)
+		SeasonCalendarDate previous_peak = this.findPreviousPeak(date);
 		
 		// The absolute day of half of the target season (where temperature is supposed to achieve the specified value)
-		SeasonCalendarDate next_peak = BiomeTempController.nearestPeak(date, 1);
+		SeasonCalendarDate next_peak = this.findNextPeak(date);
 		
-		int year = date.getCalendarEntry().getCalendar().getYearLength();
+		int year = season.getOwningCalendar().getYearLengthDays();
 		
 		// The current absolute day of year
 		int a_day = date.getDayInYear();
@@ -148,8 +157,8 @@ public class BiomeTempController {
 		int np_day = next_peak.getDayInYear();
 		
 		// Store the temperatures inside variables for easier access
-		float pp_temp = previous_peak.getCalendarEntry().getSeason().getPeakTemperature();
-		float np_temp = next_peak.getCalendarEntry().getSeason().getPeakTemperature();
+		float pp_temp = previous_peak.getCalendarBoundSeason().getSeason().getPeakTemperature();
+		float np_temp = next_peak.getCalendarBoundSeason().getSeason().getPeakTemperature();
 		
 		/*
 		 * We always assume that the target date is in the direction
@@ -226,5 +235,15 @@ public class BiomeTempController {
 	public static float interpolateTemperature(float x, float d0, float d1, float a, float b)
 	{
 		return (b - a) * ((x - d0) / (d1 - d0)) + a;
+	}
+
+	protected static Field obtainAccessibleBiomeTemperatureField()
+	{
+		if(BiomeTempController.biomeTemperatureField == null)
+			BiomeTempController.biomeTemperatureField = ObfuscationReflectionHelper.findField(Biome.class, FIELD_BIOMETEMP_SRGNAME);
+
+		if(!BiomeTempController.biomeTemperatureField.isAccessible())
+			BiomeTempController.biomeTemperatureField.setAccessible(true);
+		return BiomeTempController.biomeTemperatureField;
 	}
 }

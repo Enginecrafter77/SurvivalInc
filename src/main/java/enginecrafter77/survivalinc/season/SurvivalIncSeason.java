@@ -5,7 +5,7 @@ import enginecrafter77.survivalinc.config.ModConfig;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
-public enum SurvivalIncSeason implements SeasonProvider {
+public enum SurvivalIncSeason implements AbstractSeason {
 
 	WINTER,
 	SPRING,
@@ -25,7 +25,7 @@ public enum SurvivalIncSeason implements SeasonProvider {
 	}
 
 	@Override
-	public ResourceLocation getName()
+	public ResourceLocation getId()
 	{
 		return new ResourceLocation(SurvivalInc.MOD_ID, this.name().toLowerCase());
 	}

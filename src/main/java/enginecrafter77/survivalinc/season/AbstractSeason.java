@@ -3,12 +3,12 @@ package enginecrafter77.survivalinc.season;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
-public interface SeasonProvider {
+public interface AbstractSeason {
 	
 	/** @return The length of the season in minecraft days (24k ticks) */
 	public int getLength();
 	
-	public ResourceLocation getName();
+	public ResourceLocation getId();
 	
 	public String getTranslationKey();
 	
