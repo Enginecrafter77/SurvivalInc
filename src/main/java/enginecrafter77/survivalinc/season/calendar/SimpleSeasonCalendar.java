@@ -10,7 +10,8 @@ import java.util.List;
 import java.util.Optional;
 
 public class SimpleSeasonCalendar implements SeasonCalendar {
-	
+	private static final int SIMPLESEASONCALENDAR_MAGIC_NUMBER = 28;
+
 	private final ImmutableMap<ResourceLocation, Integer> idMapping;
 
 	private final ImmutableList<SimpleCalendarBoundSeason> seasonList;
@@ -35,6 +36,18 @@ public class SimpleSeasonCalendar implements SeasonCalendar {
 		this.idMapping = idMapBuilder.build();
 		this.seasonList = seasonListBuilder.build();
 		this.length = nextDay;
+	}
+
+	@Override
+	public int calendarHash()
+	{
+		return SIMPLESEASONCALENDAR_MAGIC_NUMBER * this.getSeasons().stream().map(CalendarBoundSeason::getSeason).collect(CalendarHashingCollector.INSTANCE);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return this.calendarHash();
 	}
 
 	@Override

@@ -42,17 +42,18 @@ public class SeasonData extends WorldSavedData {
 	@Override
 	public void readFromNBT(NBTTagCompound nbt)
 	{
-		int calendarHash = nbt.getInteger(NBT_KEY_HASH);
-		if(calendarHash == 0)
+		if(nbt.hasKey(NBT_KEY_HASH))
 		{
-			calendarHash = SurvivalInc.seasonCalendar.hashCode();
-			SurvivalInc.logger.info("Season calendar hash does not exist. Assuming calendar matches.");
+			int calendarHash = nbt.getInteger(NBT_KEY_HASH);
+			if(calendarHash != SurvivalInc.seasonCalendar.calendarHash())
+			{
+				SurvivalInc.logger.warn("Season calendar hash code does not match. Using starting date.");
+				return;
+			}
 		}
-
-		if(calendarHash != SurvivalInc.seasonCalendar.hashCode())
+		else
 		{
-			SurvivalInc.logger.warn("Season calendar hash code does not match. Using starting date.");
-			return;
+			SurvivalInc.logger.info("Season calendar hash does not exist. Assuming calendar matches.");
 		}
 
 		NBTBase tag = nbt.getTag(NBT_KEY_SEASON);
@@ -90,7 +91,7 @@ public class SeasonData extends WorldSavedData {
 	{
 		nbt.setString(NBT_KEY_SEASON, this.date.getCalendarBoundSeason().getIdentifier().toString());
 		nbt.setInteger(NBT_KEY_DAY, this.date.getDay());
-		nbt.setInteger(NBT_KEY_HASH, SurvivalInc.seasonCalendar.hashCode());
+		nbt.setInteger(NBT_KEY_HASH, SurvivalInc.seasonCalendar.calendarHash());
 		return nbt;
 	}
 	

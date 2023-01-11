@@ -14,4 +14,6 @@ public interface SeasonCalendar {
 	public int getYearLengthDays();
 
 	public CalendarBoundSeason getSeasonDuring(int day);
+
+	public int calendarHash();
 }
