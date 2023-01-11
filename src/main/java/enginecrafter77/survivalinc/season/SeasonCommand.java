@@ -5,7 +5,10 @@ import enginecrafter77.survivalinc.season.calendar.CalendarBoundSeason;
 import enginecrafter77.survivalinc.season.calendar.MutableSeasonCalendarDate;
 import enginecrafter77.survivalinc.season.calendar.SeasonCalendarDate;
 import enginecrafter77.survivalinc.util.FormattedTextComponent;
-import net.minecraft.command.*;
+import net.minecraft.command.CommandBase;
+import net.minecraft.command.CommandException;
+import net.minecraft.command.ICommandSender;
+import net.minecraft.command.WrongUsageException;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
@@ -95,7 +98,7 @@ public class SeasonCommand extends CommandBase {
 			break;
 		default:
 			// Like that's ever gonna happen! What a load of [sploosh] SOMEBODY ONCE TOLD ME THE WORLD IS GONNA ROLL ME...
-			throw new SyntaxErrorException("You can only choose one of the aforementioned options as the first argument!");
+			throw new WrongUsageException(this.getUsage(sender));
 		}
 		sender.sendMessage(message);
 		
