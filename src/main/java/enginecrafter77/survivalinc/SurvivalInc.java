@@ -193,6 +193,12 @@ public final class SurvivalInc {
 		{
 			int separator = entry.lastIndexOf(' ');
 			Block target = Block.getBlockFromName(entry.substring(0, separator));
+			if(target == null)
+			{
+				SurvivalInc.logger.error("Heat map block not found: " + entry);
+				continue;
+			}
+
 			float value = Float.parseFloat(entry.substring(separator + 1));
 			SurvivalInc.heatScanner.registerBlock(target, value);
 		}
