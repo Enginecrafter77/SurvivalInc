@@ -64,22 +64,22 @@ public class BlockPrimitiveProperty<PROP> implements BlockPropertyHolder<PROP> {
 
 	public boolean asBoolean()
 	{
-		return this.asBooleanProperty().getValue();
+		return (Boolean)this.property;
 	}
 
 	public float asFloat()
 	{
-		return this.asFloatProperty().getValue();
+		return (Float)this.getValue();
 	}
 
 	public int asInt()
 	{
-		return this.asIntProperty().getValue();
+		return (int)this.asFloat();
 	}
 
 	public String asString()
 	{
-		return this.asStringProperty().getValue();
+		return (String)this.property;
 	}
 
 	public static <FROM, TO> Function<BlockPrimitiveProperty<FROM>, BlockPrimitiveProperty<TO>> mappingFunction(Function<FROM, TO> mapper)
