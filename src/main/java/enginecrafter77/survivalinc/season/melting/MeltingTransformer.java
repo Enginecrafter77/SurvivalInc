@@ -9,23 +9,24 @@ import net.minecraft.world.chunk.Chunk;
  * MeltingTransformer is a simple {@link LayeredChunkFilter} implementation,
  * which checks if the block at the specified position is the freezeTarget,
  * and if the block's {@link BlockMelting#getAction(net.minecraft.world.World, BlockPos)}
- * evaluates to {@link BlockMelting.MeltAction#MELT}, it replaces the block
+ * evaluates to {@link MeltAction#MELT}, it replaces the block
  * with the instance of {@link BlockMelting}. 
  * @author Enginecrafter77
  */
 public class MeltingTransformer extends LayeredChunkFilter {
 	
 	public final BlockMelting meltingblock;
-	
-	public MeltingTransformer(BlockMelting block)
+
+	public MeltingTransformer(MelterEntry entry)
 	{
-		this.meltingblock = block;
+		super(entry.getLevelMap());
+		this.meltingblock = entry.getBlock();
 	}
 	
 	@Override
 	public boolean shouldBlockBeTransformed(Chunk chunk, BlockPos position, IBlockState state)
 	{
-		return state.getBlock() == this.meltingblock.freezeTarget && this.meltingblock.getAction(chunk.getWorld(), chunk.getPos().getBlock(position.getX(), position.getY(), position.getZ())) == BlockMelting.MeltAction.MELT;
+		return state.getBlock() == this.meltingblock.freezeTarget && this.meltingblock.getAction(chunk.getWorld(), chunk.getPos().getBlock(position.getX(), position.getY(), position.getZ())) == MeltAction.MELT;
 	}
 	
 	@Override

@@ -1,6 +1,6 @@
 package enginecrafter77.survivalinc.config;
 
-import enginecrafter77.survivalinc.season.melting.MeltingController;
+import enginecrafter77.survivalinc.season.melting.MeltingBehavior;
 import net.minecraftforge.common.config.Config;
 
 @Config.LangKey("config.survivalinc.seasons")
@@ -35,5 +35,5 @@ public class SeasonConfig {
 	@Config.LangKey("config.survivalinc.seasons.meltController")
 	@Config.Comment({"The melting controller that is responsible for melting and freezing the meltable blocks", "See the wiki for what each MeltingController offers."})
 	@Config.RequiresMcRestart
-	public final MeltingController meltController = MeltingController.FANCY;
+	public final MeltingBehavior meltingBehavior = MeltingBehavior.FANCY;
 }

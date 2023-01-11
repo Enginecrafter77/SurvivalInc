@@ -7,9 +7,9 @@ import net.minecraft.world.chunk.Chunk;
 
 public class MinimalMeltingTransformer extends MeltingTransformer {
 
-	public MinimalMeltingTransformer(BlockMelting block)
+	public MinimalMeltingTransformer(MelterEntry entry)
 	{
-		super(block);
+		super(entry);
 	}
 	
 	@Override

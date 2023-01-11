@@ -1,6 +1,5 @@
 package enginecrafter77.survivalinc.season.melting;
 
-import enginecrafter77.survivalinc.block.BlockMelting;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.Chunk;
@@ -13,9 +12,9 @@ import net.minecraft.world.chunk.Chunk;
  */
 public class LazyMeltingTransformer extends MeltingTransformer {
 
-	public LazyMeltingTransformer(BlockMelting block)
+	public LazyMeltingTransformer(MelterEntry entry)
 	{
-		super(block);
+		super(entry);
 	}
 
 	@Override

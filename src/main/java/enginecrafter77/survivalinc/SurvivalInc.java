@@ -15,6 +15,7 @@ import enginecrafter77.survivalinc.season.SurvivalIncSeason;
 import enginecrafter77.survivalinc.season.calendar.SeasonCalendar;
 import enginecrafter77.survivalinc.season.calendar.SeasonCalendarConstructEvent;
 import enginecrafter77.survivalinc.season.calendar.SimpleSeasonCalendar;
+import enginecrafter77.survivalinc.season.melting.MelterSetupEvent;
 import enginecrafter77.survivalinc.season.melting.MeltingController;
 import enginecrafter77.survivalinc.stats.*;
 import enginecrafter77.survivalinc.stats.effect.item.*;
@@ -88,6 +89,7 @@ public final class SurvivalInc {
 
 	public static SeasonCalendar seasonCalendar;
 	public static SeasonController seasonController;
+	public static MeltingController meltingController;
 
 	public static ExportedResource itemEffectConfig, armorConductivityConfig;
 
@@ -179,9 +181,12 @@ public final class SurvivalInc {
 			SurvivalInc.seasonCalendar = scce.buildCalendar();
 			SurvivalInc.seasonController = new SeasonController(SurvivalInc.seasonCalendar, ReflectiveBiomeTemperatureInjector.getInstance(), ImmutableSet.of(BiomeOcean.class, BiomeHell.class, BiomeEnd.class));
 
+			MelterSetupEvent mse = new MelterSetupEvent();
+			MinecraftForge.EVENT_BUS.post(mse);
+			SurvivalInc.meltingController = mse.buildController(MeltingController::new);
+
 			MinecraftForge.EVENT_BUS.register(SurvivalInc.seasonController);
-			MeltingController.meltmap.add(new MeltingController.MelterEntry((BlockMelting)ModBlocks.MELTING_SNOW.get()).level(1, true)); // 1 = block above ground
-			MeltingController.meltmap.add(new MeltingController.MelterEntry((BlockMelting)ModBlocks.MELTING_ICE.get()).level(0, true)); // 0 = ground
+			MinecraftForge.EVENT_BUS.register(SurvivalInc.meltingController);
 		}
 	}
 	
@@ -189,12 +194,6 @@ public final class SurvivalInc {
 	public void postInit(FMLPostInitializationEvent event)
 	{
 		SurvivalInc.proxy.registerNetworkHandlers(SurvivalInc.net);
-
-		if(ModConfig.SEASONS.enabled && ModConfig.SEASONS.meltController.isValid())
-		{
-			MeltingController.compile(ModConfig.SEASONS.meltController);
-			MinecraftForge.EVENT_BUS.register(MeltingController.class);
-		}
 
 		// Load the compatibility maps
 		if(SurvivalInc.heat != null)
@@ -242,5 +241,13 @@ public final class SurvivalInc {
 	public void constructSeasonCalendar(SeasonCalendarConstructEvent event)
 	{
 		event.registerSeasons(ImmutableList.copyOf(SurvivalIncSeason.values()));
+	}
+
+	@SubscribeEvent
+	public void setupMelterEntries(MelterSetupEvent event)
+	{
+		event.setCompiler(ModConfig.SEASONS.meltingBehavior);
+		event.beginEntry((BlockMelting)ModBlocks.MELTING_SNOW.get()).onSurface(1).register();
+		event.beginEntry((BlockMelting)ModBlocks.MELTING_ICE.get()).onSurface(0).register();
 	}
 }
