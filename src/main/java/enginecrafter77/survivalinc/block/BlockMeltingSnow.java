@@ -22,6 +22,7 @@ public class BlockMeltingSnow extends BlockMelting {
 	}
 	
 	@Override
+	@SuppressWarnings("deprecation") // We need this
 	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
 	{
 		return new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 0.125D, 1.0D);
@@ -34,18 +35,21 @@ public class BlockMeltingSnow extends BlockMelting {
 	}
 
 	@Override
+	@SuppressWarnings("deprecation") // also this
 	public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos)
 	{
 		return null;
 	}
 	
 	@Override
+	@SuppressWarnings("deprecation") // and this
 	public boolean isOpaqueCube(IBlockState state)
 	{
 		return false;
 	}
 
 	@Override
+	@SuppressWarnings("deprecation") // and this
 	public boolean isFullCube(IBlockState state)
 	{
 		return false;

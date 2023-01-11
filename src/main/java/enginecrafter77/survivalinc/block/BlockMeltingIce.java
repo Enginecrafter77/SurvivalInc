@@ -34,8 +34,9 @@ public class BlockMeltingIce extends BlockMelting {
 	{
 		this.freezeTarget.harvestBlock(world, player, position, state, tile, stack);
 	}
-	
+
 	@Override
+	@SuppressWarnings("deprecation") // We need this
 	public boolean isOpaqueCube(IBlockState state)
 	{
 		return false;
