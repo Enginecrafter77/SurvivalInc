@@ -58,7 +58,7 @@ public class SimpleCalendarBoundSeason implements CalendarBoundSeason {
 	public CalendarBoundSeason getPrecedingSeason()
 	{
 		List<? extends CalendarBoundSeason> seasons = this.getOwningCalendar().getSeasons();
-		int nextIndex = (this.ordinal - 1) % seasons.size();
+		int nextIndex = (this.ordinal + seasons.size() - 1) % seasons.size();
 		return seasons.get(nextIndex);
 	}
 
