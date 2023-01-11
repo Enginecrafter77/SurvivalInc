@@ -1,0 +1,26 @@
+{
+  "minecraft:lava": {
+    "heat": 400
+  },
+  "minecraft:flowing_lava": {
+    "heat": 350
+  },
+  "minecraft:magma": {
+    "heat": 300
+  },
+  "minecraft:fire": {
+    "heat": 200
+  },
+  "minecraft:lit_furnace": {
+    "heat": 100
+  },
+  "minecraft:lit_pumpkin": {
+    "heat": 80
+  },
+  "minecraft:soul_sand": {
+    "sanity": -1
+  },
+  "minecraft:crafting_table": {
+    "sanity": 0.3
+  }
+}

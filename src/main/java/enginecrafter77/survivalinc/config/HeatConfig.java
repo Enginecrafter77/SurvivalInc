@@ -110,9 +110,4 @@ public class HeatConfig {
 	@Config.LangKey("config.survivalinc.heat.sunlightBonus")
 	@Config.Comment("The environmental heat bonus received by standing in sunlight during daytime")
 	public final double sunlightBonus = 15D;
-	
-	@Config.LangKey("config.survivalinc.heat.blockHeatMap")
-	@Config.Comment({"A map of blocks and their core heat.", "See the wiki for how this value is affecting the radiant heat"})
-	@Config.RequiresMcRestart
-	public final String[] blockHeatMap = {"minecraft:lava 400", "minecraft:flowing_lava 350", "minecraft:magma 300", "minecraft:fire 200", "minecraft:lit_furnace 100", "minecraft:lit_pumpkin 80"};
 }

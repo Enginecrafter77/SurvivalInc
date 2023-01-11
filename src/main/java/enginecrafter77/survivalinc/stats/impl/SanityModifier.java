@@ -10,6 +10,7 @@ import enginecrafter77.survivalinc.net.StatSyncMessage;
 import enginecrafter77.survivalinc.stats.*;
 import enginecrafter77.survivalinc.stats.effect.*;
 import enginecrafter77.survivalinc.util.FunctionalImplementation;
+import enginecrafter77.survivalinc.util.blockprop.BlockPropertyView;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.shader.ShaderGroup;
 import net.minecraft.entity.EntityCreature;
@@ -39,12 +40,12 @@ public class SanityModifier implements StatProvider<SanityRecord> {
 	public static final ResourceLocation DISTORT_SHADER = new ResourceLocation(SurvivalInc.MOD_ID, "shaders/distort.json");
 	public static final SoundEvent STATIC_BUZZ = new SoundEvent(new ResourceLocation(SurvivalInc.MOD_ID, "staticbuzz"));
 
-	public final SanityBlockEffectMap blockEffectMap;
+	private final SanityBlockEffectMap blockEffectMap;
 	public final EffectApplicator<SanityRecord> effects;
 	
-	public SanityModifier()
+	public SanityModifier(BlockPropertyView<Float> sanityBlockProperties)
 	{
-		this.blockEffectMap = new SanityBlockEffectMap();
+		this.blockEffectMap = new SanityBlockEffectMap(sanityBlockProperties);
 		this.effects = new EffectApplicator<SanityRecord>();
 		
 		if(ModConfig.WETNESS.enabled) this.effects.add(this::whenWet).addFilter(FunctionalEffectFilter.byPlayer(EntityPlayer::isInWater).invert());

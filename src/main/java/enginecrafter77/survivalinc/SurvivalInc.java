@@ -2,6 +2,8 @@ package enginecrafter77.survivalinc;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import enginecrafter77.survivalinc.block.BlockMelting;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.ghost.GhostCommand;
@@ -24,7 +26,8 @@ import enginecrafter77.survivalinc.stats.impl.armor.ArmorConductivityCommand;
 import enginecrafter77.survivalinc.util.ExportedResource;
 import enginecrafter77.survivalinc.util.FunctionalImplementation;
 import enginecrafter77.survivalinc.util.RadiantHeatScanner;
-import net.minecraft.block.Block;
+import enginecrafter77.survivalinc.util.blockprop.BlockPropertyJsonParser;
+import enginecrafter77.survivalinc.util.blockprop.MutableBlockProperties;
 import net.minecraft.command.CommandHandler;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
@@ -52,6 +55,7 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Collection;
 
 @Mod(modid = SurvivalInc.MOD_ID)
@@ -85,7 +89,10 @@ public final class SurvivalInc {
 	public static SeasonCalendar seasonCalendar;
 	public static SeasonController seasonController;
 
-	public static ExportedResource itemEffectConfig, armorConductivityConfig, sanityBlockEffectMap;
+	public static ExportedResource itemEffectConfig, armorConductivityConfig;
+
+	public static ExportedResource blockPropertiesConfig;
+	public static MutableBlockProperties blockProperties;
 
 	// Create tab for creative mode.
 	public static final CreativeTabs CREATIVE_TAB = new CreativeTabs(SurvivalInc.MOD_ID + ":mainTab") {
@@ -102,11 +109,12 @@ public final class SurvivalInc {
 		File configDir = new File(event.getModConfigurationDirectory(), SurvivalInc.MOD_ID);
 
 		SurvivalInc.logger = event.getModLog();
-		SurvivalInc.heatScanner = new RadiantHeatScanner();
+		SurvivalInc.blockProperties = new MutableBlockProperties();
+		SurvivalInc.heatScanner = new RadiantHeatScanner(SurvivalInc.blockProperties.view("heat", Float.class));
 		SurvivalInc.mapper = new ItemSituationContainer();
 		SurvivalInc.itemEffectConfig = new ExportedResource(new File(configDir, "item_effects.json"), new ResourceLocation(SurvivalInc.MOD_ID, "configbase/item_effects.json"));
 		SurvivalInc.armorConductivityConfig = new ExportedResource(new File(configDir, "armor_conductivity.json"), new ResourceLocation(SurvivalInc.MOD_ID, "configbase/armor_conductivity.json"));
-		SurvivalInc.sanityBlockEffectMap = new ExportedResource(new File(configDir, "sanity_block_effects.json"), new ResourceLocation(SurvivalInc.MOD_ID, "configbase/sanity_block_effects.json"));
+		SurvivalInc.blockPropertiesConfig = new ExportedResource(new File(configDir, "block_properties.json"), new ResourceLocation(SurvivalInc.MOD_ID, "configbase/block_properties.json"));
 		SurvivalInc.net = NetworkRegistry.INSTANCE.newSimpleChannel(SurvivalInc.MOD_ID);
 
 		// Register the auxiliary event handlers
@@ -126,6 +134,13 @@ public final class SurvivalInc {
 	@EventHandler
 	public void init(FMLInitializationEvent event)
 	{
+		SurvivalInc.blockPropertiesConfig.load((InputStream input) -> {
+			JsonParser parser = new JsonParser();
+			JsonElement root = parser.parse(new InputStreamReader(input));
+			BlockPropertyJsonParser loader = new BlockPropertyJsonParser(SurvivalInc.blockProperties.editingBuilder());
+			loader.fromJson(root);
+		});
+
 		if(ModConfig.HEAT.enabled)
 		{
 			SurvivalInc.heat = new HeatModifier();
@@ -140,7 +155,7 @@ public final class SurvivalInc {
 
 		if(ModConfig.SANITY.enabled)
 		{
-			SurvivalInc.sanity = new SanityModifier();
+			SurvivalInc.sanity = new SanityModifier(SurvivalInc.blockProperties.view("sanity", Float.class));
 			MinecraftForge.EVENT_BUS.register(SurvivalInc.sanity);
 		}
 
@@ -184,24 +199,6 @@ public final class SurvivalInc {
 		// Load the compatibility maps
 		if(SurvivalInc.heat != null)
 			SurvivalInc.armorConductivityConfig.load(SurvivalInc.heat.armor::load);
-
-		if(SurvivalInc.sanity != null)
-			SurvivalInc.sanityBlockEffectMap.load(SurvivalInc.sanity.blockEffectMap::loadFrom);
-
-		// Radiant heat scanner maps
-		for(String entry : ModConfig.HEAT.blockHeatMap)
-		{
-			int separator = entry.lastIndexOf(' ');
-			Block target = Block.getBlockFromName(entry.substring(0, separator));
-			if(target == null)
-			{
-				SurvivalInc.logger.error("Heat map block not found: " + entry);
-				continue;
-			}
-
-			float value = Float.parseFloat(entry.substring(separator + 1));
-			SurvivalInc.heatScanner.registerBlock(target, value);
-		}
 
 		SurvivalInc.proxy.registerRendering();
 		SurvivalInc.proxy.createHUD();

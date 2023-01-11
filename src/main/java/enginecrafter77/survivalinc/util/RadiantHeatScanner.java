@@ -1,37 +1,23 @@
 package enginecrafter77.survivalinc.util;
 
+import enginecrafter77.survivalinc.util.blockprop.BlockPropertyView;
 import net.minecraft.block.Block;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.IBlockAccess;
 
-import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
-
 public class RadiantHeatScanner {
-	private final Map<Block, Float> blockHeatMap;
+	private final BlockPropertyView<Float> blockHeatMap;
 
 	private float gaussScaleFactor;
 	private boolean surplusHeat;
 
-	public RadiantHeatScanner()
+	public RadiantHeatScanner(BlockPropertyView<Float> heatMap)
 	{
-		this.blockHeatMap = new HashMap<Block, Float>();
+		this.blockHeatMap = heatMap;
 		this.gaussScaleFactor = 1F;
 		this.surplusHeat = false;
-	}
-
-	public void registerBlock(Block block, float coreHeat)
-	{
-		this.blockHeatMap.put(block, coreHeat);
-	}
-
-	@Nullable
-	public Float getCoreHeatOf(Block block)
-	{
-		return this.blockHeatMap.get(block);
 	}
 
 	public void setGaussScaleFactor(float gaussScaleFactor)
@@ -51,10 +37,7 @@ public class RadiantHeatScanner {
 
 	public float getHeatReceivedFromBlock(Block block, BlockPos position, Vec3d target)
 	{
-		Float coreHeat = this.getCoreHeatOf(block);
-		if(coreHeat == null)
-			return 0F;
-
+		float coreHeat = this.blockHeatMap.getValueFor(block).orElse(0F);
 		float distance = (float)Math.sqrt(position.distanceSqToCenter(target.x, target.y, target.z));
 		return coreHeat * this.getDistanceRadiationLossFactor(coreHeat, distance);
 	}
