@@ -11,6 +11,7 @@ import enginecrafter77.survivalinc.season.SeasonCommand;
 import enginecrafter77.survivalinc.season.SeasonController;
 import enginecrafter77.survivalinc.season.SurvivalIncSeason;
 import enginecrafter77.survivalinc.season.calendar.SeasonCalendar;
+import enginecrafter77.survivalinc.season.calendar.SeasonCalendarConstructEvent;
 import enginecrafter77.survivalinc.season.calendar.SimpleSeasonCalendar;
 import enginecrafter77.survivalinc.season.melting.MeltingController;
 import enginecrafter77.survivalinc.stats.*;
@@ -102,7 +103,10 @@ public final class SurvivalInc {
 		// Register seasons if enabled
 		if(ModConfig.SEASONS.enabled)
 		{
-			SurvivalInc.seasonCalendar = new SimpleSeasonCalendar(ImmutableList.copyOf(SurvivalIncSeason.values()));
+			SeasonCalendarConstructEvent scce = new SeasonCalendarConstructEvent(SimpleSeasonCalendar::new);
+			MinecraftForge.EVENT_BUS.post(scce);
+			SurvivalInc.seasonCalendar = scce.buildCalendar();
+
 			SurvivalInc.biomeTempController = new BiomeTempController(ImmutableSet.of(BiomeOcean.class, BiomeHell.class, BiomeEnd.class));
 			SurvivalInc.seasonController = new SeasonController(SurvivalInc.biomeTempController, SurvivalInc.seasonCalendar);
 
@@ -223,6 +227,12 @@ public final class SurvivalInc {
 		event.parser.addSituationFactory("in-hand", ItemInHandSituation::new);
 		event.parser.addSituationFactory("in-inventory", ItemInInvSituation::new);
 		event.parser.addSituationFactory("consumed", ItemConsumedSituation::new);
+	}
+
+	@SubscribeEvent
+	public void constructSeasonCalendar(SeasonCalendarConstructEvent event)
+	{
+		event.registerSeasons(ImmutableList.copyOf(SurvivalIncSeason.values()));
 	}
 	
 	// Create tab for creative mode.
