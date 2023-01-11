@@ -18,7 +18,7 @@ public class ItemFeatherFan extends Item {
 	{
 		this.setRegistryName(SurvivalInc.MOD_ID, "feather_fan");
 		this.setTranslationKey("feather_fan");
-		this.setCreativeTab(SurvivalInc.mainTab);
+		this.setCreativeTab(SurvivalInc.CREATIVE_TAB);
 		this.setMaxStackSize(1);
 		this.setMaxDamage(6);
 	}

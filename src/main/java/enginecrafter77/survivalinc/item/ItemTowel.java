@@ -39,7 +39,7 @@ public class ItemTowel extends Item {
 	public ItemTowel()
 	{
 		this.setRegistryName(new ResourceLocation(SurvivalInc.MOD_ID, "towel"));
-		this.setCreativeTab(SurvivalInc.mainTab);
+		this.setCreativeTab(SurvivalInc.CREATIVE_TAB);
 		this.setTranslationKey("towel");
 		this.setMaxStackSize(1);
 	}

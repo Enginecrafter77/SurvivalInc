@@ -39,7 +39,7 @@ public class ItemCanteen extends Item {
 	{
 		this.setRegistryName(new ResourceLocation(SurvivalInc.MOD_ID, "canteen"));
 		this.setTranslationKey("water_canteen");
-		this.setCreativeTab(SurvivalInc.mainTab);
+		this.setCreativeTab(SurvivalInc.CREATIVE_TAB);
 		this.setMaxStackSize(1);
 		this.setNoRepair();
 	}

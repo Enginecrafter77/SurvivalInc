@@ -87,6 +87,15 @@ public final class SurvivalInc {
 
 	public static ExportedResource itemEffectConfig, armorConductivityConfig, sanityBlockEffectMap;
 
+	// Create tab for creative mode.
+	public static final CreativeTabs CREATIVE_TAB = new CreativeTabs(SurvivalInc.MOD_ID + ":mainTab") {
+		@Override
+		public ItemStack createIcon()
+		{
+			return new ItemStack(ModItems.CANTEEN.getItem());
+		}
+	};
+
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event)
 	{
@@ -231,13 +240,4 @@ public final class SurvivalInc {
 	{
 		event.registerSeasons(ImmutableList.copyOf(SurvivalIncSeason.values()));
 	}
-	
-	// Create tab for creative mode.
-	public static CreativeTabs mainTab = new CreativeTabs(SurvivalInc.MOD_ID + ":mainTab") {
-		@Override
-		public ItemStack createIcon()
-		{
-			return new ItemStack(ModItems.CANTEEN.getItem());
-		}
-	};
 }
