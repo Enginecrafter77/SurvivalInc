@@ -120,6 +120,7 @@ public class TextureResource extends SimpleOverlayElement {
 	public void draw(RenderFrameContext context, ReadablePoint position)
 	{
 		GlStateManager.enableAlpha();
+		GlStateManager.enableBlend();
 		this.texturer.bindTexture(this.texture);
 		Gui.drawModalRectWithCustomSizedTexture(position.getX(), position.getY(), this.region.getX(), this.region.getY(), this.region.getWidth(), this.region.getHeight(), this.texturedim.getWidth(), this.texturedim.getHeight());
 	}
