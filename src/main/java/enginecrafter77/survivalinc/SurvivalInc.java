@@ -8,10 +8,8 @@ import enginecrafter77.survivalinc.block.BlockMelting;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.ghost.GhostCommand;
 import enginecrafter77.survivalinc.ghost.GhostProvider;
-import enginecrafter77.survivalinc.season.ReflectiveBiomeTemperatureInjector;
-import enginecrafter77.survivalinc.season.SeasonCommand;
-import enginecrafter77.survivalinc.season.SeasonController;
-import enginecrafter77.survivalinc.season.SurvivalIncSeason;
+import enginecrafter77.survivalinc.net.*;
+import enginecrafter77.survivalinc.season.*;
 import enginecrafter77.survivalinc.season.calendar.SeasonCalendar;
 import enginecrafter77.survivalinc.season.calendar.SeasonCalendarConstructEvent;
 import enginecrafter77.survivalinc.season.calendar.SimpleSeasonCalendar;
@@ -50,6 +48,7 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import net.minecraftforge.fml.relauncher.Side;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
@@ -193,7 +192,12 @@ public final class SurvivalInc {
 	@EventHandler
 	public void postInit(FMLPostInitializationEvent event)
 	{
-		SurvivalInc.proxy.registerNetworkHandlers(SurvivalInc.net);
+		SurvivalInc.net.registerMessage(StatSyncHandler.class, StatSyncMessage.class, 0, Side.CLIENT);
+		SurvivalInc.net.registerMessage(SurvivalInc.proxy.createSidedMessageHandler(SeasonSyncMessage.class), SeasonSyncMessage.class, 1, Side.CLIENT);
+		SurvivalInc.net.registerMessage(EntityItemUpdater.class, EntityItemUpdateMessage.class, 2, Side.CLIENT);
+		SurvivalInc.net.registerMessage(HydrationModifier::validateMessage, WaterDrinkMessage.class, 3, Side.SERVER);
+		SurvivalInc.net.registerMessage(StatSyncRequestHandler.class, StatSyncRequestMessage.class, 4, Side.SERVER);
+		SurvivalInc.net.registerMessage(SurvivalInc.seasonController::onSyncRequest, SeasonSyncRequest.class, 5, Side.SERVER);
 
 		// Load the compatibility maps
 		if(SurvivalInc.heat != null)

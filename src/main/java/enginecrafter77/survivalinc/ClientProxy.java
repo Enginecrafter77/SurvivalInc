@@ -3,11 +3,8 @@ package enginecrafter77.survivalinc;
 import enginecrafter77.survivalinc.client.*;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.ghost.RenderGhost;
-import enginecrafter77.survivalinc.net.*;
 import enginecrafter77.survivalinc.season.LeafSeasonalTintApplicator;
 import enginecrafter77.survivalinc.season.SeasonSyncMessage;
-import enginecrafter77.survivalinc.season.SeasonSyncRequest;
-import enginecrafter77.survivalinc.stats.impl.HydrationModifier;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.util.ResourceLocation;
@@ -17,8 +14,8 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
-import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import org.lwjgl.util.Color;
 import org.lwjgl.util.ReadableColor;
 
@@ -58,16 +55,15 @@ public class ClientProxy implements SurvivalIncProxy {
 
 		if(ModConfig.GHOST.enabled) MinecraftForge.EVENT_BUS.register(new RenderGhost());
 	}
-	
+
 	@Override
-	public void registerNetworkHandlers(SimpleNetworkWrapper net)
+	public <MSG extends IMessage> IMessageHandler<MSG, ? extends IMessage> createSidedMessageHandler(Class<MSG> messageClass)
 	{
-		net.registerMessage(StatSyncHandler.class, StatSyncMessage.class, 0, Side.CLIENT);
-		net.registerMessage(SurvivalInc.seasonController::onSyncDelivered, SeasonSyncMessage.class, 1, Side.CLIENT);
-		net.registerMessage(EntityItemUpdater.class, EntityItemUpdateMessage.class, 2, Side.CLIENT);
-		net.registerMessage(HydrationModifier::validateMessage, WaterDrinkMessage.class, 3, Side.SERVER);
-		net.registerMessage(StatSyncRequestHandler.class, StatSyncRequestMessage.class, 4, Side.SERVER);
-		net.registerMessage(SurvivalInc.seasonController::onSyncRequest, SeasonSyncRequest.class, 5, Side.SERVER);
+		if(messageClass == SeasonSyncMessage.class)
+		{
+			return MessageHandlerAdapter.wrap(SurvivalInc.seasonController::onSyncDelivered, SeasonSyncMessage.class);
+		}
+		return SurvivalIncProxy.getNoopMessageHandler();
 	}
 
 	@SubscribeEvent
