@@ -30,13 +30,18 @@ public class HydrationConfig {
 	@Config.RangeDouble(min = 0)
 	public final double sweatingMultiplier = 4;
 	
-	@Config.LangKey("config.survivalinc.hydration.sipVolume")
+	@Config.LangKey("config.survivalinc.hydration.sipValue")
 	@Config.Comment("The amount of hydration replenished by single sip from canteen or water body")
 	@Config.RangeInt(min = 0)
-	public final int sipVolume = 40;
+	public final int sipValue = 40;
+
+	@Config.LangKey("config.survivalinc.hydration.sipVolume")
+	@Config.Comment("The amount of water consumed by single sips (in millibuckets)")
+	@Config.RangeInt(min = 0)
+	public final int sipVolume = 64;
 	
 	@Config.LangKey("config.survivalinc.hydration.canteenCapacity")
-	@Config.Comment("The amount of water indicated by number of sips the canteen can store")
+	@Config.Comment("The capacity of canteen in millibuckets (for balancing reasons)")
 	@Config.RangeInt(min = 1)
-	public final int canteenCapacity = 256;
+	public final int canteenCapacity = 1000;
 }

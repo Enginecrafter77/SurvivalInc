@@ -7,6 +7,7 @@ import enginecrafter77.survivalinc.client.AbsoluteElementLayoutFunction;
 import enginecrafter77.survivalinc.client.HUDConstructEvent;
 import enginecrafter77.survivalinc.client.ScaleRenderFilter;
 import enginecrafter77.survivalinc.client.StatFillBar;
+import enginecrafter77.survivalinc.config.HydrationConfig;
 import enginecrafter77.survivalinc.config.ModConfig;
 import enginecrafter77.survivalinc.net.WaterDrinkMessage;
 import enginecrafter77.survivalinc.stats.*;
@@ -18,6 +19,8 @@ import net.minecraft.init.Items;
 import net.minecraft.init.MobEffects;
 import net.minecraft.init.PotionTypes;
 import net.minecraft.init.SoundEvents;
+import net.minecraft.item.ItemBucket;
+import net.minecraft.item.ItemPotion;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionType;
 import net.minecraft.potion.PotionUtils;
@@ -27,8 +30,18 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.event.entity.item.ItemEvent;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
+import net.minecraftforge.event.entity.player.ItemFishedEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fluids.capability.FluidTankProperties;
+import net.minecraftforge.fluids.capability.IFluidHandlerItem;
+import net.minecraftforge.fluids.capability.IFluidTankProperties;
+import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
@@ -37,6 +50,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.util.Rectangle;
 
 import javax.annotation.Nullable;
+import java.util.Objects;
 
 public class HydrationModifier implements StatProvider<SimpleStatRecord> {
 	public static final EffectFilter<StatRecord> IS_OUTSIDE_OVERWORLD = FunctionalEffectFilter.byPlayer((EntityPlayer player) -> player.dimension != 0);
@@ -199,39 +213,38 @@ public class HydrationModifier implements StatProvider<SimpleStatRecord> {
 	 * @param event The block click event
 	 */
 	@SubscribeEvent
-	public void onPlayerInteract(PlayerInteractEvent.RightClickBlock event)
+	public void onPlayerInteract(LivingEntityUseItemEvent.Finish event)
 	{
-		if(HydrationModifier.isDrinkEventInvalid(event)) return;
-		
-		EntityPlayer player = event.getEntityPlayer();
-		WaterDrinkMessage result = this.tryDrink(player, event.getHand());
-		if(result != null && !player.world.isRemote)
-			HydrationModifier.spawnWaterDrinkParticles((WorldServer)player.world, result.getHitPosition());
-	}
-	
-	/**
-	 * Add handler for water bottles, so that drinking water
-	 * from vanilla glass bottles adds hydration points as well.
-	 * @param event The event
-	 */
-	@SubscribeEvent
-	public void onItemConsumed(LivingEntityUseItemEvent.Finish event)
-	{
-		StatCapability.obtainRecord(this, event.getEntity()).ifPresent((SimpleStatRecord record) -> {
-			ItemStack stack = event.getItem();
+		SimpleStatRecord hydration = StatCapability.obtainRecord(this, event.getEntity()).orElse(null);
+		if(hydration == null)
+			return;
 
-			// Water bottle
-			if(stack.getItem() == Items.POTIONITEM)
-			{
-				PotionType potion = PotionUtils.getPotionFromItem(stack);
-				if(potion == PotionTypes.WATER)
-				{
-					record.addToValue((float)ModConfig.HYDRATION.sipVolume * 2F);
-				}
-			}
-		});
+		ItemStack item = event.getItem();
+		IFluidHandlerItem fluidHandlerItem = item.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null);
+		if(fluidHandlerItem == null)
+			return; // Item is not fluid handler
+
+		for(IFluidTankProperties prop : fluidHandlerItem.getTankProperties())
+		{
+			FluidStack fluidStack = prop.getContents();
+			if(fluidStack == null)
+				continue;
+
+			if(!Objects.equals(fluidStack.getFluid(), FluidRegistry.WATER))
+				continue;
+
+			FluidStack draining = new FluidStack(FluidRegistry.WATER, ModConfig.HYDRATION.sipVolume);
+			FluidStack drained = fluidHandlerItem.drain(draining, true);
+			if(drained == null)
+				continue;
+
+			float fulfillment = (float)drained.amount / (float)draining.amount;
+			float bonus = fulfillment * (float)ModConfig.HYDRATION.sipValue;
+			hydration.addToValue(bonus);
+			break;
+		}
 	}
-	
+
 	//=======================================================================
 	//==========================/                 \==========================
 	//==========================|UTILITY FUNCTIONS|==========================
